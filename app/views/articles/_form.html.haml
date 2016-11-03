@@ -1,0 +1,46 @@
+= form_for @article, :html=>{:multipart => true,:remote=>true} do |f|
+  - if @article.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@article.errors.count, "error")} prohibited this article from being saved:"
+      %ul
+        - @article.errors.full_messages.each do |msg|
+          %li= msg
+
+  .container-fluid
+    .row-fluid
+      .col-sm-6
+        .field
+          = f.label :barcode
+          = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode', :options => { autofocus: true }
+        .field
+          = f.label :manufacturerCode
+          = f.text_field :manufacturerCode, class: 'form-control'
+        .field
+          = f.label :name
+          = f.text_field :name, class: 'form-control'
+        .field
+          = f.label :description
+          = f.text_field :description, class: 'form-control'
+        .field
+          = f.label :containedAmount
+          = f.number_field :containedAmount, class: 'form-control'
+        .field
+          = f.label :minimalReserve
+          = f.number_field :minimalReserve, class: 'form-control'
+        .field
+          = f.label :postionCode
+          = f.text_field :postionCode, class: 'form-control'
+      .col-sm-6
+        .container-fluid
+          #barcode-img
+            = image_tag(@article.barcode.to_s+'.png')
+        .container-fluid
+          #photo-img
+            = "image"
+    .row-fluid
+      .col-sm-12
+        .field
+          = f.submit 'Salva', class: "btn btn-primary", id: "article-submit"
+
+:javascript
+  init();

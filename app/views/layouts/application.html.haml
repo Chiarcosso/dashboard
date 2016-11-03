@@ -1,0 +1,25 @@
+%html
+  %head
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    %title Chiarcosso Dashboard
+    = stylesheet_link_tag "application", media: 'all'
+    = stylesheet_link_tag "custom.css"
+    = javascript_include_tag 'application'
+    = csrf_meta_tags
+    -# /[if lt IE 9]
+    -#   <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.min.js">
+    -#   </script>
+  %body
+    = render 'layouts/header'
+    - flash.each do |name, msg|
+      = content_tag(:div, msg, class: "alert alert-info")
+    #center
+      .container-fluid
+        .panel.cont-95
+          = yield
+      .container-fluid
+        = link_to "Indietro", :back, class: "btn btn-primary"
+
+    = render 'layouts/footer'
+    -# %p.notice= notice
+    -# %p.alert= alert

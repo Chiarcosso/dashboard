@@ -1,0 +1,10 @@
+.container-fluid
+  .row-fluid
+    .col-sm-3
+      = link_to article.barcode, edit_article_path(article.id), :remote => true
+    .col-sm-3
+      = link_to article.name, edit_article_path(article.id), :remote => true
+    .col-sm-3
+      = link_to article.containedAmount.to_s, edit_article_path(article.id), :remote => true
+    .col-sm-3
+      = link_to article.minimalReserve.to_s, edit_article_path(article.id), :remote => true

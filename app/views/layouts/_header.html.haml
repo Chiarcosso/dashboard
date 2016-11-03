@@ -1,0 +1,69 @@
+= navbar fixed: :top do
+  = navbar_header brand: 'Chiarcosso Dashboard', brand_link: '/', align: 'left'
+  = navbar_collapse do
+    = navbar_group class: 'foo', id: 'menu' do
+      - if current_user.present? && current_user.has_role?(:admin)
+        = navbar_dropdown "Personale" do
+          - if current_user.has_role? :admin
+            -# = navbar_dropdown_header 'Personale'
+            -# = navbar_dropdown_divider
+            = navbar_item "Utenti", users_admin_path
+      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino))
+        = navbar_dropdown "Officina" do
+          - if current_user.has_role? :admin
+            -# = navbar_dropdown_header 'Personale'
+            -# = navbar_dropdown_divider
+            = navbar_item "Magazzino", storage_path
+      -# = navbar_item "About Us", '/about-us'
+      -# = navbar_item '/contact' do
+        %span.glyphicon.glyphicon-hand-right
+        Contact Us!
+
+    = navbar_group align: 'right' do
+      - if current_user.present?
+        = navbar_text current_user.name
+        = navbar_text current_user.roles.pluck(:name).join(', ')
+        = navbar_item "Impostazioni", edit_user_registration_path
+        %li
+          = link_to "Log Out", destroy_user_session_path, method: :delete, :class => 'navbar_item'
+      - else
+        = navbar_item "Log In", new_user_session_path
+-# %body
+-#   %header.navbar-dark.bg-inverse.navbar-fixed-top
+-#     .container
+-#       .row
+-#         .col-xs-4
+-#           = image_tag "logo.png", { class: 'img-responsive', height: 50 }
+-#         .col-xs-8
+-#           - if user_signed_in?
+-#             %strong>
+-#               = current_user.person.name
+-#               = current_user.person.surname
+-#             \.
+-#             \#{link_to 'Edit profile', edit_user_registration_path, :class => 'navbar-link'} |
+-#             \#{link_to "Logout", destroy_user_session_path, method: :delete, :class => 'navbar-link'}
+-#           - else
+-#             = link_to "Sign up", new_user_registration_path, :class => 'navbar-link'
+-#             |
+-#             \#{link_to "Login", new_user_session_path, :class => 'navbar-link'}
+-#       %nav
+-#         %ul.nav.navbar-nav.navbar-right.row
+-#           %li.col-xs-1= link_to "Aree",   '#'
+-#           %li.col-xs-1= link_to "Agenda",   '#'
+-#           %li.col-xs-1= link_to "Rubrica", '#'
+-#           %li.col-xs-1= link_to "Comunicazioni", '#'
+-#           %li.col-xs-1= link_to "Scadenze", '#'
+-#           %li.col-xs-1= link_to "Segnalazioni", '#'
+-#           %li.col-xs-1= link_to "Note", '#'
+-#           %li.col-xs-1= link_to "Manuali", '#'
+-#       /
+-#         <div class="row">
+-#         <div class="col-sm-1"><a href="/ideas">Aree</a></div>
+-#         <div class="active col-sm-1"><a href="/ideas">Agenda</a></div>
+-#         <div class="col-sm-1"><a href="/ideas">Rubrica</a></div>
+-#         <div class="col-sm-2"><a href="/ideas">Comunicazioni</a></div>
+-#         <div class="col-sm-2"><a href="/ideas">Scadenze</a></div>
+-#         <div class="col-sm-2"><a href="/ideas">Segnalazioni</a></div>
+-#         <div class="col-sm-1"><a href="/ideas">Note</a></div>
+-#         <div class="col-sm-1"><a href="/ideas">Manuali</a></div>
+-#         </div>

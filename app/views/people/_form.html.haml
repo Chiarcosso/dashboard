@@ -1,0 +1,25 @@
+- if @person.id.nil?
+  = form_for(@user, url: users_admin_path, method: 'patch') do |f|
+    = f.select "person", options_from_collection_for_select(Person.all, "id", "completeName"), include_blank: "- Nuova persona -", class: 'form-control'
+
+= form_for(@person) do |f|
+  - if @person.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(person.errors.count, "error")
+        prohibited this person from being saved:
+      %ul
+        - person.errors.full_messages.each do |message|
+          %li= message
+
+  .form-group
+    = f.label :name
+    = f.text_field :name, class: 'form-control'
+  .form-group
+    = f.label :surname
+    = f.text_field :surname, class: 'form-control'
+  .form-group
+    = f.label :notes
+    = f.text_area :notes, class: 'form-control'
+  .actions
+    = f.submit

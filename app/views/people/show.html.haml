@@ -1,0 +1,13 @@
+%p#notice= notice
+%p
+  %strong Name:
+  = @person.name
+%p
+  %strong Surname:
+  = @person.surname
+%p
+  %strong Notes:
+  = @person.notes
+= link_to 'Edit', edit_person_path(@person)
+|
+= link_to 'Back', people_path

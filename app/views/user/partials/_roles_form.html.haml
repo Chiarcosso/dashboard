@@ -1,0 +1,8 @@
+- Role.all.order('name ASC').each do |r|
+
+  - if @user.has_role? r.name.to_sym
+    = form_tag '/users/'+@user.id.to_s+'/roles/'+r.id.to_s, method: :delete do
+      = submit_tag r.name, class: "btn btn-primary"
+  - else
+    = form_tag '/users/'+@user.id.to_s+'/roles/'+r.id.to_s, method: :post do
+      = submit_tag r.name, class: "btn"

@@ -1,0 +1,30 @@
+
+- if @user.id.nil?
+  - address = users_admin_path
+  - method = :post
+- else
+  - address = edit_user_admin_path+@user.id.to_s
+  - method = :patch
+
+= form_for(@user, :url => address, :html => { :method => method, :role => 'form'}) do |f|
+  -# %fieldset
+  -#   .form-group
+  -#     = f.label :person
+  -#     = f.select "person", options_from_collection_for_select(Person.all, "id", "completeName"), include_blank: "- Selezionare persona -", class: 'form-control'
+  -#     = f.fields_for :person, @user.person do |p|
+  -#       = p.text_field :name, placeholder: 'Nome', class: 'form-control'
+  -#       = p.text_field :surname, placeholder: 'Cognome', class: 'form-control'
+  .form-group
+    = f.label :email
+    = f.email_field :email, :autofocus => true, class: 'form-control'
+
+  %fieldset
+    %p Lascia in bianco per non cambiare la password.
+    .form-group
+      = f.label :password
+      = f.password_field :password, :autocomplete => 'off', class: 'form-control'
+    .form-group
+      = f.label :password_confirmation
+      = f.password_field :password_confirmation, class: 'form-control'
+
+  = f.submit 'Aggiorna', :class => 'button right'

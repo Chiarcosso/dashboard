@@ -1,0 +1,15 @@
+body{
+  padding: 5em;
+  padding-bottom: 7em;
+  overflow: hidden;
+}
+
+.cont-95{
+  height: 95%;
+}
+
+.internal-panel{
+  position: relative;
+    height: 88%;
+  overflow-y: auto;
+}

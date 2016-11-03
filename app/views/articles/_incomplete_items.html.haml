@@ -1,0 +1,17 @@
+.container-fluid
+  - if Article.incompleteItems.empty?
+    = "Non ci sono articoli incompleti"
+  - else
+    .container-fluid
+      .row-fluid
+        .col-sm-3
+          %b= 'Codice a barre'
+        .col-sm-3
+          %b= 'Nome'
+        .col-sm-3
+          %b= 'Quantità contenuta'
+        .col-sm-3
+          %b= 'Riserva minima'
+    - Article.incompleteItems.each do |a|
+      .container-fluid
+        =render :partial => 'articles/incomplete_article_block', :locals => { :article => a }

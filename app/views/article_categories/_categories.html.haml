@@ -1,0 +1,7 @@
+%h3= 'Categorie'
+- ArticleCategory.main.each do |ac|
+  .container-fluid
+    .field
+      -# = form_tag({controller: :article_categories, action: :update}, :remote => true)
+      = label_tag ac.name
+      = check_box_tag ac.name, 'sel', id: ac.name, class: 'categories form-control autofocus'

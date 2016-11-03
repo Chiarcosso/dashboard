@@ -1,0 +1,10 @@
+.container-fluid
+  .row-fluid
+    .col-xs-1
+      = button_to("Modifica", edit_user_admin_path(usr.id), method: :get, class: "btn btn-primary")
+    .col-xs-1
+      = button_to("Elimina", delete_user_admin_path(usr.id), method: :delete, class: "btn btn-danger", 'data-confirm' => "Sei sicuro di eliminare l'utente di "+usr.name)
+    .col-xs-3= usr.name
+    .col-xs-4= usr.email
+    .col-xs-3
+      = usr.roles.pluck(:name).join(', ')
