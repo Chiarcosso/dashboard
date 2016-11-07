@@ -1,3 +1,25 @@
 // Place all the styles related to the ArticleCategories controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+.category-block{
+  background-color: $primary-color;
+  border: .5em solid $primary-border;
+  border-radius: 1em;
+  padding: .5em;
+  display: inline-block;
+  white-space: nowrap;
+  margin: .5em;
+  position: absolute;
+  z-index:20;
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+.jtk-connector { z-index:4; }
+.jtk-endpoint { z-index:5; }
+.jtk-overlay { z-index:6; }

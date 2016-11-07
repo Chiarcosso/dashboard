@@ -4,14 +4,15 @@ class ArticleCategoriesController < ApplicationController
   # GET /article_categories
   # GET /article_categories.json
   def index
-    @article_categories = ArticleCategory.main
     respond_to do |format|
       format.js { render :partial => 'article_categories/index' }
       format.html { render :partial => 'article_categories/index' }
     end
-
   end
 
+  def manage
+
+  end
   # GET /article_categories/1
   # GET /article_categories/1.json
   def show
@@ -61,8 +62,8 @@ class ArticleCategoriesController < ApplicationController
   def destroy
     @article_category.destroy
     respond_to do |format|
-      format.html { redirect_to article_categories_url, notice: 'Article category was successfully destroyed.' }
-      format.json { head :no_content }
+      format.js { render :partial => 'article_categories/index' }
+      format.html { render :partial => 'article_categories/index' }
     end
   end
 

@@ -11,3 +11,6 @@ Rails.application.config.assets.version = '1.0'
 # Rails.application.config.assets.precompile += %w( search.js )
 
 Rails.application.config.assets.precompile += %w( custom.css )
+
+Rails.application.config.assets.precompile += %w( jsPlumbToolkit-defaults.css )
+Rails.application.config.assets.precompile += %w( jsPlumb-2.2.3.js )

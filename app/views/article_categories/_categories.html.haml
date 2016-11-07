@@ -1,7 +1,73 @@
+= stylesheet_link_tag "jsPlumbToolkit-defaults.css"
 %h3= 'Categorie'
-- ArticleCategory.main.each do |ac|
-  .container-fluid
-    .field
-      -# = form_tag({controller: :article_categories, action: :update}, :remote => true)
+
+.container-fluid
+  - ArticleCategory.roots.each do |ac|
+    .category-block.item{id: ac.id, 'data-children': ac.childrenList}
       = label_tag ac.name
-      = check_box_tag ac.name, 'sel', id: ac.name, class: 'categories form-control autofocus'
+      -# = check_box_tag ac.name, checked: false, id: ac.id, class: 'category form-control'
+      = link_to 'x', article_category_path(ac.id), :method => 'delete', :remote => true
+  -# - depth = 0
+  -# - until ArticleCategory.at_depth(depth).empty? do
+  -#   .container-fluid{id: 'level'+depth.to_s}
+  -#     - ArticleCategory.at_depth(depth).each do |ac|
+  -#       .category-block
+  -#         = label_tag ac.name
+  -#         = check_box_tag ac.name, checked: false, id: ac.name, class: 'categories form-control'
+  -#         = button_to 'X', article_category_path(ac.id), :method => 'delete', :remote => true
+  -#   - depth += 1
+-# .container-fluid
+-#   .category-block
+-#     -# =form_for ArticleCategory.new, :remote => true do |f|
+-#     %input{type: :text, name: :name, placeholder: 'Nuova categoria', class: 'categories form-control'}
+
+= javascript_include_tag "jsPlumb-2.2.3"
+:javascript
+   jsPlumb.ready(function() {
+            var active = null;
+
+            jsPlumb.setSuspendDrawing(true);
+            var common = {
+                isSource:true,
+                isTarget:true,
+                connector: ["Straight"],
+                endpoint:"Dot",
+                anchors:["Bottom","Top"]
+            };
+            $('.item').off('click');
+            $('.item').click(function(){
+              if(active != null){
+                //$(this).addClass('active');
+                active = $(this).id;
+              } else {
+            //    jsPlumb.connect({
+            //        source: id,
+            //        target: active[0]
+            //    },common);
+              }
+              console.log(active);
+            })
+            $.each($('.item'),function(i,v){
+              var id = v.id+"";
+              children = $(v).data('children')+"";
+              children = children.split("-");
+
+              jsPlumb.addEndpoint(id, {
+                  anchors:["Top","Bottom"]
+              }, common);
+              $.each(children,function(i,v){
+                if( v != "" ){
+                  jsPlumb.connect({
+                      source: id,
+                      target: v
+                  },common);
+                }
+              })
+            });
+
+            $.each($('.item'),function(i,v){
+              var id = v.id+"";
+              jsPlumb.draggable(id);
+            })
+            jsPlumb.setSuspendDrawing(false, true);
+        });

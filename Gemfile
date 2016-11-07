@@ -13,6 +13,7 @@ gem 'puma', '~> 3.0'
 gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .coffee assets and views
 gem 'coffee-rails', '~> 4.2'
+# gem 'coffee-routes'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
 
@@ -36,7 +37,8 @@ gem 'devise'
 gem 'cancancan'
 gem 'rolify'
 
-gem 'ancestry'
+# gem 'ancestry'
+
 
 gem 'chunky_png'
 gem 'cairo'
