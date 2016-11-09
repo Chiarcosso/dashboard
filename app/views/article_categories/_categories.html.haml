@@ -1,12 +1,21 @@
 = stylesheet_link_tag "jsPlumbToolkit-defaults.css"
 %h3= 'Categorie'
 
-.container-fluid
-  - ArticleCategory.roots.each do |ac|
-    .category-block.item{id: ac.id, 'data-children': ac.childrenList}
+.container-fluid#category-container
+  - lastLevel = 1
+  - ArticleCategory.tree.each do |ac|
+    -if ac.depth > lastLevel
+      - number = 1
+      - lastLevel = ac.depth
+
+    .item.category-block{id: ac.id, 'data-children': ac.childrenList, 'data-level': (ac.depth-1).to_s, 'data-siblings': ac.siblings.count.to_s, 'data-number': number}
       = label_tag ac.name
       -# = check_box_tag ac.name, checked: false, id: ac.id, class: 'category form-control'
       = link_to 'x', article_category_path(ac.id), :method => 'delete', :remote => true
+      = form_tag(manage_article_categories_path(format: :js), multipart: true, remote: true)  do |f|
+        -# = hidden_field_tag(name: :parent, value: ac.id)
+        -# = hidden_field_tag(name: :child, value: "")
+
   -# - depth = 0
   -# - until ArticleCategory.at_depth(depth).empty? do
   -#   .container-fluid{id: 'level'+depth.to_s}
@@ -16,45 +25,78 @@
   -#         = check_box_tag ac.name, checked: false, id: ac.name, class: 'categories form-control'
   -#         = button_to 'X', article_category_path(ac.id), :method => 'delete', :remote => true
   -#   - depth += 1
--# .container-fluid
--#   .category-block
--#     -# =form_for ArticleCategory.new, :remote => true do |f|
--#     %input{type: :text, name: :name, placeholder: 'Nuova categoria', class: 'categories form-control'}
+.container-fluid
+  .item.category-block.new-category-block{id: 'new', 'data-children': "", 'data-level': lastLevel, 'data-siblings': 2}
+    -# =form_for ArticleCategory.new, :remote => true do |f|
+    %input{type: :text, name: :name, placeholder: 'Nuova categoria', class: 'categories form-control', id: 'new_category'}
 
 = javascript_include_tag "jsPlumb-2.2.3"
 :javascript
-   jsPlumb.ready(function() {
-            var active = null;
 
+   jsPlumb.ready(function() {
+          //  jsPlumb.setContainer($('#category-container'));
+            var active = null;
+            $('.jtk-connector').remove();
+            $('.jtk-endpoint').remove();
             jsPlumb.setSuspendDrawing(true);
             var common = {
                 isSource:true,
                 isTarget:true,
-                connector: ["Straight"],
+                connector: ["StateMachine"],
                 endpoint:"Dot",
                 anchors:["Bottom","Top"]
             };
             $('.item').off('click');
             $('.item').click(function(){
-              if(active != null){
-                //$(this).addClass('active');
-                active = $(this).id;
+              var id = $(this)[0].id;
+              console.log(id,active);
+              if(id == active){
+                $(this).removeClass('active-category');
+                active = null;
               } else {
-            //    jsPlumb.connect({
-            //        source: id,
-            //        target: active[0]
-            //    },common);
+                if(active == null){
+                  $(this).addClass('active-category');
+                  active = id;
+                } else {
+                  if(active == 'new'){
+                    active = $('#new_category').val();
+                  }
+                  console.log(id,active);
+                  var form = $(this).children('form');
+                  $('<input>').attr({
+                      type: 'hidden',
+                      id: '#_:name__:child__:value__'+active+'_',
+                      name: "relation[child]",
+                      value: active
+                  }).appendTo('form');
+                  $('<input>').attr({
+                      type: 'hidden',
+                      id: '#_:name__:parent__:value__'+id+'_',
+                      name: "relation[parent]",
+                      value: id
+                  }).appendTo('form');
+                  form.submit();
+
+                  //active = null;
+                  jsPlumb.connect({
+                      source: id,
+                      target: active
+                  },common);
+                }
               }
-              console.log(active);
+
             })
             $.each($('.item'),function(i,v){
               var id = v.id+"";
-              children = $(v).data('children')+"";
+              var children = $(v).data('children')+"";
+              var siblings = $(v).data('siblings');
+              var level = $(v).data('level');
+              var number = $(v).prevAll(".item[data-level='"+level+"']").length;
+              $('#'+id).css({top: (level*10+4)+"em", left: Math.round((100/siblings*number))+"%"});
               children = children.split("-");
-
-              jsPlumb.addEndpoint(id, {
-                  anchors:["Top","Bottom"]
-              }, common);
+            //  jsPlumb.addEndpoint(id, {
+            //      anchors:["Top","Bottom"]
+            //  }, common);
               $.each(children,function(i,v){
                 if( v != "" ){
                   jsPlumb.connect({
@@ -68,6 +110,8 @@
             $.each($('.item'),function(i,v){
               var id = v.id+"";
               jsPlumb.draggable(id);
+
             })
-            jsPlumb.setSuspendDrawing(false, true);
+            jsPlumb.setSuspendDrawing(false,true);
+
         });

@@ -20,6 +20,14 @@
                                   not supported by any browser */
 }
 
-.jtk-connector { z-index:4; }
+.active-category{
+  background-color: $danger-color;
+  border: .5em solid $danger-border;
+}
+
+.jtk-connector {
+  z-index:4;
+  stroke-width:5;
+}
 .jtk-endpoint { z-index:5; }
 .jtk-overlay { z-index:6; }

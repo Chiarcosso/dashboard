@@ -19,12 +19,37 @@ class ArticleCategory < ApplicationRecord
   # has_many :parents, through: => :relation
   # has_many :children, through: => :relation
 
-  def self.roots
-    ArticleCategory.all { |ac| ac.parents.empty? }
+  def self.tree
+    ArticleCategory.all.sort { |ac| ac.depth }
   end
 
   def childrenList
     self.childCategories.ids.map(&:to_s).join('-')
   end
 
+  def hasDirectRelation?(relative)
+    if self.childCategories.to_a.index(relative).nil? && self.parentCategories.to_a.index(relative).nil?
+      false
+    else
+      true
+    end
+  end
+
+  def depth
+    level = 1
+    if !self.parentCategories.empty?
+      highestLevel = level
+      self.parentCategories.each do |p|
+        if p.depth > highestLevel
+          highestLevel = p.depth
+        end
+      end
+      level += highestLevel
+    end
+    level
+  end
+
+  def siblings
+    ArticleCategory.select { |ac| ac.depth == self.depth }
+  end
 end

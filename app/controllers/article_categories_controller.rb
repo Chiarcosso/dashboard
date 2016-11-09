@@ -1,6 +1,6 @@
 class ArticleCategoriesController < ApplicationController
   before_action :set_article_category, only: [:show, :edit, :update, :destroy]
-
+  before_action :article_category_manage, only: [:manage]
   # GET /article_categories
   # GET /article_categories.json
   def index
@@ -11,7 +11,25 @@ class ArticleCategoriesController < ApplicationController
   end
 
   def manage
+    parent = ArticleCategory.find(params[:relation][:parent].to_i)
+    if params[:relation][:child].to_i == 0
+      child = ArticleCategory.create!(:name => params[:relation][:child])
+    else
+      child = ArticleCategory.find(params[:relation][:child].to_i)
+    end
 
+    if parent != child
+      if parent.childCategories.to_a.index(child).nil? && !child.hasDirectRelation?(parent)
+        parent.childCategories << child
+      else
+        parent.childCategories.delete(child)
+      end
+    end
+
+    respond_to do |format|
+      format.js { render :partial => 'article_categories/index' }
+      # format.html { render :partial => 'article_categories/index' }
+    end
   end
   # GET /article_categories/1
   # GET /article_categories/1.json
@@ -76,5 +94,9 @@ class ArticleCategoriesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def article_category_params
       params.require(:article_category).permit(:name)
+    end
+
+    def article_category_manage
+      params.require(:relation).permit(:parent,:child)
     end
 end
