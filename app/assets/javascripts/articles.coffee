@@ -5,6 +5,11 @@
 
   $('#barcode').focus().select();
 
+  $('.category_check').off 'change'
+  $('.category_check').change ->
+    console.log('changed!')
+    $(this).form.submit()
+
   $(document).off 'keypress'
   $(document).keypress (e) ->
     if $(':focus').attr('type') != 'submit'

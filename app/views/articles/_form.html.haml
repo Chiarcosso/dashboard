@@ -1,14 +1,15 @@
-= form_for @article, :html=>{:multipart => true,:remote=>true} do |f|
-  - if @article.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@article.errors.count, "error")} prohibited this article from being saved:"
-      %ul
-        - @article.errors.full_messages.each do |msg|
-          %li= msg
 
-  .container-fluid
-    .row-fluid
-      .col-sm-6
+- if @article.errors.any?
+  #error_explanation
+    %h2= "#{pluralize(@article.errors.count, "error")} prohibited this article from being saved:"
+    %ul
+      - @article.errors.full_messages.each do |msg|
+        %li= msg
+
+.container-fluid
+  .row-fluid
+    .col-sm-4
+      = form_for @article, :html=>{:multipart => true,:remote=>true} do |f|
         .field
           = f.label :barcode
           = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode', :options => { autofocus: true }
@@ -30,17 +31,30 @@
         .field
           = f.label :postionCode
           = f.text_field :postionCode, class: 'form-control'
-      .col-sm-6
-        .container-fluid
-          #barcode-img
-            = image_tag(@article.barcode.to_s+'.png')
-        .container-fluid
-          #photo-img
-            = "image"
-    .row-fluid
-      .col-sm-12
         .field
           = f.submit 'Salva', class: "btn btn-primary", id: "article-submit"
+    .col-sm-2
+      .container-fluid
+        #barcode-img
+          = image_tag(@article.barcode.to_s+'.png')
+      .container-fluid
+        #photo-img
+          = "image"
+    .col-sm-4
+      .container-fluid
+        = form_tag(list_article_categories_path(format: :js), remote: true) do |f|
+          .field
+            - if @article.categories.empty?
+              - ArticleCategory.root.each do |c|
+                = label_tag c.name
+                = check_box_tag "categories[#{c.id}]", "categories[#{c.id}]", false, class: 'category_check'
+            - else
+              = @article.categories.each do |c|
+                = c.name
+    -# .row-fluid
+    -#   .col-sm-12
+    -#     .field
+    -#       = f.submit 'Salva', class: "btn btn-primary", id: "article-submit"
 
 :javascript
   init();

@@ -1,6 +1,11 @@
 class Article < ApplicationRecord
   resourcify
 
+  has_and_belongs_to_many :categories, class_name: "ArticleCategory",
+                                     join_table: "article_categorizations",
+                                     foreign_key: :category_id,
+                                     association_foreign_key: :article_id
+
   scope :incomplete, -> { where(barcode: '') }
 
   def self.incompleteItems

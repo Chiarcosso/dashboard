@@ -10,6 +10,10 @@ class ArticleCategoriesController < ApplicationController
     end
   end
 
+  def list
+    byebug
+  end
+
   def manage
     parent = ArticleCategory.find(params[:relation][:parent].to_i)
     if params[:relation][:child].to_i == 0
@@ -99,4 +103,5 @@ class ArticleCategoriesController < ApplicationController
     def article_category_manage
       params.require(:relation).permit(:parent,:child)
     end
+
 end

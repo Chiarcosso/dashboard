@@ -14,3 +14,5 @@ Rails.application.config.assets.precompile += %w( custom.css )
 
 Rails.application.config.assets.precompile += %w( jsPlumbToolkit-defaults.css )
 Rails.application.config.assets.precompile += %w( jsPlumb-2.2.3.js )
+
+Rails.application.config.assets.precompile += %w( removejtk )

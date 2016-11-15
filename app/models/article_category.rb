@@ -19,6 +19,10 @@ class ArticleCategory < ApplicationRecord
   # has_many :parents, through: => :relation
   # has_many :children, through: => :relation
 
+  def self.root
+    ArticleCategory.all.select { |ac| ac.parentCategories.empty? }
+  end
+
   def self.tree
     ArticleCategory.all.sort { |ac| ac.depth }
   end

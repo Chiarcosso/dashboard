@@ -1,100 +1,105 @@
 = stylesheet_link_tag "jsPlumbToolkit-defaults.css"
 %h3= 'Categorie'
 
--# .container-fluid#category-container
-- lastLevel = 1
-- ArticleCategory.tree.each do |ac|
-  -if ac.depth > lastLevel
-    - number = 1
-    - lastLevel = ac.depth
+#category-container
+  - lastLevel = 1
+  - ArticleCategory.tree.each do |ac|
+    -if ac.depth > lastLevel
+      - number = 1
+      - lastLevel = ac.depth
 
-  .item.category-block{id: ac.id, 'data-children': ac.childrenList, 'data-level': (ac.depth-1).to_s, 'data-siblings': ac.siblings.count.to_s, 'data-number': number}
-    = label_tag ac.id.to_s+" "+ac.name
-    = link_to 'x', article_category_path(ac.id), :method => 'delete', :remote => true
-    = form_tag(manage_article_categories_path(format: :js), multipart: true, remote: true)  do |f|
-      -# = hidden_field_tag(name: :parent, value: ac.id)
-      -# = hidden_field_tag(name: :child, value: "")
+    .item.category-block{id: ac.id, 'data-children': ac.childrenList, 'data-level': (ac.depth-1).to_s, 'data-siblings': ac.siblings.count.to_s, 'data-number': number}
+      = label_tag ac.id.to_s+" "+ac.name
+      = link_to 'x', article_category_path(ac.id), :method => 'delete', :remote => true
+      = form_tag(manage_article_categories_path(format: :js), multipart: true, remote: true)  do |f|
+        -# = hidden_field_tag(name: :parent, value: ac.id)
+        -# = hidden_field_tag(name: :child, value: "")
 
--# .container-fluid
-.item.category-block.new-category-block{id: 'new', 'data-children': "", 'data-level': lastLevel, 'data-siblings': 2}
-  %input{type: :text, name: :name, placeholder: 'Nuova categoria', class: 'categories form-control', id: 'new_category'}
+  -# .container-fluid
+  .item.category-block.new-category-block{id: 'new', 'data-children': "", 'data-level': lastLevel, 'data-siblings': 2}
+    %input{type: :text, name: :name, placeholder: 'Nuova categoria', class: 'categories form-control', id: 'new_category'}
+  = javascript_include_tag "removejtk"
+  = javascript_include_tag "jsPlumb-2.2.3"
+  :javascript
+    //$('body').click(function(){
+    //  $('.jtk-connector').remove();
+    //  $('.jtk-endpoint').remove();
+    //})
+     jsPlumb.ready(function() {
 
-= javascript_include_tag "jsPlumb-2.2.3"
-:javascript
-  //$('body').click(function(){
-  //  $('.jtk-connector').remove();
-  //  $('.jtk-endpoint').remove();
-  //})
-   jsPlumb.ready(function() {
-            //jsPlumb.setContainer($('#articles_content'));
-            var active = null;
+              var active = null;
 
-            jsPlumb.setSuspendDrawing(true);
-            var common = {
-                isSource:true,
-                isTarget:true,
-                connector: ["StateMachine"],
-                endpoint:"Dot",
-                anchors:["Bottom","Top"]
-            };
-            $('.item').off('click');
-            $('.item').click(function(){
-              var id = $(this)[0].id;
-              if(id == active){
-                $(this).removeClass('active-category');
-                active = null;
-              } else {
-                if(active == null){
-                  $(this).addClass('active-category');
-                  active = id;
+              jsPlumb.setSuspendDrawing(true);
+              var common = {
+                  isSource:true,
+                  isTarget:true,
+                  connector: ["StateMachine"],
+                  endpoint:"Dot",
+                  anchors:["Bottom","Top"]
+              };
+              $('.item').off('click');
+              $('.item').click(function(){
+                var id = $(this)[0].id;
+                if(id == active){
+                  $(this).removeClass('active-category');
+                  active = null;
                 } else {
-                  if(active == 'new'){
-                    active = $('#new_category').val();
+                  if(active == null){
+                    $(this).addClass('active-category');
+                    active = id;
+                  } else {
+                    if(active == 'new'){
+                      active = $('#new_category').val();
+                    }
+                    var form = $(this).children('form');
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: '#_:name__:child__:value__'+active+'_',
+                        name: "relation[child]",
+                        value: active
+                    }).appendTo('form');
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: '#_:name__:parent__:value__'+id+'_',
+                        name: "relation[parent]",
+                        value: id
+                    }).appendTo('form');
+                    form.submit();
                   }
-                  var form = $(this).children('form');
-                  $('<input>').attr({
-                      type: 'hidden',
-                      id: '#_:name__:child__:value__'+active+'_',
-                      name: "relation[child]",
-                      value: active
-                  }).appendTo('form');
-                  $('<input>').attr({
-                      type: 'hidden',
-                      id: '#_:name__:parent__:value__'+id+'_',
-                      name: "relation[parent]",
-                      value: id
-                  }).appendTo('form');
-                  form.submit();
                 }
-              }
 
-            })
-            $.each($('.item'),function(i,v){
-              var id = v.id+"";
-              var children = $(v).data('children')+"";
-              var siblings = $(v).data('siblings');
-              var level = $(v).data('level');
-              var number = $(v).prevAll(".item[data-level='"+level+"']").length;
-              $('#'+id).css({top: (level*8+4)+"em", left: Math.round((100/siblings*number))+"%"});
-              children = children.split("-");
-            //  jsPlumb.addEndpoint(id, {
-            //      anchors:["Top","Bottom"]
-            //  }, common);
-              $.each(children,function(i,v){
-                if( v != "" ){
-                  jsPlumb.connect({
-                      source: id,
-                      target: v
-                  },common);
-                }
               })
-            });
+              $.each($('.item'),function(i,v){
+                var id = v.id+"";
+                var children = $(v).data('children')+"";
+                var siblings = $(v).data('siblings');
+                var level = $(v).data('level');
+                var number = $(v).prevAll(".item[data-level='"+level+"']").length;
+                children = children.split("-");
+                $.each(children,function(i,v){
+                  if( v != "" ){
+                    jsPlumb.connect({
+                        source: id,
+                        target: v
+                    },common);
+                  }
+                })
+                $('#'+id).css({top: (level*8+4)+"em", left: Math.round((100/siblings*number))+"%"});
+                //jsPlumb.recalculateOffset('.item');
+              //  jsPlumb.addEndpoint(id, {
+              //      anchors:["Top","Bottom"]
+              //  }, common);
 
-            $.each($('.item'),function(i,v){
-              var id = v.id+"";
-              jsPlumb.draggable(id);
 
-            })
-            jsPlumb.setSuspendDrawing(false,true);
+              });
 
-        });
+              $.each($('.item'),function(i,v){
+                var id = v.id+"";
+                jsPlumb.draggable(id);
+
+              })
+              //jsPlumb.setContainer($('#category-container'));
+
+              jsPlumb.setSuspendDrawing(false,true);
+            //  jsPlumb.repaintEverything();
+          });
