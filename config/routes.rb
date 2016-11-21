@@ -24,6 +24,6 @@ Rails.application.routes.draw do
   get    '/storage', to: 'storage#home', as: :storage
   get    '/incomplete_articles', to: 'articles#incomplete', as: :incomplete_articles
   post   '/article_categories/manage', to: 'article_categories#manage', as: :manage_article_categories
-  post   '/article_categories/list', to: 'article_categories#list', as: :list_article_categories
+  post   '/article/categories/', to: 'articles#list_categories', as: :list_article_categories
 
 end

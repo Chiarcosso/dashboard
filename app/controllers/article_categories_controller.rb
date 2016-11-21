@@ -10,10 +10,6 @@ class ArticleCategoriesController < ApplicationController
     end
   end
 
-  def list
-    byebug
-  end
-
   def manage
     parent = ArticleCategory.find(params[:relation][:parent].to_i)
     if params[:relation][:child].to_i == 0

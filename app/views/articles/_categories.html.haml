@@ -1,0 +1,26 @@
+.container-fluid
+  = form_tag(list_article_categories_path(format: :js), method: :post, remote: true) do |f|
+    = hidden_field_tag :authenticity_token, form_authenticity_token
+    = hidden_field_tag :id, @article.id
+    .container-fluid
+      .field
+        - if @article.categories.empty?
+          - @categories.each do |c|
+            %div{style: "position: relative; left: #{c.relativeDepth.to_s}em"}
+              - $flag = false
+              - @selectedCategories.each do |sc|
+                - if c.id == sc.to_i
+                  - $flag = true
+              = check_box_tag "categories[]", "#{c.id}", $flag, class: 'category_check'
+              = label_tag c.name
+
+        - else
+          = @article.categories.each do |c|
+            = c.name
+    .continer-fluid
+      .field
+        = submit_tag "Salva"
+        = submit_tag "Salva e passa ai mezzi"
+
+:javascript
+  initCategories();

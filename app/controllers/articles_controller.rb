@@ -1,5 +1,7 @@
 class ArticlesController < ApplicationController
-  before_action :set_article, only: [:show, :edit, :update, :destroy]
+  before_action :set_article, only: [:show, :edit, :update, :destroy, :list_categories]
+  before_action :set_categories, only: [:list_categories]
+
   require 'barby/outputter/cairo_outputter'
   # require 'barby/outputter/png_outputter'
   require 'barby/barcode/ean_13'
@@ -13,6 +15,19 @@ class ArticlesController < ApplicationController
   # GET /articles/1
   # GET /articles/1.json
   def show
+  end
+
+  def list_categories
+    @categories = Array.new
+    @selectedCategories = params[:categories]
+    ArticleCategory.root.each do |c|
+      @categories << c
+      @categories.concat c.childrenTree(@selectedCategories)
+    end
+    respond_to do |format|
+      format.js { render :partial => 'articles/to_categories' }
+      format.json { render :show, status: :created, location: @article }
+    end
   end
 
   def incomplete
@@ -62,7 +77,9 @@ class ArticlesController < ApplicationController
   def update
     respond_to do |format|
       if @article.update(article_params)
-        format.js { render :partial => 'articles/incomplete', notice: 'Articolo modificato.' }
+        @categories = ArticleCategory.root
+        @selectedCategories = Array.new
+        format.js { render :partial => 'articles/to_categories', notice: 'Articolo modificato.' }
         format.json { render :show, status: :created, location: @article }
       else
         format.js { render :partial => 'articles/incomplete', notice: 'Impossibile modificare articolo.' }
@@ -83,6 +100,8 @@ class ArticlesController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
+
+
     def set_article
       @article = Article.find(params[:id])
       if barcode = @article.checkBarcode
@@ -91,6 +110,14 @@ class ArticlesController < ApplicationController
       else
         @article.barcode = 'Codice non valido'
       end
+    end
+
+    def set_categories
+      params.require(:categories)
+      params[:categories].each do |c|
+        c = c.to_i
+      end
+      params
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

@@ -8,7 +8,7 @@
 
 .container-fluid
   .row-fluid
-    .col-sm-4
+    .col-sm-6
       = form_for @article, :html=>{:multipart => true,:remote=>true} do |f|
         .field
           = f.label :barcode
@@ -32,25 +32,15 @@
           = f.label :postionCode
           = f.text_field :postionCode, class: 'form-control'
         .field
-          = f.submit 'Salva', class: "btn btn-primary", id: "article-submit"
-    .col-sm-2
+          = f.submit 'Salva e passa alle categorie', id: "article-submit"
+    .col-sm-6
       .container-fluid
         #barcode-img
           = image_tag(@article.barcode.to_s+'.png')
       .container-fluid
         #photo-img
           = "image"
-    .col-sm-4
-      .container-fluid
-        = form_tag(list_article_categories_path(format: :js), remote: true) do |f|
-          .field
-            - if @article.categories.empty?
-              - ArticleCategory.root.each do |c|
-                = label_tag c.name
-                = check_box_tag "categories[#{c.id}]", "categories[#{c.id}]", false, class: 'category_check'
-            - else
-              = @article.categories.each do |c|
-                = c.name
+
     -# .row-fluid
     -#   .col-sm-12
     -#     .field

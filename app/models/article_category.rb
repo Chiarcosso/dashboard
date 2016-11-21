@@ -19,6 +19,14 @@ class ArticleCategory < ApplicationRecord
   # has_many :parents, through: => :relation
   # has_many :children, through: => :relation
 
+  def relativeDepthSet(depth)
+    @relativeDepth = depth
+  end
+
+  def relativeDepth
+    @relativeDepth
+  end
+
   def self.root
     ArticleCategory.all.select { |ac| ac.parentCategories.empty? }
   end
@@ -37,6 +45,27 @@ class ArticleCategory < ApplicationRecord
     else
       true
     end
+  end
+
+  def childrenTree(list)
+    if self.parentCategories.empty?
+      self.relativeDepthSet(0)
+    end
+    childrenArray = Array.new
+    list.each do |l|
+      if l.to_i == self.id
+        self.childCategories.each do |ch|
+          ch.relativeDepthSet(@relativeDepth+1)
+          childrenArray << ch
+          list.each do |sc|
+            if sc.to_i == ch.id
+              childrenArray.concat ch.childrenTree(list).uniq
+            end
+          end
+        end
+      end
+    end
+    childrenArray
   end
 
   def depth
