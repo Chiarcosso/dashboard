@@ -25,4 +25,5 @@
 
   $('.category_check').off 'change'
   $('.category_check').change ->
+    $('.'+this.classList[1]).attr('checked',this.checked)
     $(this).closest('form').submit()

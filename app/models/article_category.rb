@@ -47,6 +47,17 @@ class ArticleCategory < ApplicationRecord
     end
   end
 
+  def last?(list)
+    self.childCategories.each do |ch|
+      list.each do |l|
+        if l.to_i == ch.id
+          return false
+        end
+      end
+    end
+    return true
+  end
+
   def childrenTree(list)
     if self.parentCategories.empty?
       self.relativeDepthSet(0)
@@ -59,7 +70,7 @@ class ArticleCategory < ApplicationRecord
           childrenArray << ch
           list.each do |sc|
             if sc.to_i == ch.id
-              childrenArray.concat ch.childrenTree(list).uniq
+              childrenArray.concat ch.childrenTree(list)
             end
           end
         end

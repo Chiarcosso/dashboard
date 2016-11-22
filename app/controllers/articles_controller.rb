@@ -18,15 +18,39 @@ class ArticlesController < ApplicationController
   end
 
   def list_categories
+
     @categories = Array.new
     @selectedCategories = params[:categories]
+    @selectedCategories.each do |pl|
+      f = true
+      ArticleCategory.find(pl.to_i).parentCategories.each do |p|
+        if p.id == pl.to_i
+          f = false
+        end
+        if f
+          @selectedCategories << p.id.to_s
+        end
+      end
+    end
     ArticleCategory.root.each do |c|
       @categories << c
-      @categories.concat c.childrenTree(@selectedCategories)
+      @categories.concat c.childrenTree(@selectedCategories.uniq)
     end
+
     respond_to do |format|
-      format.js { render :partial => 'articles/to_categories' }
-      format.json { render :show, status: :created, location: @article }
+      if params["commit"] == "Salva"
+        @article.categories.delete_all
+        @selectedCategories.each do |sc|
+          ac = ArticleCategory.find(sc.to_i)
+          if (!@article.categories.include? ac) && (ac.last? @selectedCategories)
+            @article.categories << ac
+          end
+        end
+        format.js { render :partial => 'articles/incomplete' }
+      else
+        format.js { render :partial => 'articles/to_categories' }
+        format.json { render :show, status: :created, location: @article }
+      end
     end
   end
 
@@ -77,8 +101,28 @@ class ArticlesController < ApplicationController
   def update
     respond_to do |format|
       if @article.update(article_params)
-        @categories = ArticleCategory.root
+        @categories = Array.new
         @selectedCategories = Array.new
+        @article.categories.each do |ct|
+          @selectedCategories << ct.id.to_s
+        end
+
+        @selectedCategories.each do |pl|
+          f = true
+          ArticleCategory.find(pl.to_i).parentCategories.each do |p|
+            if p.id == pl.to_i
+              f = false
+            end
+            if f
+              @selectedCategories << p.id.to_s
+            end
+          end
+        end
+        ArticleCategory.root.each do |c|
+          @categories << c
+          @categories.concat c.childrenTree(@selectedCategories.uniq)
+        end
+
         format.js { render :partial => 'articles/to_categories', notice: 'Articolo modificato.' }
         format.json { render :show, status: :created, location: @article }
       else

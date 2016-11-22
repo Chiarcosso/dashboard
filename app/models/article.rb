@@ -12,6 +12,14 @@ class Article < ApplicationRecord
     Article.all
   end
 
+  def categoriesList
+    list = Array.new
+    self.categories.each do |cat|
+      list << cat.name
+    end
+    list.join(', ')
+  end
+
   def checkBarcode
     begin
       Barby::EAN13.new(self.barcode[0..-2])
