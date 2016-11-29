@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @company.name
+%p
+  %b Vat number:
+  = @company.vat_number
+%p
+  %b Ssn:
+  = @company.ssn
+
+= link_to 'Edit', edit_company_path(@company)
+\|
+= link_to 'Back', companies_path

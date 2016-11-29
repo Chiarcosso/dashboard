@@ -1,0 +1,1 @@
+json.partial! "transport_documents/transport_document", transport_document: @transport_document

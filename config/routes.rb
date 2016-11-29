@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  resources :orders
+  resources :items
+  resources :transport_documents
+  resources :companies
   resources :article_categories
   resources :articles
   resources :people
@@ -25,5 +29,8 @@ Rails.application.routes.draw do
   get    '/incomplete_articles', to: 'articles#incomplete', as: :incomplete_articles
   post   '/article_categories/manage', to: 'article_categories#manage', as: :manage_article_categories
   post   '/article/categories/', to: 'articles#list_categories', as: :list_article_categories
+
+  get    '/items_from_order/:order', to: 'items#from_order', as: :items_from_order
+  get    '/items_new_order', to: 'items#new_order', as: :items_new_order
 
 end

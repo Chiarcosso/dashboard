@@ -1,0 +1,39 @@
+%p#notice= notice
+
+%p
+  %b Article:
+  = @item.article
+%p
+  %b Purchasedate:
+  = @item.purchaseDate
+%p
+  %b Price:
+  = @item.price
+%p
+  %b Price:
+  = @item.price
+%p
+  %b Discount:
+  = @item.discount
+%p
+  %b Discount:
+  = @item.discount
+%p
+  %b Seral:
+  = @item.seral
+%p
+  %b State:
+  = @item.state
+%p
+  %b Notes:
+  = @item.notes
+%p
+  %b Expiringdate:
+  = @item.expiringDate
+%p
+  %b Transportdocument:
+  = @item.transportDocument
+
+= link_to 'Edit', edit_item_path(@item)
+\|
+= link_to 'Back', items_path

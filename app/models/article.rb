@@ -6,6 +6,8 @@ class Article < ApplicationRecord
                                      foreign_key: :category_id,
                                      association_foreign_key: :article_id
 
+  has_many :items
+  
   scope :incomplete, -> { where(barcode: '') }
 
   def self.incompleteItems

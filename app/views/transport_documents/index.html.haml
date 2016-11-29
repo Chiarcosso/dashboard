@@ -1,0 +1,25 @@
+%h1 Listing transport_documents
+
+%table
+  %thead
+    %tr
+      %th Number
+      %th Date
+      %th Reason
+      %th
+      %th
+      %th
+
+  %tbody
+    - @transport_documents.each do |transport_document|
+      %tr
+        %td= transport_document.number
+        %td= transport_document.date
+        %td= transport_document.reason
+        %td= link_to 'Show', transport_document
+        %td= link_to 'Edit', edit_transport_document_path(transport_document)
+        %td= link_to 'Destroy', transport_document, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Transport document', new_transport_document_path

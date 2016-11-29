@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161110113409) do
+ActiveRecord::Schema.define(version: 20161125151323) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -43,6 +43,33 @@ ActiveRecord::Schema.define(version: 20161110113409) do
     t.datetime "updated_at",                     null: false
   end
 
+  create_table "companies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name"
+    t.string   "vat_number", limit: 17
+    t.string   "ssn",        limit: 30
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+  end
+
+  create_table "items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.date     "purchaseDate"
+    t.decimal  "price",                      precision: 9, scale: 2
+    t.decimal  "discount",                   precision: 5, scale: 2
+    t.string   "serial"
+    t.integer  "state",        limit: 3
+    t.text     "notes",        limit: 65535
+    t.date     "expiringDate"
+    t.datetime "created_at",                                         null: false
+    t.datetime "updated_at",                                         null: false
+  end
+
+  create_table "orders", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "number"
+    t.date     "date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "people", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name",                     default: "", null: false
     t.string   "surname",                  default: "", null: false
@@ -59,6 +86,20 @@ ActiveRecord::Schema.define(version: 20161110113409) do
     t.datetime "updated_at"
     t.index ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id", using: :btree
     t.index ["name"], name: "index_roles_on_name", using: :btree
+  end
+
+  create_table "transport_documents", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "number"
+    t.date     "date"
+    t.string   "reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer  "order_id"
+    t.integer  "company_id", null: false
+    t.integer  "sender_id"
+    t.index ["company_id"], name: "index_transport_documents_on_company_id", using: :btree
+    t.index ["order_id"], name: "index_transport_documents_on_order_id", using: :btree
+    t.index ["sender_id"], name: "index_transport_documents_on_sender_id", using: :btree
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -85,4 +126,6 @@ ActiveRecord::Schema.define(version: 20161110113409) do
     t.index ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id", using: :btree
   end
 
+  add_foreign_key "transport_documents", "companies"
+  add_foreign_key "transport_documents", "orders"
 end

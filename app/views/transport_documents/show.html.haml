@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b Number:
+  = @transport_document.number
+%p
+  %b Date:
+  = @transport_document.date
+%p
+  %b Reason:
+  = @transport_document.reason
+
+= link_to 'Edit', edit_transport_document_path(@transport_document)
+\|
+= link_to 'Back', transport_documents_path

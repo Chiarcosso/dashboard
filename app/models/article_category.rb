@@ -32,7 +32,13 @@ class ArticleCategory < ApplicationRecord
   end
 
   def self.tree
-    ArticleCategory.all.sort { |ac| ac.depth }
+    articleCategories = Array.new
+    ArticleCategory.root.each do |ac|
+      articleCategories << ac
+      articleCategories.concat ac.childrenTree nil
+    end
+    # ArticleCategory.all.sort { |ac| ac.depth }
+    articleCategories.uniq
   end
 
   def childrenList
@@ -59,18 +65,25 @@ class ArticleCategory < ApplicationRecord
   end
 
   def childrenTree(list)
-    if self.parentCategories.empty?
-      self.relativeDepthSet(0)
-    end
     childrenArray = Array.new
-    list.each do |l|
-      if l.to_i == self.id
-        self.childCategories.each do |ch|
-          ch.relativeDepthSet(@relativeDepth+1)
-          childrenArray << ch
-          list.each do |sc|
-            if sc.to_i == ch.id
-              childrenArray.concat ch.childrenTree(list)
+    if list.nil?
+      self.childCategories.each do |cc|
+        childrenArray << cc
+        childrenArray.concat cc.childrenTree nil
+      end
+    else
+      if self.parentCategories.empty?
+        self.relativeDepthSet(0)
+      end
+      list.each do |l|
+        if l.to_i == self.id
+          self.childCategories.each do |ch|
+            ch.relativeDepthSet(@relativeDepth+1)
+            childrenArray << ch
+            list.each do |sc|
+              if sc.to_i == ch.id
+                childrenArray.concat ch.childrenTree(list)
+              end
             end
           end
         end

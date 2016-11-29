@@ -1,0 +1,27 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  article: one
+  purchaseDate: 2016-11-24
+  price: 
+  price: 
+  discount: 
+  discount: 
+  seral: MyString
+  state: 
+  notes: MyText
+  expiringDate: 2016-11-24
+  transportDocument: one
+
+two:
+  article: two
+  purchaseDate: 2016-11-24
+  price: 
+  price: 
+  discount: 
+  discount: 
+  seral: MyString
+  state: 
+  notes: MyText
+  expiringDate: 2016-11-24
+  transportDocument: two

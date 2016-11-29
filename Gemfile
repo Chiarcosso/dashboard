@@ -8,7 +8,6 @@ gem 'sqlite3'
 gem 'mysql2'
 # Use Puma as the app server
 gem 'puma', '~> 3.0'
-
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .coffee assets and views
@@ -54,6 +53,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'rails-erd'
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console'
   gem 'listen', '~> 3.0.5'
