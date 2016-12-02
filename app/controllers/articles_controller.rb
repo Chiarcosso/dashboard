@@ -80,7 +80,7 @@ class ArticlesController < ApplicationController
   # POST /articles.json
   def create
     @article = Article.new(article_params)
-
+    @article.manufacturer = @manufacturer
     respond_to do |format|
       if @article.save
         # format.html { redirect_to @article, notice: 'Article was successfully created.' }
@@ -101,6 +101,8 @@ class ArticlesController < ApplicationController
   def update
     respond_to do |format|
       if @article.update(article_params)
+        @article.manufacturer = @manufacturer
+        @article.save
         @categories = Array.new
         @selectedCategories = Array.new
         @article.categories.each do |ct|
@@ -122,9 +124,11 @@ class ArticlesController < ApplicationController
           @categories << c
           @categories.concat c.childrenTree(@selectedCategories.uniq)
         end
-
-        format.js { render :partial => 'articles/to_categories', notice: 'Articolo modificato.' }
-        format.json { render :show, status: :created, location: @article }
+        if params["commit"] == "Salva"
+          format.js { render :partial => 'articles/incomplete', notice: 'Articolo modificato.' }
+        else
+          format.js { render :partial => 'articles/to_categories', notice: 'Articolo modificato.' }
+        end
       else
         format.js { render :partial => 'articles/incomplete', notice: 'Impossibile modificare articolo.' }
         format.json { render json: @article.errors, status: :unprocessable_entity }
@@ -166,6 +170,11 @@ class ArticlesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def article_params
+      if params[:article][:manufacturer] != ''
+        @manufacturer = Company.find(params[:article][:manufacturer])
+      else
+        @manufacturer = nil
+      end
       params.require(:article).permit(:barcode, :manufacturerCode, :name, :description, :containedAmount, :minimalReserve, :positionCode)
     end
 end

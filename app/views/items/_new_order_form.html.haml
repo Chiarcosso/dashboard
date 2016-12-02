@@ -1,44 +1,82 @@
 .container-fluid
-  = form_for @item do |f|
-    - if @item.errors.any?
-      #error_explanation
-        %h2= "#{pluralize(@item.errors.count, "error")} prohibited this item from being saved:"
-        %ul
-          - @item.errors.full_messages.each do |msg|
-            %li= msg
+  %h3= 'Ordine / DDT dinamico'
+  = form_tag(add_item_to_order_path(format: :js), method: :post, remote: true, type: :script) do |f|
+    = hidden_field_tag :authenticity_token, form_authenticity_token
+    .row
+      .col-sm-4
+        = label_tag "Fornitore"
+        = select_tag "ordine['supplier']", options_from_collection_for_select(Company.all, :id, :name), class: 'form-control'
+      .col-sm-4
+        = label_tag "Vettore"
+        = select_tag "ordine['vector']", options_from_collection_for_select(Company.all, :id, :name), class: 'form-control'
+      .col-sm-4
+        .field
+          = label_tag "Data acquisto"
+          = text_field_tag "ordine['purchaseDate']", '', placeholder: 'Data acquisto', class: 'form-control', 'data-behavior' => 'datepicker'
+    .row
+      .col-sm-6
+        .field
+          = text_field_tag :barcode, '', placeholder: 'Codice a barre', class: 'form-control autofocus', id: 'barcode', :options => { autofocus: true }
 
-    .field
-      = f.label :article
-      = f.text_field :article
-    .field
-      = f.label :purchaseDate
-      = f.date_select :purchaseDate
-    .field
-      = f.label :price
-      = f.text_field :price
-    .field
-      = f.label :price
-      = f.text_field :price
-    .field
-      = f.label :discount
-      = f.text_field :discount
-    .field
-      = f.label :discount
-      = f.text_field :discount
-    .field
-      = f.label :serial
-      = f.text_field :serial
-    .field
-      = f.label :state
-      = f.text_field :state
-    .field
-      = f.label :notes
-      = f.text_area :notes
-    .field
-      = f.label :expiringDate
-      = f.date_select :expiringDate
-    .field
-      = f.label :transportDocument
-      = f.text_field :transportDocument
-    .actions
-      = f.submit 'Save'
+    - @order.items.each_with_index do |i,k|
+      .row
+        .col-sm-6
+          .item_box{id: 'box-'+k.to_s}
+            %table
+              %tr
+                %td{rowspan: 2}
+                  .btn{class: 'remove_item', id: k}="x"
+                %td
+                  = label_tag "Articolo"
+              %tr
+                %td
+                  = select_tag "items[#{k}][article]", options_from_collection_for_select(Article.where("barcode = #{i.article.barcode}"), :id, :complete_name, :selected => i.article.id), class: 'form-control'
+      -# = date_select :item, :purchaseDate
+      -# = text_field_tag :purchaseDate, '', :placeholder => 'Data acquisto', 'data-behavior' => 'datepicker'
+      -# - if @item.errors.any?
+      -#   #error_explanation
+      -#     %h2= "#{pluralize(@item.errors.count, "error")} prohibited this item from being saved:"
+      -#     %ul
+      -#       - @item.errors.full_messages.each do |msg|
+      -#         %li= msg
+
+      -# .field
+      -#   = f.text_field :article
+      -# .field
+      -#   = f.label :purchaseDate
+      -#   = f.date_select :purchaseDate
+      -# .field
+      -#   = f.label :price
+      -#   = f.text_field :price
+      -# .field
+      -#   = f.label :price
+      -#   = f.text_field :price
+      -# .field
+      -#   = f.label :discount
+      -#   = f.text_field :discount
+      -# .field
+      -#   = f.label :discount
+      -#   = f.text_field :discount
+      -# .field
+      -#   = f.label :serial
+      -#   = f.text_field :serial
+      -# .field
+      -#   = f.label :state
+      -#   = f.text_field :state
+      -# .field
+      -#   = f.label :notes
+      -#   = f.text_area :notes
+      -# .field
+      -#   = f.label :expiringDate
+      -#   = f.date_select :expiringDate
+      -# .field
+      -#   = f.label :transportDocument
+      -#   = f.text_field :transportDocument
+      -# .actions
+      -#   = f.submit 'Save'
+
+:javascript
+
+  init();
+  //alert($('[data-behaviour~=datepicker]').data('behavior'));
+  //$('[data-behaviour=datepicker]').datepicker();

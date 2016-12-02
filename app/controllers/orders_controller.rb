@@ -1,5 +1,7 @@
 class OrdersController < ApplicationController
   before_action :set_order, only: [:show, :edit, :update, :destroy]
+  before_action :set_article_for_order, only: [:add_item_to_new_order]
+  before_action :set_items_for_order, only: [:add_item_to_new_order]
 
   # GET /orders
   # GET /orders.json
@@ -37,6 +39,21 @@ class OrdersController < ApplicationController
     end
   end
 
+  def add_item_to_new_order
+    @order = Order.new
+    item = Item.new
+    item.article = @article
+    @order.items << item
+    @items.each do |i,k|
+      item = Item.new
+      item.article = Article.find(k[:article].to_i)
+      @order.items << item
+    end
+    respond_to do |format|
+      format.js { render :js, :partial => 'items/new_order' }
+    end
+  end
+
   # PATCH/PUT /orders/1
   # PATCH/PUT /orders/1.json
   def update
@@ -65,6 +82,18 @@ class OrdersController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_order
       @order = Order.find(params[:id])
+    end
+
+    def set_article_for_order
+      @article = Article.where(barcode: params[:barcode]).first
+    end
+
+    def set_items_for_order
+      if params[:items].nil?
+        @items = Array.new
+      else
+        @items = params[:items]
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

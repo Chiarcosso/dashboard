@@ -38,6 +38,7 @@ gem 'rolify'
 
 # gem 'ancestry'
 
+gem 'bootstrap-datepicker-rails'
 
 gem 'chunky_png'
 gem 'cairo'

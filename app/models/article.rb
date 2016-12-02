@@ -7,7 +7,8 @@ class Article < ApplicationRecord
                                      association_foreign_key: :article_id
 
   has_many :items
-  
+  belongs_to :manufacturer, class_name: "Company"
+
   scope :incomplete, -> { where(barcode: '') }
 
   def self.incompleteItems
@@ -20,6 +21,22 @@ class Article < ApplicationRecord
       list << cat.name
     end
     list.join(', ')
+  end
+
+  def manufacturer_name
+    if self.manufacturer.nil?
+      "Generico"
+    else
+      self.manufacturer.name
+    end
+  end
+
+  def complete_name
+    unless self.manufacturer.nil?
+      self.manufacturer.name + " " + self.name
+    else
+      "Generico" + " " + self.name
+    end
   end
 
   def checkBarcode

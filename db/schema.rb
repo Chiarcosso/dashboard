@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161125151323) do
+ActiveRecord::Schema.define(version: 20161130123027) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -38,9 +38,11 @@ ActiveRecord::Schema.define(version: 20161125151323) do
     t.text     "description",      limit: 65535
     t.integer  "containedAmount"
     t.integer  "minimalReserve"
-    t.string   "postionCode"
+    t.string   "position_code"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+    t.integer  "manufacturer_id"
+    t.index ["manufacturer_id"], name: "index_articles_on_manufacturer_id", using: :btree
   end
 
   create_table "companies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -61,6 +63,8 @@ ActiveRecord::Schema.define(version: 20161125151323) do
     t.date     "expiringDate"
     t.datetime "created_at",                                         null: false
     t.datetime "updated_at",                                         null: false
+    t.integer  "article_id",                                         null: false
+    t.index ["article_id"], name: "index_items_on_article_id", using: :btree
   end
 
   create_table "orders", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -126,6 +130,8 @@ ActiveRecord::Schema.define(version: 20161125151323) do
     t.index ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id", using: :btree
   end
 
+  add_foreign_key "articles", "companies", column: "manufacturer_id"
+  add_foreign_key "items", "articles"
   add_foreign_key "transport_documents", "companies"
   add_foreign_key "transport_documents", "orders"
 end

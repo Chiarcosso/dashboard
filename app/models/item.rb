@@ -3,5 +3,7 @@ class Item < ApplicationRecord
 
   belongs_to :article
   belongs_to :transportDocument
+
   
+
 end

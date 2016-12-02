@@ -18,7 +18,6 @@ class ItemsController < ApplicationController
 
   def new_order
     @order = Order.new
-    @item = Item.new
     render :partial => 'items/new_order'
   end
 
