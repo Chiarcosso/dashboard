@@ -22,6 +22,7 @@ gem 'jquery-rails'
 gem 'bootstrap-sass'
 gem 'sass-rails', '~> 5.0'
 gem 'rails_bootstrap_navbar'
+gem 'bootstrap-datepicker-rails'
 
 gem 'haml-rails'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks

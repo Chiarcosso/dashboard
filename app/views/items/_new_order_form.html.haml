@@ -16,21 +16,32 @@
     .row
       .col-sm-6
         .field
-          = text_field_tag :barcode, '', placeholder: 'Codice a barre', class: 'form-control autofocus', id: 'barcode', :options => { autofocus: true }
+          = text_field_tag :barcode, '', placeholder: 'Codice a barre', class: 'form-control input-row autofocus', id: 'barcode', :options => { autofocus: true }
 
-    - @order.items.each_with_index do |i,k|
-      .row
-        .col-sm-6
-          .item_box{id: 'box-'+k.to_s}
-            %table
-              %tr
-                %td{rowspan: 2}
-                  .btn{class: 'remove_item', id: k}="x"
-                %td
-                  = label_tag "Articolo"
-              %tr
-                %td
-                  = select_tag "items[#{k}][article]", options_from_collection_for_select(Article.where("barcode = #{i.article.barcode}"), :id, :complete_name, :selected => i.article.id), class: 'form-control'
+    .container-fluid{id: 'items-container'}
+      - @order.items.each_with_index do |i,k|
+        .row
+          .col-sm-12
+            .item_box{id: 'box-'+k.to_s}
+              %table
+                %tr
+                  %td
+                    .btn{class: 'btn-danger remove_item', id: k}="x"
+                  %td
+                    = select_tag "items[#{k}][article]", options_from_collection_for_select(Article.where("barcode = #{i.article.barcode}"), :id, :complete_name, :selected => i.article.id), class: 'form-control input-row'
+                  %td
+                    = text_field_tag "items[#{k}][price]", '', placeholder: 'Prezzo', class: 'form-control input-row'
+                  %td
+                    = text_field_tag "items[#{k}][discount]", '', placeholder: 'Sconto %', class: 'form-control input-row'
+                  %td
+                    = text_field_tag "items[#{k}][serial]", '', placeholder: 'N. seriale / Matricola', class: 'form-control input-row'
+                  %td
+                    = select_tag "items[#{k}][state]", options_for_select(Item.states), class: 'form-control input-row'
+                  %td
+                    = text_field_tag "items[#{k}]['expiringDate']", '', placeholder: 'Data scadenza', class: 'form-control input-row', 'data-behavior' => 'datepicker'
+                  %td
+                    = number_field_tag "items[#{k}][amount]", i.amount, step: :any, class: 'form-control input-row'
+
       -# = date_select :item, :purchaseDate
       -# = text_field_tag :purchaseDate, '', :placeholder => 'Data acquisto', 'data-behavior' => 'datepicker'
       -# - if @item.errors.any?
@@ -78,5 +89,10 @@
 :javascript
 
   init();
+  $('[data-behavior=datepicker]').datepicker({
+    language: "it",
+    autoclose: true,
+    todayHighlight: true
+  });
   //alert($('[data-behaviour~=datepicker]').data('behavior'));
   //$('[data-behaviour=datepicker]').datepicker();

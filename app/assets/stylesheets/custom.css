@@ -13,3 +13,12 @@ body{
     height: 88%;
   overflow-y: auto;
 }
+
+.item_box{
+  margin: .4em
+}
+
+.input-row{
+  margin-top: .25em;
+  margin-bottom: .25em;
+}
