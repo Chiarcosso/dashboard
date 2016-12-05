@@ -11,4 +11,9 @@ class Item < ApplicationRecord
   def amount
     @amount
   end
+
+  def setAmount q
+    @amount = q
+  end
+
 end

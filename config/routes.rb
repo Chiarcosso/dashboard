@@ -31,8 +31,8 @@ Rails.application.routes.draw do
   post   '/article/categories/', to: 'articles#list_categories', as: :list_article_categories
 
   get    '/items_from_order/:order', to: 'items#from_order', as: :items_from_order
-  get    '/items_new_order', to: 'items#new_order', as: :items_new_order
 
+  get    '/items_new_order', to: 'orders#new_order', as: :items_new_order
   post   '/items_new_order', to: 'orders#add_item_to_new_order', as: :add_item_to_order
 
 end

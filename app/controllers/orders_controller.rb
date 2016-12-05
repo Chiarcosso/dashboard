@@ -39,16 +39,38 @@ class OrdersController < ApplicationController
     end
   end
 
+  def new_order
+    @order = Order.new
+    @order.supplier = Company.find(2)
+    @transportDocument = TransportDocument.new
+    @transportDocument.date = DateTime.now.to_date
+    render :partial => 'items/new_order'
+  end
+
   def add_item_to_new_order
     @order = Order.new
-    item = Item.new
-    item.article = @article
-    @order.items << item
+    @transportDocument = TransportDocument.new
+    @order.supplier = Company.get(params[:order]['supplier'])
+    @order.date = params[:order][:purchaseDate]
+    @transportDocument.number = params[:order][:transportDocument]
+    @transportDocument.sender = Company.get(params[:order][:supplier])
+    @transportDocument.vector = Company.get(params[:order][:vector])
+    @transportDocument.date = params[:order][:purchaseDate]
     @items.each do |i,k|
       item = Item.new
+      item.setAmount k[:amount].to_i
+      item.price = k[:price].to_f
+      item.discount = k[:discount].to_f
+      item.serial = k[:serial]
+      item.state = k[:state].to_i
+      item.expiringDate = k[:expiringDate]
       item.article = Article.find(k[:article].to_i)
       @order.items << item
     end
+    item = Item.new
+    item.article = @article
+    item.setAmount 1
+    @order.items << item
     respond_to do |format|
       format.js { render :js, :partial => 'items/new_order' }
     end
@@ -98,6 +120,6 @@ class OrdersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def order_params
-      params.require(:order).permit(:number, :date)
+      params.require(:order).permit(:date, :supplier, :vector, :transportDocument, :purchaseDate)
     end
 end

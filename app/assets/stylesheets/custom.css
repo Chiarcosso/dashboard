@@ -1,17 +1,26 @@
 body{
-  padding: 5em;
-  padding-bottom: 7em;
+  /*padding: 1em;*/
+  /*padding-bottom: 1em;*/
   overflow: hidden;
+  margin-bottom: 8em;
+  margin-top: 2.5em;
 }
 
-.cont-95{
-  height: 95%;
+
+.scrollable-panel{
+  position: relative;
+  height: 100%;
+  float:none;
+  overflow-y: auto;
 }
 
 .internal-panel{
   position: relative;
-    height: 88%;
-  overflow-y: auto;
+  height: 100%;
+  float:none;
+  overflow-y: hidden;
+  margin-bottom: 1em;
+  padding-bottom: 20em;
 }
 
 .item_box{
@@ -21,4 +30,8 @@ body{
 .input-row{
   margin-top: .25em;
   margin-bottom: .25em;
+}
+
+.datepicker-dropdown{
+  z-index: 2001;
 }

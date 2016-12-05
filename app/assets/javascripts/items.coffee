@@ -14,10 +14,10 @@
   $(document).off 'keypress'
   $(document).keypress (e) ->
     # var inputId = $(':focus').attr('id')
+
+    console.log(e.which,$(this))
     if e.which == 13
-      if $(this).is(':last-child')
-        $('#barcode').focus().select()
-      else if $(':focus').attr('id') == 'barcode'
+      if $(':focus').attr('id') == 'barcode'
         $.ajaxSetup ({
           'beforeSend': (xhr) ->
             xhr.setRequestHeader("Accept", "text/javascript")
@@ -30,5 +30,15 @@
             dataType: "script"
         })
         return false
+      else if $(':focus').parent().is(':last-child')
+        e.preventDefault()
+        console.log($(':focus'))
+        $('#barcode').focus().select()
       else
-        $(this).next('input').select()
+        e.preventDefault()
+        next = $(':focus').parent().next().children(':first')
+        console.log(next)
+        if next.attr('type') == 'input'
+          next.select()
+        if next.attr('type') == 'select'
+          next.children(':first').select()

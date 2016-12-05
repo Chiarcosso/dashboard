@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161130123027) do
+ActiveRecord::Schema.define(version: 20161205085746) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -42,6 +42,8 @@ ActiveRecord::Schema.define(version: 20161130123027) do
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
     t.integer  "manufacturer_id"
+    t.integer  "created_by_id"
+    t.index ["created_by_id"], name: "index_articles_on_created_by_id", using: :btree
     t.index ["manufacturer_id"], name: "index_articles_on_manufacturer_id", using: :btree
   end
 
@@ -70,8 +72,12 @@ ActiveRecord::Schema.define(version: 20161130123027) do
   create_table "orders", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "number"
     t.date     "date"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.integer  "supplier_id"
+    t.integer  "created_by_id"
+    t.index ["created_by_id"], name: "index_orders_on_created_by_id", using: :btree
+    t.index ["supplier_id"], name: "index_orders_on_supplier_id", using: :btree
   end
 
   create_table "people", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -96,14 +102,18 @@ ActiveRecord::Schema.define(version: 20161130123027) do
     t.string   "number"
     t.date     "date"
     t.string   "reason"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
     t.integer  "order_id"
-    t.integer  "company_id", null: false
     t.integer  "sender_id"
-    t.index ["company_id"], name: "index_transport_documents_on_company_id", using: :btree
+    t.integer  "vector_id"
+    t.integer  "subvector_id"
+    t.integer  "receiver_id"
     t.index ["order_id"], name: "index_transport_documents_on_order_id", using: :btree
+    t.index ["receiver_id"], name: "index_transport_documents_on_receiver_id", using: :btree
     t.index ["sender_id"], name: "index_transport_documents_on_sender_id", using: :btree
+    t.index ["subvector_id"], name: "index_transport_documents_on_subvector_id", using: :btree
+    t.index ["vector_id"], name: "index_transport_documents_on_vector_id", using: :btree
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -131,7 +141,12 @@ ActiveRecord::Schema.define(version: 20161130123027) do
   end
 
   add_foreign_key "articles", "companies", column: "manufacturer_id"
+  add_foreign_key "articles", "users", column: "created_by_id"
   add_foreign_key "items", "articles"
-  add_foreign_key "transport_documents", "companies"
+  add_foreign_key "orders", "companies", column: "supplier_id"
+  add_foreign_key "orders", "users", column: "created_by_id"
+  add_foreign_key "transport_documents", "companies", column: "receiver_id"
+  add_foreign_key "transport_documents", "companies", column: "subvector_id"
+  add_foreign_key "transport_documents", "companies", column: "vector_id"
   add_foreign_key "transport_documents", "orders"
 end

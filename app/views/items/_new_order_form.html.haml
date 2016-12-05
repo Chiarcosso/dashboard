@@ -3,22 +3,25 @@
   = form_tag(add_item_to_order_path(format: :js), method: :post, remote: true, type: :script) do |f|
     = hidden_field_tag :authenticity_token, form_authenticity_token
     .row
-      .col-sm-4
+      .col-sm-3
+        = label_tag "Numero DDT"
+        = text_field_tag "order[transportDocument]", @transportDocument.number, class: 'form-control'
+      .col-sm-3
         = label_tag "Fornitore"
-        = select_tag "ordine['supplier']", options_from_collection_for_select(Company.all, :id, :name), class: 'form-control'
-      .col-sm-4
+        = select_tag "order[supplier]", options_from_collection_for_select(Company.all, :id, :name, {:selected => @order.supplier.nil?? nil : @order.supplier.id}), class: 'form-control'
+      .col-sm-3
         = label_tag "Vettore"
-        = select_tag "ordine['vector']", options_from_collection_for_select(Company.all, :id, :name), class: 'form-control'
-      .col-sm-4
+        = select_tag "order[vector]", options_from_collection_for_select(Company.all, :id, :name, {:selected => @transportDocument.vector.nil?? nil : @transportDocument.vector.id}), :include_blank => 'Destinatario', :selected => @transportDocument.vector, class: 'form-control'
+      .col-sm-3
         .field
           = label_tag "Data acquisto"
-          = text_field_tag "ordine['purchaseDate']", '', placeholder: 'Data acquisto', class: 'form-control', 'data-behavior' => 'datepicker'
+          = text_field_tag "order[purchaseDate]", (l @transportDocument.date), placeholder: 'Data acquisto', class: 'form-control', 'data-behavior' => 'datepicker'
     .row
       .col-sm-6
         .field
           = text_field_tag :barcode, '', placeholder: 'Codice a barre', class: 'form-control input-row autofocus', id: 'barcode', :options => { autofocus: true }
 
-    .container-fluid{id: 'items-container'}
+    .container-fluid.scrollable-panel{id: 'items-container'}
       - @order.items.each_with_index do |i,k|
         .row
           .col-sm-12
@@ -30,18 +33,24 @@
                   %td
                     = select_tag "items[#{k}][article]", options_from_collection_for_select(Article.where("barcode = #{i.article.barcode}"), :id, :complete_name, :selected => i.article.id), class: 'form-control input-row'
                   %td
-                    = text_field_tag "items[#{k}][price]", '', placeholder: 'Prezzo', class: 'form-control input-row'
+                    = text_field_tag "items[#{k}][price]", i.price, placeholder: 'Prezzo', class: 'form-control input-row'
                   %td
-                    = text_field_tag "items[#{k}][discount]", '', placeholder: 'Sconto %', class: 'form-control input-row'
+                    = text_field_tag "items[#{k}][discount]", i.discount, placeholder: 'Sconto %', class: 'form-control input-row'
                   %td
-                    = text_field_tag "items[#{k}][serial]", '', placeholder: 'N. seriale / Matricola', class: 'form-control input-row'
+                    = text_field_tag "items[#{k}][serial]", i.serial, placeholder: 'N. seriale / Matricola', class: 'form-control input-row'
                   %td
-                    = select_tag "items[#{k}][state]", options_for_select(Item.states), class: 'form-control input-row'
+                    = select_tag "items[#{k}][state]", options_for_select(Item.states, :selected => Item.states[i.state]), class: 'form-control input-row'
                   %td
-                    = text_field_tag "items[#{k}]['expiringDate']", '', placeholder: 'Data scadenza', class: 'form-control input-row', 'data-behavior' => 'datepicker'
+                    = text_field_tag "items[#{k}][expiringDate]", i.expiringDate ? (l i.expiringDate) : nil, placeholder: 'Data scadenza', class: 'form-control input-row', 'data-behavior' => 'datepicker'
                   %td
                     = number_field_tag "items[#{k}][amount]", i.amount, step: :any, class: 'form-control input-row'
-
+      - if @order.items.size > 0
+        .container-fluid
+          .row-fluid
+            .col-sm-4
+              = submit_tag "Conferma ordine / DDT"
+      - else
+        = @order.items.size
       -# = date_select :item, :purchaseDate
       -# = text_field_tag :purchaseDate, '', :placeholder => 'Data acquisto', 'data-behavior' => 'datepicker'
       -# - if @item.errors.any?

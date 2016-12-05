@@ -16,11 +16,6 @@ class ItemsController < ApplicationController
     render :partial => 'items/from_order'
   end
 
-  def new_order
-    @order = Order.new
-    render :partial => 'items/new_order'
-  end
-
   # GET /items/new
   def new
     @item = Item.new
