@@ -15,7 +15,7 @@
           = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode', :options => { autofocus: true }
         .field
           = f.label :manufacturer
-          = f.collection_select(:manufacturer, Company.all, :id, :name, {:include_blank => 'Generico', :selected => @article.manufacturer.id.to_s}, { :class => 'form-control' })
+          = f.collection_select(:manufacturer, Company.all, :id, :name, {:include_blank => 'Generico', :selected => @article.getManufacturer}, { :class => 'form-control' })
         .field
           = f.label :manufacturerCode
           = f.text_field :manufacturerCode, class: 'form-control'

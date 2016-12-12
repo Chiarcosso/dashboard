@@ -1,19 +1,20 @@
-.container-fluid
-  - if Article.incompleteItems.empty?
-    = "Non ci sono articoli incompleti"
-  - else
+
+- if Article.incompleteItems.empty?
+  = "Non ci sono articoli incompleti"
+- else
+  .container-fluid
+    .row-fluid
+      .col-sm-2
+        %b= 'Produttore'
+      .col-sm-3
+        %b= 'Nome'
+      .col-sm-2
+        %b= 'Quantità contenuta'
+      .col-sm-1
+        %b= 'Riserva minima'
+      .col-sm-4
+        %b= 'Categorie'
+.container-fluid.scrollable-panel
+  - Article.incompleteItems.each do |a|
     .container-fluid
-      .row-fluid
-        .col-sm-2
-          %b= 'Produttore'
-        .col-sm-3
-          %b= 'Nome'
-        .col-sm-2
-          %b= 'Quantità contenuta'
-        .col-sm-1
-          %b= 'Riserva minima'
-        .col-sm-4
-          %b= 'Categorie'
-    - Article.incompleteItems.each do |a|
-      .container-fluid
-        =render :partial => 'articles/incomplete_article_block', :locals => { :article => a }
+      =render :partial => 'articles/incomplete_article_block', :locals => { :article => a }

@@ -1,0 +1,36 @@
+.container-fluid.scrollable-panel
+  %table
+    %thead
+      %tr
+        %th Articolo
+        %th Data acquisto
+        %th Prezzo
+        %th Sconto
+        %th Seriale / matrice
+        %th Stato
+        %th Note
+        %th Data scadenza
+        %th DDT
+        %th
+        %th
+        %th
+
+    %tbody
+      - Item.all.each do |item|
+        %tr
+          %td= item.article.complete_name.to_s
+          %td= item.purchaseDate
+          %td= item.price
+          %td= item.discount
+          %td= item.serial
+          %td= item.state
+          %td= item.notes
+          %td= item.expiringDate.nil?? 'N/D' : (l item.expiringDate)
+          %td= item.transportDocument.nil?? 'Nessun DDT' : item.transportDocument.number
+          %td= link_to 'Show', item
+          %td= link_to 'Edit', edit_item_path(item)
+          %td= link_to 'Destroy', item, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+  %br
+
+  = link_to 'New Item', new_item_path

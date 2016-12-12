@@ -1,21 +1,32 @@
 # Place all the behaviors and hooks related to the matching controller here.
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
+@specificCloseFunctions = () ->
+  $('.item_box:last .remove_item').trigger('click')
+
+@specificSubmitFunctions = () ->
+  $('#dyn_ddt #barcode').val($('#new_article #barcode').val())
+  setTimeout ( ->
+      e = $.Event('keypress')
+      e.which = 13
+      $('#dyn_ddt #barcode').delay(5000).focus().trigger(e)
+    ),1000
+
 @init = () ->
 
   if $('.item_box').length
     $('.item_box:last input:first').select()
+    $('#items-container').animate({ scrollTop: $('#items-container').height()}, 1000);
   else
-    $('#barcode').focus().select()
+    # $('#barcode').focus().select()
+    $('input[type=text]').first().focus()
 
   $('.remove_item').click () ->
     $('#box-'+this.id).remove()
 
+
   $(document).off 'keypress'
   $(document).keypress (e) ->
-    # var inputId = $(':focus').attr('id')
-
-    console.log(e.which,$(this))
     if e.which == 13
       if $(':focus').attr('id') == 'barcode'
         $.ajaxSetup ({
@@ -32,13 +43,13 @@
         return false
       else if $(':focus').parent().is(':last-child')
         e.preventDefault()
-        console.log($(':focus'))
         $('#barcode').focus().select()
       else
         e.preventDefault()
-        next = $(':focus').parent().next().children(':first')
-        console.log(next)
-        if next.attr('type') == 'input'
-          next.select()
-        if next.attr('type') == 'select'
-          next.children(':first').select()
+
+        if $(':focus').parent().next().children('input[type!=hidden]').length
+          next = $(':focus').parent().next().children('input')
+        else
+          next = $(':focus').parent().next().children('select')
+
+        next.focus().select()

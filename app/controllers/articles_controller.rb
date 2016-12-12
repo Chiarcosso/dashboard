@@ -2,10 +2,6 @@ class ArticlesController < ApplicationController
   before_action :set_article, only: [:show, :edit, :update, :destroy, :list_categories]
   before_action :set_categories, only: [:list_categories]
 
-  require 'barby/outputter/cairo_outputter'
-  # require 'barby/outputter/png_outputter'
-  require 'barby/barcode/ean_13'
-
   # GET /articles
   # GET /articles.json
   def index
@@ -151,13 +147,8 @@ class ArticlesController < ApplicationController
 
 
     def set_article
-      @article = Article.find(params[:id])
-      if barcode = @article.checkBarcode
-        @blob = Barby::CairoOutputter.new(barcode).to_png #Raw PNG data
-        File.write("public/images/#{@article.barcode}.png", @blob)
-      else
-        @article.barcode = 'Codice non valido'
-      end
+      @article = Article.find(params.require(:id))
+      @article.setBarcodeImage
     end
 
     def set_categories
@@ -175,6 +166,6 @@ class ArticlesController < ApplicationController
       else
         @manufacturer = nil
       end
-      params.require(:article).permit(:barcode, :manufacturerCode, :name, :description, :containedAmount, :minimalReserve, :positionCode)
+      params.require(:article).permit(:barcode, :manufacturerCode, :name, :description, :containedAmount, :minimalReserve, :position_code)
     end
 end

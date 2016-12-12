@@ -1,5 +1,9 @@
 class Article < ApplicationRecord
   resourcify
+  require 'barby/outputter/cairo_outputter'
+  # require 'barby/outputter/png_outputter'
+  require 'barby/barcode/ean_13'
+  require 'barby/barcode/ean_8'
 
   has_and_belongs_to_many :categories, class_name: "ArticleCategory",
                                      join_table: "article_categorizations",
@@ -13,6 +17,19 @@ class Article < ApplicationRecord
 
   def self.incompleteItems
     Article.all
+  end
+
+  def setBarcodeImage
+    if barcode = self.checkBarcode
+      @blob = Barby::CairoOutputter.new(barcode).to_png #Raw PNG data
+      File.write("public/images/#{self.barcode}.png", @blob)
+    else
+      self.barcode = 'Codice non valido'
+    end
+  end
+
+  def getManufacturer
+    self.manufacturer.nil?? nil : self.manufacturer.id.to_s
   end
 
   def categoriesList
@@ -35,13 +52,19 @@ class Article < ApplicationRecord
     unless self.manufacturer.nil?
       self.manufacturer.name + " " + self.name
     else
-      "Generico" + " " + self.name
+      "Generico" + " " + self.name.to_s
     end
   end
 
   def checkBarcode
     begin
-      Barby::EAN13.new(self.barcode[0..-2])
+      if self.barcode[0..-2].size == 12
+        Barby::EAN13.new(self.barcode[0..-2])
+      elsif self.barcode[0..-2].size == 7
+        Barby::EAN8.new(self.barcode[0..-2])
+      else
+        return false
+      end
     rescue
       return false
     end
