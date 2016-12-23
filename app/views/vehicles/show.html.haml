@@ -1,0 +1,21 @@
+%p#notice= notice
+
+%p
+  %b References:
+  = @vehicle.references
+%p
+  %b Dismissed:
+  = @vehicle.dismissed
+%p
+  %b Registration date:
+  = @vehicle.registration_date
+%p
+  %b Initial serial:
+  = @vehicle.initial_serial
+%p
+  %b Mileage:
+  = @vehicle.mileage
+
+= link_to 'Edit', edit_vehicle_path(@vehicle)
+\|
+= link_to 'Back', vehicles_path

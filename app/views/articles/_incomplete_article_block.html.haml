@@ -5,7 +5,7 @@
     .col-sm-3
       = link_to article.name, edit_article_path(article.id), :remote => true
     .col-sm-2
-      = link_to article.containedAmount.to_s, edit_article_path(article.id), :remote => true
+      = link_to article.barcode.to_s, edit_article_path(article.id), :remote => true
     .col-sm-1
       = link_to article.minimalReserve.to_s, edit_article_path(article.id), :remote => true
     .col-sm-4

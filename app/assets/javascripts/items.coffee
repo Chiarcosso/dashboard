@@ -28,7 +28,7 @@
   $(document).off 'keypress'
   $(document).keypress (e) ->
     if e.which == 13
-      if $(':focus').attr('id') == 'barcode'
+      if $(':focus').attr('id') == 'barcode-items'
         $.ajaxSetup ({
           'beforeSend': (xhr) ->
             xhr.setRequestHeader("Accept", "text/javascript")
@@ -43,7 +43,7 @@
         return false
       else if $(':focus').parent().is(':last-child')
         e.preventDefault()
-        $('#barcode').focus().select()
+        $('#barcode-items').focus().select()
       else
         e.preventDefault()
 

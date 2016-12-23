@@ -1,0 +1,2 @@
+removejtk();
+$("#items_output").html("#{escape_javascript(render :partial => 'transport_documents/scan_document_form', locals: { order: @order, item: @item }  )} ");

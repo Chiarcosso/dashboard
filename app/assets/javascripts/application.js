@@ -32,13 +32,14 @@ function domInit() {
 
   $('.ajax-link').off('click');
   $('.ajax-link').on('click',function(e){
-    alert(this.attr('type')+'we');
+    alert($(this).attr('type')+'we');
   })
 
   $('.popup-link').off('click');
   $('.popup-link').on('click', function(e){
     var target = $(this).data('target');
     var name = $(this).data('name');
+    alert(target+' - '+name);
     $.ajaxSetup ({
       'beforeSend': function(xhr){
         xhr.setRequestHeader("Accept", "text/javascript");

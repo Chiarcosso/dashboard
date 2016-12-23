@@ -1,5 +1,6 @@
 class Article < ApplicationRecord
   resourcify
+  include BarcodeUtility
   require 'barby/outputter/cairo_outputter'
   # require 'barby/outputter/png_outputter'
   require 'barby/barcode/ean_13'
@@ -13,18 +14,20 @@ class Article < ApplicationRecord
   has_many :items
   belongs_to :manufacturer, class_name: "Company"
 
-  scope :incomplete, -> { where(barcode: '') }
+  scope :no_barcode, -> { where(barcode: '') }
 
   def self.incompleteItems
     Article.all
   end
 
   def setBarcodeImage
-    if barcode = self.checkBarcode
-      @blob = Barby::CairoOutputter.new(barcode).to_png #Raw PNG data
-      File.write("public/images/#{self.barcode}.png", @blob)
-    else
-      self.barcode = 'Codice non valido'
+    unless self.barcode == ''
+      if barcode = checkBarcode(self.barcode,'EAN')
+        @blob = Barby::CairoOutputter.new(barcode).to_png #Raw PNG data
+        File.write("public/images/#{self.barcode}.png", @blob)
+      else
+        self.barcode = 'Codice non valido'
+      end
     end
   end
 
@@ -56,18 +59,18 @@ class Article < ApplicationRecord
     end
   end
 
-  def checkBarcode
-    begin
-      if self.barcode[0..-2].size == 12
-        Barby::EAN13.new(self.barcode[0..-2])
-      elsif self.barcode[0..-2].size == 7
-        Barby::EAN8.new(self.barcode[0..-2])
-      else
-        return false
-      end
-    rescue
-      return false
-    end
-  end
+  # def checkBarcode
+  #   begin
+  #     if self.barcode[0..-2].size == 12
+  #       Barby::EAN13.new(self.barcode[0..-2])
+  #     elsif self.barcode[0..-2].size == 7
+  #       Barby::EAN8.new(self.barcode[0..-2])
+  #     else
+  #       return false
+  #     end
+  #   rescue
+  #     return false
+  #   end
+  # end
 
 end

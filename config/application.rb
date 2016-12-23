@@ -13,5 +13,6 @@ module Vagrant
     # -- all .rb files in that directory are automatically loaded.
     # YAML::ENGINE.yamler = 'syck'
     config.i18n.default_locale = :it
+    config.autoload_paths += %W(#{config.root}/lib)
   end
 end

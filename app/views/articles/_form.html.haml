@@ -12,7 +12,7 @@
       = form_for @article, :html=>{:multipart => true,:remote=>true} do |f|
         .field
           = f.label :barcode
-          = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode', :options => { autofocus: true }
+          = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode-articles', :options => { autofocus: true }
         .field
           = f.label :manufacturer
           = f.collection_select(:manufacturer, Company.all, :id, :name, {:include_blank => 'Generico', :selected => @article.getManufacturer}, { :class => 'form-control' })
@@ -43,7 +43,7 @@
           = image_tag(@article.barcode.to_s+'.png')
       .container-fluid
         #photo-img
-          = "image"
+          = image_tag('1.png')
 
     -# .row-fluid
     -#   .col-sm-12

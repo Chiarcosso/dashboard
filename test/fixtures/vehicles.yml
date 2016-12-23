@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  references: 
+  dismissed: false
+  registration_date: 2016-12-14
+  initial_serial: MyString
+  mileage: 1
+
+two:
+  references: 
+  dismissed: false
+  registration_date: 2016-12-14
+  initial_serial: MyString
+  mileage: 1

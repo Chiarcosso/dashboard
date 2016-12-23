@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161206132154) do
+ActiveRecord::Schema.define(version: 20161221154047) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -55,6 +55,17 @@ ActiveRecord::Schema.define(version: 20161206132154) do
     t.datetime "updated_at",            null: false
   end
 
+  create_table "item_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "office_id"
+    t.integer  "vehicle_id"
+    t.date     "since"
+    t.date     "to"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["office_id"], name: "index_item_relations_on_office_id", using: :btree
+    t.index ["vehicle_id"], name: "index_item_relations_on_vehicle_id", using: :btree
+  end
+
   create_table "items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "purchaseDate"
     t.decimal  "price",                               precision: 9, scale: 2
@@ -68,9 +79,16 @@ ActiveRecord::Schema.define(version: 20161206132154) do
     t.integer  "article_id",                                                  null: false
     t.integer  "transportDocument_id"
     t.integer  "transport_document_id"
+    t.string   "barcode"
     t.index ["article_id"], name: "index_items_on_article_id", using: :btree
     t.index ["transportDocument_id"], name: "index_items_on_transportDocument_id", using: :btree
     t.index ["transport_document_id"], name: "index_items_on_transport_document_id", using: :btree
+  end
+
+  create_table "offices", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "order_articles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -105,6 +123,16 @@ ActiveRecord::Schema.define(version: 20161206132154) do
     t.text     "notes",      limit: 65535
     t.datetime "created_at",                            null: false
     t.datetime "updated_at",                            null: false
+  end
+
+  create_table "representatives", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "office_id"
+    t.integer  "user_id"
+    t.integer  "level"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["office_id"], name: "index_representatives_on_office_id", using: :btree
+    t.index ["user_id"], name: "index_representatives_on_user_id", using: :btree
   end
 
   create_table "roles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -159,8 +187,32 @@ ActiveRecord::Schema.define(version: 20161206132154) do
     t.index ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id", using: :btree
   end
 
+  create_table "vehicle_models", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name"
+    t.integer  "type"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.integer  "manufacturer_id"
+    t.index ["manufacturer_id"], name: "index_vehicle_models_on_manufacturer_id", using: :btree
+  end
+
+  create_table "vehicles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.boolean  "dismissed",         default: false
+    t.date     "registration_date"
+    t.string   "initial_serial"
+    t.integer  "mileage"
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.integer  "property_id"
+    t.integer  "model_id"
+    t.index ["model_id"], name: "index_vehicles_on_model_id", using: :btree
+    t.index ["property_id"], name: "index_vehicles_on_property_id", using: :btree
+  end
+
   add_foreign_key "articles", "companies", column: "manufacturer_id"
   add_foreign_key "articles", "users", column: "created_by_id"
+  add_foreign_key "item_relations", "offices"
+  add_foreign_key "item_relations", "vehicles"
   add_foreign_key "items", "articles"
   add_foreign_key "items", "transport_documents"
   add_foreign_key "order_articles", "articles"
@@ -171,4 +223,7 @@ ActiveRecord::Schema.define(version: 20161206132154) do
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
   add_foreign_key "transport_documents", "companies", column: "vector_id"
   add_foreign_key "transport_documents", "orders"
+  add_foreign_key "vehicle_models", "companies", column: "manufacturer_id"
+  add_foreign_key "vehicles", "companies", column: "property_id"
+  add_foreign_key "vehicles", "vehicle_models", column: "model_id"
 end

@@ -48,6 +48,7 @@ gem 'barby'
 # gem 'capistrano-rails', group: :development
 gem 'remotipart'
 gem 'rails_layout'
+gem 'zebra-epl'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

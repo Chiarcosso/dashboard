@@ -1,0 +1,2 @@
+removejtk();
+$("#articles_content").html("#{escape_javascript(render :partial => 'article_categories/categories', locals: { article_categories: @article_categories }  )} ");

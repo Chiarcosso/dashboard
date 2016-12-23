@@ -48,6 +48,10 @@ class OrdersController < ApplicationController
     render :partial => 'items/new_order'
   end
 
+  def scan_order
+    render :partial => 'transport_documents/scan_document'
+  end
+
   def add_item_to_new_order
     @order = Order.new
     @transportDocument = TransportDocument.new
@@ -67,6 +71,7 @@ class OrdersController < ApplicationController
       item.state = k[:state].to_i
       item.expiringDate = k[:expiringDate]
       item.article = Article.find(k[:article].to_i)
+      item.barcode = SecureRandom.base58(10)
       @items << item
     end
 
@@ -74,6 +79,7 @@ class OrdersController < ApplicationController
       item = Item.new
       item.article = @article
       item.setAmount 1
+      item.barcode = SecureRandom.base58(10)
       @items << item
     end
 

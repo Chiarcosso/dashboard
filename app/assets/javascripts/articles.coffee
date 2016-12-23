@@ -3,7 +3,7 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 @init = () ->
 
-  $('#barcode').focus().select();
+  $('#barcode-articles').focus().select();
 
   $(document).off 'keypress'
   $(document).keypress (e) ->
@@ -16,8 +16,9 @@
         if nx.children('textarea').length > 0
           nx.children('textarea').focus().select()
         if nx.children('input').length > 0
-          console.log(nx.children('input').length)
           nx.children('input').focus().select()
+        if nx.children('select').length > 0
+          nx.children('select').first().focus().select()
         else
           $('#article-submit').focus()
 
