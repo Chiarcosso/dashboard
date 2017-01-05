@@ -58,10 +58,12 @@ ActiveRecord::Schema.define(version: 20161221154047) do
   create_table "item_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "office_id"
     t.integer  "vehicle_id"
+    t.integer  "item_id"
     t.date     "since"
     t.date     "to"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["item_id"], name: "index_item_relations_on_item_id", using: :btree
     t.index ["office_id"], name: "index_item_relations_on_office_id", using: :btree
     t.index ["vehicle_id"], name: "index_item_relations_on_vehicle_id", using: :btree
   end
@@ -211,6 +213,7 @@ ActiveRecord::Schema.define(version: 20161221154047) do
 
   add_foreign_key "articles", "companies", column: "manufacturer_id"
   add_foreign_key "articles", "users", column: "created_by_id"
+  add_foreign_key "item_relations", "items"
   add_foreign_key "item_relations", "offices"
   add_foreign_key "item_relations", "vehicles"
   add_foreign_key "items", "articles"

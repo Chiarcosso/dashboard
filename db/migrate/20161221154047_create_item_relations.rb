@@ -3,6 +3,7 @@ class CreateItemRelations < ActiveRecord::Migration[5.0]
     create_table :item_relations do |t|
       t.references :office, foreign_key: true
       t.references :vehicle, foreign_key: true
+      t.references :item, foreign_key: true
       t.date :since
       t.date :to
       t.timestamps

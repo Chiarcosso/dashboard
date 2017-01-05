@@ -20,6 +20,10 @@ class Article < ApplicationRecord
     Article.all
   end
 
+  def availability
+    Item.available_items.article(self)
+  end
+
   def setBarcodeImage
     unless self.barcode == ''
       if barcode = checkBarcode(self.barcode,'EAN')

@@ -12,6 +12,9 @@ class Item < ApplicationRecord
   belongs_to :transportDocument
   has_many :item_relations
 
+  scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil)}
+  scope :article, ->(article) { where(:article => article) }
+  scope :filter, ->(search) { joins(:articles).where("item.name LIKE '%#{search}%'").where("article.name LIKE '%#{search}%'")}
   enum state: [:nuovo,:usato,:rigenerato,:riscolpito,:danneggiato,:smaltimento]
 
   @amount = 1
@@ -22,6 +25,21 @@ class Item < ApplicationRecord
 
   def setAmount q
     @amount = q
+  end
+
+  def position
+    relation = self.item_relations.sortBy(:since).last
+    unless relation.office.nil?
+      return relation.office
+    end
+    unless relation.vehicle.nil?
+      return relation.vehicle
+    end
+    return nil
+  end
+
+  def available?
+    self.position.nil?? true : false
   end
 
   def generateBarcode

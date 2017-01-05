@@ -146,6 +146,8 @@ GEM
       ruby-graphviz (~> 1.2)
     rails-html-sanitizer (1.0.3)
       loofah (~> 2.0)
+    rails-jquery-autocomplete (1.0.3)
+      rails (>= 3.2)
     rails_bootstrap_navbar (2.0.1)
       bootstrap-navbar (~> 2.0)
       rails (>= 3.0.0)
@@ -232,6 +234,7 @@ DEPENDENCIES
   puma (~> 3.0)
   rails (~> 5.0.0)
   rails-erd
+  rails-jquery-autocomplete
   rails_bootstrap_navbar
   rails_layout
   remotipart

@@ -33,3 +33,15 @@ ActiveRecord::Base.connection.execute("SET FOREIGN_KEY_CHECKS = 1")
 ArticleCategory.create! :name => 'Officina'
 ArticleCategory.create! :name => 'Dotazione'
 ArticleCategory.create! :name => 'Ufficio'
+
+ActiveRecord::Base.connection.execute("SET FOREIGN_KEY_CHECKS = 0")
+ActiveRecord::Base.connection.execute("TRUNCATE offices")
+ActiveRecord::Base.connection.execute("SET FOREIGN_KEY_CHECKS = 1")
+
+Office.create! :name => 'Magazzino'
+Office.create! :name => 'Officina'
+Office.create! :name => 'Amministrazione'
+Office.create! :name => 'Traffico'
+Office.create! :name => 'Personale'
+Office.create! :name => 'Accettazione'
+Office.create! :name => 'Manutenzioni'

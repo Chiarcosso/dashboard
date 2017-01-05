@@ -25,7 +25,6 @@ class ItemsController < ApplicationController
   def add_item_to_storage
 
     @items = Array.new
-    @i = nil
     @newItems.each do |i,k|
       item = Item.new
       item.setAmount k[:amount].to_i
@@ -37,9 +36,7 @@ class ItemsController < ApplicationController
       item.article = Article.find(k[:article].to_i)
       item.barcode = item.generateBarcode #SecureRandom.base58(10)
       @items << item
-      @i = item
     end
-    @i.printLabel
 
     # if params[:barcode] != ''
     unless @article.nil?
@@ -53,16 +50,25 @@ class ItemsController < ApplicationController
     if @save
       @items.each do |i|
         # i.transportDocument = @transportDocument
-        OrderArticle.create!({order: @order, article: i.article, amount: i.amount})
+        # OrderArticle.create({order: @order, article: i.article, amount: i.amount})
         i.amount.times do
-          item = Item.create!(i.attributes)
+          item = Item.create(i.attributes)
+          item.item_relations << ItemRelation.create(:since => Time.now)
+          if i.serial.size || !i.expiringDate.nil?
+            i.printLabel
+          end
         end
+      end
+      respond_to do |format|
+        format.js { render :js, :partial => 'items/new_order' }
+      end
+    else
+      respond_to do |format|
+        format.js { render :js, :partial => 'items/new_order' }
       end
     end
 
-    respond_to do |format|
-      format.js { render :js, :partial => 'items/new_order' }
-    end
+
   end
 
   def from_order
@@ -79,6 +85,8 @@ class ItemsController < ApplicationController
   end
 
   def output_office
+    @selected_items = Array.new
+    @items = Item.filter(search_params)
     respond_to do |format|
       format.js { render :js, :partial => 'items/output_office' }
     end
@@ -161,11 +169,16 @@ class ItemsController < ApplicationController
       end
     end
 
-
     def items_params
-      @save = params['commit'] == 'Conferma ordine / DDT' ? true : false
+      @save = params['commit'][0..7] == 'Conferma' ? true : false
       params.require(:items).tap do |itm|
         itm.permit(:article, :price, :discount, :serial, :state, :expiringDate, :amount)
+      end
+    end
+
+    def search_params
+      unless params[:search].nil?
+        params.require(:search)
       end
     end
 end

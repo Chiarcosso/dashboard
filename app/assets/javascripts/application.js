@@ -16,6 +16,8 @@
 //= require_tree .
 //= require bootstrap-datepicker/core
 //= require bootstrap-datepicker/locales/bootstrap-datepicker.it.js
+//  require jquery-ui/autocomplete
+//= require autocomplete-rails
 
 function domInit() {
 
