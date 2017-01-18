@@ -1,17 +1,23 @@
 %h1 Magazzino
 .container-fluid
   .panel
-    %ul.nav.nav-tabs
-      %li.active
-        = link_to "Ricezione materiali", "#reception", "data-toggle"=>"tab"
-      %li
-        = link_to "Uscita materiali", "#output", "data-toggle"=>"tab"
-      %li
-        = link_to "Gestione magazzino", "#management", "data-toggle"=>"tab"
-    .tab-content
-      .content.tab-pane.active.fade.in{:id => 'reception'}
-        =render :partial => 'storage/reception'
-      .content.tab-pane.fade.in{:id => 'output'}
-        =render :partial => 'storage/output_initial'
-      .content.tab-pane.fade.in{:id => 'management'}
-        =render :partial => 'storage/manage'
+    = link_to "Ricezione materiali", storage_reception_path, class: 'btn btn-primary'
+    = link_to "Uscita materiali", storage_output_path, class: 'btn btn-primary'
+    = link_to "Gestione magazzino", storage_management_path, class: 'btn btn-primary'
+    -# %ul.nav.nav-tabs
+    -#   %li.active
+    -#     = link_to "Ricezione materiali", storage_reception_path, "data-toggle"=>"tab", class: 'btn btn-primary'
+    -#   %li
+    -#     = link_to "Uscita materiali", storage_output_path, "data-toggle"=>"tab", class: 'btn btn-primary'
+    -#   %li
+    -#     = link_to "Gestione magazzino", storage_management_path, "data-toggle"=>"tab", class: 'btn btn-primary'
+.container-fluid
+  .panel
+    =render :partial => @partial
+    -# .tab-content
+    -#   .content.tab-pane.active.fade.in{:id => 'reception'}
+    -#     =render :partial => 'storage/reception'
+    -#   .content.tab-pane.fade.in{:id => 'output'}
+    -#     =render :partial => 'storage/output_initial'
+    -#   .content.tab-pane.fade.in{:id => 'management'}
+    -#     =render :partial => 'storage/manage'

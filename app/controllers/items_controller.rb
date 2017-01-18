@@ -39,7 +39,7 @@ class ItemsController < ApplicationController
     end
 
     # if params[:barcode] != ''
-    unless @article.nil?
+    unless @article.nil? || @save
       item = Item.new
       item.article = @article
       item.setAmount 1
@@ -58,6 +58,9 @@ class ItemsController < ApplicationController
             i.printLabel
           end
         end
+        @items = Array.new
+        @newItems = Array.new
+        @save = false
       end
       respond_to do |format|
         format.js { render :js, :partial => 'items/new_order' }
@@ -148,11 +151,12 @@ class ItemsController < ApplicationController
         @article = Article.find(params[:article].to_i)
         @articles = Array.new
         @articles << @article
+        @newArticle = false
       elsif Article.where(barcode: params[:barcode]).count > 0
         @articles = Article.where(barcode: params[:barcode])
         @article = @articles.first
         @newArticle = false
-      else
+      elsif !@save
         @newArticle = true
         @article = Article.new({:barcode => params[:barcode]})
         @articles = Array.new
@@ -162,7 +166,8 @@ class ItemsController < ApplicationController
     end
 
     def set_items_for_order
-      if params[:items].nil?
+      # if params[:items].nil?
+      if items_params.nil?
         @newItems = Array.new
       else
         @newItems = items_params
@@ -170,9 +175,13 @@ class ItemsController < ApplicationController
     end
 
     def items_params
-      @save = params['commit'][0..7] == 'Conferma' ? true : false
-      params.require(:items).tap do |itm|
-        itm.permit(:article, :price, :discount, :serial, :state, :expiringDate, :amount)
+      unless params[:commit].nil?
+        @save = params['commit'][0..7] == 'Conferma' ? true : false
+      end
+      unless params[:items].nil?
+        params.require(:items).tap do |itm|
+          itm.permit(:article, :price, :discount, :serial, :state, :expiringDate, :amount)
+        end
       end
     end
 

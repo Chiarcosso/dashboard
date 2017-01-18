@@ -1,6 +1,6 @@
 .container-fluid
   - if @transportDocument.nil?
-    %h3= 'Inserimento da magazzino vecchio'
+    %h3= 'Inserimento libero'
     - path = add_item_to_storage_path(format: :js)
   -else
     %h3= 'Ordine / DDT dinamico'

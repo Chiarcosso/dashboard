@@ -57,7 +57,7 @@ class Article < ApplicationRecord
 
   def complete_name
     unless self.manufacturer.nil?
-      self.manufacturer.name + " " + self.name
+      self.manufacturer.name + " " + self.manufacturerCode
     else
       "Generico" + " " + self.name.to_s
     end

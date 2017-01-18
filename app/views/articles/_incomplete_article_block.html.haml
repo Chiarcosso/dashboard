@@ -1,6 +1,7 @@
 .container-fluid
   .row-fluid
     .col-sm-2
+      = button_to "x", "/articles/#{article.id}", :method => :delete, :remote => true
       = link_to article.manufacturer_name, edit_article_path(article.id), :remote => true, class: 'ajax-link'
     .col-sm-3
       = link_to article.name, edit_article_path(article.id), :remote => true

@@ -2,7 +2,26 @@ class StorageController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize
 
+  autocomplete :company, :name
+
+
   def home
+    @partial = 'storage/reception'
+    render 'storage/index'
+  end
+
+  def reception
+    @partial = 'storage/reception'
+    render 'storage/index'
+  end
+
+  def output
+    @partial = 'storage/output_initial'
+    render 'storage/index'
+  end
+
+  def management
+    @partial = 'storage/manage'
     render 'storage/index'
   end
 

@@ -5,12 +5,13 @@
   $('.item_box:last .remove_item').trigger('click')
 
 @specificSubmitFunctions = () ->
-  $('#dyn_ddt #barcode').val($('#new_article #barcode').val())
+  val = $('#new_article #barcode-articles').val()
   setTimeout ( ->
       e = $.Event('keypress')
       e.which = 13
-      $('#dyn_ddt #barcode').delay(5000).focus().trigger(e)
-    ),1000
+      $('#dyn_ddt #barcode-items').val(val)
+      $('#dyn_ddt #barcode-items').focus().trigger(e)
+    ),800
 
 @init = () ->
 
@@ -28,15 +29,16 @@
   $(document).off 'keypress'
   $(document).keypress (e) ->
     if e.which == 13
+      form = $(':focus').parents('form').first()
       if $(':focus').attr('id') == 'barcode-items'
         $.ajaxSetup ({
           'beforeSend': (xhr) ->
             xhr.setRequestHeader("Accept", "text/javascript")
         })
-        valuesToSubmit = $('form').serialize()
+        valuesToSubmit = form.serialize()
         $.ajax({
             type: "POST",
-            url: $('form').attr('action'),
+            url: form.attr('action'),
             data: valuesToSubmit,
             dataType: "script"
         })

@@ -15,7 +15,11 @@
           = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode-articles', :options => { autofocus: true }
         .field
           = f.label :manufacturer
-          = f.collection_select(:manufacturer, Company.all, :id, :name, {:include_blank => 'Generico', :selected => @article.getManufacturer}, { :class => 'form-control' })
+          = text_field_tag :manufacturer, Company.manufacturerChoice.name, data: { autocomplete: autocomplete_company_name_articles_path }
+          -# = f.autocomplete_field :manufacturer, autocomplete_company_name_articles_path
+          -# %div{'data-target': new_company_path, 'data-name': 'add_company', class: 'btn btn-primary popup-link'}
+          -#   +
+          -# = f.collection_select(:manufacturer, Company.all, :id, :name, {:include_blank => 'Generico', :selected => @article.getManufacturer}, { :class => 'form-control' })
         .field
           = f.label :manufacturerCode
           = f.text_field :manufacturerCode, class: 'form-control'
@@ -41,9 +45,6 @@
       .container-fluid
         #barcode-img
           = image_tag(@article.barcode.to_s+'.png')
-      .container-fluid
-        #photo-img
-          = image_tag('1.png')
 
     -# .row-fluid
     -#   .col-sm-12

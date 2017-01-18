@@ -2,6 +2,7 @@ class ArticlesController < ApplicationController
   before_action :set_article, only: [:show, :edit, :update, :destroy, :list_categories]
   before_action :set_categories, only: [:list_categories]
 
+  autocomplete :company, :name, full: true
   # GET /articles
   # GET /articles.json
   def index
@@ -135,10 +136,13 @@ class ArticlesController < ApplicationController
   # DELETE /articles/1
   # DELETE /articles/1.json
   def destroy
-    @article.destroy
+
     respond_to do |format|
-      format.html { redirect_to articles_url, notice: 'Article was successfully destroyed.' }
-      format.json { head :no_content }
+      if @article.destroy
+        format.js { render :partial => 'articles/incomplete', notice: 'Articolo eliminato.' }
+      else
+        format.js { render :partial => 'articles/incomplete', notice: 'Impossibile eliminare articolo.' }
+      end
     end
   end
 
@@ -161,8 +165,13 @@ class ArticlesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def article_params
-      if params[:article][:manufacturer] != ''
-        @manufacturer = Company.find(params[:article][:manufacturer])
+
+      unless params[:search] == ''
+        # @manufacturer = Company.find(:all,:conditions => ['name LIKE ?', "#{params[:manufacturer]}"])
+        @manufacturer = Company.where('name LIKE ?', "#{params[:manufacturer]}").first
+        if @manufacturer.nil?
+          @manufacturer = Company.create(:name => params[:manufacturer])
+        end
       else
         @manufacturer = nil
       end

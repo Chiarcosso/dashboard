@@ -1,6 +1,7 @@
 class CompaniesController < ApplicationController
   before_action :set_company, only: [:show, :edit, :update, :destroy]
 
+  autocomplete :company, :name, full: true
   # GET /companies
   # GET /companies.json
   def index

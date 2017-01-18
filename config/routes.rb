@@ -7,7 +7,9 @@ Rails.application.routes.draw do
   resources :transport_documents
   resources :companies
   resources :article_categories
-  resources :articles
+  resources :articles do
+    get :autocomplete_company_name, :on => :collection
+  end
   resources :people
   devise_for :users
   # devise_scope :user do
@@ -25,10 +27,17 @@ Rails.application.routes.draw do
   put    '/admin/users/:id', to: 'users#update'
   delete '/admin/users/:id', to: 'users#delete', as: :delete_user_admin
 
-  post '/users/:id/roles/:role', to: 'users#add_role'
+  # get    '/autocomplete/:model/:search', to: 'companies#autocomplete', as: :ac_companies
+
+
+  post   '/users/:id/roles/:role', to: 'users#add_role'
   delete '/users/:id/roles/:role', to: 'users#rem_role'
 
   get    '/storage', to: 'storage#home', as: :storage
+  get    '/storage_reception', to: 'storage#reception', as: :storage_reception
+  get    '/storage_output', to: 'storage#output', as: :storage_output
+  get    '/storage_management', to: 'storage#management', as: :storage_management
+
   get    '/incomplete_articles', to: 'articles#incomplete', as: :incomplete_articles
   post   '/article_categories/manage', to: 'article_categories#manage', as: :manage_article_categories
   post   '/article/categories/', to: 'articles#list_categories', as: :list_article_categories

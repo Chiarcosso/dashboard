@@ -18,12 +18,13 @@ gem 'coffee-rails', '~> 4.2'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
-gem 'rails-jquery-autocomplete'
+gem 'jquery-ui-rails'
 # Use SCSS for stylesheets
 gem 'bootstrap-sass'
 gem 'sass-rails', '~> 5.0'
 gem 'rails_bootstrap_navbar'
 # gem 'bootstrap-datepicker-rails'
+gem 'rails-jquery-autocomplete'
 
 gem 'haml-rails'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
@@ -37,6 +38,7 @@ gem 'jbuilder', '~> 2.5'
 gem 'devise'
 gem 'cancancan'
 gem 'rolify'
+gem 'sanitize-rails'
 
 # gem 'ancestry'
 
