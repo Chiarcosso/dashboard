@@ -4,6 +4,8 @@
 - else
   .container-fluid
     .row-fluid
+      .col-sm-1
+        %b= 'Elimina'
       .col-sm-2
         %b= 'Produttore'
       .col-sm-3
@@ -12,7 +14,7 @@
         %b= 'Codice a barre'
       .col-sm-1
         %b= 'Riserva minima'
-      .col-sm-4
+      .col-sm-3
         %b= 'Categorie'
 .container-fluid.scrollable-panel
   - Article.incompleteItems.each do |a|

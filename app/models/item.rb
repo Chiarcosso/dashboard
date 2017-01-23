@@ -14,7 +14,7 @@ class Item < ApplicationRecord
 
   scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil)}
   scope :article, ->(article) { where(:article => article) }
-  scope :filter, ->(search) { joins(:articles).where("item.name LIKE '%#{search}%'").where("article.name LIKE '%#{search}%'")}
+  scope :filter, ->(search) { joins(:article).where("name LIKE '%#{search}%'").where("articles.name LIKE '%#{search}%'")}
   enum state: [:nuovo,:usato,:rigenerato,:riscolpito,:danneggiato,:smaltimento]
 
   @amount = 1

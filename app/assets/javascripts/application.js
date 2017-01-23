@@ -40,6 +40,26 @@ function domInit() {
     // },1500);
   })
 
+  var l = $('.autosearch').val().length;
+  $('.autosearch').first()[0].setSelectionRange(l,l);;
+  $('.autosearch').first().focus();
+
+  // var lineend = $.Event('keyup');
+  // lineend.which = 35;
+  // $('.autosearch').first().trigger(lineend);
+
+  var timer;
+  $('.autosearch').off('keyup');
+  $('.autosearch').on('keyup',function(e){
+    var element = this;
+    window.clearTimeout(timer);
+    if((48 <= e.which <= 57) || (65 <= e.which <= 90) || (96 <= e.which <= 105) || (188 <= e.which <= 191) || (e.which == 220) || (e.which == 222) || (e.which == 13)) {
+      timer = window.setTimeout(function(){
+          console.log(e.which);
+          $(element).parent('form').submit();
+      },1000);
+    }
+  })
   $('.autocomplete').off('ready');
   $('.autocomplete').on('ready',function(){
     var context = $(this).data('context');

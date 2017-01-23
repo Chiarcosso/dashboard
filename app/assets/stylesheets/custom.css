@@ -52,6 +52,12 @@ body{
   overflow: auto;
 }
 
+.tab-header *{
+  margin-top: 1em;
+  margin-bottom: .6em;
+  font-weight: bolder;
+}
+
 .close{
   top: 0px;
   right: 0px;

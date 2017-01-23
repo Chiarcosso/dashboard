@@ -5,7 +5,9 @@ class ItemsController < ApplicationController
   # GET /items
   # GET /items.json
   def index
-    @items = Item.all
+    @search = search_params.nil?? '' : search_params
+    @selected_items = Item.filter(search_params).distinct
+    render :partial => 'items/index'
   end
 
   # GET /items/1
@@ -128,10 +130,19 @@ class ItemsController < ApplicationController
   # DELETE /items/1
   # DELETE /items/1.json
   def destroy
-    @item.destroy
+    @item.item_relations.each do |ir|
+      if ir.office.nil? && ir.vehicle.nil?
+        ir.delete
+      end
+    end
     respond_to do |format|
-      format.html { redirect_to items_url, notice: 'Item was successfully destroyed.' }
-      format.json { head :no_content }
+      if @item.destroy
+        @selected_items = Item.filter(search_params).distinct
+        format.js { render :partial => 'items/index', notice: 'Pezzo eliminato.' }
+      else
+        @selected_items = Item.filter(search_params).distinct
+        format.js { render :partial => 'items/index', notice: 'Impossibile eliminare il pezzo.' }
+      end
     end
   end
 
@@ -143,7 +154,7 @@ class ItemsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def item_params
-      params.require(:item).permit(:article_id, :purchaseDate, :price, :price, :discount, :discount, :seral, :state, :notes, :expiringDate, :transportDocument_id)
+      params.require(:item).permit(:article_id, :purchaseDate, :price, :price, :discount, :discount, :serial, :state, :notes, :expiringDate, :transportDocument_id)
     end
 
     def set_article_for_order

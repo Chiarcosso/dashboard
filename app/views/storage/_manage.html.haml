@@ -1,9 +1,10 @@
 .row-fluid
   .col-sm-2
     .panel
-      =link_to "Categorie", article_categories_path, :remote=> true, class: "btn btn-primary"
-      =link_to "Articoli incompleti", incomplete_articles_path, :remote=> true, class: "btn btn-primary"
-      =link_to "Crea articolo", new_article_path, :remote=> true, class: "btn btn-primary"
+      =link_to "Crea articolo", new_article_path, :remote=> true, class: "btn btn-primary", style: "width: 10em; margin: .1em;"
+      =link_to "Categorie", article_categories_path, :remote=> true, class: "btn btn-primary", style: "width: 10em; margin: .1em;"
+      =link_to "Articoli incompleti", incomplete_articles_path, :remote=> true, class: "btn btn-primary", style: "width: 10em; margin: .1em;"
+      =link_to "Elenco pezzi", items_path, :remote=> true, class: "btn btn-primary", style: "width: 10em; margin: .1em;"
   .col-sm-10
     #articles_content.container-fluid
       =render :partial => 'articles/incomplete_items'

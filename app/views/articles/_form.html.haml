@@ -15,7 +15,7 @@
           = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode-articles', :options => { autofocus: true }
         .field
           = f.label :manufacturer
-          = text_field_tag :manufacturer, Company.manufacturerChoice.name, data: { autocomplete: autocomplete_company_name_articles_path }
+          = text_field_tag :manufacturer, (@article.manufacturer.nil?? Company.manufacturerChoice.name : @article.manufacturer.name), data: { autocomplete: autocomplete_company_name_articles_path }
           -# = f.autocomplete_field :manufacturer, autocomplete_company_name_articles_path
           -# %div{'data-target': new_company_path, 'data-name': 'add_company', class: 'btn btn-primary popup-link'}
           -#   +
