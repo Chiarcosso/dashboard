@@ -21,7 +21,22 @@ class ItemsController < ApplicationController
   end
 
   def vehicle_insert
+    byebug
+  end
 
+  def store
+    msg = 'Ok'
+    itemsToStore = store_params[:items_to_store].split
+    position = PositionCode.where(:code => store_params[:position_code]).first
+    itemsToStore.each do |i|
+      itm = Item.find(i.to_i)
+      if itm.nil? || position.nil?
+        msg = 'Errore'
+      end
+      itm.position_code = position
+      itm.save
+    end
+    render :json => msg
   end
 
   def add_item_to_storage
@@ -36,7 +51,7 @@ class ItemsController < ApplicationController
       item.state = k[:state].to_i
       item.expiringDate = k[:expiringDate]
       item.article = Article.find(k[:article].to_i)
-      item.barcode = item.generateBarcode #SecureRandom.base58(10)
+      item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
       @items << item
     end
 
@@ -45,7 +60,7 @@ class ItemsController < ApplicationController
       item = Item.new
       item.article = @article
       item.setAmount 1
-      item.barcode = item.generateBarcode #SecureRandom.base58(10)
+      item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
       @items << item
     end
 
@@ -53,17 +68,21 @@ class ItemsController < ApplicationController
       @items.each do |i|
         # i.transportDocument = @transportDocument
         # OrderArticle.create({order: @order, article: i.article, amount: i.amount})
+        i.setActualItems
         i.amount.times do
           item = Item.create(i.attributes)
+          item.barcode = item.generateBarcode #SecureRandom.base58(10)
+          i.addActualItems item.id
           item.item_relations << ItemRelation.create(:since => Time.now)
-          if i.serial.size || !i.expiringDate.nil?
+          if i.article.barcode.nil? || i.serial.size > 0 || !i.expiringDate.nil?
             i.printLabel
           end
         end
-        @items = Array.new
-        @newItems = Array.new
-        @save = false
       end
+      @registeredItems = @items
+      @items = Array.new
+      @newItems = Array.new
+      @save = false
       respond_to do |format|
         format.js { render :js, :partial => 'items/new_order' }
       end
@@ -72,7 +91,6 @@ class ItemsController < ApplicationController
         format.js { render :js, :partial => 'items/new_order' }
       end
     end
-
 
   end
 
@@ -89,13 +107,6 @@ class ItemsController < ApplicationController
   def edit
   end
 
-  def output_office
-    @selected_items = Array.new
-    @items = Item.filter(search_params)
-    respond_to do |format|
-      format.js { render :js, :partial => 'items/output_office' }
-    end
-  end
 
   # POST /items
   # POST /items.json
@@ -157,6 +168,10 @@ class ItemsController < ApplicationController
       params.require(:item).permit(:article_id, :purchaseDate, :price, :price, :discount, :discount, :serial, :state, :notes, :expiringDate, :transportDocument_id)
     end
 
+    def store_params
+      params.require(:store).permit(:items_to_store,:position_code)
+    end
+
     def set_article_for_order
       if params['commit'] == '>' && params[:article].to_i > 0
         @article = Article.find(params[:article].to_i)
@@ -201,4 +216,5 @@ class ItemsController < ApplicationController
         params.require(:search)
       end
     end
+
 end

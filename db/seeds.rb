@@ -45,3 +45,5 @@ Office.create! :name => 'Traffico'
 Office.create! :name => 'Personale'
 Office.create! :name => 'Accettazione'
 Office.create! :name => 'Manutenzioni'
+
+PositionCode.create :code => '0000000000'

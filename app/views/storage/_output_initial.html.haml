@@ -1,9 +1,17 @@
 #output_content
   .container-fluid
     .row-fluid
-      .col-sm-4
-        = link_to "Per ODS", output_worksheet_path, remote: true, class: 'btn btn-primary'
-      .col-sm-4
-        = link_to "Minuteria ufficio/officina", output_office_path, remote: true, class: 'btn btn-primary'
-      .col-sm-4
-        = link_to "Per mezzo", output_vehicle_path, remote: true, class: 'btn btn-primary'
+      .col-sm-3
+        = link_to "Ordine per dotazione personale", output_path(:equipment), remote: true, class: 'btn btn-primary'
+      .col-sm-3
+        = link_to "Ordine per ODS", output_path(:workshop), remote: true, class: 'btn btn-primary'
+      .col-sm-3
+        = link_to "Ordine per minuteria", output_path(:office), remote: true, class: 'btn btn-primary'
+      .col-sm-3
+        = link_to "Ordine per dotazione mezzo", output_path(:vehicle), remote: true, class: 'btn btn-primary'
+  .container-fluid
+    - Order.all.each do |o|
+      .row-fluid
+        .col-sm-12
+          = o.number
+          = o.type

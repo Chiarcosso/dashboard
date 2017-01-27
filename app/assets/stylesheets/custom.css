@@ -31,8 +31,34 @@ body{
   margin-bottom: .25em;
 }
 
+.store-box{
+  margin: .1em;
+  border-radius: .5em;
+  border: 1px solid #ddd;
+}
+.positioned-item{
+  background-color: #9fb;
+  border: 1px solid #7d9;
+}
+
+.selected-item{
+  background-color: #99f;
+  border: 1px solid #77d;
+}
+
+.error-item{
+  background-color: #f99;
+  border: 1px solid #d77;
+}
+
+
 .datepicker-dropdown{
   z-index: 2001;
+}
+
+.hover-hilight:hover{
+  background-color: #ccc;
+  cursor: pointer;
 }
 
 .popup{

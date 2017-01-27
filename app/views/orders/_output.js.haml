@@ -1,0 +1,2 @@
+removejtk();
+$("#output_content").html("#{escape_javascript(render :partial => 'orders/output_form', locals: { order: @order, item: @item }  )} ");

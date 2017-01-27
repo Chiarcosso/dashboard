@@ -75,6 +75,33 @@
       %b='Nuovo articolo'
       =render :partial => 'articles/form'
 
+- unless @registeredItems.nil?
+  .popup
+    .close
+      =image_tag 'close.png'
+    .scrollable-panel
+      %b='Posiziona gli articoli'
+      = text_field_tag :code, '', placeholder: "Scansionare l'articolo", class: 'autofocus-store', id: 'store-row'
+      .container-fluid.scrollable-panel{id: 'items-container'}
+        - unless @registeredItems.empty?
+          - @registeredItems.each_with_index do |i,k|
+            .row
+              .col-sm-12
+                .store-box{id: i.currentBarcode}
+                  .container-fluid
+                    = form_tag(store_item_path, method: :post, remote: true, type: :script, id: :store_items) do |f|
+                      = hidden_field_tag 'store[items_to_store]', i.actualItems
+                      -# - i.actualItems.each do |si|
+                      -#   = hidden_field_tag 'store[items_to_store]', si
+                      .row-fluid
+                        .col-sm-10
+                          %div= i.article.complete_name
+                          %div= i.price
+                          %div= i.amount
+                          %div= i.actualItems
+                        .col-sm-2
+                          = text_field_tag 'store[position_code]', i.position_code, placeholder: 'Posizione', class: 'form-control position_code'
+
 :javascript
 
   init();

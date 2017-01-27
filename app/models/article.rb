@@ -13,8 +13,10 @@ class Article < ApplicationRecord
 
   has_many :items
   belongs_to :manufacturer, class_name: "Company"
-
+  belongs_to :position_code
+  
   scope :no_barcode, -> { where(barcode: '') }
+  scope :manufacturer, ->(search) { include(:company).where("manufacturer_id = companies.id").where("companies.name LIKE '%#{search}%'")}
 
   def self.incompleteItems
     Article.all

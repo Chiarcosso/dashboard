@@ -1,0 +1,52 @@
+.container-fluid
+  = @destination
+  - @selected_items
+  = form_tag(output_path, method: :get, remote: true, type: :script) do |f|
+    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_path
+.container-fluid
+  .row.item-block.tab-header
+    .col-sm-4
+      Articolo
+    .col-sm-1
+      Quantità
+    .col-sm-4
+      Seriale
+    .col-sm-1
+      Stato
+    .col-sm-1
+      Scadenza
+
+= form_tag(add_item_to_order_path, method: :get, remote: true, type: :script) do |f|
+  .container-fluid.scrollable-panel
+    = hidden_field_tag :search, @search
+    - @selected_items.each do |item|
+      .row.hover-hilight{'data-target': add_item_to_order_path}
+        .col-sm-4
+          = hidden_field_tag :item, item.id
+          = item.article.complete_name.to_s
+        .col-sm-1
+          = item.article.availability.size
+        .col-sm-4
+          = item.serial
+        .col-sm-1
+          = item.state
+        .col-sm-1
+          = item.expiringDate.nil?? '' : (l item.expiringDate)
+
+  .container-fluid.scrollable-panel
+    - @checked_items.each do |item|
+      .row
+        .col-sm-4
+          = hidden_field_tag :items[], item.id
+          = item.article.complete_name.to_s
+        .col-sm-1
+          = item.article.availability.size
+        .col-sm-4
+          = item.serial
+        .col-sm-1
+          = item.state
+        .col-sm-1
+          = item.expiringDate.nil?? '' : (l item.expiringDate)
+:javascript
+
+  domInit();

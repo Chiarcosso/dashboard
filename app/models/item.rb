@@ -11,13 +11,15 @@ class Item < ApplicationRecord
   belongs_to :article
   belongs_to :transportDocument
   has_many :item_relations
+  belongs_to :position_code
 
   scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil)}
   scope :article, ->(article) { where(:article => article) }
-  scope :filter, ->(search) { joins(:article).where("name LIKE '%#{search}%'").where("articles.name LIKE '%#{search}%'")}
+  scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%'OR articles.manufacturerCode LIKE '%#{search}%'")}
   enum state: [:nuovo,:usato,:rigenerato,:riscolpito,:danneggiato,:smaltimento]
 
   @amount = 1
+  @actualItems = Array.new
 
   def amount
     @amount
@@ -25,6 +27,18 @@ class Item < ApplicationRecord
 
   def setAmount q
     @amount = q
+  end
+
+  def actualItems
+    @actualItems
+  end
+
+  def setActualItems
+    @actualItems = Array.new
+  end
+
+  def addActualItems id
+    @actualItems << id
   end
 
   def position
@@ -43,7 +57,15 @@ class Item < ApplicationRecord
   end
 
   def generateBarcode
-    'itm'+ self.id.to_s.rjust(9,"0")
+    self.id.to_s(16).rjust(9,'0')
+  end
+
+  def currentBarcode
+    if self.serial != '' || self.article.barcode.nil?
+      self.barcode
+    else
+      self.article.barcode
+    end
   end
 
   def printLabel
@@ -57,7 +79,7 @@ class Item < ApplicationRecord
     # label << box
     text  = Zebra::Epl::Text.new :data => self.expiringDate?? 'Sc. '+self.expiringDate.strftime('%d/%m/%Y') : '', :position => [10, 10], :font => Zebra::Epl::Font::SIZE_3
     label << text
-    text  = Zebra::Epl::Text.new :data => self.article.position_code, :position => [220, 10], :font => Zebra::Epl::Font::SIZE_2
+    text  = Zebra::Epl::Text.new :data => self.position_code.code, :position => [220, 10], :font => Zebra::Epl::Font::SIZE_2
     label << text
     text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
     label << text

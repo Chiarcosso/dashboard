@@ -44,15 +44,18 @@ Rails.application.routes.draw do
 
   get    '/items_from_order/:order', to: 'items#from_order', as: :items_from_order
 
-
+  post   '/items/store', to: 'items#store', as: :store_item
   get    '/items_storage_insert', to: 'items#storage_insert', as: :items_storage_insert
   post   '/items_storage_insert', to: 'items#add_item_to_storage', as: :add_item_to_storage
   get    '/items_vehicle_insert', to: 'items#vehicle_insert', as: :items_vehicle_insert
   get    '/items_new_order', to: 'orders#new_order', as: :items_new_order
-  post   '/items_new_order', to: 'orders#add_item_to_new_order', as: :add_item_to_order
+  post   '/items_new_order', to: 'orders#add_item_to_new_order', as: :add_item_to_new_order
 
-  get    '/output/office', to: 'items#output_office', as: :output_office
-  get    '/output/worksheet', to: 'items#output_worksheet', as: :output_worksheet
-  get    '/output/vehicle', to: 'items#output_vehicle', as: :output_vehicle
+  get    '/output/:destination', to: 'orders#output', as: :output
+  post   '/output/add_item', to: 'orders#add_item', as: :add_item_to_order
+  # get    '/output/office', to: 'items#output_office', as: :output_office
+  # get    '/output/worksheet', to: 'items#output_worksheet', as: :output_worksheet
+  # get    '/output/vehicle', to: 'items#output_vehicle', as: :output_vehicle
+  # get    '/output/equipment', to: 'items#output_equipment', as: :output_equipment
 
 end

@@ -23,6 +23,35 @@ class OrdersController < ApplicationController
   def edit
   end
 
+  def output
+    @destination = output_params
+    @search = search_params.nil?? '' : search_params
+    @selected_items = Item.filter(search_params).distinct
+    # render :partial => 'items/index'
+    @checked_items = Array.new
+    respond_to do |format|
+      format.js { render :js, :partial => 'orders/output' }
+    end
+  end
+
+  def add_item
+    @destination = output_params
+    @search = search_params.nil?? '' : search_params
+    @selected_items = Item.filter(search_params).distinct
+    # render :partial => 'items/index'
+    @checked_items = chk_list_params
+    respond_to do |format|
+      format.js { render :js, :partial => 'orders/output' }
+    end
+  end
+
+    def output_office
+      @selected_items = Array.new
+      @items = Item.filter(search_params)
+      respond_to do |format|
+        format.js { render :js, :partial => 'items/output_office' }
+      end
+    end
   # POST /orders
   # POST /orders.json
   def create
@@ -163,6 +192,23 @@ class OrdersController < ApplicationController
       @save = params['commit'].nil?? false : true
       params.require(:items).tap do |itm|
         itm.permit(:article, :price, :discount, :serial, :state, :expiringDate, :amount)
+      end
+    end
+
+    def output_params
+      params.require(:destination)
+    end
+
+    def chk_list_params
+      @save = params['commit'].nil?? false : true
+      params.require(:items).tap do |itm|
+        itm.permit(:id)
+      end
+    end
+
+    def search_params
+      unless params[:search].nil?
+        params.require(:search)
       end
     end
 end
