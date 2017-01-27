@@ -1,8 +1,8 @@
 class PositionCode < ApplicationRecord
   resourcify
 
-  def generateNext
-    self.code
+  def code
+    'P'+self.floor.to_s+'C'+self.row.to_s+'L'+self.level.to_s+'X'+self.sector.to_s+'Y'+self.section.to_s
   end
 
   def printLabel
@@ -12,16 +12,7 @@ class PositionCode < ApplicationRecord
       :print_speed   => 3,
       :print_density => 6
     )
-    # box = Zebra::Epl::Box.new :position => [0, 0], :end_position => [385, 180], :line_thickness => 2
-    # label << box
-    text  = Zebra::Epl::Text.new :data => self.expiringDate?? 'Sc. '+self.expiringDate.strftime('%d/%m/%Y') : '', :position => [10, 10], :font => Zebra::Epl::Font::SIZE_3
-    label << text
-    text  = Zebra::Epl::Text.new :data => self.position_code.code, :position => [220, 10], :font => Zebra::Epl::Font::SIZE_2
-    label << text
-    text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
-    label << text
-    text  = Zebra::Epl::Text.new :data => self.serial.nil?? '' : 'Mat. '+self.serial, :position => [10, 70], :font => Zebra::Epl::Font::SIZE_4
-    label << text
+
     barcode = Zebra::Epl::Barcode.new(
       :data                      => self.code,
       :position                  => [30, 120],
@@ -35,4 +26,5 @@ class PositionCode < ApplicationRecord
     print_job = Zebra::PrintJob.new "zebra"
     print_job.print label
   end
+
 end

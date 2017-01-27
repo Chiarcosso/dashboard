@@ -1,0 +1,2 @@
+removejtk();
+$("#articles_content").html("#{escape_javascript(render :partial => 'position_codes/index_form', locals: { order: @order, item: @item }  )} ");

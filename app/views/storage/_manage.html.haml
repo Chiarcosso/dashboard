@@ -1,6 +1,7 @@
 .row-fluid
   .col-sm-2
     .panel
+      =link_to "Posizioni", position_codes_path, :remote=> true, class: "btn btn-primary", style: "width: 10em; margin: .1em;"
       =link_to "Crea articolo", new_article_path, :remote=> true, class: "btn btn-primary", style: "width: 10em; margin: .1em;"
       =link_to "Categorie", article_categories_path, :remote=> true, class: "btn btn-primary", style: "width: 10em; margin: .1em;"
       =link_to "Articoli incompleti", incomplete_articles_path, :remote=> true, class: "btn btn-primary", style: "width: 10em; margin: .1em;"

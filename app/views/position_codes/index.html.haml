@@ -1,0 +1,29 @@
+%h1 Listing position_codes
+
+%table
+  %thead
+    %tr
+      %th Floor
+      %th Row
+      %th Level
+      %th Sector
+      %th Section
+      %th
+      %th
+      %th
+
+  %tbody
+    - @position_codes.each do |position_code|
+      %tr
+        %td= position_code.floor
+        %td= position_code.row
+        %td= position_code.level
+        %td= position_code.sector
+        %td= position_code.section
+        %td= link_to 'Show', position_code
+        %td= link_to 'Edit', edit_position_code_path(position_code)
+        %td= link_to 'Destroy', position_code, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Position code', new_position_code_path

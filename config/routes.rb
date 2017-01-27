@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :position_codes
   resources :vehicles
   resources :vehicle_models
   resources :offices
@@ -38,6 +39,8 @@ Rails.application.routes.draw do
   get    '/storage_output', to: 'storage#output', as: :storage_output
   get    '/storage_management', to: 'storage#management', as: :storage_management
 
+  post   '/position_codes/print/:id', to: 'position_codes#print', as: :position_codes_print
+  
   get    '/incomplete_articles', to: 'articles#incomplete', as: :incomplete_articles
   post   '/article_categories/manage', to: 'article_categories#manage', as: :manage_article_categories
   post   '/article/categories/', to: 'articles#list_categories', as: :list_article_categories

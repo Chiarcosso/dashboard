@@ -104,7 +104,17 @@ function domInit() {
 
   $('.ajax-link').off('click');
   $('.ajax-link').on('click',function(e){
-    alert($(this).attr('type')+'we');
+    var target = $(this).data('target');
+    var method = $(this).data('method');
+    var data = $(this).data('data');
+    $.ajax({
+        type: "POST",
+        url: target,
+        // data: valuesToSubmit,
+        // dataType: "script"
+        complete: function(data){
+          console.log(data)
+        }
   });
 
   $('.popup-link').off('click');

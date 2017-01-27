@@ -1,0 +1,21 @@
+%p#notice= notice
+
+%p
+  %b Floor:
+  = @position_code.floor
+%p
+  %b Row:
+  = @position_code.row
+%p
+  %b Level:
+  = @position_code.level
+%p
+  %b Sector:
+  = @position_code.sector
+%p
+  %b Section:
+  = @position_code.section
+
+= link_to 'Edit', edit_position_code_path(@position_code)
+\|
+= link_to 'Back', position_codes_path

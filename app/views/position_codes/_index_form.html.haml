@@ -1,0 +1,64 @@
+= form_for(@position_code, :remote => true) do |f|
+  .container-fluid
+    .row-fluid
+      .col-sm-1
+        = f.submit :Salva
+      .col-sm-1
+        = f.number_field :floor
+      .col-sm-1
+        = f.number_field :row
+      .col-sm-1
+        = f.number_field :level
+      .col-sm-1
+        = f.number_field :sector
+      .col-sm-1
+        = f.number_field :section
+      .col-sm-6
+        = f.text_field :description
+.container-fluid
+  .row-fluid
+    .col-sm-1
+      %b= 'Elimina'
+    .col-sm-1
+      %b= 'Stampa'
+    .col-sm-2
+      %b= 'Codice'
+    .col-sm-1
+      %b= 'Piano'
+    .col-sm-1
+      %b= 'Corsia'
+    .col-sm-1
+      %b= 'Livello'
+    .col-sm-1
+      %b= 'Settore'
+    .col-sm-1
+      %b= 'Sezione'
+    .col-sm-3
+      %b= 'Descrizione'
+.container-fluid.scrollable-panel
+  - @positionCodes.each do |pc|
+    .container-fluid
+      .row-fluid
+        .col-sm-1
+          = button_to "x", "/position_codes/#{pc.id}", :method => :delete, :remote => true
+        .col-sm-1
+          = button_to "Stampa", "/position_codes/print/#{pc.id}", :method => :post, :remote => true
+        .col-sm-2
+          = pc.code
+        .col-sm-1
+          = pc.floor
+        .col-sm-1
+          = pc.row
+        .col-sm-1
+          = pc.level
+        .col-sm-1
+          = pc.sector
+        .col-sm-1
+          = pc.section
+        .col-sm-3
+          = pc.description
+
+
+:javascript
+
+  domInit();
