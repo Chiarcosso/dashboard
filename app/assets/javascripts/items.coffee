@@ -13,10 +13,6 @@
       $('#dyn_ddt #barcode-items').focus().trigger(e)
     ),800
 
-@storeItem = () ->
-
-
-
 @init = () ->
 
   if $('.item_box').length
@@ -46,7 +42,6 @@
         else
           $('#'+@barcodePtr).removeClass('selected-item')
           $('#'+@barcodePtr+' input[type=text]').val($(':focus').val())
-          # $('#'+@barcodePtr+' form').submit();
           form = $('#'+@barcodePtr+' form')
           $.ajaxSetup ({
             'beforeSend': (xhr) ->
