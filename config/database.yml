@@ -13,7 +13,12 @@ default: &default
   password: 'Aw3t01uzS'
 
 development:
-  <<: *default
+  adapter: mysql2
+  pool: 5
+  timeout: 5000
+  host: 'localhost'
+  username: 'root'
+  password: 'Aw3t01uzS'
   database: 'dashboard_dev'
 
 # Warning: The database defined as "test" will be erased and
