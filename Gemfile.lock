@@ -238,6 +238,7 @@ DEPENDENCIES
   chunky_png
   coffee-rails (~> 4.2)
   devise
+  execjs
   haml-rails
   jbuilder (~> 2.5)
   jquery-rails
