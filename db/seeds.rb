@@ -46,4 +46,5 @@ Office.create! :name => 'Personale'
 Office.create! :name => 'Accettazione'
 Office.create! :name => 'Manutenzioni'
 
-PositionCode.create :code => '0000000000'
+Company.create(:name => 'Autotrasporti Chiarcosso s.r.l.', :vat_number => '00626670301')
+Company.create(:name => 'Trans Est s.r.l.', :vat_number => '00133290312')
