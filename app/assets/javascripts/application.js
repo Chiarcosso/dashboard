@@ -13,16 +13,16 @@
 //= require jquery
 //= require bootstrap
 //= require jquery_ujs
-//= require_tree .
 //= require bootstrap-datepicker/core
 //= require bootstrap-datepicker/locales/bootstrap-datepicker.it.js
 //= require jquery-ui
 //= require autocomplete-rails
+//= require_tree .
 
 function reloadSelectBoxes(){
   $('select').each(function(select){
     console.log($('select').html());
-  })
+  });
 }
 
 function domInit() {
@@ -34,11 +34,9 @@ function domInit() {
   })
 
   $('.popup form').submit(function(){
-    specificSubmitFunctions();
-    // window.setTimeout(function(){
+    specificSubmitFunctions();;
       reloadSelectBoxes();
       $(this).parents('.popup').children('.close:first').trigger('click');
-    // },1500);
   })
 
   $('.hover-hilight').off('click');
@@ -54,9 +52,6 @@ function domInit() {
   var l = $('.autosearch').val().length;
   $('.autosearch').first()[0].setSelectionRange(l,l);
   $('.autosearch').first().focus();
-  // var lineend = $.Event('keyup');
-  // lineend.which = 35;
-  // $('.autosearch').first().trigger(lineend);
 
   var timer;
   $('.autosearch').off('keyup');
@@ -120,7 +115,7 @@ function domInit() {
   $('.popup-link').on('click', function(e){
     var target = $(this).data('target');
     var name = $(this).data('name');
-    
+
     $.ajax({
         type: "GET",
         url: target,
@@ -129,10 +124,10 @@ function domInit() {
            $('#'+name).html(data.responseText);
            $('#'+name).append('<div class="close"><img src="close.png"></div>');
         }
-    })
+    });
 
-    return false
+    return false;
 
-  })
+  });
 
 }
