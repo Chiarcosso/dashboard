@@ -18,8 +18,7 @@
   if $('.item_box').length
     $('.item_box:last input:first').select()
     $('#items-container').animate({ scrollTop: $('#items-container').height()}, 1000)
-  else
-    # $('#barcode').focus().select()
+  else    
     $('input[type=text]').first().focus()
 
   $('.remove_item').click () ->

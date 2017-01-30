@@ -3,7 +3,7 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 @init = () ->
 
-  $('#barcode-articles').focus().select();
+  $('#barcode-articles').focus().select()
 
   $(document).off 'keypress'
   $(document).keypress (e) ->

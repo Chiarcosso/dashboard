@@ -6,4 +6,4 @@
 $('.category').off 'change'
 $('.category').change ->
   $(this).id
-  $("#articles_content").html("<%= escape_javascript(render :partial => 'article_categories/categories', locals: { article_categories: @article_categories }  )%> ");
+  $("#articles_content").html("<%= escape_javascript(render :partial => 'article_categories/categories', locals: { article_categories: @article_categories }  )%> ")
