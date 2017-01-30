@@ -21,4 +21,5 @@
 .byebug_history
 .vagrant
 erd.pdf
+/config/database.yml
 /public/images/*

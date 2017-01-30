@@ -15,8 +15,8 @@ class PositionCode < ApplicationRecord
 
     barcode = Zebra::Epl::Barcode.new(
       :data                      => self.code,
-      :position                  => [30, 120],
-      :height                    => 70,
+      :position                  => [30, 20],
+      :height                    => 100,
       :print_human_readable_code => true,
       :narrow_bar_width          => 2,
       :wide_bar_width            => 4,
