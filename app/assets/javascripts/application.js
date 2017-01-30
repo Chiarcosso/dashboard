@@ -120,12 +120,7 @@ function domInit() {
   $('.popup-link').on('click', function(e){
     var target = $(this).data('target');
     var name = $(this).data('name');
-    // $.ajaxSetup ({
-    //   'beforeSend': function(xhr){
-    //     xhr.setRequestHeader("Accept", "text/javascript");
-    //   }
-    // })
-    // valuesToSubmit = $('form').serialize()
+    
     $.ajax({
         type: "GET",
         url: target,
