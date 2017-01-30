@@ -10,13 +10,13 @@
             = navbar_item "Utenti", users_admin_path
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino))
         = navbar_dropdown "Officina" do
-          - if current_user.has_role? :admin
+          - if current_user.has_role? :magazzino
             -# = navbar_dropdown_header 'Personale'
             -# = navbar_dropdown_divider
             = navbar_item "Magazzino", storage_path
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino))
         = navbar_dropdown "Amministrazione" do
-          - if current_user.has_role? :admin
+          - if current_user.has_role? :mod_companies
             = navbar_item "Ditte", companies_path
       -# = navbar_item "About Us", '/about-us'
       -# = navbar_item '/contact' do

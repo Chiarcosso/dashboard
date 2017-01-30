@@ -61,7 +61,7 @@ class UsersController < ApplicationController
       # render text:"No access for you!"
       render "home/_agenda"
     else
-      [:admin, :base, "amministratore utenti", :magazzino].each do |role|
+      [:admin, :base, "amministratore utenti", :magazzino, "mod. ditte"].each do |role|
         Role.find_or_create_by({ name: role })
       end
     end
