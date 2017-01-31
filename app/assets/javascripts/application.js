@@ -109,6 +109,7 @@ function domInit() {
         complete: function(data){
           console.log(data);
         }
+      });
   });
 
   $('.popup-link').off('click');
