@@ -31,13 +31,13 @@ function domInit() {
   $('.close').on('click',function(){
     specificCloseFunctions();
     $(this).parent().remove();
-  })
+  });
 
   $('.popup form').submit(function(){
     specificSubmitFunctions();;
       reloadSelectBoxes();
       $(this).parents('.popup').children('.close:first').trigger('click');
-  })
+  });
 
   $('.hover-hilight').off('click');
   $('.hover-hilight').on('click',function(){
@@ -46,8 +46,8 @@ function domInit() {
     $.ajax({
       method: 'post',
       url: route
-    })
-  })
+    });
+  });
 
   var l = $('.autosearch').val().length;
   $('.autosearch').first()[0].setSelectionRange(l,l);
