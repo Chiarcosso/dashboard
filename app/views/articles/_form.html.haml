@@ -11,40 +11,38 @@
     .col-sm-6
       = form_for @article, :html=>{:multipart => true,:remote=>true} do |f|
         .field
-          = f.label :barcode
+          = f.label "Codice a barre"
           = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode-articles', :options => { autofocus: true }
         .field
-          = f.label :manufacturer
+          = f.label "Produttore"
           = text_field_tag :manufacturer, (@article.manufacturer.nil?? Company.manufacturerChoice.name : @article.manufacturer.name), data: { autocomplete: autocomplete_company_name_articles_path }
           -# = f.autocomplete_field :manufacturer, autocomplete_company_name_articles_path
           -# %div{'data-target': new_company_path, 'data-name': 'add_company', class: 'btn btn-primary popup-link'}
           -#   +
           -# = f.collection_select(:manufacturer, Company.all, :id, :name, {:include_blank => 'Generico', :selected => @article.getManufacturer}, { :class => 'form-control' })
         .field
-          = f.label :manufacturerCode
+          = f.label "Codice produttore"
           = f.text_field :manufacturerCode, class: 'form-control'
         .field
-          = f.label :name
+          = f.label "Articolo"
           = f.text_field :name, class: 'form-control'
         .field
-          = f.label :description
+          = f.label "Descrizione"
           = f.text_field :description, class: 'form-control'
         .field
-          = f.label :containedAmount
+          = f.label "Quantità contenuta"
           = f.number_field :containedAmount, class: 'form-control'
         .field
-          = f.label :minimalReserve
+          = f.label "Riserva minima"
           = f.number_field :minimalReserve, class: 'form-control'
-        .field
-          = f.label :postionCode
-          = f.text_field :position_code, class: 'form-control'
         .field
           = f.submit 'Salva', id: "article-submit-back"
           = f.submit 'Salva e passa alle categorie', id: "article-submit"
     .col-sm-6
       .container-fluid
-        #barcode-img
-          = image_tag(@article.barcode.to_s+'.png')
+        - unless @article.barcode.nil?
+          #barcode-img
+            = image_tag(@article.barcode.to_s+'.png')
 
     -# .row-fluid
     -#   .col-sm-12

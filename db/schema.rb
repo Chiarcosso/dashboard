@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170127153313) do
+ActiveRecord::Schema.define(version: 20170131110120) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -42,10 +42,8 @@ ActiveRecord::Schema.define(version: 20170127153313) do
     t.datetime "updated_at",                     null: false
     t.integer  "manufacturer_id"
     t.integer  "created_by_id"
-    t.integer  "position_code_id"
     t.index ["created_by_id"], name: "index_articles_on_created_by_id", using: :btree
     t.index ["manufacturer_id"], name: "index_articles_on_manufacturer_id", using: :btree
-    t.index ["position_code_id"], name: "index_articles_on_position_code_id", using: :btree
   end
 
   create_table "companies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -226,7 +224,6 @@ ActiveRecord::Schema.define(version: 20170127153313) do
   end
 
   add_foreign_key "articles", "companies", column: "manufacturer_id"
-  add_foreign_key "articles", "position_codes"
   add_foreign_key "articles", "users", column: "created_by_id"
   add_foreign_key "item_relations", "items"
   add_foreign_key "item_relations", "offices"
