@@ -26,7 +26,7 @@ class OrdersController < ApplicationController
   def output
     @destination = output_params
     @search = search_params.nil?? '' : search_params
-    @selected_items = Item.filter(search_params).distinct
+    @selected_items = Item.filter(search_params)
     # render :partial => 'items/index'
     @checked_items = Array.new
     respond_to do |format|

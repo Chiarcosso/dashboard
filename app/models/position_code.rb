@@ -1,8 +1,13 @@
 class PositionCode < ApplicationRecord
   resourcify
 
+  def self.findByCode(code)
+    tokens = code.split('-')
+    PositionCode.where(:floor => tokens[0][1..-1].to_i, :row => tokens[1][1..-1].to_i, :level => tokens[2][1..-1].to_i, :sector => tokens[3][1..-1].to_i, :section => tokens[4][1..-1].to_i).first
+  end
+
   def code
-    'P'+self.floor.to_s+'C'+self.row.to_s+'L'+self.level.to_s+'X'+self.sector.to_s+'Y'+self.section.to_s
+    'P'+self.floor.to_s+'-C'+self.row.to_s+'-L'+self.level.to_s+'-X'+self.sector.to_s+'-Y'+self.section.to_s
   end
 
   def printLabel

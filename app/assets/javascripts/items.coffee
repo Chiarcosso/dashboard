@@ -18,7 +18,7 @@
   if $('.item_box').length
     $('.item_box:last input:first').select()
     $('#items-container').animate({ scrollTop: $('#items-container').height()}, 1000)
-  else    
+  else
     $('input[type=text]').first().focus()
 
   $('.remove_item').click () ->
@@ -54,15 +54,17 @@
               dataType: "script",
               complete: (data) ->
                 console.log('complete:',data.responseText)
-                if(data.responseText == 'Ok')
-                  $('#'+@barcodePtr).addClass('positioned-item')
-                  $('#'+@barcodePtr).remove()
+                response = data.responseText.split(' ')
+                if(response[0] == 'Ok')
+                  $('#'+response[1]).addClass('positioned-item')
+                  $('#'+response[1]).remove()
+                  console.log($('.store-box').length)
+                  if($('.store-box').length == 0)
+                    $('.close').trigger('click')
                 else
                   $('#'+@barcodePtr).addClass('error-item')
                   alert(data.responseText)
 
-                if($('.store-box').length == 0)
-                  $('.close').trigger('click')
 
           })
           $('.autofocus-store').first().val('')

@@ -27,7 +27,7 @@ class ItemsController < ApplicationController
   def store
     msg = 'Ok'
     itemsToStore = store_params[:items_to_store].split
-    position = PositionCode.where(:code => store_params[:position_code]).first
+    position = PositionCode.findByCode(store_params[:position_code])
     itemsToStore.each do |i|
       itm = Item.find(i.to_i)
       if itm.nil? || position.nil?
@@ -35,6 +35,7 @@ class ItemsController < ApplicationController
       end
       itm.position_code = position
       itm.save
+      msg = msg+' '+itm.currentBarcode
     end
     render :json => msg
   end
