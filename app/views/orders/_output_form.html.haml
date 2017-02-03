@@ -1,5 +1,5 @@
 .container-fluid
-  = @destination
+  =@destination
   - @selected_items
   = form_tag(output_path, method: :get, remote: true, type: :script) do |f|
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_path
@@ -34,6 +34,15 @@
           = item.expiringDate.nil?? '' : (l item.expiringDate)
 
   .container-fluid.scrollable-panel
+    - case @destination
+      - when :equipment
+        = select_tag :recipient, options_from_collection_for_select(Person.all, "id", "completeName"), class: 'form-control'
+      - when :office
+        = select_tag :recipient, options_from_collection_for_select(Office.all, "id", "name"), class: 'form-control'
+      - when :vehicle
+        = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "name"), class: 'form-control'
+      - when :workshop
+        = select_tag :recipient, options_from_collection_for_select(Array.new, "id", "name"), class: 'form-control'
     - @checked_items.each do |item|
       .row
         .col-sm-4

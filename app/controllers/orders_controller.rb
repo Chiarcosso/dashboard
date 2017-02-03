@@ -26,7 +26,8 @@ class OrdersController < ApplicationController
   def output
     @destination = output_params
     @search = search_params.nil?? '' : search_params
-    @selected_items = Item.filter(search_params)
+    @selected_items = Item.available_items.filter(search_params).creationOrder.uniq { |si| si.article }
+
     # render :partial => 'items/index'
     @checked_items = Array.new
     respond_to do |format|
@@ -37,9 +38,11 @@ class OrdersController < ApplicationController
   def add_item
     @destination = output_params
     @search = search_params.nil?? '' : search_params
-    @selected_items = Item.filter(search_params).distinct
+    @selected_items = Item.filter(search_params).creationOrder
     # render :partial => 'items/index'
     @checked_items = chk_list_params
+    @selected_items -= @checked_items
+
     respond_to do |format|
       format.js { render :js, :partial => 'orders/output' }
     end
@@ -196,7 +199,7 @@ class OrdersController < ApplicationController
     end
 
     def output_params
-      params.require(:destination)
+      params.require(:destination).to_sym
     end
 
     def chk_list_params
@@ -208,6 +211,9 @@ class OrdersController < ApplicationController
 
     def search_params
       unless params[:search].nil?
+        if params[:search].length == 0
+          return params[:search]
+        end
         params.require(:search)
       end
     end

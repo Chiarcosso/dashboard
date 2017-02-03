@@ -16,6 +16,7 @@ class Item < ApplicationRecord
   scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil)}
   scope :article, ->(article) { where(:article => article) }
   scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%'OR articles.manufacturerCode LIKE '%#{search}%'")}
+  scope :creationOrder, -> { reorder(created_at: :desc) }
   enum state: [:nuovo,:usato,:rigenerato,:riscolpito,:danneggiato,:smaltimento]
 
   @amount = 1

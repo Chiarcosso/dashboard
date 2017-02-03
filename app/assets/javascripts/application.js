@@ -42,7 +42,6 @@ function domInit() {
   $('.hover-hilight').off('click');
   $('.hover-hilight').on('click',function(){
     var route = $(this).data('target');
-    alert(route);
     $.ajax({
       method: 'post',
       url: route
@@ -58,7 +57,7 @@ function domInit() {
   $('.autosearch').on('keyup',function(e){
     var element = this;
     window.clearTimeout(timer);
-    if((48 <= e.which && e.which <= 57) || (65 <= e.which && e.which <= 90) || (96 <= e.which && e.which <= 105) || (188 <= e.which && e.which <= 191) || (e.which == 220) || (e.which == 222) || (e.which == 13)) {
+    if((48 <= e.which && e.which <= 57) || (65 <= e.which && e.which <= 90) || (96 <= e.which && e.which <= 105) || (188 <= e.which && e.which <= 191) || (e.which == 220) || (e.which == 222) || (e.which == 13) || (e.which == 8) || (e.which == 46)) {
       timer = window.setTimeout(function(){
           console.log(e.which);
           $(element).parent('form').submit();
