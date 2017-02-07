@@ -42,9 +42,12 @@ function domInit() {
   $('.hover-hilight').off('click');
   $('.hover-hilight').on('click',function(){
     var route = $(this).data('target');
+    $(this).parents('form').first().append('<input type=hidden name="item" value="'+$(this).data('data')+'">')
+    var valuesToSubmit = $(this).parents('form').first().serialize()
     $.ajax({
       method: 'post',
-      url: route
+      url: route,
+      data: valuesToSubmit
     });
   });
 

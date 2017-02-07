@@ -2,6 +2,7 @@ class OrdersController < ApplicationController
   before_action :set_order, only: [:show, :edit, :update, :destroy]
   before_action :set_article_for_order, only: [:add_item_to_new_order]
   before_action :set_items_for_order, only: [:add_item_to_new_order]
+  before_action :output_params, only: [:add_item, :output]
 
   # GET /orders
   # GET /orders.json
@@ -24,25 +25,34 @@ class OrdersController < ApplicationController
   end
 
   def output
-    @destination = output_params
+    # @destination = output_params
+    case @destination.to_sym
+    when :equipment
+      @recipient = Person.all.first
+    when :workshop
+      @recipient = Vehicle.all.first
+    when :vehicle
+      @recipient = Vehicle.all.first
+    when :office
+      @recipient = Office.all.first
+    end
     @search = search_params.nil?? '' : search_params
-    @selected_items = Item.available_items.filter(search_params).creationOrder.uniq { |si| si.article }
-
-    # render :partial => 'items/index'
     @checked_items = Array.new
+    @selected_items = Item.firstGroupByArticle(search_params,@checked_items)
+    # render :partial => 'items/index'
     respond_to do |format|
       format.js { render :js, :partial => 'orders/output' }
     end
   end
 
   def add_item
-    @destination = output_params
+    # @destination = output_params
     @search = search_params.nil?? '' : search_params
-    @selected_items = Item.filter(search_params).creationOrder
-    # render :partial => 'items/index'
     @checked_items = chk_list_params
-    @selected_items -= @checked_items
-
+    @checked_items << @newItem
+    @selected_items = Item.firstGroupByArticle(search_params,@checked_items)
+    # render :partial => 'items/index'
+    # @selected_items -= @checked_items
     respond_to do |format|
       format.js { render :js, :partial => 'orders/output' }
     end
@@ -199,13 +209,38 @@ class OrdersController < ApplicationController
     end
 
     def output_params
-      params.require(:destination).to_sym
+      @destination = params.require(:destination)
+      @recipient = params.permit(:recipient)
+      unless params[:item].nil?
+        @newItem = Item.find(params.require(:item).to_i)
+      end
     end
 
     def chk_list_params
       @save = params['commit'].nil?? false : true
-      params.require(:items).tap do |itm|
-        itm.permit(:id)
+      case params.require(:destination)
+      when :equipment
+        @recipient = Person.find(params.require(:recipient).to_i)
+      when :office
+        @recipient = Office.find(params.require(:recipient).to_i)
+      when :vehicle
+        @recipient = Vehicle.find(params.require(:recipient).to_i)
+      when :workshop
+        @recipient = Vehicle.find(params.require(:recipient).to_i)
+      end
+      unless params[:items].nil?
+        itms = Array.new
+        params.require(:items).tap do |itm|
+          itm.each do |i|
+            id = i.require(:id)
+            unless id.nil?
+              itms << Item.find(id)
+            end
+          end
+        end
+        itms.reverse
+      else
+        Array.new
       end
     end
 

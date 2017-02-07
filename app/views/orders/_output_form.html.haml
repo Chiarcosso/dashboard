@@ -1,8 +1,7 @@
 .container-fluid
-  =@destination
   - @selected_items
-  = form_tag(output_path, method: :get, remote: true, type: :script) do |f|
-    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_path
+  = form_tag(output_path(@destination), method: :get, remote: true, type: :script) do |f|
+    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_path(@destination)
 .container-fluid
   .row.item-block.tab-header
     .col-sm-4
@@ -17,15 +16,16 @@
       Scadenza
 
 = form_tag(add_item_to_order_path, method: :get, remote: true, type: :script) do |f|
-  .container-fluid.scrollable-panel
+  .container-fluid.scrollable-panel.half
     = hidden_field_tag :search, @search
-    - @selected_items.each do |item|
-      .row.hover-hilight{'data-target': add_item_to_order_path}
+    = hidden_field_tag :destination, @destination
+    - @selected_items.each do |key, item|
+      .row.hover-hilight{'data-target': add_item_to_order_path, 'data-data': item.id}
         .col-sm-4
-          = hidden_field_tag :item, item.id
+          -# = hidden_field_tag :item, item.id
           = item.article.complete_name.to_s
         .col-sm-1
-          = item.article.availability.size
+          = item.article.availability(@checked_items).size
         .col-sm-4
           = item.serial
         .col-sm-1
@@ -33,23 +33,25 @@
         .col-sm-1
           = item.expiringDate.nil?? '' : (l item.expiringDate)
 
-  .container-fluid.scrollable-panel
-    - case @destination
-      - when :equipment
-        = select_tag :recipient, options_from_collection_for_select(Person.all, "id", "completeName"), class: 'form-control'
-      - when :office
-        = select_tag :recipient, options_from_collection_for_select(Office.all, "id", "name"), class: 'form-control'
-      - when :vehicle
-        = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "name"), class: 'form-control'
-      - when :workshop
-        = select_tag :recipient, options_from_collection_for_select(Array.new, "id", "name"), class: 'form-control'
-    - @checked_items.each do |item|
+  %b='Articoli assegnati'
+  - case @destination.to_sym
+    - when :equipment
+      = select_tag :recipient, options_from_collection_for_select(Person.all, "id", "completeName", @recipient), class: 'form-control'
+    - when :office
+      = select_tag :recipient, options_from_collection_for_select(Office.all, "id", "name", @recipient), class: 'form-control'
+    - when :vehicle
+      = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "name", @recipient), class: 'form-control'
+    - when :workshop
+      = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "name", @recipient), class: 'form-control'
+  %br
+  .container-fluid.scrollable-panel.half
+    - @checked_items.reverse.each do |item|
       .row
         .col-sm-4
-          = hidden_field_tag :items[], item.id
+          = hidden_field_tag 'items[][id]', item.id
           = item.article.complete_name.to_s
         .col-sm-1
-          = item.article.availability.size
+          = item.id
         .col-sm-4
           = item.serial
         .col-sm-1
