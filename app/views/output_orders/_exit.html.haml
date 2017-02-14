@@ -1,0 +1,71 @@
+%b='Ordine nr. '+@order.id.to_s
+%br
+%br
+= text_field 'check_item', '', placeholder: 'Codice a barre', class: 'form-control autofocus', 'data-order': @order.id.to_s
+%br
+%br
+
+.container
+  .row
+    .col-sm-4
+      %b='Articolo'
+    .col-sm-4
+      %b='Seriale/matricola'
+    .col-sm-3
+      %b='Posizione'
+    .col-sm-1
+.container.scrollable-panel
+  - @order.items.each do |i,k|
+    .row
+      .col-sm-4
+        =i.article.complete_name
+      .col-sm-4
+        =i.serial
+      .col-sm-2
+        =i.position_code.code
+      .col-sm-1
+        %input{type: :checkbox, disabled: :disabled, class: 'itm_out_chk', id: i.id, 'data-barcode': i.currentBarcode}
+
+:javascript
+  //domInit();
+  activateClose();
+  activateAF();
+
+  $('#check_item_').off('keypress');
+  $('#check_item_').on('keypress',function(e){
+    if(e.which == 13){
+      var barcode = $('#check_item_').val();
+      $('input[data-barcode='+barcode+']').each(function(){
+        if(!this.checked){
+          console.log(this.id,this.checked);
+          $(this).attr('checked','checked');
+          $(this).parents('.row').css('background-color','#afa');
+          $('#check_item_').val('');
+          return false;
+        }
+      })
+
+      var complete = true;
+      $('.itm_out_chk').each(function(){
+        if($(this).attr('checked') != 'checked'){
+          complete = false;
+        }
+      })
+      if(complete){
+        var id =$('#check_item_').data('order');
+        if(confirm('Conferma ordine nr. '+id)){
+          $.ajax({
+            url: 'output_order/confirm/',
+            method: 'post',
+            data: {id: id},
+            complete: function(data){
+              console.log(data);
+            }
+          });
+          $("div[data-target='/output_order/exit/"+id+"']").remove();
+          $('.close').first().trigger('click');
+        }
+
+      }
+    }
+  })

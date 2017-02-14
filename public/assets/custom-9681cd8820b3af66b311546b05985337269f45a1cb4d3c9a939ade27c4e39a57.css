@@ -1,0 +1,90 @@
+body{
+  /*padding: 1em;*/
+  /*padding-bottom: 1em;*/
+  overflow: hidden;
+  margin-bottom: 8em;
+  margin-top: 2.5em;
+}
+
+.scrollable-panel{
+  position: relative;
+  height: 100%;
+  float:none;
+  overflow-y: auto;
+}
+
+.internal-panel{
+  position: relative;
+  height: 100%;
+  float:none;
+  overflow-y: hidden;
+  margin-bottom: 1em;
+  padding-bottom: 20em;
+}
+
+.item_box{
+  margin: .4em
+}
+
+.input-row{
+  margin-top: .25em;
+  margin-bottom: .25em;
+}
+
+.store-box{
+  margin: .1em;
+  border-radius: .5em;
+  border: 1px solid #ddd;
+}
+.positioned-item{
+  background-color: #9fb;
+  border: 1px solid #7d9;
+}
+
+.selected-item{
+  background-color: #99f;
+  border: 1px solid #77d;
+}
+
+.error-item{
+  background-color: #f99;
+  border: 1px solid #d77;
+}
+
+
+.datepicker-dropdown{
+  z-index: 2001;
+}
+
+.hover-hilight:hover{
+  background-color: #ccc;
+  cursor: pointer;
+}
+
+.popup{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 90vw;
+  height: 75vh;
+  border: .2em solid #bbb;
+  border-radius: 1em;
+  background-color: #fff;
+  padding: 2em;
+}
+
+.popup-content{
+  overflow: auto;
+}
+
+.tab-header *{
+  margin-top: 1em;
+  margin-bottom: .6em;
+  font-weight: bolder;
+}
+
+.close{
+  top: 0px;
+  right: 0px;
+}

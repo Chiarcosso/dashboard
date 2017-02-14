@@ -14,6 +14,7 @@ class Item < ApplicationRecord
   belongs_to :position_code
 
   scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil)}
+  scope :unassigned, -> { joins(:output_order_items).where('output_order_items.item_id' => nil) }
   scope :article, ->(article) { where(:article => article) }
   scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%'OR articles.manufacturerCode LIKE '%#{search}%'")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
@@ -30,7 +31,7 @@ class Item < ApplicationRecord
 
   def self.firstGroupByArticle(search_params,gonerList)
     art = Hash.new
-    Item.available_items.filter(search_params).lastCreatedOrder.each do |it|
+    Item.available_items.unassigned.filter(search_params).lastCreatedOrder.each do |it|
       flag = true
       gonerList.each do |gl|
         if it.id == gl.id
