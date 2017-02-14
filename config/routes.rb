@@ -58,6 +58,7 @@ Rails.application.routes.draw do
   post   '/output/add_item', to: 'orders#add_item', as: :add_item_to_order
   get    '/output_order/exit/:id', to: 'orders#exit_order', as: :output_order_exit
   post   '/output_order/confirm', to: 'orders#confirm_order', as: :output_order_confirm
+  delete '/output_order/:id', to: 'orders#destroy_output_order', as: :output_order_delete
   # get    '/output/office', to: 'items#output_office', as: :output_office
   # get    '/output/worksheet', to: 'items#output_worksheet', as: :output_worksheet
   # get    '/output/vehicle', to: 'items#output_vehicle', as: :output_vehicle

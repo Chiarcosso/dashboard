@@ -4,8 +4,7 @@
   - OutputOrder.unprocessed.each do |oo|
     .row.hover-hilight.popup-link{'data-target': output_order_exit_path(oo.id), 'data-name': 'ouput-exit'}
       .col-sm-1
-        -# = oo.id
-        = button_to "x", "/output_order/#{oo.id}", :method => :delete, :remote => true
+        = oo.id
       .col-sm-2
         = oo.destination.complete_name
       .col-sm-1

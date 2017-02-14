@@ -3,7 +3,7 @@ class OrdersController < ApplicationController
   before_action :set_article_for_order, only: [:add_item_to_new_order]
   before_action :set_items_for_order, only: [:add_item_to_new_order]
   before_action :output_params, only: [:add_item, :output]
-  before_action :exit_params, only: [:exit_order,:confirm_order]
+  before_action :exit_params, only: [:exit_order,:confirm_order,:destroy_output_order]
   # GET /orders
   # GET /orders.json
   def index
@@ -189,12 +189,14 @@ class OrdersController < ApplicationController
 
   # DELETE /orders/1
   # DELETE /orders/1.json
-  def destroy
-    @order.destroy
-    respond_to do |format|
-      format.html { redirect_to orders_url, notice: 'Order was successfully destroyed.' }
-      format.json { head :no_content }
+  def destroy_output_order
+
+    if @order.delete
+      @msg = 'Ordine eliminato'
+    else
+      @msg = 'Errore'
     end
+      render :partial => 'layouts/messages'
   end
 
   private

@@ -11,10 +11,12 @@ class Item < ApplicationRecord
   belongs_to :article
   belongs_to :transportDocument
   has_many :item_relations
+  has_many :output_order_item
+  has_and_belongs_to_many :output_order, through: :output_order_item
   belongs_to :position_code
 
   scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil)}
-  scope :unassigned, -> { joins(:output_order_items).where('output_order_items.item_id' => nil) }
+  scope :unassigned, -> { left_outer_joins(:output_order_item).where("output_order_id IS NULL") }
   scope :article, ->(article) { where(:article => article) }
   scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%'OR articles.manufacturerCode LIKE '%#{search}%'")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }

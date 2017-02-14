@@ -1,7 +1,7 @@
 class OutputOrder < ApplicationRecord
   resourcify
-  has_many :order_items
-  has_many :items, through: :order_items
+  has_many :output_order_items
+  has_many :items, through: :output_order_items
   belongs_to :createdBy, class_name: User
   belongs_to :destination, polymorphic: true
 

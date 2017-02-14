@@ -33,6 +33,28 @@ function activateClose(){
   });
 }
 
+function activateDelete(){
+  $('.delete').off('click');
+  $('.delete').on('click',function(e){
+    e.preventDefault();
+    var object = $(this).data('object');
+    var target = $(this).data('target');
+    var id = $(this).data('id');
+    alert(object,target,id);
+    if(confirm('Conferma eliminazione '+object+' nr. '+id)){
+      $.ajax({
+        url: target,
+        method: 'delete',
+        complete: function(data){
+          console.log(data);
+        }
+      });
+      $("div[data-target='/output_order/exit/"+id+"']").remove();
+      $('.close').first().trigger('click');
+    }
+  });
+}
+
 function activateAF(){
   $('.autofocus').first().focus();
 }
@@ -41,6 +63,7 @@ function domInit() {
 
   activateClose();
   activateAF();
+  activateDelete();
 
   $('.popup form').submit(function(){
     specificSubmitFunctions();;
@@ -113,11 +136,13 @@ function domInit() {
 
   $('.ajax-link').off('click');
   $('.ajax-link').on('click',function(e){
+    preventDefault();
     var target = $(this).data('target');
-    var method = $(this).data('method');
+    var method = $(this).parents('form').first().children('input[name=_method]').val();
     var data = $(this).data('data');
+    alert(method);
     $.ajax({
-        type: "POST",
+        type: method,
         url: target,
         complete: function(data){
           console.log(data);

@@ -26,7 +26,11 @@ class Article < ApplicationRecord
   # end
 
   def availability(*checked)
-    Item.available_items.article(self).to_a - checked[0]
+    unless checked.empty?
+      Item.available_items.unassigned.article(self).to_a - checked[0]
+    else
+      Item.available_items.unassigned.article(self).to_a
+    end
   end
 
   def setBarcodeImage

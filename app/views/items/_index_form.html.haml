@@ -5,10 +5,8 @@
   .row.item-block.tab-header
     .col-sm-1
       Elimina
-    .col-sm-3
+    .col-sm-4
       Articolo
-    .col-sm-1
-      Quantità
     .col-sm-4
       Seriale
     .col-sm-1
@@ -21,10 +19,8 @@
     .row
       .col-sm-1
         = button_to "x", "/items/#{item.id}", :method => :delete, :remote => true
-      .col-sm-3
+      .col-sm-4
         = item.article.complete_name.to_s
-      .col-sm-1
-        = item.article.availability.size
       .col-sm-4
         = item.serial
       .col-sm-1
