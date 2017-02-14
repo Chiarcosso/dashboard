@@ -40,6 +40,7 @@ body{
   border-radius: .5em;
   border: 1px solid #ddd;
 }
+
 .positioned-item{
   background-color: #9fb;
   border: 1px solid #7d9;
@@ -54,7 +55,6 @@ body{
   background-color: #f99;
   border: 1px solid #d77;
 }
-
 
 .datepicker-dropdown{
   z-index: 2001;
@@ -82,10 +82,11 @@ body{
   transform: translate(-50%,-50%);
   width: 90vw;
   height: 75vh;
-  border: .2em solid #bbb;
+  border: .2em solid #f00;
   border-radius: 1em;
   background-color: #fff;
   padding: 2em;
+  overflow: hidden;
 }
 
 .popup-content{
@@ -99,6 +100,8 @@ body{
 }
 
 .close{
+  margin: 1em;
+  position: absolute;
   top: 0px;
   right: 0px;
 }

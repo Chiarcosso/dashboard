@@ -18,10 +18,15 @@ class Item < ApplicationRecord
   scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%'OR articles.manufacturerCode LIKE '%#{search}%'")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
+  # scope :unassigned, -> {  }
   enum state: [:nuovo,:usato,:rigenerato,:riscolpito,:danneggiato,:smaltimento]
 
   @amount = 1
   @actualItems = Array.new
+
+  def showLabel
+    self.article.complete_name+(self.serial == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
+  end
 
   def self.firstGroupByArticle(search_params,gonerList)
     art = Hash.new
@@ -61,7 +66,7 @@ class Item < ApplicationRecord
   end
 
   def position
-    relation = self.item_relations.sortBy(:since).last
+    relation = self.item_relations.sort_by(:since).last
     unless relation.office.nil?
       return relation.office
     end

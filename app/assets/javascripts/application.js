@@ -25,13 +25,22 @@ function reloadSelectBoxes(){
   });
 }
 
-function domInit() {
-
+function activateClose(){
   $('.close').off('click');
   $('.close').on('click',function(){
     specificCloseFunctions();
     $(this).parent().remove();
   });
+}
+
+function activateAF(){
+  $('.autofocus').first().focus();
+}
+
+function domInit() {
+
+  activateClose();
+  activateAF();
 
   $('.popup form').submit(function(){
     specificSubmitFunctions();;
@@ -51,9 +60,11 @@ function domInit() {
     });
   });
 
-  var l = $('.autosearch').val().length;
-  $('.autosearch').first()[0].setSelectionRange(l,l);
-  $('.autosearch').first().focus();
+  if($('.autosearch').length > 0){
+    var l = $('.autosearch').val().length;
+    $('.autosearch').first()[0].setSelectionRange(l,l);
+    $('.autosearch').first().focus();
+  }
 
   var timer;
   $('.autosearch').off('keyup');
@@ -118,14 +129,14 @@ function domInit() {
   $('.popup-link').on('click', function(e){
     var target = $(this).data('target');
     var name = $(this).data('name');
-
     $.ajax({
         type: "GET",
         url: target,
         complete: function(data){
            $('body').append('<div class="popup" id="'+name+'"></div>');
            $('#'+name).html(data.responseText);
-           $('#'+name).append('<div class="close"><img src="close.png"></div>');
+           $('#'+name).append('<div class="close">Chiudi</div>');
+           activateClose();
         }
     });
 

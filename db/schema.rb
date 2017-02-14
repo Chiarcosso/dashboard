@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170203095347) do
+ActiveRecord::Schema.define(version: 20170210125953) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -106,6 +106,15 @@ ActiveRecord::Schema.define(version: 20170203095347) do
     t.index ["order_id"], name: "index_order_articles_on_order_id", using: :btree
   end
 
+  create_table "order_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "output_order_id"
+    t.integer  "item_id"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.index ["item_id"], name: "index_order_items_on_item_id", using: :btree
+    t.index ["output_order_id"], name: "index_order_items_on_output_order_id", using: :btree
+  end
+
   create_table "orders", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "number"
     t.date     "date"
@@ -120,6 +129,26 @@ ActiveRecord::Schema.define(version: 20170203095347) do
   create_table "orders_transport_documents", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "order_id",              null: false
     t.integer "transport_document_id", null: false
+  end
+
+  create_table "output_order_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "output_order_id", null: false
+    t.integer  "item_id",         null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.index ["item_id"], name: "index_output_order_items_on_item_id", using: :btree
+    t.index ["output_order_id"], name: "index_output_order_items_on_output_order_id", using: :btree
+  end
+
+  create_table "output_orders", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "createdBy_id"
+    t.string   "destination_type",                 null: false
+    t.integer  "destination_id",                   null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.boolean  "processed",        default: false
+    t.index ["createdBy_id"], name: "index_output_orders_on_createdBy_id", using: :btree
+    t.index ["destination_type", "destination_id"], name: "index_output_orders_on_destination_type_and_destination_id", using: :btree
   end
 
   create_table "people", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -236,8 +265,13 @@ ActiveRecord::Schema.define(version: 20170203095347) do
   add_foreign_key "items", "transport_documents"
   add_foreign_key "order_articles", "articles"
   add_foreign_key "order_articles", "orders"
+  add_foreign_key "order_items", "items"
+  add_foreign_key "order_items", "output_orders"
   add_foreign_key "orders", "companies", column: "supplier_id"
   add_foreign_key "orders", "users", column: "created_by_id"
+  add_foreign_key "output_order_items", "items"
+  add_foreign_key "output_order_items", "output_orders"
+  add_foreign_key "output_orders", "users", column: "createdBy_id"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
   add_foreign_key "transport_documents", "companies", column: "vector_id"

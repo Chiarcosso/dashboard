@@ -2,16 +2,12 @@
   .container-fluid
     .row-fluid
       .col-sm-3
-        = link_to "Ordine per dotazione personale", output_path(:equipment), remote: true, class: 'btn btn-primary'
+        = link_to "Ordine per dotazione personale", output_path(:Person), remote: true, class: 'btn btn-primary'
       .col-sm-3
-        = link_to "Ordine per ODS", output_path(:workshop), remote: true, class: 'btn btn-primary'
+        = link_to "Ordine per ODS", output_path(:Worksheet), remote: true, class: 'btn btn-primary'
       .col-sm-3
-        = link_to "Ordine per minuteria", output_path(:office), remote: true, class: 'btn btn-primary'
+        = link_to "Ordine per minuteria", output_path(:Office), remote: true, class: 'btn btn-primary'
       .col-sm-3
-        = link_to "Ordine per dotazione mezzo", output_path(:vehicle), remote: true, class: 'btn btn-primary'
-  .container-fluid
-    - Order.all.each do |o|
-      .row-fluid
-        .col-sm-12
-          = o.number
-          = o.type
+        = link_to "Ordine per dotazione mezzo", output_path(:Vehicle), remote: true, class: 'btn btn-primary'
+
+= render :partial => 'storage/output_orders_list'

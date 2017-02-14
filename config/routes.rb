@@ -40,7 +40,7 @@ Rails.application.routes.draw do
   get    '/storage_management', to: 'storage#management', as: :storage_management
 
   post   '/position_codes/print/:id', to: 'position_codes#print', as: :position_codes_print
-  
+
   get    '/incomplete_articles', to: 'articles#incomplete', as: :incomplete_articles
   post   '/article_categories/manage', to: 'article_categories#manage', as: :manage_article_categories
   post   '/article/categories/', to: 'articles#list_categories', as: :list_article_categories
@@ -56,6 +56,8 @@ Rails.application.routes.draw do
 
   get    '/output/:destination', to: 'orders#output', as: :output
   post   '/output/add_item', to: 'orders#add_item', as: :add_item_to_order
+  get    '/output_order/exit/:id', to: 'orders#exit_order', as: :output_order_exit
+  post   '/output_order/confirm', to: 'orders#confirm_order', as: :output_order_confirm
   # get    '/output/office', to: 'items#output_office', as: :output_office
   # get    '/output/worksheet', to: 'items#output_worksheet', as: :output_worksheet
   # get    '/output/vehicle', to: 'items#output_vehicle', as: :output_vehicle

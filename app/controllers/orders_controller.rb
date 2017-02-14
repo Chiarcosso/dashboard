@@ -3,7 +3,7 @@ class OrdersController < ApplicationController
   before_action :set_article_for_order, only: [:add_item_to_new_order]
   before_action :set_items_for_order, only: [:add_item_to_new_order]
   before_action :output_params, only: [:add_item, :output]
-
+  before_action :exit_params, only: [:exit_order,:confirm_order]
   # GET /orders
   # GET /orders.json
   def index
@@ -27,18 +27,18 @@ class OrdersController < ApplicationController
   def output
     # @destination = output_params
     case @destination.to_sym
-    when :equipment
+    when :Person
       @recipient = Person.all.first
-    when :workshop
+    when :Worksheet
       @recipient = Vehicle.all.first
-    when :vehicle
+    when :Vehicle
       @recipient = Vehicle.all.first
-    when :office
+    when :Office
       @recipient = Office.all.first
     end
     @search = search_params.nil?? '' : search_params
     @checked_items = Array.new
-    @selected_items = Item.firstGroupByArticle(search_params,@checked_items)
+    @selected_items = Item.unassigned.firstGroupByArticle(search_params,@checked_items)
     # render :partial => 'items/index'
     respond_to do |format|
       format.js { render :js, :partial => 'orders/output' }
@@ -49,12 +49,27 @@ class OrdersController < ApplicationController
     # @destination = output_params
     @search = search_params.nil?? '' : search_params
     @checked_items = chk_list_params
-    @checked_items << @newItem
+    unless @newItem.nil?
+      @checked_items << @newItem
+    end
     @selected_items = Item.firstGroupByArticle(search_params,@checked_items)
     # render :partial => 'items/index'
     # @selected_items -= @checked_items
+    if @save
+      order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination)
+      @checked_items.each do |ci|
+        order.items << ci
+      end
+      # redirect_to storage_output_path
+    end
     respond_to do |format|
-      format.js { render :js, :partial => 'orders/output' }
+      if @save
+        @partial = 'storage/output_initial'
+        format.js { render :js, :partial => 'storage/output_initial_js' }
+        # format.js { render :js 'storage/index' }
+      else
+        format.js { render :js, :partial => 'orders/output' }
+      end
     end
   end
 
@@ -62,7 +77,7 @@ class OrdersController < ApplicationController
       @selected_items = Array.new
       @items = Item.filter(search_params)
       respond_to do |format|
-        format.js { render :js, :partial => 'items/output_office' }
+        format.js { render :js, :partial => 'items/output' }
       end
     end
   # POST /orders
@@ -79,6 +94,20 @@ class OrdersController < ApplicationController
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def exit_order
+    render :partial => 'output_orders/exit'
+  end
+
+  def confirm_order
+    @order.processed = true;
+    if @order.save
+      @msg = 'Ordine evaso'
+    else
+      @msg = 'Errore'
+    end
+      render :partial => 'layouts/messages'
   end
 
   def new_order
@@ -174,6 +203,10 @@ class OrdersController < ApplicationController
       @order = Order.find(params[:id])
     end
 
+    def exit_params
+      @order = OutputOrder.find(params.require(:id))
+    end
+
     def set_article_for_order
       if Article.where(barcode: params[:barcode]).count > 0
         @articles = Article.where(barcode: params[:barcode])
@@ -210,7 +243,17 @@ class OrdersController < ApplicationController
 
     def output_params
       @destination = params.require(:destination)
-      @recipient = params.permit(:recipient)
+
+      case params.require(:destination).to_sym
+      when :Person
+        @recipient = params[:recipient].nil?? Person.all.first : Person.find(params.require(:recipient).to_i)
+      when :Office
+        @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
+      when :Vehicle
+        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
+      when :Worksheet
+        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
+      end
       unless params[:item].nil?
         @newItem = Item.find(params.require(:item).to_i)
       end
@@ -218,15 +261,15 @@ class OrdersController < ApplicationController
 
     def chk_list_params
       @save = params['commit'].nil?? false : true
-      case params.require(:destination)
-      when :equipment
-        @recipient = Person.find(params.require(:recipient).to_i)
-      when :office
-        @recipient = Office.find(params.require(:recipient).to_i)
-      when :vehicle
-        @recipient = Vehicle.find(params.require(:recipient).to_i)
-      when :workshop
-        @recipient = Vehicle.find(params.require(:recipient).to_i)
+      case params.require(:destination).to_sym
+      when :Person
+        @recipient = params[:recipient].nil?? Person.all.first : Person.find(params.require(:recipient).to_i)
+      when :Office
+        @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
+      when :Vehicle
+        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
+      when :Worksheet
+        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
       end
       unless params[:items].nil?
         itms = Array.new

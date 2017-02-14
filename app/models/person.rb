@@ -1,7 +1,7 @@
 class Person < ApplicationRecord
   resourcify
 
-  def completeName
+  def complete_name
     self.name+' '+self.surname
   end
 end
