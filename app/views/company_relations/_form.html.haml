@@ -1,0 +1,13 @@
+= form_for @company_relation do |f|
+  - if @company_relation.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@company_relation.errors.count, "error")} prohibited this company_relation from being saved:"
+      %ul
+        - @company_relation.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :name
+    = f.text_field :name
+  .actions
+    = f.submit 'Save'

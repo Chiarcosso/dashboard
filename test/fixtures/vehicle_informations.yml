@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  vehicle: one
+  information_type: 1
+  information: MyString
+  date: 2017-02-17
+
+two:
+  vehicle: two
+  information_type: 1
+  information: MyString
+  date: 2017-02-17

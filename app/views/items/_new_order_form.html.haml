@@ -25,7 +25,7 @@
     .row
       .col-sm-4
         .field
-          = text_field_tag 'barcode', '', placeholder: 'Codice a barre', class: 'form-control input-row autofocus', id: 'barcode-items', :options => { autofocus: true }
+          = text_field_tag 'barcode', '', placeholder: 'Codice a barre', class: 'form-control input-row', id: 'barcode-items', :options => { autofocus: true }
       .col-sm-4
         .field
           = select_tag "article", options_from_collection_for_select(Article.no_barcode, :id, :complete_name, :include_blank => 'Seleziona articolo'), class: 'form-control input-row'
@@ -71,7 +71,7 @@
   .popup
     .close
       =image_tag 'close.png'
-    .scrollable-panel
+    #articles_content.scrollable-panel
       %b='Nuovo articolo'
       =render :partial => 'articles/form'
 

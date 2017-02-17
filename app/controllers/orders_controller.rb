@@ -3,7 +3,7 @@ class OrdersController < ApplicationController
   before_action :set_article_for_order, only: [:add_item_to_new_order]
   before_action :set_items_for_order, only: [:add_item_to_new_order]
   before_action :output_params, only: [:add_item, :output]
-  before_action :exit_params, only: [:exit_order,:confirm_order,:destroy_output_order]
+  before_action :exit_params, only: [:exit_order,:confirm_order,:destroy_output_order, :print_pdf, :print_pdf_module]
   # GET /orders
   # GET /orders.json
   def index
@@ -22,6 +22,28 @@ class OrdersController < ApplicationController
 
   # GET /orders/1/edit
   def edit
+  end
+
+  def print_pdf
+    respond_to do |format|
+      format.pdf do
+        pdf = @order.print
+        send_data pdf.render, filename:
+        "lista_ordine_uscita_nr_#{@order.id}.pdf",
+        type: "application/pdf"
+      end
+    end
+  end
+
+  def print_pdf_module
+    respond_to do |format|
+      format.pdf do
+        pdf = @order.print_module
+        send_data pdf.render, filename:
+        "modulo_dotazione_#{@order.id}.pdf",
+        type: "application/pdf"
+      end
+    end
   end
 
   def output
@@ -254,7 +276,14 @@ class OrdersController < ApplicationController
       when :Vehicle
         @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
       when :Worksheet
-        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
+        unless params[:recipient].nil?
+          @recipient = Worksheet.findByCode(params.require(:recipient))
+          if @recipient.nil?
+            @recipient = Worksheet.create(:code => params.require(:recipient))
+          end
+        else
+          @recipient = Worksheet.all.first
+        end
       end
       unless params[:item].nil?
         @newItem = Item.find(params.require(:item).to_i)
@@ -271,7 +300,14 @@ class OrdersController < ApplicationController
       when :Vehicle
         @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
       when :Worksheet
-        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
+        unless params[:recipient].nil?
+          @recipient = Worksheet.findByCode(params.require(:recipient))
+          if @recipient.nil?
+            @recipient = Worksheet.create(params.require(:recipient))
+          end
+        else
+          @recipient = Worksheet.all.first
+        end
       end
       unless params[:items].nil?
         itms = Array.new

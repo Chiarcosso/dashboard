@@ -33,7 +33,7 @@
         .col-sm-1
           = item.expiringDate.nil?? '' : (l item.expiringDate)
 
-  %b='Articoli assegnati'+' '+@destination
+  %b='Articoli assegnati'
 
   - case @destination.to_sym
     - when :Person
@@ -41,9 +41,9 @@
     - when :Office
       = select_tag :recipient, options_from_collection_for_select(Office.all, "id", "name", @recipient), class: 'form-control'
     - when :Vehicle
-      = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "name", @recipient), class: 'form-control'
+      = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "complete_name", @recipient), class: 'form-control'
     - when :Worksheet
-      = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "name", @recipient), class: 'form-control'
+      = text_field_tag :recipient, '', placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control'
   %br
   .container-fluid.scrollable-panel.half
     - @checked_items.reverse.each do |item|
@@ -65,3 +65,4 @@
 :javascript
 
   domInit();
+  preventCr();

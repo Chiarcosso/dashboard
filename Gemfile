@@ -52,6 +52,7 @@ gem 'barby'
 gem 'remotipart'
 gem 'rails_layout'
 gem 'zebra-epl'
+gem 'prawn-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

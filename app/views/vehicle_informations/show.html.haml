@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b Vehicle:
+  = @vehicle_information.vehicle
+%p
+  %b Information type:
+  = @vehicle_information.information_type
+%p
+  %b Information:
+  = @vehicle_information.information
+%p
+  %b Date:
+  = @vehicle_information.date
+
+= link_to 'Edit', edit_vehicle_information_path(@vehicle_information)
+\|
+= link_to 'Back', vehicle_informations_path

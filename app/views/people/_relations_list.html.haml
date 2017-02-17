@@ -1,0 +1,8 @@
+-@person.relations.each do |r|
+  .row
+    .col-sm-3
+      =r.company
+      =hidden_field_tag 'relations[[company]]', r.company
+    .col-sm-3
+      =r.company_relation
+      =hidden_field_tag 'relations[[relation]]', r.company

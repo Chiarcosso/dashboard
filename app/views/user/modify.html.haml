@@ -5,7 +5,7 @@
       .panel
         =render :partial => 'user/partials/user_form'
     .col-xs-8
-      - if !@user.id.nil?
+      - unless @user.id.nil?
         .panel
           %ul.nav.nav-tabs
             %li.active

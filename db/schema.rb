@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170214095838) do
+ActiveRecord::Schema.define(version: 20170217150459) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -36,12 +36,13 @@ ActiveRecord::Schema.define(version: 20170214095838) do
     t.string   "manufacturerCode"
     t.string   "name"
     t.text     "description",      limit: 65535
-    t.integer  "containedAmount"
-    t.integer  "minimalReserve"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.decimal  "containedAmount",                precision: 12, scale: 3
+    t.decimal  "minimalReserve",                 precision: 12, scale: 3
+    t.datetime "created_at",                                              null: false
+    t.datetime "updated_at",                                              null: false
     t.integer  "manufacturer_id"
     t.integer  "created_by_id"
+    t.integer  "measure_unit",     limit: 3,                              null: false
     t.index ["created_by_id"], name: "index_articles_on_created_by_id", using: :btree
     t.index ["manufacturer_id"], name: "index_articles_on_manufacturer_id", using: :btree
   end
@@ -52,6 +53,23 @@ ActiveRecord::Schema.define(version: 20170214095838) do
     t.string   "ssn",        limit: 30
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
+  end
+
+  create_table "companies_people", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "person_id"
+    t.integer  "company_id"
+    t.integer  "company_relation_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["company_id"], name: "index_companies_people_on_company_id", using: :btree
+    t.index ["company_relation_id"], name: "index_companies_people_on_company_relation_id", using: :btree
+    t.index ["person_id"], name: "index_companies_people_on_person_id", using: :btree
+  end
+
+  create_table "company_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "item_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -83,7 +101,7 @@ ActiveRecord::Schema.define(version: 20170214095838) do
     t.integer  "transportDocument_id"
     t.integer  "transport_document_id"
     t.string   "barcode"
-    t.integer  "position_code_id"
+    t.integer  "position_code_id",                                            null: false
     t.index ["article_id"], name: "index_items_on_article_id", using: :btree
     t.index ["position_code_id"], name: "index_items_on_position_code_id", using: :btree
     t.index ["transportDocument_id"], name: "index_items_on_transportDocument_id", using: :btree
@@ -148,6 +166,17 @@ ActiveRecord::Schema.define(version: 20170214095838) do
     t.text     "notes",      limit: 65535
     t.datetime "created_at",                            null: false
     t.datetime "updated_at",                            null: false
+  end
+
+  create_table "people_company_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "person_id"
+    t.integer  "company_id"
+    t.integer  "company_relation_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["company_id"], name: "index_people_company_relations_on_company_id", using: :btree
+    t.index ["company_relation_id"], name: "index_people_company_relations_on_company_relation_id", using: :btree
+    t.index ["person_id"], name: "index_people_company_relations_on_person_id", using: :btree
   end
 
   create_table "position_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -223,9 +252,19 @@ ActiveRecord::Schema.define(version: 20170214095838) do
     t.index ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id", using: :btree
   end
 
+  create_table "vehicle_informations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "vehicle_id"
+    t.integer  "information_type"
+    t.string   "information"
+    t.date     "date"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["vehicle_id"], name: "index_vehicle_informations_on_vehicle_id", using: :btree
+  end
+
   create_table "vehicle_models", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
-    t.integer  "type"
+    t.integer  "vehicle_type"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
     t.integer  "manufacturer_id"
@@ -245,8 +284,20 @@ ActiveRecord::Schema.define(version: 20170214095838) do
     t.index ["property_id"], name: "index_vehicles_on_property_id", using: :btree
   end
 
+  create_table "worksheets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "code",        null: false
+    t.date     "closingDate"
+    t.integer  "vehicle_id",  null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
+  end
+
   add_foreign_key "articles", "companies", column: "manufacturer_id"
   add_foreign_key "articles", "users", column: "created_by_id"
+  add_foreign_key "companies_people", "companies"
+  add_foreign_key "companies_people", "company_relations"
+  add_foreign_key "companies_people", "people"
   add_foreign_key "item_relations", "items"
   add_foreign_key "item_relations", "offices"
   add_foreign_key "item_relations", "people"
@@ -259,10 +310,14 @@ ActiveRecord::Schema.define(version: 20170214095838) do
   add_foreign_key "orders", "companies", column: "supplier_id"
   add_foreign_key "orders", "users", column: "created_by_id"
   add_foreign_key "output_orders", "users", column: "createdBy_id"
+  add_foreign_key "people_company_relations", "companies"
+  add_foreign_key "people_company_relations", "company_relations"
+  add_foreign_key "people_company_relations", "people"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
   add_foreign_key "transport_documents", "companies", column: "vector_id"
   add_foreign_key "transport_documents", "orders"
+  add_foreign_key "vehicle_informations", "vehicles"
   add_foreign_key "vehicle_models", "companies", column: "manufacturer_id"
   add_foreign_key "vehicles", "companies", column: "property_id"
   add_foreign_key "vehicles", "vehicle_models", column: "model_id"

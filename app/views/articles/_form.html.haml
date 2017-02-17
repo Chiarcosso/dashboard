@@ -15,7 +15,7 @@
           = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode-articles', :options => { autofocus: true }
         .field
           = f.label "Produttore"
-          = text_field_tag :manufacturer, (@article.manufacturer.nil?? Company.manufacturerChoice.name : @article.manufacturer.name), data: { autocomplete: autocomplete_company_name_articles_path }
+          = text_field_tag :manufacturer, (@article.manufacturer.nil?? Company.manufacturerChoice.name : @article.manufacturer.name), data: { autocomplete: autocomplete_company_name_articles_path }, class: 'form-control autofocus'
           -# = f.autocomplete_field :manufacturer, autocomplete_company_name_articles_path
           -# %div{'data-target': new_company_path, 'data-name': 'add_company', class: 'btn btn-primary popup-link'}
           -#   +
@@ -31,10 +31,11 @@
           = f.text_field :description, class: 'form-control'
         .field
           = f.label "Quantità contenuta"
-          = f.number_field :containedAmount, class: 'form-control'
+          = f.number_field :containedAmount, class: 'form-control', step: :any
+          = f.select :measure_unit, Article.measure_units, class: 'form-control input-row'
         .field
           = f.label "Riserva minima"
-          = f.number_field :minimalReserve, class: 'form-control'
+          = f.number_field :minimalReserve, class: 'form-control', step: :any
         .field
           = f.submit 'Salva', id: "article-submit-back"
           = f.submit 'Salva e passa alle categorie', id: "article-submit"
@@ -51,3 +52,5 @@
 
 :javascript
   init();
+  activateAF();
+  //activateClose();

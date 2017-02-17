@@ -1,0 +1,21 @@
+%h1 Listing company_relations
+
+%table
+  %thead
+    %tr
+      %th Name
+      %th
+      %th
+      %th
+
+  %tbody
+    - @company_relations.each do |company_relation|
+      %tr
+        %td= company_relation.name
+        %td= link_to 'Show', company_relation
+        %td= link_to 'Edit', edit_company_relation_path(company_relation)
+        %td= link_to 'Destroy', company_relation, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Company relation', new_company_relation_path

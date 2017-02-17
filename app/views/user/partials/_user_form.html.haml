@@ -19,12 +19,12 @@
     = f.email_field :email, :autofocus => true, class: 'form-control'
 
   %fieldset
-    %p Lascia in bianco per non cambiare la password.
+    -# %p Lascia in bianco per non cambiare la password.
     .form-group
       = f.label :password
-      = f.password_field :password, :autocomplete => 'off', class: 'form-control'
+      = f.password_field :password, :autocomplete => 'off', class: 'form-control', placeholder: 'Lasciare in bianco per non modificare'
     .form-group
       = f.label :password_confirmation
-      = f.password_field :password_confirmation, class: 'form-control'
+      = f.password_field :password_confirmation, class: 'form-control', placeholder: 'Lasciare in bianco per non modificare'
 
   = f.submit 'Aggiorna', :class => 'button right'

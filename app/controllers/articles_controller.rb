@@ -175,6 +175,7 @@ class ArticlesController < ApplicationController
       else
         @manufacturer = nil
       end
-      params.require(:article).permit(:barcode, :manufacturerCode, :name, :description, :containedAmount, :minimalReserve, :position_code)
+      params[:article][:measure_unit] = params[:article][:measure_unit].to_i
+      params.require(:article).permit(:barcode, :manufacturerCode, :name, :description, :containedAmount, :minimalReserve, :position_code, :measure_unit)
     end
 end

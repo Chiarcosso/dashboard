@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :company_relations
+  resources :vehicle_informations
   resources :position_codes
   resources :vehicles
   resources :vehicle_models
@@ -11,7 +13,9 @@ Rails.application.routes.draw do
   resources :articles do
     get :autocomplete_company_name, :on => :collection
   end
-  resources :people
+  resources :people do
+    get :autocomplete_company_name, :on => :collection
+  end
   devise_for :users
   # devise_scope :user do
   #   root "devise/sessions#new"
@@ -59,6 +63,8 @@ Rails.application.routes.draw do
   get    '/output_order/exit/:id', to: 'orders#exit_order', as: :output_order_exit
   post   '/output_order/confirm', to: 'orders#confirm_order', as: :output_order_confirm
   delete '/output_order/:id', to: 'orders#destroy_output_order', as: :output_order_delete
+  post    '/output_order/pdf/:id', to: 'orders#print_pdf', as: :output_order_pdf
+  post    '/output_order/pdf/module/:id', to: 'orders#print_pdf_module', as: :output_order_pdf_module
   # get    '/output/office', to: 'items#output_office', as: :output_office
   # get    '/output/worksheet', to: 'items#output_worksheet', as: :output_worksheet
   # get    '/output/vehicle', to: 'items#output_vehicle', as: :output_vehicle

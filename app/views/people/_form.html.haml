@@ -1,6 +1,6 @@
 - if @person.id.nil?
   = form_for(@user, url: users_admin_path, method: 'patch') do |f|
-    = f.select "person", options_from_collection_for_select(Person.all, "id", "completeName"), include_blank: "- Nuova persona -", class: 'form-control'
+    = f.select "person", options_from_collection_for_select(Person.all, "id", "complete_name"), include_blank: "- Nuova persona -", class: 'form-control'
 
 = form_for(@person) do |f|
   - if @person.errors.any?
@@ -12,14 +12,36 @@
         - person.errors.full_messages.each do |message|
           %li= message
 
-  .form-group
-    = f.label :name
-    = f.text_field :name, class: 'form-control'
-  .form-group
-    = f.label :surname
-    = f.text_field :surname, class: 'form-control'
-  .form-group
-    = f.label :notes
-    = f.text_area :notes, class: 'form-control'
+  .container
+    .row
+      .col-sm-6
+        .form-group
+          = f.label 'Nome'
+          = f.text_field :name, class: 'form-control'
+        .form-group
+          = f.label 'Cognome'
+          = f.text_field :surname, class: 'form-control'
+        .form-group
+          = f.label 'Note'
+          = f.text_area :notes, class: 'form-control'
+      .col-sm-6
+        .container
+          .row
+            .col-sm-3
+              .form-group
+                = f.label "Ditta / Associazione"
+                -# = text_field_tag "relation[company]", '', data: { autocomplete: autocomplete_company_name_people_path }, class: 'form-control autofocus'
+                = select_tag "relation[company]", options_from_collection_for_select(Company.all, "id", "name"), include_blank: "- Selezionare -", class: 'form-control'
+            .col-sm-3
+              .form-group
+                = f.label 'Ruolo'
+                = select_tag "relation[relation]", options_from_collection_for_select(CompanyRelation.all, "id", "name"), include_blank: "- Selezionare -", class: 'form-control'
+          #relations.container.scrollable-panel
+            =render :partial => 'people/relations_list'
+
   .actions
-    = f.submit
+    = f.submit 'Crea'
+
+  :javascript
+
+    activateAutoComplete();

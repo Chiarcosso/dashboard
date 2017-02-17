@@ -1,0 +1,1 @@
+json.partial! "vehicle_informations/vehicle_information", vehicle_information: @vehicle_information

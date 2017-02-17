@@ -1,5 +1,7 @@
 %b='Ordine nr. '+@order.id.to_s
 = button_tag 'Elimina', class: 'delete', 'data-object': 'ordine', 'data-target': output_order_delete_path(@order.id), 'data-id': @order.id
+= button_to 'Stampa lista', output_order_pdf_path(@order.id,format: :pdf)
+= button_to 'Stampa modulo', output_order_pdf_module_path(@order.id,format: :pdf)
 %br
 %br
 = text_field 'check_item', '', placeholder: 'Codice a barre', class: 'form-control autofocus', 'data-order': @order.id.to_s

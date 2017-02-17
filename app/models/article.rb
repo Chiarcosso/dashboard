@@ -17,6 +17,8 @@ class Article < ApplicationRecord
   scope :no_barcode, -> { where(barcode: '') }
   scope :manufacturer, ->(search) { include(:company).where("manufacturer_id = companies.id").where("companies.name LIKE '%#{search}%'")}
 
+  enum measure_unit: [:pezzi,:kg,:l]
+
   def self.incompleteItems
     Article.all
   end

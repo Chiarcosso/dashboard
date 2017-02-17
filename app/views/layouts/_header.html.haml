@@ -11,13 +11,17 @@
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino))
         = navbar_dropdown "Officina" do
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
-            -# = navbar_dropdown_header 'Personale'
-            -# = navbar_dropdown_divider
             = navbar_item "Magazzino", storage_path
+          - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
+            = navbar_item "Mezzi", storage_path
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino))
         = navbar_dropdown "Amministrazione" do
           - if (current_user.has_role?("mod. ditte") || current_user.has_role?(:admin))
             = navbar_item "Ditte", companies_path
+          - if (current_user.has_role?("mod. ditte") || current_user.has_role?(:admin))
+            = navbar_item "Persone", people_path
+          - if (current_user.has_role?("mod. ditte") || current_user.has_role?(:admin))
+            = navbar_item "Ruoli aziendali", company_relations_path
       -# = navbar_item "About Us", '/about-us'
       -# = navbar_item '/contact' do
         %span.glyphicon.glyphicon-hand-right

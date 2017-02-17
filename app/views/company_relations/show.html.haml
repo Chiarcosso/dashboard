@@ -1,0 +1,9 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @company_relation.name
+
+= link_to 'Edit', edit_company_relation_path(@company_relation)
+\|
+= link_to 'Back', company_relations_path

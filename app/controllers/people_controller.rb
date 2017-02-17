@@ -1,5 +1,8 @@
 class PeopleController < ApplicationController
-  before_action :set_person, only: [:show, :edit, :update, :destroy]
+  before_action :set_person, only: [:show, :edit, :update, :destroy, :create]
+
+
+  autocomplete :company, :name, full: true
 
   # GET /people
   # GET /people.json
@@ -24,7 +27,10 @@ class PeopleController < ApplicationController
   # POST /people
   # POST /people.json
   def create
-    @person = Person.new(person_params)
+    if @person.nil?
+      @person = Person.new(person_params)
+    end
+
 
     respond_to do |format|
       if @person.save
@@ -69,6 +75,8 @@ class PeopleController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
+      # byebug
+      # @relation =
       params.require(:person).permit(:name, :surname, :notes)
     end
 end
