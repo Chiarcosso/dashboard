@@ -22,4 +22,4 @@
 .vagrant
 erd.pdf
 #/config/database.yml
-/public/images/*
+/public/*
