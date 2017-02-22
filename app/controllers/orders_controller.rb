@@ -279,7 +279,7 @@ class OrdersController < ApplicationController
         unless params[:recipient].nil?
           @recipient = Worksheet.findByCode(params.require(:recipient))
           if @recipient.nil?
-            @recipient = Worksheet.create(:code => params.require(:recipient))
+            @recipient = Worksheet.create(:code => params.require(:recipient), :vehicle_id => params.require(:vehicle))
           end
         else
           @recipient = Worksheet.all.first
@@ -303,7 +303,7 @@ class OrdersController < ApplicationController
         unless params[:recipient].nil?
           @recipient = Worksheet.findByCode(params.require(:recipient))
           if @recipient.nil?
-            @recipient = Worksheet.create(params.require(:recipient))
+            @recipient = Worksheet.create(params.require(:recipient), :vehicle_id => params.require(:vehicle))
           end
         else
           @recipient = Worksheet.all.first

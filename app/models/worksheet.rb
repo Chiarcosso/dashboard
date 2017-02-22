@@ -1,6 +1,12 @@
 class Worksheet < ApplicationRecord
   resourcify
 
+  belongs_to :vehicle
+
+  def complete_name
+    self.code
+  end
+
   def self.findByCode code
     Worksheet.where(code: code).first
   end

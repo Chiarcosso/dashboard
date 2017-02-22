@@ -59,6 +59,17 @@ function activateAF(){
   $('.autofocus').first().focus();
 }
 
+function activateDatePicker(){
+
+  $('[data-behavior=datepicker]').datepicker({
+    language: "it",
+    autoclose: true,
+    todayHighlight: true,
+    setValue: ($(this).data('no-default')=='true'?'':today())
+  });
+
+}
+
 function preventCr(){
   $('.prevent-cr').on('keypress', function(e){
     if(e.which == 13){

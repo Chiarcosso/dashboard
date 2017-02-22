@@ -3,16 +3,30 @@ class Vehicle < ApplicationRecord
 
   belongs_to :model, class_name: 'VehicleModel'
   has_many :vehicle_informations
+  has_many :worksheets
+  has_one :vehicle_type, through: :model
+  belongs_to :property, class_name: 'Company'
 
   def plate
-    self.vehicle_information.where(:infromation_type => 0).order(:date).limit(1).first
+    p = self.vehicle_informations.where(:information_type => VehicleInformation.types['Targa']).order(created_at: :desc).limit(1).first
+    if p.nil?
+      ''
+    else
+      p.information.upcase
+    end
   end
 
   def chassis_number
-    self.vehicle_information.where(:infromation_type => 1).order(:date).limit(1).first
+    c = self.vehicle_informations.where(:information_type => VehicleInformation.types['N. di telaio']).order(created_at: :desc).limit(1).first
+    if c.nil?
+      ''
+    else
+      c.information
+    end
   end
 
   def complete_name
     self.model.manufacturer.name+' '+self.plate
   end
+
 end

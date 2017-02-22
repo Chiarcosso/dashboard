@@ -1,23 +1,27 @@
-%h1 Listing vehicle_models
+-# %p#notice= notice
+%h3 Modelli
+.container
+  .row
+    .col-sm-3
+      %b='Modello'
+    .col-sm-3
+      %b='Marca'
+    .col-sm-5
+      %b='Descrizione'
+    .col-sm-1
 
-%table
-  %thead
-    %tr
-      %th Name
-      %th References
-      %th
-      %th
-      %th
+.container.scrollable-panel
+  -VehicleModel.all.each do |v|
+    .row
+      .col-sm-3
+        =v.name
+      .col-sm-3
+        =v.manufacturer.name
+      .col-sm-5
+        =v.description
+      .col-sm-1
+        -# =button_to 'Modifica', edit_vehicle_model_path(v.id), class: 'inline', method: :get
+        =button_to 'x', vehicle_model_path(v.id), remote: true, method: :delete, class: 'inline'
 
-  %tbody
-    - @vehicle_models.each do |vehicle_model|
-      %tr
-        %td= vehicle_model.name
-        %td= vehicle_model.references
-        %td= link_to 'Show', vehicle_model
-        %td= link_to 'Edit', edit_vehicle_model_path(vehicle_model)
-        %td= link_to 'Destroy', vehicle_model, :method => :delete, :data => { :confirm => 'Are you sure?' }
-
-%br
-
-= link_to 'New Vehicle model', new_vehicle_model_path
+.container
+  =button_to 'Crea', new_vehicle_path, method: :get

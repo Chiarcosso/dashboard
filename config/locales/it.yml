@@ -27,6 +27,10 @@ it:
       default: "%d/%m/%Y"
       short: "%b %d"
       long: "%B %d, %Y"
+    order:
+      - :day
+      - :month
+      - :year
 
   time:
     formats:

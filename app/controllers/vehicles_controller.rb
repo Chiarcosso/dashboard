@@ -25,10 +25,15 @@ class VehiclesController < ApplicationController
   # POST /vehicles.json
   def create
     @vehicle = Vehicle.new(vehicle_params)
-
+    # unless @model.nil? || @property.nil?
+      @vehicle.property = @property
+      @vehicle.model = @model
+    # end
     respond_to do |format|
-      if @vehicle.save
-        format.html { redirect_to @vehicle, notice: 'Vehicle was successfully created.' }
+      if @vehicle.save && !@property.nil? && !@model.nil?
+        @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'])
+        @vehicle.vehicle_informations << VehicleInformation.create(information: @serial, information_type: VehicleInformation.types['N. di telaio'])
+        format.html { redirect_to vehicles_path, notice: 'Vehicle was successfully created.' }
         format.json { render :show, status: :created, location: @vehicle }
       else
         format.html { render :new }
@@ -42,7 +47,13 @@ class VehiclesController < ApplicationController
   def update
     respond_to do |format|
       if @vehicle.update(vehicle_params)
-        format.html { redirect_to @vehicle, notice: 'Vehicle was successfully updated.' }
+        unless @vehicle.plate == @plate
+          @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'])
+        end
+        unless @vehicle.chassis_number == @serial
+          @vehicle.vehicle_informations << VehicleInformation.create(information: @serial, information_type: VehicleInformation.types['N. di telaio'])
+        end
+        format.html { redirect_to vehicles_path, notice: 'Vehicle was successfully updated.' }
         format.json { render :show, status: :ok, location: @vehicle }
       else
         format.html { render :edit }
@@ -69,6 +80,12 @@ class VehiclesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def vehicle_params
-      params.require(:vehicle).permit(:references, :dismissed, :registration_date, :initial_serial, :mileage)
+      @plate = params.require(:initial_plate).permit(:info)[:info]
+      @serial = params.require(:initial_serial).permit(:info)[:info]
+      @model = VehicleModel.find(params.require(:vehicle).permit(:model)[:model].to_i)
+      @property = Company.where(name: params.require(:vehicle).permit(:property)[:property]).first
+      params.require(:vehicle).permit(:dismissed, :registration_date, :initial_serial, :mileage)
+      # params.require(:vehicle)[:model] = VehicleModel.find(params.require(:vehicle)[:model].to_i)
+      # params
     end
 end

@@ -31,6 +31,10 @@ class Item < ApplicationRecord
     self.article.complete_name+(self.serial == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
   end
 
+  def cost
+    self.price - (self.price / 100) * self.discount
+  end
+  
   def self.firstGroupByArticle(search_params,gonerList)
     art = Hash.new
     Item.available_items.unassigned.filter(search_params).lastCreatedOrder.each do |it|
