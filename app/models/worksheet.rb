@@ -4,7 +4,7 @@ class Worksheet < ApplicationRecord
   belongs_to :vehicle
 
   def complete_name
-    self.code
+    self.code+' (Targa: '+self.vehicle.plate+')'
   end
 
   def self.findByCode code

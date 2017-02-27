@@ -58,7 +58,7 @@ class OutputOrder < ApplicationRecord
     when Vehicle
       pdf.text "destinato al mezzo: #{self.destination.complete_name}"
     when Worksheet
-      pdf.text "per l'ODL nr. : #{self.destination.code}"
+      pdf.text "per l'ODL nr. : #{self.destination.complete_name}"
     when Office
       pdf.text "destinato all'ufficio: #{self.destination.name}"
     end
