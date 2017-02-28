@@ -7,19 +7,19 @@
           %li= msg
 
   .field
-    = f.label :floor
-    = f.number_field :floor
+    = f.label 'Piano'
+    = f.number_field :floor, max: 3, min:0
   .field
-    = f.label :row
-    = f.number_field :row
+    = f.label 'Corsia'
+    = f.select :row, PositionCode.rows, class: 'form-control'
   .field
-    = f.label :level
-    = f.number_field :level
+    = f.label 'Livello'
+    = f.number_field :level, max: 3, min:0
   .field
-    = f.label :sector
-    = f.number_field :sector
+    = f.label 'Settore'
+    = f.number_field :sector, max: 30, min:0
   .field
-    = f.label :section
-    = f.number_field :section
+    = f.label 'Sezione'
+    = f.select :section, PositionCode.section_codes, class: 'form-control'
   .actions
     = f.submit 'Save'

@@ -1,13 +1,22 @@
 class PositionCode < ApplicationRecord
   resourcify
 
+  enum row: ['A','B','C','D','E','F','G','H','I','J','K','L']
+  # enum section_code: ['A','B','C','D']
+
   def self.findByCode(code)
-    tokens = code.split('-')
-    PositionCode.where(:floor => tokens[0][1..-1].to_i, :row => tokens[1][1..-1].to_i, :level => tokens[2][1..-1].to_i, :sector => tokens[3][1..-1].to_i, :section => tokens[4][1..-1].to_i).first
+    tokens = code.split(' ')
+    floor = tokens[0][1..-1].to_i
+    row = tokens[1][0..0].to_i
+    level = tokens[1][1..-1].to_i
+    tok = tokens[2].split('-')
+    sector = tok[0].to_i
+    section = tok[1].to_i
+    PositionCode.where(:floor => floor, :row => row, :level => level, :sector => sector, :section => section).first
   end
 
   def code
-    'P'+self.floor.to_s+'-C'+self.row.to_s+'-L'+self.level.to_s+'-X'+self.sector.to_s+'-Y'+self.section.to_s
+    'P'+self.floor.to_s+' '+self.row+self.level.to_s+' '+self.sector.to_s+'-'+self.section.to_s
   end
 
   def printLabel

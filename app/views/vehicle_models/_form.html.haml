@@ -6,11 +6,22 @@
         - @vehicle_model.errors.full_messages.each do |msg|
           %li= msg
 
-  .field
-    = f.label :name
-    = f.text_field :name
-  .field
-    = f.label :references
-    = f.text_field :references
-  .actions
-    = f.submit 'Save'
+  .row
+    .col-sm-3
+      .field
+        = f.label 'Marca'
+        = text_field_tag 'model[manufacturer]', (@vehicle_model.manufacturer.nil?? Company.manufacturerChoice.name : @vehicle_model.manufacturer.name), data: { autocomplete: autocomplete_company_name_articles_path }, class: 'form-control autofocus'
+    .col-sm-3
+      .field
+        = f.label 'Modello'
+        = f.text_field :name, class: 'form-control'
+    .col-sm-3
+      .field
+        = f.label 'Tipo'
+        = f.select :vehicle_type, VehicleModel.types, class: 'form-control'
+    .col-sm-3
+      .field
+        = f.label 'Descrizione/note'
+        = f.text_field :description, class: 'form-control'
+    .actions
+      = f.submit 'Save'
