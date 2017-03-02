@@ -25,10 +25,10 @@ class VehicleModelsController < ApplicationController
   # POST /vehicle_models.json
   def create
     @vehicle_model = VehicleModel.new(vehicle_model_params)
-
+    @vehicle_model.manufacturer = @manufacturer
     respond_to do |format|
       if @vehicle_model.save
-        format.html { redirect_to @vehicle_model, notice: 'Vehicle model was successfully created.' }
+        format.html { redirect_to vehicle_models_path, notice: 'Vehicle model was successfully created.' }
         format.json { render :show, status: :created, location: @vehicle_model }
       else
         format.html { render :new }
@@ -69,6 +69,11 @@ class VehicleModelsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def vehicle_model_params
-      params.require(:vehicle_model).permit(:name, :references)
+      @manufacturer = Company.where(name: params.require(:model).permit(:manufacturer)[:manufacturer]).first
+      if @manufacturer.nil?
+        @manufacturer = Company.create(name: params.require(:model).permit(:manufacturer)[:manufacturer])
+      end
+
+      params.require(:vehicle_model).permit(:name, :vehicle_type, :description)
     end
 end

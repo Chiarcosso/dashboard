@@ -2,6 +2,7 @@ class ItemsController < ApplicationController
   before_action :set_item, only: [:show, :edit, :update, :destroy]
   before_action :set_article_for_order, only: [:add_item_to_storage]
   before_action :set_items_for_order, only: [:add_item_to_storage]
+  before_action :set_vehicle_for_order, only: [:add_item_to_storage]
   # GET /items
   # GET /items.json
   def index
@@ -21,7 +22,9 @@ class ItemsController < ApplicationController
   end
 
   def vehicle_insert
-    byebug
+    @items = Array.new
+    @vehicle = Vehicle.new
+    render :partial => 'items/vehicle_order'
   end
 
   def store
@@ -52,12 +55,17 @@ class ItemsController < ApplicationController
       item.state = k[:state].to_i
       item.expiringDate = k[:expiringDate]
       item.article = Article.find(k[:article].to_i)
-      item.position_code = PositionCode.findByCode('P0-C0-L0-X0-Y0')
+      item.position_code = PositionCode.findByCode('P0 X0 0-0')
       item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
       @items << item
     end
 
     # if params[:barcode] != ''
+    if @vehicle.nil?
+      partial = 'items/new_order'
+    else
+      partial = 'items/vehicle_order'
+    end
     unless @article.nil? || @save
       item = Item.new
       item.article = @article
@@ -75,6 +83,9 @@ class ItemsController < ApplicationController
           item = Item.create(i.attributes)
           item.barcode = item.generateBarcode #SecureRandom.base58(10)
           i.addActualItems item.id
+          unless @vehicle.id.nil?
+
+          end
           item.item_relations << ItemRelation.create(:since => Time.now)
           if i.article.barcode.nil? || i.serial.size > 0 || !i.expiringDate.nil?
             i.printLabel
@@ -85,12 +96,13 @@ class ItemsController < ApplicationController
       @items = Array.new
       @newItems = Array.new
       @save = false
+
       respond_to do |format|
-        format.js { render :js, :partial => 'items/new_order' }
+        format.js { render :js, :partial => partial }
       end
     else
       respond_to do |format|
-        format.js { render :js, :partial => 'items/new_order' }
+        format.js { render :js, :partial => partial }
       end
     end
 
@@ -202,6 +214,13 @@ class ItemsController < ApplicationController
       end
     end
 
+    def set_vehicle_for_order
+      if params[:vehicle] != ''
+        @vehicle = Vehicle.find(params.require(:vehicle).to_i)
+      else
+        @vehicle = Vehicle.new
+      end
+    end
     def items_params
       unless params[:commit].nil?
         @save = params['commit'][0..7] == 'Conferma' ? true : false

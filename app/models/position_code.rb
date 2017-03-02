@@ -1,7 +1,7 @@
 class PositionCode < ApplicationRecord
   resourcify
 
-  enum row: ['A','B','C','D','E','F','G','H','I','J','K','L']
+  enum row: ['X','A','B','C','D','E','F','G','H','I','J','K','L']
   # enum section_code: ['A','B','C','D']
 
   def self.findByCode(code)

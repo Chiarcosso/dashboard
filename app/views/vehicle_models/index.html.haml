@@ -2,10 +2,12 @@
 %h3 Modelli
 .container
   .row
-    .col-sm-3
-      %b='Modello'
-    .col-sm-3
+    .col-sm-2
       %b='Marca'
+    .col-sm-2
+      %b='Modello'
+    .col-sm-2
+      %b='Tipo'
     .col-sm-5
       %b='Descrizione'
     .col-sm-1
@@ -13,10 +15,12 @@
 .container.scrollable-panel
   -VehicleModel.all.each do |v|
     .row
-      .col-sm-3
-        =v.name
-      .col-sm-3
+      .col-sm-2
         =v.manufacturer.name
+      .col-sm-2
+        =v.name
+      .col-sm-2
+        =v.vehicle_type
       .col-sm-5
         =v.description
       .col-sm-1

@@ -1,32 +1,10 @@
 .container-fluid
-  - if @transportDocument.nil?
-    %h3= 'Inserimento libero'
-    - path = add_item_to_storage_path(format: :js)
-  -else
-    %h3= 'Ordine / DDT dinamico'
-    - path = add_item_to_order_path(format: :js)
-
-  = form_tag(path, method: :post, remote: true, type: :script, id: :dyn_ddt) do |f|
+  = form_tag(add_item_to_storage_path(format: :js), method: :post, remote: true, type: :script, id: :dyn_ddt) do |f|
     = hidden_field_tag :authenticity_token, form_authenticity_token
-    - unless @transportDocument.nil?
-      .row
-        .col-sm-3
-          = label_tag "Numero DDT"
-          = text_field_tag "order[transportDocument]", @transportDocument.number, class: 'form-control'
-        .col-sm-3
-          = label_tag "Fornitore"
-          = select_tag "order[supplier]", options_from_collection_for_select(Company.all, :id, :name, {:selected => @order.supplier.nil?? nil : @order.supplier.id}), class: 'form-control'
-        .col-sm-3
-          = label_tag "Vettore"
-          = select_tag "order[vector]", options_from_collection_for_select(Company.all, :id, :name, {:selected => @transportDocument.vector.nil?? nil : @transportDocument.vector.id}), :include_blank => 'Destinatario', :selected => @transportDocument.vector, class: 'form-control'
-        .col-sm-3
-          = label_tag "Data acquisto"
-          = text_field_tag "order[purchaseDate]", (l @transportDocument.date), placeholder: 'Data acquisto', class: 'form-control', 'data-behavior' => 'datepicker'
-    - unless @vehicle.nil?
-      .row
-        .col-sm-4
-          = label_tag "Mezzo"
-          = select_tag :vehicle, options_from_collection_for_select(Vehicle.all, :id, :complete_name), :include_blank => 'Mezzo', class: 'form-control'
+    .row
+      .col-sm-4
+        = label_tag "Mezzo"
+        = select_tag :vehicle, options_from_collection_for_select(Vehicle.all, :id, :complete_name, selected: @vehicle.id), :include_blank => 'Mezzo', class: 'form-control'
     .row
       .col-sm-4
         .field
@@ -53,10 +31,6 @@
                     -#   = image_tag(k.to_s+'.png',width: '200',height: '60')
                     .col-sm-2
                       = select_tag "items[#{k}][article]", options_from_collection_for_select(Article.where("barcode = '#{i.article.barcode}'"), :id, :complete_name, :selected => i.article.id), class: 'form-control input-row'
-                    .col-sm-1
-                      = text_field_tag "items[#{k}][price]", i.price, placeholder: 'Prezzo', class: 'form-control input-row'
-                    .col-sm-1
-                      = text_field_tag "items[#{k}][discount]", i.discount, placeholder: 'Sconto %', class: 'form-control input-row'
                     .col-sm-2
                       = text_field_tag "items[#{k}][serial]", i.serial, placeholder: 'N. seriale / Matricola', class: 'form-control input-row'
                     .col-sm-2
@@ -101,11 +75,10 @@
                       .row-fluid
                         .col-sm-10
                           %div= i.article.complete_name
-                          %div= i.price
                           %div= i.amount
                           %div= i.actualItems
                         .col-sm-2
-                          = text_field_tag 'store[position_code]', i.position_code, placeholder: 'Posizione', class: 'form-control position_code'
+                          = text_field_tag 'store[position_code]', i.position_code.code, placeholder: 'Posizione', class: 'form-control position_code'
 
 :javascript
 
