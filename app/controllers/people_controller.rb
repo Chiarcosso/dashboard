@@ -1,5 +1,5 @@
 class PeopleController < ApplicationController
-  before_action :set_person, only: [:show, :edit, :update, :destroy, :create]
+  before_action :set_person, only: [:show, :edit, :update, :destroy]
 
 
   autocomplete :company, :name, full: true
@@ -27,14 +27,12 @@ class PeopleController < ApplicationController
   # POST /people
   # POST /people.json
   def create
-    if @person.nil?
-      @person = Person.new(person_params)
-    end
-
-
+    @person = Person.new(person_params)
     respond_to do |format|
       if @person.save
-        format.html { redirect_to @person, notice: 'Person was successfully created.' }
+        relation_params
+        CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
+        format.html { redirect_to people_path, notice: 'Person was successfully created.' }
         format.json { render :show, status: :created, location: @person }
       else
         format.html { render :new }
@@ -48,7 +46,9 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to @person, notice: 'Person was successfully updated.' }
+        relation_params
+        CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
+        format.html { redirect_to people_path, notice: 'Person was successfully updated.' }
         format.json { render :show, status: :ok, location: @person }
       else
         format.html { render :edit }
@@ -62,7 +62,7 @@ class PeopleController < ApplicationController
   def destroy
     @person.destroy
     respond_to do |format|
-      format.html { redirect_to people_url, notice: 'Person was successfully destroyed.' }
+      format.html { redirect_to people_path, notice: 'Person was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -75,8 +75,13 @@ class PeopleController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
-      # byebug
-      # @relation =
       params.require(:person).permit(:name, :surname, :notes)
+    end
+
+    def relation_params
+      # params[:relation][:person] = @person.id
+      rel = params.require(:relation).permit(:company, :relation, :person)
+      @company = Company.find(rel[:company])
+      @relation = CompanyRelation.find(rel[:relation])
     end
 end

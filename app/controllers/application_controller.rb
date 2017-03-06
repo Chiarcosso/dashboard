@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   before_action :authenticate_user!
+  before_action :configure_permitted_parameters, if: :devise_controller?
   helper_method :resource_name, :resource, :devise_mapping
 
   # # GET /autocomplete/:model/:search.json
@@ -17,5 +18,11 @@ class ApplicationController < ActionController::Base
   #     format.json { render :json => @items.to_json }
   #     end
   # end
+  protected
+
+  def configure_permitted_parameters
+    byebug
+    devise_parameter_sanitizer.for(:account_update) << :person
+  end
 
 end

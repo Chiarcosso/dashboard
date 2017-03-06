@@ -34,7 +34,7 @@ class Item < ApplicationRecord
   def cost
     self.price - (self.price / 100) * self.discount
   end
-  
+
   def self.firstGroupByArticle(search_params,gonerList)
     art = Hash.new
     Item.available_items.unassigned.filter(search_params).lastCreatedOrder.each do |it|
@@ -110,8 +110,8 @@ class Item < ApplicationRecord
     # label << box
     text  = Zebra::Epl::Text.new :data => self.expiringDate?? 'Sc. '+self.expiringDate.strftime('%d/%m/%Y') : '', :position => [10, 10], :font => Zebra::Epl::Font::SIZE_3
     label << text
-    text  = Zebra::Epl::Text.new :data => self.position_code.code, :position => [220, 10], :font => Zebra::Epl::Font::SIZE_2
-    label << text
+    # text  = Zebra::Epl::Text.new :data => self.position_code.code, :position => [220, 10], :font => Zebra::Epl::Font::SIZE_2
+    # label << text
     text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
     label << text
     text  = Zebra::Epl::Text.new :data => self.serial.nil?? '' : 'Mat. '+self.serial, :position => [10, 70], :font => Zebra::Epl::Font::SIZE_4

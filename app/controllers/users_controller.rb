@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize
   load_and_authorize_resource
-  before_action :get_user, only: [:edit, :delete, :show, :add_role, :rem_role]
+  before_action :get_user, only: [:update,:delete, :show, :add_role, :rem_role]
   before_action :create_params, only: [:create]
 
   def new
@@ -26,15 +26,13 @@ class UsersController < ApplicationController
   end
 
   def create
-    p = create_params
-    p[:person_id] = 0
-    @user = User.create! p
+    @user = User.create! create_params
     redirect_to edit_user_admin_path(@user)
   end
 
-  def modify
-    @user.update(params[:user])
-    redirect_to users_path
+  def update
+    @user.update(create_params)
+    redirect_to users_admin_path
   end
 
   def delete
@@ -69,12 +67,14 @@ class UsersController < ApplicationController
 
   def get_user
     @user = User.find(params[:id])
-    @user.person ||= Person.new
-    @person = @user.person
+    # @user.person ||= Person.new
+    # @person = @user.person
   end
 
   def create_params
-    params.require(:user).permit(:username, :email, :password, :password_confirmation, :person_id)
+    p = params.require(:user).permit(:username, :email, :password, :password_confirmation, :person)
+    p[:person] = Person.find(p[:person].to_i)
+    p
   end
 
   def checkout_params

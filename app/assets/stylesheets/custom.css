@@ -17,6 +17,11 @@ body{
   height:45%;
 }
 
+.inline-input{
+  clear: none;
+  display: inline-block;
+}
+
 .internal-panel{
   position: relative;
   height: 100%;

@@ -4,33 +4,39 @@
   .row
     .col-sm-1
       %b='Nome'
-    .col-sm-2
-      %b='Cognome'
-    .col-sm-2
-      %b='Ditte / Associazioni'
     .col-sm-1
-      %b='Ruoli'
+      %b='Cognome'
+    .col-sm-4
+      %b='Ditte / Associazioni'
+    -# .col-sm-2
+    -#   %b='Ruoli'
     .col-sm-4
       %b='Note'
-    .col-sm-1
+    .col-sm-2
 
 .container.scrollable-panel
   -Person.all.each do |p|
     .row
       .col-sm-1
         =p.name
-      .col-sm-2
-        =p.surname
-      .col-sm-2
-        -p.relations.each do |r|
-          .form-control
-            =r.company.name
       .col-sm-1
+        =p.surname
+      .col-sm-4
         -p.relations.each do |r|
-          .form-control
-            =r.company_relation.name
+          .row
+            .col-sm-12
+              =r.company.name+', '+r.company_relation.name
+      -# .col-sm-2
+      -#   .container
+      -#     -p.relations.each do |r|
+      -#       .row
+      -#         .col-sm-2
+      -#           =r.company_relation.name
       .col-sm-4
         =p.notes
-      .col-sm-1
-        =button_to 'Modifica', edit_person_path(p.id), class: 'inline', method: :get
-        =button_to 'x', person_path(p.id), remote: true, method: :delete, class: 'inline'
+      .col-sm-2
+        =button_to 'Modifica', edit_person_path(p.id), class: 'inline-input', method: :get
+        =button_to 'x', person_path(p.id), method: :delete, class: 'inline-input'
+
+.container
+  =button_to 'Crea', new_person_path, class: 'form-control', method: :get

@@ -78,6 +78,8 @@ class PositionCodesController < ApplicationController
     # end
     # Never trust parameters from the scary internet, only allow the white list through.
     def position_code_params
+      params[:position_code][:row] = params[:position_code][:row].to_i
+      params[:position_code][:section] = params[:position_code][:section].to_i
       params.require(:position_code).permit(:floor, :row, :level, :sector, :section, :description)
     end
 end

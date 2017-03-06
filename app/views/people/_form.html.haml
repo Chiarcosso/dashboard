@@ -1,6 +1,6 @@
-- if @person.id.nil?
-  = form_for(@user, url: users_admin_path, method: 'patch') do |f|
-    = f.select "person", options_from_collection_for_select(Person.all, "id", "complete_name"), include_blank: "- Nuova persona -", class: 'form-control'
+-# - if @person.id.nil?
+-#   = form_for(@user, url: users_admin_path, method: 'patch') do |f|
+-#     = f.select "person", options_from_collection_for_select(Person.all, "id", "complete_name"), include_blank: "- Nuova persona -", class: 'form-control'
 
 = form_for(@person) do |f|
   - if @person.errors.any?

@@ -2,7 +2,7 @@ class PositionCode < ApplicationRecord
   resourcify
 
   enum row: ['X','A','B','C','D','E','F','G','H','I','J','K','L']
-  # enum section_code: ['A','B','C','D']
+  enum section: ['x','a','b','c','d']
 
   def self.findByCode(code)
     tokens = code.split(' ')

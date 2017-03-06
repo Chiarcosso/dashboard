@@ -6,13 +6,13 @@
       .col-sm-1
         = f.number_field :floor
       .col-sm-1
-        = f.number_field :row
+        = f.select :row, PositionCode.rows, selected: 1, class: 'form-control'
       .col-sm-1
         = f.number_field :level
       .col-sm-1
         = f.number_field :sector
       .col-sm-1
-        = f.number_field :section
+        = f.select :section, PositionCode.sections, selected: 1, class: 'form-control'
       .col-sm-6
         = f.text_field :description
 .container-fluid

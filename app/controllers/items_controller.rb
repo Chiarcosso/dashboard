@@ -86,9 +86,10 @@ class ItemsController < ApplicationController
           unless @vehicle.id.nil?
 
           end
+          item.save
           item.item_relations << ItemRelation.create(:since => Time.now)
           if i.article.barcode.nil? || i.serial.size > 0 || !i.expiringDate.nil?
-            i.printLabel
+            item.printLabel
           end
         end
       end
@@ -215,12 +216,13 @@ class ItemsController < ApplicationController
     end
 
     def set_vehicle_for_order
-      if params[:vehicle] != ''
+      unless params[:vehicle] == '' || params[:vehicle].nil?
         @vehicle = Vehicle.find(params.require(:vehicle).to_i)
       else
         @vehicle = Vehicle.new
       end
     end
+
     def items_params
       unless params[:commit].nil?
         @save = params['commit'][0..7] == 'Conferma' ? true : false
