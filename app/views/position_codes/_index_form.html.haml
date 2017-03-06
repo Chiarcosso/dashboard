@@ -1,24 +1,27 @@
-= form_for(@position_code, :remote => true) do |f|
-  .container-fluid
-    .row-fluid
-      .col-sm-1
-        = f.submit :Salva
-      .col-sm-1
-        = f.number_field :floor
-      .col-sm-1
-        = f.select :row, PositionCode.rows, selected: 1, class: 'form-control'
-      .col-sm-1
-        = f.number_field :level
-      .col-sm-1
-        = f.number_field :sector
-      .col-sm-1
-        = f.select :section, PositionCode.sections, selected: 1, class: 'form-control'
-      .col-sm-6
-        = f.text_field :description
+
+- if current_user.has_role?(:admin)
+  = form_for(@position_code, :remote => true) do |f|
+    .container-fluid
+      .row-fluid
+        .col-sm-1
+          = f.submit :Salva
+        .col-sm-1
+          = f.number_field :floor
+        .col-sm-1
+          = f.select :row, PositionCode.rows, selected: 1, class: 'form-control'
+        .col-sm-1
+          = f.number_field :level
+        .col-sm-1
+          = f.number_field :sector
+        .col-sm-1
+          = f.select :section, PositionCode.sections, selected: 1, class: 'form-control'
+        .col-sm-6
+          = f.text_field :description
 .container-fluid
   .row-fluid
-    .col-sm-1
-      %b= 'Elimina'
+    - if current_user.has_role?(:admin)
+      .col-sm-1
+        %b= 'Elimina'
     .col-sm-1
       %b= 'Piano'
     .col-sm-1
@@ -39,8 +42,9 @@
   - @positionCodes.each do |pc|
     .container-fluid
       .row-fluid
-        .col-sm-1
-          = button_to "x", "/position_codes/#{pc.id}", :method => :delete, :remote => true
+        - if current_user.has_role?(:admin)
+          .col-sm-1
+            = button_to "x", "/position_codes/#{pc.id}", :method => :delete, :remote => true
         .col-sm-1
           = pc.floor
         .col-sm-1
