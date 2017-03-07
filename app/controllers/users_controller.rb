@@ -31,7 +31,11 @@ class UsersController < ApplicationController
   end
 
   def update
-    @user.update(create_params)
+    create_params.each do |k,v|
+      @user.update_attribute(k,v)
+    end
+
+    @user.errors.full_messages
     redirect_to users_admin_path
   end
 

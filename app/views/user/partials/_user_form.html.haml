@@ -17,6 +17,9 @@
 
   = f.select :person, options_from_collection_for_select(Person.all, "id", "complete_name",:selected => @user.person.nil?? nil : @user.person.id), { include_blank: "- Selezionare persona -"}, {:class => 'form-control'}
   .form-group
+    = f.label 'Nome utente'
+    = f.text_field :username, :autofocus => true, class: 'form-control'
+  .form-group
     = f.label :email
     = f.email_field :email, :autofocus => true, class: 'form-control'
 
@@ -26,7 +29,7 @@
       = f.label :password
       = f.password_field :password, :autocomplete => 'off', class: 'form-control', placeholder: 'Lasciare in bianco per non modificare'
     .form-group
-      = f.label :password_confirmation
+      = f.label 'Conferma password'
       = f.password_field :password_confirmation, class: 'form-control', placeholder: 'Lasciare in bianco per non modificare'
 
   = f.submit 'Aggiorna', :class => 'button right'
