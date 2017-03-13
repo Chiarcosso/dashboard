@@ -33,7 +33,7 @@ Rails.application.routes.draw do
   delete '/admin/users/:id', to: 'users#delete', as: :delete_user_admin
 
   # get    '/autocomplete/:model/:search', to: 'companies#autocomplete', as: :ac_companies
-
+  post   '/roles/', to: 'roles#create', as: :roles
 
   post   '/users/:id/roles/:role', to: 'users#add_role'
   delete '/users/:id/roles/:role', to: 'users#rem_role'

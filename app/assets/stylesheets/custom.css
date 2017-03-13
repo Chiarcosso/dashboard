@@ -3,9 +3,12 @@ body{
   /*padding-bottom: 1em;*/
   overflow: hidden;
   margin-bottom: 8em;
-  margin-top: 2.5em;
+  margin-top: 5em;
 }
 
+#center{
+  top
+}
 .scrollable-panel{
   position: relative;
   height: 100%;

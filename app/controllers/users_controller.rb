@@ -1,11 +1,12 @@
 class UsersController < ApplicationController
   before_action :authenticate_user!
-  before_action :authorize
+  # before_action :authorize!
   load_and_authorize_resource
   before_action :get_user, only: [:update,:delete, :show, :add_role, :rem_role]
   before_action :create_params, only: [:create]
 
   def new
+    @role = Role.new
     @user = User.new
     # @user.person = Person.new
     render 'user/modify'
@@ -19,6 +20,7 @@ class UsersController < ApplicationController
   end
 
   def edit
+    @role = Role.new
     render 'user/modify'
   end
 
