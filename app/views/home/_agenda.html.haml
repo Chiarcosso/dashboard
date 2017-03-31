@@ -1,1 +1,14 @@
-agenda
+.container
+  .row
+    .col-sm-4
+      %b Note
+      .panel.scrollable-panel
+        = render :partial => 'home/notes'
+    .col-sm-4
+      %b Agenda
+      .panel.scrollable-panel
+        = render :partial => 'home/dayplan'
+    .col-sm-4
+      %b Segnalazioni
+      .panel.scrollable-panel
+        = render :partial => 'home/notifications'

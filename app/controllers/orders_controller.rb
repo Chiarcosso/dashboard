@@ -125,6 +125,20 @@ class OrdersController < ApplicationController
   def confirm_order
     @order.processed = true;
     if @order.save
+      @order.items.each do |i|
+        ir = ItemRelation.new
+        ir.item = i
+        ir.since = Date.current
+        case @order.destination_type
+        when 'Person'
+          ir.person_id = @order.destination_id
+        when 'Office'
+          ir.office_id = @order.destination_id
+        when 'Vehicle'
+          ir.vehicle_id = @order.destination_id
+        end
+        ir.save
+      end
       @msg = 'Ordine evaso'
     else
       @msg = 'Errore'

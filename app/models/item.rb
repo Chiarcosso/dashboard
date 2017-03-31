@@ -12,7 +12,7 @@ class Item < ApplicationRecord
   belongs_to :transportDocument
   has_many :item_relations
   has_many :output_order_item
-  has_and_belongs_to_many :output_order, through: :output_order_item
+  has_many :output_order, through: :output_order_item
   belongs_to :position_code
 
   scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil)}
@@ -72,6 +72,28 @@ class Item < ApplicationRecord
     @actualItems << id
   end
 
+  def last_position
+    self.item_relations.sort_by(&:since).last
+  end
+
+  def actual_position
+    if self.item_relations.size > 0
+      relation = self.last_position
+      unless relation.office.nil?
+        return relation.office.name
+      end
+      unless relation.vehicle.nil?
+        return relation.vehicle.plate
+      end
+      unless relation.person.nil?
+        return relation.person.complete_name
+      end
+      return self.position_code.code
+    else
+      return 'Errore, nessuna posizione'
+    end
+  end
+
   def position
     relation = self.item_relations.sort_by(:since).last
     unless relation.office.nil?
@@ -80,7 +102,14 @@ class Item < ApplicationRecord
     unless relation.vehicle.nil?
       return relation.vehicle
     end
+    unless relation.person.nil?
+      return relation.person
+    end
     return nil
+  end
+
+  def take_back
+    self.last_position.delete
   end
 
   def available?

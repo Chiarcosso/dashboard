@@ -157,7 +157,7 @@ class ItemsController < ApplicationController
   # DELETE /items/1.json
   def destroy
     @item.item_relations.each do |ir|
-      if ir.office.nil? && ir.vehicle.nil?
+      if ir.office.nil? && ir.vehicle.nil? && ir.person.nil?
         ir.delete
       end
     end

@@ -1,6 +1,7 @@
-= form_for @role do |f|
-  = f.text_field :name, remote: true, placeholder: 'Nuovo permesso', class: 'form-control'
-  = f.submit 'Agg.'
+- if current_user.has_role? 'admin'
+  = form_for @role do |f|
+    = f.text_field :name, remote: true, placeholder: 'Nuovo permesso', class: 'form-control'
+    = f.submit 'Agg.'
 
 - Role.all.order('name ASC').each do |r|
   - if @user.has_role? r.name.to_sym

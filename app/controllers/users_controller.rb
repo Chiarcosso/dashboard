@@ -79,7 +79,11 @@ class UsersController < ApplicationController
 
   def create_params
     p = params.require(:user).permit(:username, :email, :password, :password_confirmation, :person)
-    p[:person] = Person.find(p[:person].to_i)
+    unless p[:person].nil? || p[:person] == 0 || p[:person] == ''
+      p[:person] = Person.find(p[:person].to_i)
+    else
+      p[:person] = nil
+    end
     p
   end
 
