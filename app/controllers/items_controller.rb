@@ -102,20 +102,33 @@ class ItemsController < ApplicationController
     end
 
     if @save
+      unpositionedItems = Item.unpositioned.to_a
       @items.each do |i|
         # i.transportDocument = @transportDocument
         # OrderArticle.create({order: @order, article: i.article, amount: i.amount})
         i.setActualItems
         i.amount.times do
-          item = Item.create(i.attributes)
+          item = Item.new(i.attributes)
           item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
+
+          unpositionedItems.each do |unpItem|
+            if unpItem.article == item.article && unpItem.price == item.price && unpItem.discount == item.discount && unpItem.serial == item.serial && unpItem.state == item.state && unpItem.expiringDate == item.expiringDate
+              item = unpItem
+              break
+            end
+          end
+          if item.id.nil?
+            item = Item.create(i.attributes)
+          else
+            unpositionedItems -= [item]
+          end
           i.addActualItems item.id
           unless @vehicle.id.nil?
 
           end
           item.save
           item.item_relations << ItemRelation.create(:since => Time.now)
-          if item.article.barcode.size == 0 || item.serial.size > 0 || !item.expiringDate.nil?
+          if item.barcode.nil? && (item.article.barcode.size == 0 || item.serial.size > 0 || !item.expiringDate.nil?)
             item.barcode = item.generateBarcode
             item.save
             item.printLabel

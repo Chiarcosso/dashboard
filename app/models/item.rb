@@ -142,6 +142,7 @@ class Item < ApplicationRecord
   # end
 
   def printLabel
+    return
     label = Zebra::Epl::Label.new(
       :width         => 385,
       :length        => 180,
