@@ -21,6 +21,7 @@ class Item < ApplicationRecord
   scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%'OR articles.manufacturerCode LIKE '%#{search}%'")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
+  scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 X0 0-x')) }
   # scope :unassigned, -> {  }
   enum state: [:nuovo,:usato,:rigenerato,:riscolpito,:danneggiato,:smaltimento]
 
@@ -117,16 +118,28 @@ class Item < ApplicationRecord
   end
 
   def generateBarcode
-    self.id.to_s(16).rjust(9,'0')
+    # unless self.serial.nil? || self.serial == ''
+      self.id.to_s(16).rjust(9,'0')
+    # else
+    #   self.serial
+    # end
   end
 
-  def currentBarcode
-    if self.serial != '' || self.article.barcode.nil?
-      self.barcode
-    else
+  def actualBarcode
+    if self.barcode.nil?
       self.article.barcode
+    else
+      self.barcode
     end
   end
+
+  # def currentBarcode
+  #   if self.serial != '' || self.article.barcode.nil?
+  #     self.barcode
+  #   else
+  #     self.article.barcode
+  #   end
+  # end
 
   def printLabel
     label = Zebra::Epl::Label.new(

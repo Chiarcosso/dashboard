@@ -21,9 +21,8 @@
     .row
       .col-sm-1
         = button_to "x", "/items/#{item.id}", :method => :delete, :remote => true
-        = item.id
       .col-sm-3
-        = item.article.complete_name.to_s
+        = item.id.to_s+' - '+item.article.complete_name.to_s
       .col-sm-3
         = item.serial
       .col-sm-1

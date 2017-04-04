@@ -40,6 +40,7 @@ Rails.application.routes.draw do
 
   get    '/storage', to: 'storage#home', as: :storage
   get    '/storage_reception', to: 'storage#reception', as: :storage_reception
+  # post   '/storage_reception', to: 'storage#reception', as: :storage_reception
   get    '/storage_output', to: 'storage#output', as: :storage_output
   get    '/storage_management', to: 'storage#management', as: :storage_management
 

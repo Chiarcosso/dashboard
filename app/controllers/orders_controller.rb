@@ -186,7 +186,7 @@ class OrdersController < ApplicationController
       item = Item.new
       item.article = @article
       item.setAmount 1
-      item.barcode = SecureRandom.base58(10)
+      item.barcode = item.serial == '' ? SecureRandom.base58(10) : item.serial
       @items << item
     end
 

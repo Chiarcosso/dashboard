@@ -38,7 +38,7 @@ class ItemsController < ApplicationController
       end
       itm.position_code = position
       itm.save
-      msg = msg+' '+itm.currentBarcode
+      msg = msg+' '+itm.actualBarcode
     end
     render :json => msg
   end
@@ -61,7 +61,7 @@ class ItemsController < ApplicationController
     end
 
     # if params[:barcode] != ''
-    if @vehicle.nil?
+    if @vehicle.id.nil?
       partial = 'items/new_order'
     else
       partial = 'items/vehicle_order'
@@ -81,16 +81,19 @@ class ItemsController < ApplicationController
         i.setActualItems
         i.amount.times do
           item = Item.create(i.attributes)
-          item.barcode = item.generateBarcode #SecureRandom.base58(10)
+          item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
           i.addActualItems item.id
           unless @vehicle.id.nil?
 
           end
           item.save
           item.item_relations << ItemRelation.create(:since => Time.now)
-          if i.article.barcode.nil? || i.serial.size > 0 || !i.expiringDate.nil?
+          if item.article.barcode.size == 0 || item.serial.size > 0 || !item.expiringDate.nil?
+            item.barcode = item.generateBarcode
+            item.save
             item.printLabel
           end
+          i.barcode = item.barcode
         end
       end
       @registeredItems = @items

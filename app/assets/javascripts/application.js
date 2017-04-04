@@ -23,7 +23,7 @@ function reloadSelectBoxes(){
   $('select').each(function(select){
     console.log($('select').html());
   });
-}
+};
 
 function activateClose(){
   $('.close').off('click');
@@ -31,7 +31,7 @@ function activateClose(){
     specificCloseFunctions();
     $(this).parent().remove();
   });
-}
+};
 
 function activateDelete(){
   $('.delete').off('click');
@@ -53,11 +53,11 @@ function activateDelete(){
       $('.close').first().trigger('click');
     }
   });
-}
+};
 
 function activateAF(){
   $('.autofocus').first().focus();
-}
+};
 
 function activateDatePicker(){
 
@@ -68,7 +68,7 @@ function activateDatePicker(){
     setValue: ($(this).data('no-default')=='true'?'':today())
   });
 
-}
+};
 
 function preventCr(){
   $('.prevent-cr').on('keypress', function(e){
@@ -76,7 +76,7 @@ function preventCr(){
       e.preventDefault();
     }
   })
-}
+};
 
 function activateAutoComplete(){
   $('.autocomplete').off('ready');
@@ -108,7 +108,7 @@ function activateAutoComplete(){
                   .appendTo( ul );
           };
   });
-}
+};
 
 function domInit() {
 
@@ -191,4 +191,4 @@ function domInit() {
 
   });
 
-}
+};
