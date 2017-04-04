@@ -7,11 +7,11 @@ class PositionCode < ApplicationRecord
   def self.findByCode(code)
     tokens = code.split(' ')
     floor = tokens[0][1..-1].to_i
-    row = tokens[1][0..0].to_i
+    row = rows[tokens[1][0..0]]
     level = tokens[1][1..-1].to_i
     tok = tokens[2].split('-')
     sector = tok[0].to_i
-    section = tok[1].to_i
+    section = sections[tok[1]]
     PositionCode.where(:floor => floor, :row => row, :level => level, :sector => sector, :section => section).first
   end
 
