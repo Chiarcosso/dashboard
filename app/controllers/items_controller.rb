@@ -18,6 +18,19 @@ class ItemsController < ApplicationController
 
   def storage_insert
     @items = Array.new
+    tmp = Hash.new
+    Item.unpositioned.each do |un|
+      d = un.expiringDate.nil?? 'noDate' : un.expiringDate.strftime('%Y%m%d')
+      if tmp[un.article.id.to_s+'-'+un.serial+'-'+d].nil?
+        un.setAmount 1
+        tmp[un.article.id.to_s+'-'+un.serial+'-'+d] = un
+      else
+        tmp[un.article.id.to_s+'-'+un.serial+'-'+d].setAmount tmp[un.article.id.to_s+'-'+un.serial+'-'+d].amount+1
+      end
+    end
+    tmp.each do |k,u|
+      @items << u
+    end
     render :partial => 'items/new_order'
   end
 
@@ -46,6 +59,20 @@ class ItemsController < ApplicationController
   def add_item_to_storage
 
     @items = Array.new
+    # tmp = Hash.new
+    # Item.unpositioned.each do |un|
+    #   d = un.expiringDate.nil?? 'noDate' : un.expiringDate.strftime('%Y%m%d')
+    #   if tmp[un.article.id.to_s+'-'+un.serial+'-'+d].nil?
+    #     un.setAmount 1
+    #     tmp[un.article.id.to_s+'-'+un.serial+'-'+d] = un
+    #   else
+    #     tmp[un.article.id.to_s+'-'+un.serial+'-'+d].setAmount tmp[un.article.id.to_s+'-'+un.serial+'-'+d].amount+1
+    #   end
+    # end
+    # tmp.each do |k,u|
+    #   @items << u
+    # end
+
     @newItems.each do |i,k|
       item = Item.new
       item.setAmount k[:amount].to_i
