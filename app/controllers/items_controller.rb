@@ -16,7 +16,7 @@ class ItemsController < ApplicationController
   def show
   end
 
-  def printLabel
+  def print
     @item.printLabel
   end
 
