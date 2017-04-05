@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170302154758) do
+ActiveRecord::Schema.define(version: 20170405120149) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -78,13 +78,15 @@ ActiveRecord::Schema.define(version: 20170302154758) do
     t.integer  "item_id"
     t.date     "since"
     t.date     "to"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
     t.integer  "person_id"
+    t.integer  "worksheet_id"
     t.index ["item_id"], name: "index_item_relations_on_item_id", using: :btree
     t.index ["office_id"], name: "index_item_relations_on_office_id", using: :btree
     t.index ["person_id"], name: "index_item_relations_on_person_id", using: :btree
     t.index ["vehicle_id"], name: "index_item_relations_on_vehicle_id", using: :btree
+    t.index ["worksheet_id"], name: "index_item_relations_on_worksheet_id", using: :btree
   end
 
   create_table "items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -293,6 +295,7 @@ ActiveRecord::Schema.define(version: 20170302154758) do
   add_foreign_key "item_relations", "offices"
   add_foreign_key "item_relations", "people"
   add_foreign_key "item_relations", "vehicles"
+  add_foreign_key "item_relations", "worksheets"
   add_foreign_key "items", "articles"
   add_foreign_key "items", "position_codes"
   add_foreign_key "items", "transport_documents"

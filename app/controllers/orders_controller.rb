@@ -72,9 +72,19 @@ class OrdersController < ApplicationController
     @search = search_params.nil?? '' : search_params
     @checked_items = chk_list_params
     unless @newItem.nil?
-      @checked_items << @newItem
+      already_in = false
+      @checked_items.each do |ci|
+        if ci ==  @newItem
+          already_in = true
+        end
+      end
+      if already_in
+        @checked_items -= [@newItem]
+      else
+        @checked_items << @newItem
+      end
     end
-    @selected_items = Item.firstGroupByArticle(search_params,@checked_items)
+    @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
     # render :partial => 'items/index'
     # @selected_items -= @checked_items
     if @save

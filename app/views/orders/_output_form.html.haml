@@ -26,7 +26,7 @@
           = item.article.complete_name.to_s
         .col-sm-1
           = item.article.availability(@checked_items).size
-        .col-sm-4
+        .col-sm-3
           = item.serial
         .col-sm-1
           = item.state
@@ -54,18 +54,19 @@
   %br
   .container-fluid.scrollable-panel.half
     - @checked_items.reverse.each do |item|
-      .row
+      .row.hover-hilight{'data-target': add_item_to_order_path, 'data-data': item.id}
         .col-sm-4
           = hidden_field_tag 'items[][id]', item.id
           = item.article.complete_name.to_s
         .col-sm-1
           = item.id
-        .col-sm-4
+        .col-sm-3
           = item.serial
         .col-sm-1
           = item.state
         .col-sm-1
           = item.expiringDate.nil?? '' : (l item.expiringDate)
+
 
   .container-fluid
     = submit_tag 'Conferma'
