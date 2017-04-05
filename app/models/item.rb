@@ -90,6 +90,9 @@ class Item < ApplicationRecord
       unless relation.person.nil?
         return relation.person.complete_name
       end
+      unless relation.worksheet.nil?
+        return relation.worksheet.complete_name
+      end
       return self.position_code.code
     else
       return 'Errore, nessuna posizione'

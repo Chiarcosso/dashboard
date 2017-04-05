@@ -3,6 +3,7 @@ class ItemRelation < ApplicationRecord
   belongs_to :office
   belongs_to :vehicle
   belongs_to :person
+  belongs_to :worksheet
   belongs_to :item
 
 
