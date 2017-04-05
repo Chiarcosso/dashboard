@@ -28,7 +28,7 @@
       .col-sm-2
         =i.position_code.code
       .col-sm-1
-        %input{type: :checkbox, disabled: :disabled, class: 'itm_out_chk', id: i.id, 'data-barcode': i.currentBarcode}
+        %input{type: :checkbox, disabled: :disabled, class: 'itm_out_chk', id: i.id, 'data-barcode': i.actualBarcode}
 
 :javascript
   //domInit();

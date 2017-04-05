@@ -1,5 +1,5 @@
 class ItemsController < ApplicationController
-  before_action :set_item, only: [:show, :edit, :update, :destroy]
+  before_action :set_item, only: [:show, :edit, :update, :destroy, :print]
   before_action :set_article_for_order, only: [:add_item_to_storage]
   before_action :set_items_for_order, only: [:add_item_to_storage]
   before_action :set_vehicle_for_order, only: [:add_item_to_storage]
@@ -14,6 +14,10 @@ class ItemsController < ApplicationController
   # GET /items/1
   # GET /items/1.json
   def show
+  end
+
+  def printLabel
+    @item.printLabel
   end
 
   def storage_insert
@@ -128,7 +132,7 @@ class ItemsController < ApplicationController
           end
           item.save
           item.item_relations << ItemRelation.create(:since => Time.now)
-          if item.barcode.nil? && (item.article.barcode.size == 0 || item.serial.size > 0 || !item.expiringDate.nil?)
+          if item.barcode.nil? && item.serial.size > 0
             item.barcode = item.generateBarcode
             item.save
             item.printLabel

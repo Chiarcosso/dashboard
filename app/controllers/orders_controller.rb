@@ -52,7 +52,7 @@ class OrdersController < ApplicationController
     when :Person
       @recipient = Person.all.first
     when :Worksheet
-      @recipient = Vehicle.all.first
+      @recipient = Worksheet.all.first
     when :Vehicle
       @recipient = Vehicle.all.first
     when :Office

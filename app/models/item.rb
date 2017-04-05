@@ -23,7 +23,7 @@ class Item < ApplicationRecord
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
   scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 X0 0-x')) }
   # scope :unassigned, -> {  }
-  enum state: [:nuovo,:usato,:rigenerato,:riscolpito,:danneggiato,:smaltimento]
+  enum state: [:nuovo,:usato,:rigenerato,:ricoperto,:riscolpito,:danneggiato,:smaltimento]
 
   @amount = 1
   @actualItems = Array.new
@@ -142,7 +142,6 @@ class Item < ApplicationRecord
   # end
 
   def printLabel
-    return
     label = Zebra::Epl::Label.new(
       :width         => 385,
       :length        => 180,

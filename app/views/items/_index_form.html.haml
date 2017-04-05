@@ -5,33 +5,40 @@
   .row.item-block.tab-header
     .col-sm-1
       Elimina
-    .col-sm-3
+    .col-sm-2
       Articolo
-    .col-sm-3
+    .col-sm-1
+      Codice
+    .col-sm-2
       Seriale
     .col-sm-1
       Stato
-    .col-sm-2
+    .col-sm-1
       Scadenza
     .col-sm-2
       Posizione
+    .col-sm-1
+      Stampa
 
 .container-fluid.scrollable-panel
   - @selected_items.all.each do |item|
     .row
       .col-sm-1
         = button_to "x", "/items/#{item.id}", :method => :delete, :remote => true
-      .col-sm-3
+      .col-sm-2
         = item.id.to_s+' - '+item.article.complete_name.to_s
-      .col-sm-3
+      .col-sm-1
+        = item.actualBarcode
+      .col-sm-2
         = item.serial
       .col-sm-1
         = item.state
-      .col-sm-2
+      .col-sm-1
         = item.expiringDate.nil?? '' : (l item.expiringDate)
       .col-sm-2
         = item.actual_position
-
+      .col-sm-1
+        = button_to "Stampa", "/itemss/print/#{item.id}", :method => :post, :remote => true
 -# .container-fluid.scrollable-panel
 -#   - @selected_items.all.each do |item|
 -#     .row
