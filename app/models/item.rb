@@ -23,7 +23,7 @@ class Item < ApplicationRecord
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
   scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 X0 0-x')) }
   # scope :unassigned, -> {  }
-  enum state: [:nuovo,:usato,:rigenerato,:ricoperto,:riscolpito,:danneggiato,:smaltimento]
+  enum state: [:nuovo,:usato,:rigenerato,:ricoperto,:riscolpito,:preparato,:danneggiato,:smaltimento]
 
   @amount = 1
   @actualItems = Array.new
@@ -159,7 +159,7 @@ class Item < ApplicationRecord
     text  = Zebra::Epl::Text.new :data => self.serial.nil?? '' : 'Mat. '+self.serial, :position => [10, 70], :font => Zebra::Epl::Font::SIZE_4
     label << text
     barcode = Zebra::Epl::Barcode.new(
-      :data                      => self.barcode,
+      :data                      => self.actualBarcode,
       :position                  => [30, 120],
       :height                    => 30,
       :print_human_readable_code => true,

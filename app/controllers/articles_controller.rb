@@ -1,5 +1,5 @@
 class ArticlesController < ApplicationController
-  before_action :set_article, only: [:show, :edit, :update, :destroy, :list_categories]
+  before_action :set_article, only: [:show, :edit, :update, :destroy, :list_categories, :print]
   before_action :set_categories, only: [:list_categories]
 
   autocomplete :company, :name, full: true
@@ -12,6 +12,10 @@ class ArticlesController < ApplicationController
   # GET /articles/1
   # GET /articles/1.json
   def show
+  end
+
+  def print
+    @article.printLabel
   end
 
   def list_categories

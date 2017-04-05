@@ -5,10 +5,8 @@
   .row
     .col-sm-1
       %b= 'Elimina'
-    .col-sm-2
-      %b= 'Produttore'
     .col-sm-3
-      %b= 'Nome'
+      %b= 'Articolo'
     .col-sm-2
       %b= 'Codice a barre'
     .col-sm-1
@@ -17,6 +15,9 @@
       %b= 'Riserva minima'
     .col-sm-2
       %b= 'Categorie'
+    .col-sm-1
+      %b= 'Stampa'
+
 .container-fluid.scrollable-panel
   - Article.incompleteItems.each do |a|
     =render :partial => 'articles/incomplete_article_block', :locals => { :article => a }

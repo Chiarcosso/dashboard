@@ -46,6 +46,7 @@ Rails.application.routes.draw do
 
   post   '/position_codes/print/:id', to: 'position_codes#print', as: :position_codes_print
   post   '/items/print/:id', to: 'items#print', as: :items_print
+  post   '/articles/print/:id', to: 'articles#print', as: :articles_print
 
   get    '/incomplete_articles', to: 'articles#incomplete', as: :incomplete_articles
   post   '/article_categories/manage', to: 'article_categories#manage', as: :manage_article_categories
