@@ -136,6 +136,8 @@ class OrdersController < ApplicationController
           ir.office_id = @order.destination_id
         when 'Vehicle'
           ir.vehicle_id = @order.destination_id
+        when 'Worksheet'
+          ir.worksheet_id = @order.destination_id
         end
         ir.save
       end
