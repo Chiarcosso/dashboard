@@ -1,0 +1,14 @@
+= form_tag(items_reposition_path, method: :post, remote: true, type: :script) do |f|
+  = text_field_tag :search, @search, placeholder: 'Codice a barre..', class: 'form-control autofocus', 'data-target': items_reposition_path
+
+  .container.scrollable-panel
+    - @locals[:items].each do |i|
+      .row
+        .col-sm-6
+          = hidden_field_tag 'items[]', i.id
+          = i.complete_name
+        .col-sm-6
+          = i.position_code.code
+
+:javascript
+  activateAF();

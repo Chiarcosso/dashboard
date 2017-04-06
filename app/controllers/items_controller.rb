@@ -3,6 +3,7 @@ class ItemsController < ApplicationController
   before_action :set_article_for_order, only: [:add_item_to_storage]
   before_action :set_items_for_order, only: [:add_item_to_storage]
   before_action :set_vehicle_for_order, only: [:add_item_to_storage]
+  before_action :get_reposition_items, only: [:reposition]
   # GET /items
   # GET /items.json
   def index
@@ -18,6 +19,14 @@ class ItemsController < ApplicationController
 
   def print
     @item.printLabel
+  end
+
+  def reposition
+    @partial = 'items/reposition'
+    @title = 'Riposizionamento'
+    respond_to do |format|
+      format.js { render :js, :partial => 'layouts/popup'}
+    end
   end
 
   def storage_insert
@@ -281,8 +290,32 @@ class ItemsController < ApplicationController
       end
     end
 
+    def get_reposition_items
+      @locals = Hash.new
+
+      @locals[:items] = Array.new
+      unless params[:items].nil? || params[:items] == ''
+        params.require(:items).each do |i|
+          @locals[:items] << Item.find(i.to_i)
+        end
+      end
+      unless params[:search].nil? || params[:search] == ''
+        @search = params.require(:search)
+        Item.firstBarcode(@search).each do |i|
+          @locals[:items] << i
+        end
+        pc = PositionCode.findByCode(@search)
+        unless pc.nil?
+          @locals[:items].each do |i|
+            i.position_code = pc
+          end
+        end
+      end
+
+    end
+
     def search_params
-      unless params[:search].nil?
+      unless params[:search].nil? || params[:search] == ''
         params.require(:search)
       end
     end

@@ -57,6 +57,8 @@ function activateDelete(){
 
 function activateAF(){
   $('.autofocus').first().focus();
+  $('.autofocus').val('');
+  // $('.autofocus').first().select();
 };
 
 function activateDatePicker(){

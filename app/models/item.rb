@@ -16,10 +16,11 @@ class Item < ApplicationRecord
   belongs_to :position_code
 
 # scope :available_items, -> { joins(:item_relations)}
+  scope :barcode, ->(barcode) { joins(:article).where("items.barcode = '#{barcode}' OR articles.barcode = '#{barcode}'") }
   scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
   scope :unassigned, -> { left_outer_joins(:output_order_item).where("output_order_id IS NULL") }
   scope :article, ->(article) { where(:article => article) }
-  scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%'OR articles.manufacturerCode LIKE '%#{search}%'")}
+  scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%'OR items.barcode LIKE '%#{search}%'")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
   scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 X0 0-x')) }
@@ -33,8 +34,15 @@ class Item < ApplicationRecord
     self.article.complete_name+(self.serial == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
   end
 
+  def complete_name
+    self.actualBarcode+' - '+self.article.complete_name
+  end
   def cost
     self.price - (self.price / 100) * self.discount
+  end
+
+  def self.firstBarcode(barcode)
+    Item.barcode(barcode)
   end
 
   def self.firstGroupByArticle(search_params,gonerList)

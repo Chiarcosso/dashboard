@@ -54,6 +54,7 @@ Rails.application.routes.draw do
 
   get    '/items_from_order/:order', to: 'items#from_order', as: :items_from_order
 
+  post   '/items_reposition', to: 'items#reposition', as: :items_reposition
   post   '/items/store', to: 'items#store', as: :store_item
   get    '/items_storage_insert', to: 'items#storage_insert', as: :items_storage_insert
   post   '/items_storage_insert', to: 'items#add_item_to_storage', as: :add_item_to_storage

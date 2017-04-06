@@ -5,7 +5,7 @@ class PositionCodesController < ApplicationController
   # GET /position_codes
   # GET /position_codes.json
   def index
-    @positionCodes = PositionCode.all
+    @positionCodes = PositionCode.all.sort_by { |p| [p.floor,p.row,p.level,p.sector,p.section]}
     @position_code = PositionCode.new
     render :partial => 'position_codes/index'
   end
