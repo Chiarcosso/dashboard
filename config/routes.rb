@@ -23,6 +23,8 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   root 'home#dashboard'
 
+  get   '/admin/queries', to: 'admin#queries', as: :admin_queries
+
   get    '/admin/users', to: 'users#index', as: :users_admin
   post   '/admin/users', to: 'users#create', as: :create_user_admin
   get    '/admin/users/new', to: 'users#new', as: :new_user_admin

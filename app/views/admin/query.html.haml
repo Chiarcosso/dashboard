@@ -1,0 +1,35 @@
+%h2= 'Query'
+
+.container
+  .row.panel
+    .col-sm-1
+      %h3= 'Mezzi'
+    .col-sm-2
+      %b= 'Mezzo'
+      %br
+      - Vehicle.columns.each do |property|
+        = property.name
+        %br
+    .col-sm-2
+      %b= 'Modello'
+      %br
+      - VehicleModel.columns.each do |property|
+        = property.name
+        %br
+    .col-sm-2
+      %b= 'Produttore/Proprietà'
+      %br
+      - Company.columns.each do |property|
+        = property.name
+        %br
+    .col-sm-2
+      %b= 'Info/Targa/Telaio'
+      %br
+      - VehicleInformation.columns.each do |property|
+        = property.name
+        %br
+    .row.panel
+      .col-sm-12
+        = form_tag(admin_queries_path, method: :post, remote: true, type: :script) do |f|
+          = hidden_field_tag 'Vehicle'
+          = text_field_tag :query, @query_vehicle, :placeholder => 'Query..', class: 'form-control'

@@ -30,11 +30,19 @@ class PositionCode < ApplicationRecord
       :print_speed   => 3,
       :print_density => 6
     )
-
+    if self.description.size > 32
+      text  = Zebra::Epl::Text.new :data => self.description[0..31], :position => [10, 10], :font => Zebra::Epl::Font::SIZE_3
+      label << text
+      text  = Zebra::Epl::Text.new :data => self.description[32..-1], :position => [10, 20], :font => Zebra::Epl::Font::SIZE_3
+      label << text
+    else
+      text  = Zebra::Epl::Text.new :data => self.description, :position => [10, 10], :font => Zebra::Epl::Font::SIZE_3
+      label << text
+    end
     barcode = Zebra::Epl::Barcode.new(
       :data                      => self.code,
-      :position                  => [30, 20],
-      :height                    => 100,
+      :position                  => [30, 45],
+      :height                    => 90,
       :print_human_readable_code => true,
       :narrow_bar_width          => 2,
       :wide_bar_width            => 4,

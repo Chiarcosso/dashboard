@@ -166,9 +166,18 @@ class Item < ApplicationRecord
     label << text
     # text  = Zebra::Epl::Text.new :data => self.position_code.code, :position => [220, 10], :font => Zebra::Epl::Font::SIZE_2
     # label << text
-    text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
-    label << text
-    text  = Zebra::Epl::Text.new :data => self.serial.nil?? '' : 'Mat. '+self.serial, :position => [10, 70], :font => Zebra::Epl::Font::SIZE_4
+    if self.article.complete_name.size > 32
+      text  = Zebra::Epl::Text.new :data => self.article.complete_name[0..31], :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
+      label << text
+      text  = Zebra::Epl::Text.new :data => self.article.complete_name[32..-1], :position => [10, 60], :font => Zebra::Epl::Font::SIZE_2
+      label << text
+    else
+      text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
+      label << text
+    end
+    # text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
+    # label << text
+    text  = Zebra::Epl::Text.new :data => self.serial.nil?? '' : 'Mat. '+self.serial, :position => [10, 80], :font => Zebra::Epl::Font::SIZE_4
     label << text
     barcode = Zebra::Epl::Barcode.new(
       :data                      => self.actualBarcode,
