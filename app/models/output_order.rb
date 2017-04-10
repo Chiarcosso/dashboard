@@ -1,6 +1,6 @@
 class OutputOrder < ApplicationRecord
   resourcify
-  has_many :output_order_items
+  has_many :output_order_items, :dependent => :delete_all
   has_many :items, through: :output_order_items
   belongs_to :createdBy, class_name: User
   belongs_to :destination, polymorphic: true
@@ -14,6 +14,10 @@ class OutputOrder < ApplicationRecord
       total += i.cost
     end
     total
+  end
+
+  def processed?
+    self.processed ? 'Evaso' : 'Non evaso'
   end
 
   def print_module

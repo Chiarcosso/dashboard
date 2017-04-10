@@ -10,9 +10,9 @@
         .col-sm-1
           = f.select :row, PositionCode.rows, selected: 1, class: 'form-control'
         .col-sm-1
-          = f.number_field :level
-        .col-sm-1
           = f.number_field :sector
+        .col-sm-1
+          = f.number_field :level
         .col-sm-1
           = f.select :section, PositionCode.sections, selected: 1, class: 'form-control'
         .col-sm-6
@@ -27,9 +27,9 @@
     .col-sm-1
       %b= 'Corsia'
     .col-sm-1
-      %b= 'Livello'
-    .col-sm-1
       %b= 'Settore'
+    .col-sm-1
+      %b= 'Livello'
     .col-sm-1
       %b= 'Sezione'
     .col-sm-3
@@ -50,9 +50,9 @@
         .col-sm-1
           = pc.row
         .col-sm-1
-          = pc.level
-        .col-sm-1
           = pc.sector
+        .col-sm-1
+          = pc.level
         .col-sm-1
           = pc.section
         .col-sm-3

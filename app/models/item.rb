@@ -11,16 +11,16 @@ class Item < ApplicationRecord
   belongs_to :article
   belongs_to :transportDocument
   has_many :item_relations
-  has_many :output_order_item
-  has_many :output_order, through: :output_order_item
+  has_many :output_order_items
+  has_many :output_orders, through: :output_order_items
   belongs_to :position_code
 
-# scope :available_items, -> { joins(:item_relations)}
+  scope :available_items, -> { where('id not in (select item_id from output_order_items)')}
   scope :barcode, ->(barcode) { joins(:article).where("items.barcode = '#{barcode}' OR articles.barcode = '#{barcode}'") }
-  scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
-  scope :unassigned, -> { left_outer_joins(:output_order_item).where("output_order_id IS NULL") }
+  # scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
+  # scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_id IS NULL") }
   scope :article, ->(article) { where(:article => article) }
-  scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%'OR items.barcode LIKE '%#{search}%'")}
+  scope :filter, ->(search) { joins(:position_codes).joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%'OR items.barcode LIKE '%#{search}%'")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
   scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 X0 0-x')) }
@@ -34,9 +34,18 @@ class Item < ApplicationRecord
     self.article.complete_name+(self.serial == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
   end
 
+  # def self.available_items
+  #   Item.all.map { |i| i.available? }
+  # end
+
   def complete_name
+    self.article.complete_name
+  end
+
+  def complete_barcode_name
     self.actualBarcode+' - '+self.article.complete_name
   end
+
   def cost
     self.price - (self.price / 100) * self.discount
   end
@@ -47,7 +56,7 @@ class Item < ApplicationRecord
 
   def self.firstGroupByArticle(search_params,gonerList)
     art = Hash.new
-    Item.available_items.unassigned.filter(search_params).lastCreatedOrder.each do |it|
+    Item.unassigned.available_items.filter(search_params).lastCreatedOrder.each do |it|
       flag = true
       gonerList.each do |gl|
         if it.id == gl.id
@@ -86,47 +95,63 @@ class Item < ApplicationRecord
     self.item_relations.sort_by(&:since).last
   end
 
+  def last_order
+    self.output_orders.sort_by(&:created_at).last
+  end
+
   def actual_position
+    unless self.last_order.nil?
+      @od = " (Ordine nr. #{self.last_order.id})"
+    else
+      @od = ''
+    end
     if self.item_relations.size > 0
       relation = self.last_position
       unless relation.office.nil?
-        return relation.office.name
+        return relation.office.name+@od
       end
       unless relation.vehicle.nil?
-        return relation.vehicle.plate
+        return relation.vehicle.plate+@od
       end
       unless relation.person.nil?
-        return relation.person.complete_name
+        return relation.person.complete_name+@od
       end
       unless relation.worksheet.nil?
-        return relation.worksheet.complete_name
+        return relation.worksheet.complete_name+@od
       end
-      return self.position_code.code
+      return self.position_code.code+@od
     else
-      return 'Errore, nessuna posizione'
+      return nil
     end
   end
 
-  def position
-    relation = self.item_relations.sort_by(:since).last
-    unless relation.office.nil?
-      return relation.office
-    end
-    unless relation.vehicle.nil?
-      return relation.vehicle
-    end
-    unless relation.person.nil?
-      return relation.person
-    end
-    return nil
-  end
+  # def position
+  #   relation = self.item_relations.sort_by(&:since).last
+  #   unless relation.office.nil?
+  #     return relation.office
+  #   end
+  #   unless relation.vehicle.nil?
+  #     return relation.vehicle
+  #   end
+  #   unless relation.person.nil?
+  #     return relation.person
+  #   end
+  #   unless relation.worksheet.nil?
+  #     return relation.worksheet
+  #   end
+  #   return nil
+  # end
 
   def take_back
     self.last_position.delete
   end
 
   def available?
-    self.position.nil?? true : false
+    if self.actual_position.nil? && self.output_orders.size == 0
+      true
+    else
+      false
+    end
   end
 
   def generateBarcode

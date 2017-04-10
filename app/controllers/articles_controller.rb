@@ -63,6 +63,7 @@ class ArticlesController < ApplicationController
   def new
     @article = Article.new
     # render :partial => 'articles/new'
+    @article.barcode = barcode_params
     respond_to do |format|
       format.js { render :partial => 'articles/new' }
       format.html { render :partial => 'articles/new' }
@@ -153,6 +154,9 @@ class ArticlesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
 
+    def barcode_params
+      params.require(:barcode)
+    end
 
     def set_article
       @article = Article.find(params.require(:id))

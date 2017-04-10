@@ -12,7 +12,7 @@
       = form_for @article, :html=>{:multipart => true,:remote=>true} do |f|
         .field
           = f.label "Codice a barre"
-          = f.text_field :barcode, class: 'form-control autofocus', id: 'barcode-articles', :options => { autofocus: true }
+          = f.text_field :barcode, class: 'form-control', id: 'barcode-articles'
         .field
           = f.label "Produttore"
           = text_field_tag :manufacturer, (@article.manufacturer.nil?? Company.manufacturerChoice.name : @article.manufacturer.name), data: { autocomplete: autocomplete_company_name_articles_path }, class: 'form-control autofocus'
@@ -44,6 +44,9 @@
         - unless @article.barcode.nil?
           #barcode-img
             = image_tag(@article.barcode.to_s+'.png')
+            %br
+            = @article.barcode
+
 
     -# .row-fluid
     -#   .col-sm-12

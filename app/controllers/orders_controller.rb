@@ -8,6 +8,9 @@ class OrdersController < ApplicationController
   # GET /orders.json
   def index
     @orders = Order.all
+    respond_to do |format|
+      format.js { render :js, :partial => 'orders/edit_output_orders' }
+    end
   end
 
   # GET /orders/1
@@ -22,6 +25,9 @@ class OrdersController < ApplicationController
 
   # GET /orders/1/edit
   def edit
+    respond_to do |format|
+      format.js { render :js, :partial => 'orders/output' }
+    end
   end
 
   def print_pdf
@@ -239,13 +245,16 @@ class OrdersController < ApplicationController
   # DELETE /orders/1
   # DELETE /orders/1.json
   def destroy_output_order
-
+    
     if @order.delete
+
       @msg = 'Ordine eliminato'
     else
       @msg = 'Errore'
     end
-      render :partial => 'layouts/messages'
+    respond_to do |format|
+      format.js { render :js, :partial => 'orders/output_orders' }
+    end
   end
 
   private

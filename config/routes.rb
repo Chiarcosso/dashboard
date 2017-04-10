@@ -65,9 +65,11 @@ Rails.application.routes.draw do
   post   '/items_new_order', to: 'orders#add_item_to_new_order', as: :add_item_to_new_order
 
   get    '/output/:destination', to: 'orders#output', as: :output
+  get    '/output/', to: 'orders#index', as: :output_orders
   post   '/output/add_item', to: 'orders#add_item', as: :add_item_to_order
   get    '/output_order/exit/:id', to: 'orders#exit_order', as: :output_order_exit
   post   '/output_order/confirm', to: 'orders#confirm_order', as: :output_order_confirm
+  post   '/output_order/:id', to: 'orders#edit_output_order', as: :output_order_edit
   delete '/output_order/:id', to: 'orders#destroy_output_order', as: :output_order_delete
   post    '/output_order/pdf/:id', to: 'orders#print_pdf', as: :output_order_pdf
   post    '/output_order/pdf/module/:id', to: 'orders#print_pdf_module', as: :output_order_pdf_module

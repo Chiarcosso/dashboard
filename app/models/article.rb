@@ -29,15 +29,15 @@ class Article < ApplicationRecord
 
   def availability(*checked)
     unless checked.empty?
-      Item.available_items.unassigned.article(self).to_a - checked[0]
+      Item.article(self).available_items - checked[0]
     else
-      Item.available_items.unassigned.article(self).to_a
+      Item.article(self).available_items
     end
   end
 
   def setBarcodeImage
     unless self.barcode == ''
-      if barcode = checkBarcode(self.barcode,'EAN')
+      if barcode = checkBarcode(self.barcode)
         @blob = Barby::CairoOutputter.new(barcode).to_png #Raw PNG data
         File.write("public/images/#{self.barcode}.png", @blob)
       else

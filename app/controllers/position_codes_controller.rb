@@ -5,7 +5,7 @@ class PositionCodesController < ApplicationController
   # GET /position_codes
   # GET /position_codes.json
   def index
-    @positionCodes = PositionCode.order(floor: :asc,row: :asc,level: :asc,sector: :asc,section: :asc)
+    @positionCodes = PositionCode.order(floor: :asc,row: :asc,sector: :asc,level: :asc,section: :asc)
     @position_code = PositionCode.new
     render :partial => 'position_codes/index'
   end

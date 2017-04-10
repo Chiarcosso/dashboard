@@ -1,0 +1,57 @@
+.container-fluid
+  = form_tag(items_path, method: :get, remote: true, type: :script) do |f|
+    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path
+.container-fluid
+  .row.item-block.tab-header
+    .col-sm-1
+      Elimina
+    .col-sm-1
+      Ordine nr.
+    .col-sm-2
+      Destinazione
+    .col-sm-3
+      Articoli
+    .col-sm-1
+      Stato
+    .col-sm-1
+      Data creazione
+    .col-sm-1
+      Modifica
+    .col-sm-1
+      Stampa
+
+.container-fluid.scrollable-panel
+  - OutputOrder.order(:processed => :asc, :created_at => :desc).each do |order|
+    .row
+      .col-sm-1
+        = button_to "x", "/output_order/#{order.id}", :method => :delete, :remote => true
+      .col-sm-1
+        = order.id
+      .col-sm-2
+        = order.destination.complete_name
+      .col-sm-3
+        = order.items.map { |i| i.complete_name }.join(', ')
+      .col-sm-1
+        = order.processed?
+      .col-sm-1
+        = (l order.created_at)
+      .col-sm-1
+        = button_to "Modifica", "/output_order/#{order.id}", :method => :post, :remote => true
+      .col-sm-1
+        = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf)
+-# .container-fluid.scrollable-panel
+-#   - @selected_items.all.each do |item|
+-#     .row
+-#       .col-sm-3
+-#         = item.article.complete_name.to_s
+-#       .col-sm-1
+-#         = item.article.availability.size
+-#       .col-sm-2
+-#         = item.serial
+-#       .col-sm-1
+-#         = item.state
+-#       .col-sm-1
+-#         = item.expiringDate.nil?? '' : (l item.expiringDate)
+:javascript
+
+  domInit();
