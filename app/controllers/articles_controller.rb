@@ -6,7 +6,7 @@ class ArticlesController < ApplicationController
   # GET /articles
   # GET /articles.json
   def index
-    @articles = Article.all
+    @filteredArticles = Article.filter(search_params)
   end
 
   # GET /articles/1
@@ -63,7 +63,9 @@ class ArticlesController < ApplicationController
   def new
     @article = Article.new
     # render :partial => 'articles/new'
-    @article.barcode = barcode_params
+    unless barcode_params.nil?
+      @article.barcode = barcode_params
+    end
     respond_to do |format|
       format.js { render :partial => 'articles/new' }
       format.html { render :partial => 'articles/new' }
@@ -155,7 +157,9 @@ class ArticlesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
 
     def barcode_params
-      params.require(:barcode)
+      unless params[:barcode].nil?
+        params.require(:barcode)
+      end
     end
 
     def set_article
@@ -169,6 +173,12 @@ class ArticlesController < ApplicationController
         c = c.to_i
       end
       params
+    end
+
+    def search_params
+      unless params[:search].nil? || params[:search] == ''
+        params.require(:search)
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

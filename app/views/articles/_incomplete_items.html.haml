@@ -1,4 +1,6 @@
-
+.container-fluid
+  = form_tag(articles_path, method: :get, remote: true, type: :script) do |f|
+    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': articles_path
 - if Article.incompleteItems.empty?
   = "Non ci sono articoli incompleti"
 - else
@@ -19,5 +21,5 @@
       %b= 'Stampa'
 
 .container-fluid.scrollable-panel
-  - Article.incompleteItems.each do |a|
+  - @filteredArticles.each do |a|
     =render :partial => 'articles/incomplete_article_block', :locals => { :article => a }
