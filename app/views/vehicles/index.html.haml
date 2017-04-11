@@ -13,6 +13,8 @@
     .col-sm-4
       %b='Note'
     .col-sm-1
+    .col-sm-1
+
 
 .container.scrollable-panel
   -Vehicle.all.each do |v|
@@ -25,10 +27,11 @@
         =v.property.name
       .col-sm-1
         =v.dismissed ? 'No' : 'Si'
-      .col-sm-4
+      .col-sm-3
         =v.notes
       .col-sm-1
         =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
+      .col-sm-1
         =button_to 'x', vehicle_path(v.id), remote: true, method: :delete, class: 'inline'
 
 .container

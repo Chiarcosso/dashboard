@@ -56,6 +56,7 @@ class ArticlesController < ApplicationController
   end
 
   def incomplete
+    @filteredArticles = Article.filter(search_params)
     render :partial => 'articles/incomplete'
   end
 

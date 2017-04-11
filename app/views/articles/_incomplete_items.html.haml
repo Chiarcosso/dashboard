@@ -1,5 +1,5 @@
 .container-fluid
-  = form_tag(articles_path, method: :get, remote: true, type: :script) do |f|
+  = form_tag(incomplete_articles_path, method: :get, remote: true, type: :script) do |f|
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': articles_path
 - if Article.incompleteItems.empty?
   = "Non ci sono articoli incompleti"

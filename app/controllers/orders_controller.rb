@@ -245,9 +245,8 @@ class OrdersController < ApplicationController
   # DELETE /orders/1
   # DELETE /orders/1.json
   def destroy_output_order
-    
-    if @order.delete
 
+    if @order.delete
       @msg = 'Ordine eliminato'
     else
       @msg = 'Errore'
