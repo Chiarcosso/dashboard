@@ -6,7 +6,7 @@ require 'barby/barcode/gs1_128'
 require 'barby/barcode/ean_13'
 require 'barby/barcode/ean_8'
 
-  def checkBarcode(barcode,type)
+  def checkBarcode(barcode)
     @bc = false
     begin
       @bc = Barby::Code128.new(barcode.to_s.encode(Encoding::ASCII),true)

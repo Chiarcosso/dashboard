@@ -95,7 +95,7 @@ class ItemsController < ApplicationController
       item.state = k[:state].to_i
       item.expiringDate = k[:expiringDate]
       item.article = Article.find(k[:article].to_i)
-      item.position_code = PositionCode.findByCode('P0 X0 0-x')
+      item.position_code = PositionCode.findByCode('P0 #0 0-@')
       item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
       @items << item
     end

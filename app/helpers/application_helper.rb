@@ -17,7 +17,7 @@ module ApplicationHelper
     if filename.nil?
       filename = barcode
     end
-    if bc = checkBarcode(barcode,type)
+    if bc = checkBarcode(barcode)
       @blob = Barby::CairoOutputter.new(bc).to_png() #Raw PNG data
       File.write("public/images/#{filename}.png", @blob)
     end

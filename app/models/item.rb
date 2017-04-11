@@ -23,7 +23,7 @@ class Item < ApplicationRecord
   scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%'OR items.barcode LIKE '%#{search}%'")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
-  scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 X0 0-x')) }
+  scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 #0 0-@')) }
   # scope :unassigned, -> {  }
   enum state: [:nuovo,:usato,:rigenerato,:ricoperto,:riscolpito,:preparato,:danneggiato,:smaltimento]
 
