@@ -53,6 +53,13 @@ class VehiclesController < ApplicationController
         unless @vehicle.chassis_number == @serial
           @vehicle.vehicle_informations << VehicleInformation.create(information: @serial, information_type: VehicleInformation.types['N. di telaio'])
         end
+        unless @model.nil?
+          @vehicle.model = @model
+        end
+        unless @property.nil?
+          @vehicle.property = @property
+        end
+        @vehicle.save
         format.html { redirect_to vehicles_path, notice: 'Vehicle was successfully updated.' }
         format.json { render :show, status: :ok, location: @vehicle }
       else
@@ -84,7 +91,7 @@ class VehiclesController < ApplicationController
       @serial = params.require(:initial_serial).permit(:info)[:info]
       @model = VehicleModel.find(params.require(:vehicle).permit(:model)[:model].to_i)
       @property = Company.where(name: params.require(:vehicle).permit(:property)[:property]).first
-      params.require(:vehicle).permit(:dismissed, :registration_date, :initial_serial, :mileage)
+      params.require(:vehicle).permit(:dismissed, :registration_date, :initial_serial, :mileage, :notes)
       # params.require(:vehicle)[:model] = VehicleModel.find(params.require(:vehicle)[:model].to_i)
       # params
     end

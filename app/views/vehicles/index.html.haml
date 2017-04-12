@@ -5,12 +5,14 @@
     .col-sm-1
       %b='Targa'
     .col-sm-2
+      %b='Telaio'
+    .col-sm-2
       %b='Tipo'
-    .col-sm-3
+    .col-sm-2
       %b='Proprietà'
     .col-sm-1
       %b='Circola'
-    .col-sm-4
+    .col-sm-2
       %b='Note'
     .col-sm-1
     .col-sm-1
@@ -22,12 +24,14 @@
       .col-sm-1
         =v.plate
       .col-sm-2
-        =v.model.name
-      .col-sm-3
+        =v.chassis_number
+      .col-sm-2
+        =v.model.complete_name
+      .col-sm-2
         =v.property.name
       .col-sm-1
         =v.dismissed ? 'No' : 'Si'
-      .col-sm-3
+      .col-sm-2
         =v.notes
       .col-sm-1
         =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get

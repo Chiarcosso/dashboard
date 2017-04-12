@@ -22,7 +22,7 @@
         = f.text_field :registration_date, class: 'form-control', 'data-behavior' => 'datepicker'
       .field
         = f.label 'N. di telaio'
-        = text_field_tag 'initial_serial[info]', '', class: 'form-control'
+        = text_field_tag 'initial_serial[info]', @vehicle.chassis_number, class: 'form-control'
       .field
         = f.label 'Chilometraggio'
         = f.number_field :mileage, class: 'form-control'

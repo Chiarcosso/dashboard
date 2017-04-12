@@ -8,7 +8,7 @@ class ItemsController < ApplicationController
   # GET /items.json
   def index
     @search = search_params.nil?? '' : search_params
-    @selected_items = Item.filter(search_params).distinct
+    @selected_items = Item.filter(search_params).distinct.limited
     render :partial => 'items/index'
   end
 
@@ -219,10 +219,10 @@ class ItemsController < ApplicationController
     end
     respond_to do |format|
       if @item.destroy
-        @selected_items = Item.filter(search_params).distinct
+        @selected_items = Item.filter(search_params).distinct.limited
         format.js { render :partial => 'items/index', notice: 'Pezzo eliminato.' }
       else
-        @selected_items = Item.filter(search_params).distinct
+        @selected_items = Item.filter(search_params).distinct.limited
         format.js { render :partial => 'items/index', notice: 'Impossibile eliminare il pezzo.' }
       end
     end

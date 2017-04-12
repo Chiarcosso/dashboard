@@ -19,6 +19,7 @@ class Item < ApplicationRecord
   scope :barcode, ->(barcode) { joins(:article).where("items.barcode = '#{barcode}' OR articles.barcode = '#{barcode}'") }
   # scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
   # scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_id IS NULL") }
+  scope :limited, -> { limit(100) }
   scope :article, ->(article) { where(:article => article) }
   scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%'OR items.barcode LIKE '%#{search}%'")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
