@@ -48,9 +48,9 @@
             = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "complete_name", @recipient), class: 'form-control'
         - when :Worksheet
           .col-sm-4
-            = text_field_tag :recipient, @recipient.code, placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control'
+            = text_field_tag :recipient, @recipient.nil? ? nil : @recipient.code, placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control'
           .col-sm-8
-            = select_tag :vehicle, options_from_collection_for_select(Vehicle.all, "id", "complete_name", @recipient.vehicle), class: 'form-control'
+            = select_tag :vehicle, options_from_collection_for_select(Vehicle.all, "id", "plate", @recipient.nil? ? nil : @recipient.vehicle), class: 'form-control'
   %br
   .container-fluid.scrollable-panel.half
     - @checked_items.reverse.each do |item|

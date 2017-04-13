@@ -66,7 +66,7 @@ class OrdersController < ApplicationController
     end
     @search = search_params.nil?? '' : search_params
     @checked_items = Array.new
-    @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
+    @selected_items = Item.unassigned.available_items.firstGroupByArticle(search_params,@checked_items)
     # render :partial => 'items/index'
     respond_to do |format|
       format.js { render :js, :partial => 'orders/output' }
