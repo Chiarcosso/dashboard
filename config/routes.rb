@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   root 'home#dashboard'
 
   get   '/admin/queries', to: 'admin#queries', as: :admin_queries
+  post   '/admin/queries', to: 'admin#send_query', as: :admin_queries_go
 
   get    '/admin/users', to: 'users#index', as: :users_admin
   post   '/admin/users', to: 'users#create', as: :create_user_admin

@@ -30,6 +30,13 @@
         %br
     .row.panel
       .col-sm-12
-        = form_tag(admin_queries_path, method: :post, remote: true, type: :script) do |f|
-          = hidden_field_tag 'Vehicle'
-          = text_field_tag :query, @query_vehicle, :placeholder => 'Query..', class: 'form-control'
+        = form_tag(admin_queries_path, method: :post) do |f|
+          = hidden_field_tag :model_class, 'Vehicle'
+          -# = text_field_tag :query, @query_vehicle, :placeholder => 'Query..', class: 'form-control'
+          = submit_tag :Vai
+- unless @results.nil?
+  = 'Risultati:'
+  = @results.size
+  %br
+  - @results.each do |r|
+    = r.inspect
