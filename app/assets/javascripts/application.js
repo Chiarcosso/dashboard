@@ -128,7 +128,7 @@ function domInit() {
   $('.hover-hilight').on('click',function(){
     var route = $(this).data('target');
     $(this).parents('form').first().append('<input type=hidden name="item" value="'+$(this).data('data')+'">')
-    var valuesToSubmit = $(this).parents('form').first().serialize()
+    var valuesToSubmit = $(this).parents('form').first().serialize();
     $.ajax({
       method: 'post',
       url: route,
@@ -143,14 +143,37 @@ function domInit() {
   }
 
   var timer;
+  // var no_commit = false;
+  // $('input[name=commit]').off('click');
+  // $('input[name=commit]').on('click',function(e){
+  //   // e.preventDefault();
+  //
+  //   if (no_commit){
+  //     alert('asd');
+  //     $('#no-commit').remove();
+  //   }
+  //
+  //   $(this).parent('form').submit();
+  // });
+
   $('.autosearch').off('keyup');
   $('.autosearch').on('keyup',function(e){
     var element = this;
     window.clearTimeout(timer);
     if((48 <= e.which && e.which <= 57) || (65 <= e.which && e.which <= 90) || (96 <= e.which && e.which <= 105) || (188 <= e.which && e.which <= 191) || (e.which == 220) || (e.which == 222) || (e.which == 13) || (e.which == 8) || (e.which == 46)) {
       timer = window.setTimeout(function(){
-          $(element).parent('form').append('<input type="hidden" name="search" value="search"');
-          $(element).parent('form').submit();
+          $(element).parents('form').first().append('<input type="hidden" id="no-commit" name="no-commit" value="no-commit"');
+          // $(element).parent('form').submit();
+
+          var valuesToSubmit = $(this).parents('form').first().serialize();
+          var route = $(this).data('target');
+          console.log(valuesToSubmit);
+          alert();
+          $.ajax({
+            method: 'post',
+            url: route,
+            data: valuesToSubmit
+          });
       },1000);
     }
   });

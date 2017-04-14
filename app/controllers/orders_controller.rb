@@ -308,7 +308,7 @@ class OrdersController < ApplicationController
     end
 
     def items_params
-      if params['commit'].nil? || !params['search'].nil?
+      if params['commit'].nil? || !params['no-commit'].nil?
         @save = false
       else
         @save = true
@@ -363,7 +363,7 @@ class OrdersController < ApplicationController
     end
 
     def chk_list_params
-      if params['commit'].nil? || !params['search'].nil?
+      if params['commit'].nil? || !params['no-commit'].nil?
         @save = false
       else
         @save = true
