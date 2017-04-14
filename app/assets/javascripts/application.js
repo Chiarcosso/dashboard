@@ -149,7 +149,7 @@ function domInit() {
     window.clearTimeout(timer);
     if((48 <= e.which && e.which <= 57) || (65 <= e.which && e.which <= 90) || (96 <= e.which && e.which <= 105) || (188 <= e.which && e.which <= 191) || (e.which == 220) || (e.which == 222) || (e.which == 13) || (e.which == 8) || (e.which == 46)) {
       timer = window.setTimeout(function(){
-          console.log(e.which);
+          $(element).parent('form').append('<input type="hidden" name="search" value="search"');
           $(element).parent('form').submit();
       },1000);
     }
