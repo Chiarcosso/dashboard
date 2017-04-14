@@ -332,17 +332,16 @@ class OrdersController < ApplicationController
         unless params[:recipient].nil? || params[:recipient] == ''
           @recipient = Worksheet.findByCode(params.require(:recipient))
           if @recipient.nil?
-            vehicle = Vehicle.find(params.require(:vehicle_id).to_i)
+            vehicle = Vehicle.find(params[:vehicle_id].to_i)
             if vehicle.nil?
-              byebug
-              vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
+              vehicle = Vehicle.find_by_plate(params[:vehicle]).first
             end
             if vehicle.nil?
               vehicle = Vehicle.new
             end
             @recipient = Worksheet.create(:code => params.require(:recipient), :vehicle => vehicle)
           elsif @recipient.vehicle.nil?
-            vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
+            vehicle = Vehicle.find_by_plate(params[:vehicle]).first
             # if vehicle.nil?
             #   vehicle = Vehicle.find(params.require(:vehicle_id))
             # end
