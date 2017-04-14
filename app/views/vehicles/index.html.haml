@@ -1,5 +1,7 @@
 -# %p#notice= notice
 %h3 Mezzi
+
+= will_paginate @vehicles
 .container
   .row
     .col-sm-1
@@ -19,7 +21,7 @@
 
 
 .container.scrollable-panel
-  -Vehicle.all.each do |v|
+  - @vehicles.each do |v|
     .row
       .col-sm-1
         =v.plate

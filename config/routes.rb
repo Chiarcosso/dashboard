@@ -5,7 +5,6 @@ Rails.application.routes.draw do
   resources :vehicles
   resources :vehicle_models
   resources :offices
-  resources :orders
   resources :items
   resources :transport_documents
   resources :companies
@@ -13,10 +12,14 @@ Rails.application.routes.draw do
   resources :articles do
     get :autocomplete_company_name, :on => :collection
   end
+  resources :orders do
+    get :autocomplete_vehicle_information_information, :on => :collection
+  end
   resources :people do
     get :autocomplete_company_name, :on => :collection
   end
   devise_for :users
+
   # devise_scope :user do
   #   root "devise/sessions#new"
   # end

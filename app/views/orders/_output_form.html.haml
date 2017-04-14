@@ -33,7 +33,7 @@
         .col-sm-1
           = item.expiringDate.nil?? '' : (l item.expiringDate)
 
-  %b='Articoli assegnati'
+  %b='Articoli assegnati '+(@recipient.nil? ? '' : @recipient.complete_name)
   .container
     .row
       - case @destination.to_sym
@@ -50,7 +50,9 @@
           .col-sm-4
             = text_field_tag :recipient, @recipient.nil? ? nil : @recipient.code, placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control'
           .col-sm-8
-            = select_tag :vehicle, options_from_collection_for_select(Vehicle.all, "id", "plate", @recipient.nil? ? nil : @recipient.vehicle), class: 'form-control'
+            -# = select_tag :vehicle, options_from_collection_for_select(Vehicle.order_by_plate, "id", "plate", @recipient.nil? ? nil : @recipient.vehicle), class: 'form-control'
+            = hidden_field_tag :vehicle_id, @recipient.vehicle.id
+            = text_field_tag :vehicle, @recipient.vehicle.plate, data: { autocomplete:  autocomplete_vehicle_information_information_orders_path }, class: 'form-control autofocus'
   %br
   .container-fluid.scrollable-panel.half
     - @checked_items.reverse.each do |item|

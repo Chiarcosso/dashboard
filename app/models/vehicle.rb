@@ -7,6 +7,11 @@ class Vehicle < ApplicationRecord
   has_one :vehicle_type, through: :model
   belongs_to :property, class_name: 'Company'
 
+  scope :order_by_plate, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.information_type': VehicleInformation.types['Targa']) }
+  scope :find_by_plate, ->(plate) { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.information_type': VehicleInformation.types['Targa']).where('vehicle_informations.information LIKE ?',plate) }
+
+  self.per_page = 30
+
   def plate
     p = self.vehicle_informations.where(:information_type => VehicleInformation.types['Targa']).order(created_at: :desc).limit(1).first
     if p.nil?

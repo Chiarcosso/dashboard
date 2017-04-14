@@ -1,6 +1,6 @@
 class OutputOrder < ApplicationRecord
   resourcify
-  has_many :output_order_items, :dependent => :delete_all
+  has_many :output_order_items, :dependent => :destroy
   has_many :items, through: :output_order_items
   belongs_to :createdBy, class_name: User
   belongs_to :destination, polymorphic: true

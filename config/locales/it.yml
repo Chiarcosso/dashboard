@@ -37,3 +37,8 @@ it:
       default: "%d/%m/%Y %H:%m:%S"
       short: "%b %d %H:%m:%s"
       long: "%B %d, %Y alle %H:%m:%s"
+
+  will_paginate:
+    page_gap: '  ...  '
+    next_label: '  >>  '
+    previous_label: '  <<  '

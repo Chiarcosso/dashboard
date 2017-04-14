@@ -1,10 +1,12 @@
 class VehiclesController < ApplicationController
   before_action :set_vehicle, only: [:show, :edit, :update, :destroy]
 
+  autocomplete :vehicle, :plate, full: true
+
   # GET /vehicles
   # GET /vehicles.json
   def index
-    @vehicles = Vehicle.all
+    @vehicles = Vehicle.order_by_plate.paginate(:page => params[:page], :per_page => 30)
   end
 
   # GET /vehicles/1

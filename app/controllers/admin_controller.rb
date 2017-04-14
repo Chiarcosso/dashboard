@@ -17,7 +17,19 @@ class AdminController < ApplicationController
       row['property'].gsub!(/\w+/, &:capitalize)
       row['type'].first.upcase!
       row['vat'].upcase!
-      row['plate'].upcase.gsub!('. *','')
+      platenumber = row['plate'].upcase.tr('. *','')
+
+      plates = VehicleInformation.where(information: row['plate']).order(date: :asc)
+      plates.each do |p|
+        p.information = platenumber
+        p.save
+      end
+      plates = VehicleInformation.where(information: row['plate'].upcase.gsub('. *','')).order(date: :asc)
+      plates.each do |p|
+        p.information = platenumber
+        p.save
+      end
+
 
       manufacturer = Company.find_by(name: row['manufacturer'])
       if manufacturer.nil?
@@ -35,7 +47,7 @@ class AdminController < ApplicationController
       if model.nil?
         model = VehicleModel.create(name: row['model'], vehicle_type: vehicle_type, manufacturer: manufacturer)
       end
-      plate = VehicleInformation.where(information: row['plate']).order(date: :asc).last
+      plate = VehicleInformation.where(information: platenumber).order(date: :asc).last
       unless plate.nil?
         vehicle = Vehicle.find(plate.vehicle.id)
       end

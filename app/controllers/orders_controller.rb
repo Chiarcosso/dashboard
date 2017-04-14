@@ -1,9 +1,13 @@
 class OrdersController < ApplicationController
+
+  before_action :autocomplete_params, only: [:autocomplete_vehicles_plate_order,:add_item,:output]
   before_action :set_order, only: [:show, :edit, :update, :destroy]
   before_action :set_article_for_order, only: [:add_item_to_new_order]
   before_action :set_items_for_order, only: [:add_item_to_new_order]
   before_action :output_params, only: [:add_item, :output]
   before_action :exit_params, only: [:exit_order,:confirm_order,:destroy_output_order, :print_pdf, :print_pdf_module]
+
+  autocomplete :vehicle_information, :information, full: true, :id_element => '#vehicle_id'
   # GET /orders
   # GET /orders.json
   def index
@@ -56,11 +60,12 @@ class OrdersController < ApplicationController
     # @destination = output_params
     case @destination.to_sym
     when :Person
-      @recipient = Person.all.first
+      @recipient = Person.new
     when :Worksheet
-      @recipient = Worksheet.all.first
+      @recipient = Worksheet.new
+      @recipient.vehicle = Vehicle.new
     when :Vehicle
-      @recipient = Vehicle.all.first
+      @recipient = Vehicle.new
     when :Office
       @recipient = Office.all.first
     end
@@ -156,7 +161,6 @@ class OrdersController < ApplicationController
           ir.worksheet_id = @order.destination_id
         end
         ir.save
-        byebug
       end
       @msg = 'Ordine evaso'
     else
@@ -245,8 +249,9 @@ class OrdersController < ApplicationController
   # DELETE /orders/1
   # DELETE /orders/1.json
   def destroy_output_order
-
+    
     if @order.delete
+
       @msg = 'Ordine eliminato'
     else
       @msg = 'Errore'
@@ -258,6 +263,15 @@ class OrdersController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
+
+    def autocomplete_params
+      # vi = VehicleInformation.where(id: params[:vehicle_id].to_i)
+      @vehicle = Vehicle.find_by_plate(params[:vehicle]).first
+      if @vehicle.nil?
+        @vehicle = Vehicle.new
+      end
+    end
+
     def set_order
       @order = Order.find(params[:id])
     end
@@ -314,10 +328,28 @@ class OrdersController < ApplicationController
         unless params[:recipient].nil?
           @recipient = Worksheet.findByCode(params.require(:recipient))
           if @recipient.nil?
-            @recipient = Worksheet.create(:code => params.require(:recipient), :vehicle_id => params.require(:vehicle))
+            vehicle = Vehicle.find(params.require(:vehicle_id).to_i)
+            if vehicle.nil?
+              byebug
+              vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
+            end
+            if vehicle.nil?
+              vehicle = Vehicle.new
+            end
+            @recipient = Worksheet.create(:code => params.require(:recipient), :vehicle => vehicle)
+          elsif @recipient.vehicle.nil?
+            vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
+            # if vehicle.nil?
+            #   vehicle = Vehicle.find(params.require(:vehicle_id))
+            # end
+            if vehicle.nil?
+              vehicle = Vehicle.new
+            end
+            @recipient.vehicle = vehicle
+            @recipient.save
           end
         else
-          @recipient = Worksheet.all.first
+          @recipient = Worksheet.new
         end
       end
       unless params[:item].nil?
