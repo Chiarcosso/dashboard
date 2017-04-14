@@ -159,18 +159,18 @@ function domInit() {
   $('.autosearch').off('keyup');
   $('.autosearch').on('keyup',function(e){
     var element = this;
+    var form = $(this).parents('form').first();
     window.clearTimeout(timer);
     if((48 <= e.which && e.which <= 57) || (65 <= e.which && e.which <= 90) || (96 <= e.which && e.which <= 105) || (188 <= e.which && e.which <= 191) || (e.which == 220) || (e.which == 222) || (e.which == 13) || (e.which == 8) || (e.which == 46)) {
       timer = window.setTimeout(function(){
-          $(element).parents('form').first().append('<input type="hidden" id="no-commit" name="no-commit" value="no-commit"');
+          form.append('<input type="hidden" id="no-commit" name="no-commit" value="no-commit">');
           // $(element).parent('form').submit();
 
-          var valuesToSubmit = $(this).parents('form').first().serialize();
-          var route = $(this).data('target');
-          console.log(valuesToSubmit);
-          alert();
+          var valuesToSubmit = form.serialize();
+          var route = form.attr('action');
+          var method = form.attr('method');
           $.ajax({
-            method: 'post',
+            method: method,
             url: route,
             data: valuesToSubmit
           });
