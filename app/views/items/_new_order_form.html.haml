@@ -42,7 +42,7 @@
         - @items.each_with_index do |i,k|
           .row
             .col-sm-12
-              .item_box{id: 'box-'+k.to_s}
+              .item_box{'id': 'box-'+k.to_s}
                 .container-fluid
                   .row-fluid
                     .col-xs-1
@@ -94,7 +94,7 @@
         - @registeredItems.each_with_index do |i,k|
           .row
             .col-sm-12
-              .store-box{id: i.actualBarcode}
+              .store-box{'data-id': i.actualBarcode}
                 .container-fluid
                   = form_tag(store_item_path, method: :post, remote: true, type: :script, id: :store_items) do |f|
                     = hidden_field_tag 'store[items_to_store]', i.actualItems
