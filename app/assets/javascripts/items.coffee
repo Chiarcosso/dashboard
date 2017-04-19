@@ -43,7 +43,7 @@
         else
           $('[data-id="'+@barcodePtr+'"]').removeClass('selected-item')
           $('[data-id="'+@barcodePtr+'"] input[type=text]').val($(':focus').val())
-          form = $('[data-id='+@barcodePtr+'] form')
+          form = $('[data-id="'+@barcodePtr+'"] form')
           $.ajaxSetup ({
             'beforeSend': (xhr) ->
               xhr.setRequestHeader("Accept", "text/javascript")
