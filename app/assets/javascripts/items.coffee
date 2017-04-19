@@ -34,11 +34,12 @@
       form = $(':focus').parents('form').first()
       if $(':focus').attr('id') == 'store-row'
         if @barcodePtr == undefined
-          $('#'+$(':focus').val()).addClass('selected-item')
-          @barcodePtr = $(':focus').val()
-          $('.autofocus-store').first().val('')
-          $('.autofocus-store').first().attr('placeholder','Scansionare la posizione')
-          $('.autofocus-store').first().focus()
+          if $('#'+$(':focus').val()).length > 0
+            $('#'+$(':focus').val()).addClass('selected-item')
+            @barcodePtr = $(':focus').val()
+            $('.autofocus-store').first().val('')
+            $('.autofocus-store').first().attr('placeholder','Scansionare la posizione')
+            $('.autofocus-store').first().focus()
         else
           $('#'+@barcodePtr).removeClass('selected-item')
           $('#'+@barcodePtr+' input[type=text]').val($(':focus').val())
