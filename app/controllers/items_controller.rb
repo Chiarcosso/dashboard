@@ -59,12 +59,16 @@ class ItemsController < ApplicationController
     position = PositionCode.findByCode(store_params[:position_code])
     itemsToStore.each do |i|
       itm = Item.find(i.to_i)
-      if itm.nil? || position.nil?
-        msg = 'Errore'
+      if itm.nil?
+        msg = "Errore: il pezzo n. #{i} non esiste."
+      elsif  position.nil?
+        msg = "Errore: la posizione ' #{store_params[:position_code]} ' non esiste."
+      else
+        itm.position_code = position
+        itm.save
+        msg = msg+' '+itm.actualBarcode
       end
-      itm.position_code = position
-      itm.save
-      msg = msg+' '+itm.actualBarcode
+
     end
     render :json => msg
   end
