@@ -34,15 +34,15 @@
       form = $(':focus').parents('form').first()
       if $(':focus').attr('id') == 'store-row'
         if @barcodePtr == undefined
-          if $('[data-id='+$(':focus').val()+']').length > 0
-            $('[data-id='+$(':focus').val()+']').addClass('selected-item')
+          if $('[data-id="'+$(':focus').val()+'"]').length > 0
+            $('[data-id="'+$(':focus').val()+'"]').addClass('selected-item')
             @barcodePtr = $(':focus').val()
             $('.autofocus-store').first().val('')
             $('.autofocus-store').first().attr('placeholder','Scansionare la posizione')
             $('.autofocus-store').first().focus()
         else
-          $('[data-id='+@barcodePtr+']').removeClass('selected-item')
-          $('[data-id='+@barcodePtr+'] input[type=text]').val($(':focus').val())
+          $('[data-id="'+@barcodePtr+'"]').removeClass('selected-item')
+          $('[data-id="'+@barcodePtr+'"] input[type=text]').val($(':focus').val())
           form = $('[data-id='+@barcodePtr+'] form')
           $.ajaxSetup ({
             'beforeSend': (xhr) ->
@@ -58,8 +58,8 @@
                 console.log('complete:',data.responseText)
                 response = data.responseText.split(' ')
                 if(response[0] == 'Ok')
-                  $('[data-id='+response[1]+']').addClass('positioned-item')
-                  $('[data-id='+response[1]+']').remove()
+                  $('[data-id="'+response[1]+'"]').addClass('positioned-item')
+                  $('[data-id="'+response[1]+'"]').remove()
                   console.log($('.store-box').length)
                   if($('.store-box').length == 0)
                     $('.close').trigger('click')
