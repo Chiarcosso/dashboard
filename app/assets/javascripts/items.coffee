@@ -16,8 +16,9 @@
 @init = () ->
 
   if $('.item_box').length
+    len = $('#items-container').children().length*200;
+    $('#items-container').animate({ scrollTop: len}, 1000)
     $('.item_box:last input:first').select()
-    $('#items-container').animate({ scrollTop: $('#items-container').height()}, 1000)
   else
     $('input[type=text]').first().focus()
 

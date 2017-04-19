@@ -34,6 +34,36 @@
           = hidden_field_tag :model_class, 'Vehicle'
           -# = text_field_tag :query, @query_vehicle, :placeholder => 'Query..', class: 'form-control'
           = submit_tag :Vai
+
+.container
+  .row.panel
+    .col-sm-1
+      %h3= 'Persone'
+    .col-sm-2
+      %b= 'Nome'
+      %br
+      - Person.columns.each do |property|
+        = property.name
+        %br
+    .col-sm-2
+      %b= 'Produttore/Proprietà'
+      %br
+      - Company.columns.each do |property|
+        = property.name
+        %br
+    .col-sm-2
+      %b= 'Ruolo'
+      %br
+      - CompanyRelation.columns.each do |property|
+        = property.name
+        %br
+    .row.panel
+      .col-sm-12
+        = form_tag(admin_queries_path, method: :post) do |f|
+          = hidden_field_tag :model_class, 'Person'
+          -# = text_field_tag :query, @query_vehicle, :placeholder => 'Query..', class: 'form-control'
+          = submit_tag :Vai
+
 - unless @results.nil?
   = 'Risultati:'
   = @results.size

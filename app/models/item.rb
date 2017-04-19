@@ -203,7 +203,7 @@ class Item < ApplicationRecord
     end
     # text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
     # label << text
-    text  = Zebra::Epl::Text.new :data => self.serial.nil?? '' : 'Mat. '+self.serial, :position => [10, 80], :font => Zebra::Epl::Font::SIZE_4
+    text  = Zebra::Epl::Text.new :data => (self.serial.nil? || self.serial == '') ? '' : 'Mat. '+self.serial, :position => [10, 80], :font => Zebra::Epl::Font::SIZE_4
     label << text
     barcode = Zebra::Epl::Barcode.new(
       :data                      => self.actualBarcode,

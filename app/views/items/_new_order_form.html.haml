@@ -23,10 +23,10 @@
           = label_tag "Data acquisto"
           = text_field_tag "order[purchaseDate]", (l @transportDocument.date), placeholder: 'Data acquisto', class: 'form-control', 'data-behavior' => 'datepicker'
     - unless @vehicle.nil?
-      .row
-        .col-sm-4
-          = label_tag "Mezzo"
-          = select_tag :vehicle, options_from_collection_for_select(Vehicle.all, :id, :complete_name), :include_blank => 'Mezzo', class: 'form-control'
+      -# .row
+      -#   .col-sm-4
+      -#     = label_tag "Mezzo"
+      -#     = select_tag :vehicle, options_from_collection_for_select(Vehicle.all, :id, :complete_name), :include_blank => 'Mezzo', class: 'form-control'
     .row
       .col-sm-4
         .field
