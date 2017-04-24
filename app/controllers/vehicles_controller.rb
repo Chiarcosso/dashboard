@@ -33,8 +33,8 @@ class VehiclesController < ApplicationController
     # end
     respond_to do |format|
       if @vehicle.save && !@property.nil? && !@model.nil?
-        @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'], date: Date.current)
-        @vehicle.vehicle_informations << VehicleInformation.create(information: @serial, information_type: VehicleInformation.types['N. di telaio'], date: Date.current)
+        @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'], date: Date.current, vehicle: @vehicle)
+        @vehicle.vehicle_informations << VehicleInformation.create(information: @serial, information_type: VehicleInformation.types['N. di telaio'], date: Date.current, vehicle: @vehicle)
         format.html { redirect_to vehicles_path, notice: 'Vehicle was successfully created.' }
         format.json { render :show, status: :created, location: @vehicle }
       else
