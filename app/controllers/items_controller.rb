@@ -145,11 +145,12 @@ class ItemsController < ApplicationController
           end
           item.save
           item.item_relations << ItemRelation.create(:since => Time.now)
-          if item.barcode.nil? && item.serial.size > 0
-            item.barcode = item.generateBarcode
-            item.printLabel
+          if item.barcode.nil? || item.serial.size > 0
+            item.generateBarcode
           end
-          i.barcode = item.barcode
+          if item.article.barcode.nil? || item.article.barcode == ''
+            i.barcode = item.barcode
+          end
         end
       end
       @registeredItems = @items
