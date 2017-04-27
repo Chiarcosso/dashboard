@@ -209,7 +209,7 @@ class Item < ApplicationRecord
     label << text
     barcode = Zebra::Epl::Barcode.new(
       :data                      => self.actualBarcode,
-      :position                  => [30, 120],
+      :position                  => [10, 120],
       :height                    => 30,
       :print_human_readable_code => true,
       :narrow_bar_width          => 2,
