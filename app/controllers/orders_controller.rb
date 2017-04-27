@@ -71,7 +71,11 @@ class OrdersController < ApplicationController
     end
     @search = search_params.nil?? '' : search_params
     @checked_items = Array.new
-    @selected_items = Item.unassigned.available_items.firstGroupByArticle(search_params,@checked_items)
+    unless @search == ''
+      @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
+    else
+      @selected_items = Array.new
+    end
     # render :partial => 'items/index'
     respond_to do |format|
       format.js { render :js, :partial => 'orders/output' }
@@ -95,7 +99,12 @@ class OrdersController < ApplicationController
         @checked_items << @newItem
       end
     end
-    @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
+    
+    unless @search == ''
+      @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
+    else
+      @selected_items = Array.new
+    end
     # render :partial => 'items/index'
     # @selected_items -= @checked_items
     if @save

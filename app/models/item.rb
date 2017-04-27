@@ -6,7 +6,7 @@ class Item < ApplicationRecord
   # require 'barby/outputter/cairo_outputter'
   # # require 'barby/outputter/png_outputter'
   # require 'barby/barcode/code_39'
-
+  after_create :generateBarcode
 
   belongs_to :article
   belongs_to :transportDocument
@@ -157,10 +157,10 @@ class Item < ApplicationRecord
 
   def generateBarcode
     # unless self.serial.nil? || self.serial == ''
-      self.id.to_s(16).rjust(9,'0')
-    # else
-    #   self.serial
-    # end
+    if self.article.barcode.nil? || self.article.barcode == '' || !self.serial.nil? || !self.serial != ''
+      self.barcode = self.id.to_s(16).rjust(9,'0')
+      self.save
+    end
   end
 
   def actualBarcode
@@ -188,17 +188,18 @@ class Item < ApplicationRecord
     )
     # box = Zebra::Epl::Box.new :position => [0, 0], :end_position => [385, 180], :line_thickness => 2
     # label << box
+    name = self.article.complete_name.tr('"',"''")
     text  = Zebra::Epl::Text.new :data => self.expiringDate?? 'Sc. '+self.expiringDate.strftime('%d/%m/%Y') : '', :position => [10, 10], :font => Zebra::Epl::Font::SIZE_3
     label << text
     # text  = Zebra::Epl::Text.new :data => self.position_code.code, :position => [220, 10], :font => Zebra::Epl::Font::SIZE_2
     # label << text
-    if self.article.complete_name.size > 32
-      text  = Zebra::Epl::Text.new :data => self.article.complete_name[0..31], :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
+    if name.size > 32
+      text  = Zebra::Epl::Text.new :data => name[0..31], :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
       label << text
-      text  = Zebra::Epl::Text.new :data => self.article.complete_name[32..-1], :position => [10, 60], :font => Zebra::Epl::Font::SIZE_2
+      text  = Zebra::Epl::Text.new :data => name[32..-1], :position => [10, 60], :font => Zebra::Epl::Font::SIZE_2
       label << text
     else
-      text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
+      text  = Zebra::Epl::Text.new :data => name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
       label << text
     end
     # text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
