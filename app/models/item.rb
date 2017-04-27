@@ -160,7 +160,7 @@ class Item < ApplicationRecord
     if self.article.barcode.nil? || self.article.barcode == '' || !self.serial.nil? || !self.serial != ''
       self.barcode = self.id.to_s(16).rjust(9,'0')
       self.save
-      self.printLabel
+      # self.printLabel
     end
   end
 
