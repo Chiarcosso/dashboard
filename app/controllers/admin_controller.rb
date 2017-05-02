@@ -8,10 +8,11 @@ class AdminController < ApplicationController
     render 'admin/query'
   end
 
-  def send_query
+  def send_query_vehicles
     @result = RestClient.get "http://10.0.0.102/queries/vehicles.php"
     @result = JSON.parse @result.body
     @results = Array.new
+    @type = :vehicles
     @result.each do |row|
       row['manufacturer'].gsub!(/\w+/, &:capitalize)
       row['property'].gsub!(/\w+/, &:capitalize)
@@ -59,6 +60,52 @@ class AdminController < ApplicationController
       end
 
     end
+    render 'admin/query'
+  end
+
+  def send_query_people
+    @result = RestClient.get "http://10.0.0.102/queries/people.php"
+    @result = JSON.parse @result.body
+    @results = Array.new
+    @type = :people
+    @result.each do |row|
+      # @results << row
+      if row['company'] == 'A'
+        company = Company.find_by(name: 'Autotrasporti Chiarcosso s.r.l.')
+      end
+      if row['company'] == 'T'
+        company = Company.find_by(name: 'Trans Est s.r.l.')
+      end
+      if company.nil?
+        byebug
+      end
+      if (row["name"] == row["surname"])
+        names = row["name"].split
+        row['surname'] = ''
+        row['name'] = names[names.size-1]
+
+        (names.size-1).times do |index|
+          row['surname'] += names[index]
+          unless index == names.size-1
+            row["surname"] += ' '
+          end
+        end
+      end
+      person = Person.where(:name => row['name'], :surname => row['surname']).first
+      role = CompanyRelation.find_by(name: row['role'])
+      if role.nil?
+        role = CompanyRelation.create(name: row['role'])
+      end
+      if person.nil?
+        person = Person.create(name: row['name'], surname: row['surname'])
+      end
+      rel = CompanyPerson.where(person: person, company_relation: role, company: company).first
+      if rel.nil?
+        CompanyPerson.create(person: person, company_relation: role, company: company)
+      end
+      @results << person
+    end
+
     render 'admin/query'
   end
 

@@ -18,6 +18,7 @@ body{
 }
 
 .inline-input{
+  position: relative;
   clear: none;
   display: inline-block;
 }

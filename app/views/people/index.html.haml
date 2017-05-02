@@ -2,25 +2,21 @@
 %h3 Persone
 .container
   .row
-    .col-sm-1
+    .col-sm-3
       %b='Nome'
-    .col-sm-1
-      %b='Cognome'
     .col-sm-4
       %b='Ditte / Associazioni'
     -# .col-sm-2
     -#   %b='Ruoli'
-    .col-sm-4
+    .col-sm-3
       %b='Note'
     .col-sm-2
 
 .container.scrollable-panel
-  -Person.all.each do |p|
-    .row
-      .col-sm-1
-        =p.name
-      .col-sm-1
-        =p.surname
+  -Person.order_alpha.each do |p|
+    .row.hover-hilight
+      .col-sm-3
+        =p.list_name
       .col-sm-4
         -p.relations.each do |r|
           .row
@@ -32,11 +28,13 @@
       -#       .row
       -#         .col-sm-2
       -#           =r.company_relation.name
-      .col-sm-4
+      .col-sm-3
         =p.notes
       .col-sm-2
-        =button_to 'Modifica', edit_person_path(p.id), class: 'inline-input', method: :get
-        =button_to 'x', person_path(p.id), method: :delete, class: 'inline-input'
+        .inline-input
+          =button_to 'Modifica', edit_person_path(p.id), class: 'inline-input', method: :get
+        .inline-input
+          =button_to 'x', person_path(p.id), method: :delete, class: 'inline-input'
 
 .container
   =button_to 'Crea', new_person_path, class: 'form-control', method: :get

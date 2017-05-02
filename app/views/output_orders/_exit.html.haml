@@ -13,9 +13,11 @@
   .row
     .col-sm-4
       %b='Articolo'
-    .col-sm-4
-      %b='Seriale/matricola'
     .col-sm-3
+      %b='Seriale/matricola'
+    .col-sm-2
+      %b='Codice a barre'
+    .col-sm-2
       %b='Posizione'
     .col-sm-1
 .container.scrollable-panel
@@ -23,8 +25,12 @@
     .row
       .col-sm-4
         =i.article.complete_name
-      .col-sm-4
+      .col-sm-3
         =i.serial
+      .col-sm-2
+        = image_tag(i.actualBarcode.to_s+'.png',size: '140x30')
+        %br
+        = i.actualBarcode
       .col-sm-2
         =i.position_code.code
       .col-sm-1
