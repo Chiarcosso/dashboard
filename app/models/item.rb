@@ -1,11 +1,12 @@
 class Item < ApplicationRecord
   resourcify
   include CharsetUtility
-  # include BarcodeUtility
-  #
-  # require 'barby/outputter/cairo_outputter'
-  # # require 'barby/outputter/png_outputter'
-  # require 'barby/barcode/code_39'
+  include BarcodeUtility
+  require 'barby/outputter/cairo_outputter'
+  # require 'barby/outputter/png_outputter'
+  require 'barby/barcode/ean_13'
+  require 'barby/barcode/ean_8'
+  
   after_create :generateBarcode
 
   belongs_to :article
