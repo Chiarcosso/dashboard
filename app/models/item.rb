@@ -160,7 +160,19 @@ class Item < ApplicationRecord
     if self.article.barcode.nil? || self.article.barcode == '' || !self.serial.nil? || !self.serial != ''
       self.barcode = self.id.to_s(16).rjust(9,'0')
       self.save
+      self.setBarcodeImage
       # self.printLabel
+    end
+  end
+
+  def setBarcodeImage
+    unless self.barcode == ''
+      if barcode = checkBarcode(self.barcode)
+        @blob = Barby::CairoOutputter.new(barcode).to_png #Raw PNG data
+        File.write("public/images/#{self.barcode}.png", @blob)
+      else
+        self.barcode = 'Codice non valido'
+      end
     end
   end
 

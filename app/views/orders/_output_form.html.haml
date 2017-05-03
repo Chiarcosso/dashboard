@@ -2,7 +2,7 @@
   .container-fluid
     - @selected_items
     -# = form_tag(output_path(@destination), method: :get, remote: true, type: :script) do |f|
-    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': add_item_to_order_path
+    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch prevent-cr', 'data-target': add_item_to_order_path
   .container-fluid
     .row.item-block.tab-header
       .col-sm-4

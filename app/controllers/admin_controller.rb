@@ -76,9 +76,7 @@ class AdminController < ApplicationController
       if row['company'] == 'T'
         company = Company.find_by(name: 'Trans Est s.r.l.')
       end
-      if company.nil?
-        byebug
-      end
+      
       if (row["name"] == row["surname"])
         names = row["name"].split
         row['surname'] = ''
