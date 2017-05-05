@@ -160,9 +160,9 @@ function domInit() {
   $('.autosearch').on('keyup',function(e){
     var element = this;
     var form = $(this).parents('form').first();
-    window.clearTimeout(timer);
-    if((48 <= e.which && e.which <= 57) || (65 <= e.which && e.which <= 90) || (96 <= e.which && e.which <= 105) || (188 <= e.which && e.which <= 191) || (e.which == 220) || (e.which == 222) || (e.which == 13) || (e.which == 8) || (e.which == 46)) {
-      timer = window.setTimeout(function(){
+    // window.clearTimeout(timer);
+    if(/*(48 <= e.which && e.which <= 57) || (65 <= e.which && e.which <= 90) || (96 <= e.which && e.which <= 105) || (188 <= e.which && e.which <= 191) || (e.which == 220) || (e.which == 222) ||*/ (e.which == 13)/* || (e.which == 8) || (e.which == 46)*/) {
+      // timer = window.setTimeout(function(){
           form.append('<input type="hidden" id="no-commit" name="no-commit" value="no-commit">');
           // $(element).parent('form').submit();
 
@@ -174,7 +174,7 @@ function domInit() {
             url: route,
             data: valuesToSubmit
           });
-      },1000);
+      // },1000);
     }
   });
 

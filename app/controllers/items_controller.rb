@@ -21,6 +21,10 @@ class ItemsController < ApplicationController
     @item.printLabel
   end
 
+  def setImage
+    @item.setBarcodeImage
+  end
+
   def reposition
     @partial = 'items/reposition'
     @title = 'Riposizionamento'
@@ -32,7 +36,7 @@ class ItemsController < ApplicationController
   def storage_insert
     @items = Array.new
     tmp = Hash.new
-    Item.unpositioned.each do |un|
+    Item.unpositioned.unassigned.each do |un|
       d = un.expiringDate.nil?? 'noDate' : un.expiringDate.strftime('%Y%m%d')
       if tmp[un.article.id.to_s+'-'+un.serial+'-'+d].nil?
         un.setAmount 1

@@ -6,7 +6,11 @@ class ArticlesController < ApplicationController
   # GET /articles
   # GET /articles.json
   def index
-    @filteredArticles = Article.filter(search_params)
+    if search_params.nil? || search_params == ""
+      @filteredArticles = Array.new
+    else
+      @filteredArticles = Article.filter(search_params)
+    end
   end
 
   # GET /articles/1
@@ -56,7 +60,11 @@ class ArticlesController < ApplicationController
   end
 
   def incomplete
-    @filteredArticles = Article.filter(search_params)
+    if search_params.nil? || search_params == ""
+      @filteredArticles = Array.new
+    else
+      @filteredArticles = Article.filter(search_params)
+    end
     render :partial => 'articles/incomplete'
   end
 
@@ -129,6 +137,8 @@ class ArticlesController < ApplicationController
           @categories << c
           @categories.concat c.childrenTree(@selectedCategories.uniq)
         end
+        @filteredArticles = Article.filter(@article.manufacturer.name)
+        @search = @article.manufacturer.name
         if params["commit"] == "Salva"
           format.js { render :partial => 'articles/incomplete', notice: 'Articolo modificato.' }
         else

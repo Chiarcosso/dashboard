@@ -1,12 +1,14 @@
 class VehiclesController < ApplicationController
   before_action :set_vehicle, only: [:show, :edit, :update, :destroy]
-
+  before_action :search_params, only: [:index]
   autocomplete :vehicle, :plate, full: true
 
   # GET /vehicles
   # GET /vehicles.json
   def index
     @vehicles = Vehicle.order_by_plate.paginate(:page => params[:page], :per_page => 30)
+    # @vehicles = Vehicle.includes(Vehicle.find_by_plate(@search)).includes(Vehicle.find_by_chassis(@search)).includes(Vehicle.find_by_property(@search)).take(100).paginate(:page => params[:page], :per_page => 30)
+    # byebug
   end
 
   # GET /vehicles/1
@@ -85,6 +87,14 @@ class VehiclesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_vehicle
       @vehicle = Vehicle.find(params[:id])
+    end
+
+    def search_params
+      unless params[:search].nil? || params[:search] == ''
+        @search = params.require(:search)
+      else
+        @search = ''
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

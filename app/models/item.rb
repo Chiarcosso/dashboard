@@ -6,7 +6,7 @@ class Item < ApplicationRecord
   # require 'barby/outputter/png_outputter'
   require 'barby/barcode/ean_13'
   require 'barby/barcode/ean_8'
-  
+
   after_create :generateBarcode
 
   belongs_to :article
@@ -162,13 +162,13 @@ class Item < ApplicationRecord
       self.barcode = self.id.to_s(16).rjust(9,'0')
       self.save
       self.setBarcodeImage
-      # self.printLabel
+      self.printLabel
     end
   end
 
   def setBarcodeImage
-    unless self.barcode == ''
-      if barcode = checkBarcode(self.barcode)
+    unless self.actualBarcode == ''
+      if barcode = checkBarcode(self.actualBarcode)
         @blob = Barby::CairoOutputter.new(barcode).to_png #Raw PNG data
         File.write("public/images/#{self.barcode}.png", @blob)
       else
@@ -194,6 +194,7 @@ class Item < ApplicationRecord
   # end
 
   def printLabel
+    self.setBarcodeImage
     label = Zebra::Epl::Label.new(
       :width         => 385,
       :length        => 180,

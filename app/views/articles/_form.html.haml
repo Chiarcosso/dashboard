@@ -14,8 +14,8 @@
           = f.label "Codice a barre"
           = f.text_field :barcode, class: 'form-control', id: 'barcode-articles'
         .field
-          = f.label "Produttore"
-          = text_field_tag :manufacturer, (@article.manufacturer.nil?? Company.manufacturerChoice.name : @article.manufacturer.name), data: { autocomplete: autocomplete_company_name_articles_path }, class: 'form-control autofocus'
+          = f.label "Produttore"+@article.manufacturer.name
+          = text_field_tag :manufacturer, '', data: { autocomplete: autocomplete_company_name_articles_path, value: (@article.manufacturer.nil?? Company.manufacturerChoice.name : @article.manufacturer.name) }, class: 'form-control autofocus'
           -# = f.autocomplete_field :manufacturer, autocomplete_company_name_articles_path
           -# %div{'data-target': new_company_path, 'data-name': 'add_company', class: 'btn btn-primary popup-link'}
           -#   +
@@ -56,4 +56,5 @@
 :javascript
   init();
   activateAF();
+  $('#manufacturer').val($('#manufacturer').data('value'));
   //activateClose();

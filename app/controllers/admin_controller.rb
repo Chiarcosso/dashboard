@@ -25,11 +25,7 @@ class AdminController < ApplicationController
         p.information = platenumber
         p.save
       end
-      plates = VehicleInformation.where(information: row['plate'].upcase.gsub('. *','')).order(date: :asc)
-      plates.each do |p|
-        p.information = platenumber
-        p.save
-      end
+
 
 
       manufacturer = Company.find_by(name: row['manufacturer'])
@@ -53,7 +49,8 @@ class AdminController < ApplicationController
         vehicle = Vehicle.find(plate.vehicle.id)
       end
       if vehicle.nil?
-        vehicle = Vehicle.create(dismissed: (row['dismissed'] == '0'), mileage: row['mileage'], registration_date: Date.new(row['registrationDate'].to_i,1,1), property: property, model: model)
+        registration = row['registrationDate'].to_i < 1970 ? nil : Date.new(row['registrationDate'].to_i,1,1)
+        vehicle = Vehicle.create(dismissed: (row['dismissed'] == '0'), mileage: row['mileage'], registration_date: registration, property: property, model: model)
         plate = VehicleInformation.create(information_type: VehicleInformation.types['Targa'], information: row['plate'], date: Date.current, vehicle: vehicle)
         chassis = VehicleInformation.create(information_type: VehicleInformation.types['N. di telaio'], information: row['chassis'], date: Date.current, vehicle: vehicle)
         @results << vehicle
@@ -76,7 +73,7 @@ class AdminController < ApplicationController
       if row['company'] == 'T'
         company = Company.find_by(name: 'Trans Est s.r.l.')
       end
-      
+
       if (row["name"] == row["surname"])
         names = row["name"].split
         row['surname'] = ''
