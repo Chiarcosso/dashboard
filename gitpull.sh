@@ -1,7 +1,8 @@
 #! /bin/bash
-let $speedy = false
-if [[ "$1" == '-s']] then
-    let $speedy = true
+let $speedy = false;
+if [ -o '-s']
+  then
+    let $speedy = true;
 fi
 sudo service iptables stop
 sudo service nginx stop
