@@ -1,6 +1,6 @@
 #! /bin/bash
 let $speedy = false;
-if [ -o '-s']
+if [ -o '-s' ]
   then
     let $speedy = true;
 fi
