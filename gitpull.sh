@@ -1,8 +1,8 @@
 #! /bin/bash
-let $speedy = false;
+speedy=false;
 if [ -o '-s' ]
   then
-    let $speedy = true;
+    speedy=true;
 fi
 sudo service iptables stop
 sudo service nginx stop
