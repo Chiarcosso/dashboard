@@ -99,7 +99,7 @@ class OrdersController < ApplicationController
         @checked_items << @newItem
       end
     end
-    
+
     unless @search == ''
       @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
     else
@@ -275,7 +275,7 @@ class OrdersController < ApplicationController
 
     def autocomplete_params
       # vi = VehicleInformation.where(id: params[:vehicle_id].to_i)
-      @vehicle = Vehicle.find_by_plate(params[:vehicle]).first
+      @vehicle = Vehicle.find_by_plate(params[:vehicle].to_s).first
       if @vehicle.nil?
         @vehicle = Vehicle.new
       end
