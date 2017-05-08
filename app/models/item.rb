@@ -162,7 +162,7 @@ class Item < ApplicationRecord
       self.barcode = self.id.to_s(16).rjust(9,'0')
       self.save
       self.setBarcodeImage
-      self.printLabel
+      # self.printLabel
     end
   end
 
