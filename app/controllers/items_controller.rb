@@ -7,8 +7,11 @@ class ItemsController < ApplicationController
   # GET /items
   # GET /items.json
   def index
-    @search = search_params.nil?? '' : search_params
-    @selected_items = Item.filter(search_params).distinct.limited
+    if search_params.nil? or search_params == ''
+      @selected_items = Array.new
+    else
+      @selected_items = Item.filter(search_params).distinct.limited
+    end
     render :partial => 'items/index'
   end
 
@@ -152,9 +155,7 @@ class ItemsController < ApplicationController
           if item.barcode.nil? || item.serial.size > 0
             item.generateBarcode
           end
-          if item.article.barcode.nil? || item.article.barcode == ''
-            i.barcode = item.barcode
-          end
+        
         end
       end
       @registeredItems = @items
@@ -324,7 +325,7 @@ class ItemsController < ApplicationController
 
     def search_params
       unless params[:search].nil? || params[:search] == ''
-        params.require(:search)
+        @search = params.require(:search)
       end
     end
 

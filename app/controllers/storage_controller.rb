@@ -21,7 +21,7 @@ class StorageController < ApplicationController
   end
 
   def management
-    @filteredArticles = Article.filter('')
+    @filteredArticles = Array.new
     @partial = 'storage/manage'
     render 'storage/index'
   end
