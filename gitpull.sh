@@ -1,6 +1,7 @@
 #! /bin/bash
+echo $-
 speedy=false;
-if [ -o '-s' ]
+if [ $- == '-s' ]
   then
     speedy=true;
 fi

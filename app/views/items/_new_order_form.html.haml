@@ -102,10 +102,10 @@
                     -#   = hidden_field_tag 'store[items_to_store]', si
                     .row-fluid
                       .col-sm-10
-                        %b= i.article.complete_name
-                        %div= i.price
+                        %b= i.article.complete_name + (i.serial.size == 0 ? '' : '  ('+i.serial+')')
+                        %div= i.complete_price
                         %div= i.amount
-                        %div= i.actualItems
+                        -# %div= i.actualItems
                         %div= i.actualBarcode
                       .col-sm-2
                         = text_field_tag 'store[position_code]', i.position_code.code, placeholder: 'Posizione', class: 'form-control position_code'

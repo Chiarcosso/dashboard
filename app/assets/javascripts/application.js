@@ -33,6 +33,20 @@ function activateClose(){
   });
 };
 
+function activateFinder(){
+  $('.finder').off();
+  $('.finder').on('keyup',function(e){
+    var target = $(this).data('target')+$(this).val();
+    e.preventDefault();
+    if (e.which == 13){
+      $.ajax({
+        url: target,
+        method: 'post'
+      });
+    }
+  });
+}
+
 function activateDelete(){
   $('.delete').off('click');
   $('.delete').on('click',function(e){
@@ -40,7 +54,6 @@ function activateDelete(){
     var object = $(this).data('object');
     var target = $(this).data('target');
     var id = $(this).data('id');
-    alert(object,target,id);
     if(confirm('Conferma eliminazione '+object+' nr. '+id)){
       $.ajax({
         url: target,
@@ -76,6 +89,7 @@ function preventCr(){
   $('.prevent-cr').on('keypress', function(e){
     if(e.which == 13){
       e.preventDefault();
+      e.stopPropagation();
     }
   })
 };
@@ -117,9 +131,8 @@ function domInit() {
   activateClose();
   activateAF();
   activateDelete();
-
   $('.popup form').submit(function(){
-    specificSubmitFunctions();;
+    specificSubmitFunctions();
       reloadSelectBoxes();
       $(this).parents('.popup').children('.close:first').trigger('click');
   });

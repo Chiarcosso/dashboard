@@ -5,6 +5,7 @@ class OrdersController < ApplicationController
   before_action :set_article_for_order, only: [:add_item_to_new_order]
   before_action :set_items_for_order, only: [:add_item_to_new_order]
   before_action :output_params, only: [:add_item, :output]
+  before_action :worksheet_params, only: [:edit_output]
   before_action :exit_params, only: [:exit_order,:confirm_order,:destroy_output_order, :print_pdf, :print_pdf_module]
 
   autocomplete :vehicle_information, :information, full: true, :id_element => '#vehicle_id'
@@ -17,6 +18,51 @@ class OrdersController < ApplicationController
     end
   end
 
+  def edit_output
+    @search = search_params.nil?? '' : search_params
+    if @order.nil?
+      @checked_items = Array.new
+    else
+      @checked_items = @order.items
+    end
+    # unless @newItem.nil?
+    #   already_in = false
+    #   @checked_items.each do |ci|
+    #     if ci ==  @newItem
+    #       already_in = true
+    #     end
+    #   end
+    #   if already_in
+    #     @checked_items -= [@newItem]
+    #   else
+    #     @checked_items << @newItem
+    #   end
+    # end
+
+    unless @search == ''
+      @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
+    else
+      @selected_items = Array.new
+    end
+    # render :partial => 'items/index'
+    # @selected_items -= @checked_items
+    # if @save
+    #   order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination)
+    #   @checked_items.each do |ci|
+    #     order.items << ci
+    #   end
+    #   # redirect_to storage_output_path
+    # end
+    respond_to do |format|
+      # if @save
+      #   @partial = 'storage/output_initial'
+      #   format.js { render :js, :partial => 'storage/output_initial_js' }
+      #   # format.js { render :js 'storage/index' }
+      # else
+        format.js { render :js, :partial => 'orders/output' }
+      # end
+    end
+  end
   # GET /orders/1
   # GET /orders/1.json
   def show
@@ -108,9 +154,13 @@ class OrdersController < ApplicationController
     # render :partial => 'items/index'
     # @selected_items -= @checked_items
     if @save
-      order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination)
+      get_order
+      if @order.nil?
+        @order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination)
+      end
+      @order.output_order_items.clear
       @checked_items.each do |ci|
-        order.items << ci
+        @order.items << ci
       end
       # redirect_to storage_output_path
     end
@@ -225,7 +275,7 @@ class OrdersController < ApplicationController
     if @save
       @items.each do |i|
         # i.transportDocument = @transportDocument
-        OrderArticle.create!({order: @order, article: i.article, amount: i.amount})
+        OrderArticle.create({order: @order, article: i.article, amount: i.amount})
         i.amount.times do
           item = Item.create!(i.attributes)
           @transportDocument.items << item
@@ -426,6 +476,24 @@ class OrdersController < ApplicationController
         itms.reverse
       else
         Array.new
+      end
+    end
+
+    def worksheet_params
+      unless params[:code].nil? or params[:code] == ''
+        @recipient = Worksheet.findByCode(params.require(:code))
+        @destination = 'Worksheet'
+        @order = OutputOrder.findByRecipient(@recipient).last
+      end
+      byebug
+    end
+
+    def get_order
+      case params[:destination]
+      when 'Worksheet'
+        worksheet_params
+      else
+        nil
       end
     end
 

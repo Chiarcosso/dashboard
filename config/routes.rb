@@ -70,6 +70,7 @@ Rails.application.routes.draw do
   post   '/items_new_order', to: 'orders#add_item_to_new_order', as: :add_item_to_new_order
 
   get    '/output/:destination', to: 'orders#output', as: :output
+  post   '/output/ws/:code', to: 'orders#edit_output', as: :edit_output
   get    '/output/', to: 'orders#index', as: :output_orders
   post   '/output/add_item', to: 'orders#add_item', as: :add_item_to_order
   get    '/output_order/exit/:id', to: 'orders#exit_order', as: :output_order_exit

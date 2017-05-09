@@ -19,6 +19,22 @@ class PositionCode < ApplicationRecord
     end
   end
 
+  def self.getQueryFromCode code
+    begin
+      tokens = code.split(' ')
+      floor = tokens[0][1..-1].to_i
+      row = rows[tokens[1][0..0]]
+      sector = tokens[1][1..-1].to_i
+      tok = tokens[2].split('-')
+      level = tok[0].to_i
+      section = sections[tok[1]]
+      # PositionCode.where(:floor => floor, :row => row, :level => level, :sector => sector, :section => section).first
+      "position_codes.floor = #{floor} AND position_codes.row = #{row} AND position_codes.level = #{level} AND position_codes.sector = #{sector} AND position_codes.section = #{section}"
+    rescue
+      'NULL'
+    end
+  end
+
   def code
     'P'+self.floor.to_s+' '+self.row+self.sector.to_s+' '+self.level.to_s+'-'+self.section.to_s
   end

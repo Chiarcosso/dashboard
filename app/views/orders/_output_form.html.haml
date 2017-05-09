@@ -1,4 +1,4 @@
-= form_tag(add_item_to_order_path, method: :post, remote: true, type: :script) do |f|
+= form_tag(add_item_to_order_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
   .container-fluid
     - @selected_items
     -# = form_tag(output_path(@destination), method: :get, remote: true, type: :script) do |f|
@@ -40,20 +40,21 @@
       - case @destination.to_sym
         - when :Person
           .col-sm-12
-            = select_tag :recipient, options_from_collection_for_select(Person.order_alpha, "id", "list_name", @recipient), class: 'form-control'
+            = select_tag :recipient, options_from_collection_for_select(Person.order_alpha, "id", "list_name", @recipient.id), class: 'form-control'
         - when :Office
           .col-sm-12
-            = select_tag :recipient, options_from_collection_for_select(Office.all, "id", "name", @recipient), class: 'form-control'
+            = select_tag :recipient, options_from_collection_for_select(Office.all, "id", "name", @recipient.id), class: 'form-control'
         - when :Vehicle
           .col-sm-12
-            = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "complete_name", @recipient), class: 'form-control'
+            = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "complete_name", @recipient.id), class: 'form-control'
         - when :Worksheet
           .col-sm-4
-            = text_field_tag :recipient, @recipient.nil? ? nil : @recipient.code, placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control'
+            = text_field_tag :recipient, @recipient.nil? ? nil : @recipient.code, placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control finder', data: { target: '/output/ws/' }
+            = hidden_field_tag :worksheet_id, @recipient.id, id: 'worksheet_id'
           .col-sm-8
             -# = select_tag :vehicle, options_from_collection_for_select(Vehicle.order_by_plate, "id", "plate", @recipient.nil? ? nil : @recipient.vehicle), class: 'form-control'
             = hidden_field_tag :vehicle_id, @recipient.vehicle.id, id: 'vehicle_id'
-            = text_field_tag :vehicle, @recipient.vehicle.plate, data: { autocomplete:  autocomplete_vehicle_information_information_orders_path }, class: 'form-control autofocus'
+            = text_field_tag :vehicle, @recipient.vehicle.plate, data: { autocomplete:  autocomplete_vehicle_information_information_orders_path }, class: 'form-control autofocus', id: 'vehicle'
   %br
   .container-fluid.scrollable-panel.half
     - @checked_items.reverse.each do |item|
@@ -62,7 +63,7 @@
           = hidden_field_tag 'items[][id]', item.id
           = item.article.complete_name.to_s
         .col-sm-1
-          = item.id
+          = item.actualBarcode
         .col-sm-3
           = item.serial
         .col-sm-1
@@ -72,8 +73,10 @@
 
 
   .container-fluid
-    = submit_tag 'Conferma'
+    = submit_tag 'Conferma', class:'prevent-cr'
 :javascript
 
   domInit();
   preventCr();
+  activateFinder();
+  $('#vehicle').val($('#vehicle').data('value'));

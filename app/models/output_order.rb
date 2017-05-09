@@ -11,9 +11,13 @@ class OutputOrder < ApplicationRecord
   def total
     total = 0
     self.items.each do |i|
-      total += i.cost
+      total += i.actualPrice
     end
     total
+  end
+
+  def self.findByRecipient(recipient)
+    OutputOrder.where(destination_type: recipient.class.to_s).where(destination: recipient)
   end
 
   def processed?
@@ -87,7 +91,7 @@ class OutputOrder < ApplicationRecord
 
     table = [['Articolo','Seriale/matricola','Posizione','Costo']]
     self.items.each do |i|
-      table << ["#{i.article.complete_name}","#{i.serial}","#{i.position_code.code}","#{i.price} €"]
+      table << ["#{i.article.complete_name}","#{i.serial}","#{i.position_code.code}","#{i.complete_price}"]
     end
     table << ["Totale","","","#{self.total} €"]
 

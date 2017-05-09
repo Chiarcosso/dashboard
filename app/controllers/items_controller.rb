@@ -4,6 +4,7 @@ class ItemsController < ApplicationController
   before_action :set_items_for_order, only: [:add_item_to_storage]
   before_action :set_vehicle_for_order, only: [:add_item_to_storage]
   before_action :get_reposition_items, only: [:reposition]
+  before_action :search_params, only: [:destroy]
   # GET /items
   # GET /items.json
   def index
@@ -132,6 +133,7 @@ class ItemsController < ApplicationController
         # OrderArticle.create({order: @order, article: i.article, amount: i.amount})
         i.setActualItems
         i.amount.times do
+
           item = Item.new(i.attributes)
           item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
 
@@ -155,7 +157,7 @@ class ItemsController < ApplicationController
           if item.barcode.nil? || item.serial.size > 0
             item.generateBarcode
           end
-        
+
         end
       end
       @registeredItems = @items
@@ -228,10 +230,11 @@ class ItemsController < ApplicationController
     end
     respond_to do |format|
       if @item.destroy
-        @selected_items = Item.filter(search_params).distinct.limited
+        @selected_items = Item.filter(@search).distinct.limited
+        byebug
         format.js { render :partial => 'items/index', notice: 'Pezzo eliminato.' }
       else
-        @selected_items = Item.filter(search_params).distinct.limited
+        @selected_items = Item.filter(@search).distinct.limited
         format.js { render :partial => 'items/index', notice: 'Impossibile eliminare il pezzo.' }
       end
     end
@@ -327,6 +330,7 @@ class ItemsController < ApplicationController
       unless params[:search].nil? || params[:search] == ''
         @search = params.require(:search)
       end
+      @search
     end
 
 end

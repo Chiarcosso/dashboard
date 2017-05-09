@@ -22,7 +22,7 @@ class Item < ApplicationRecord
   scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL") }
   scope :limited, -> { limit(100) }
   scope :article, ->(article) { where(:article => article) }
-  scope :filter, ->(search) { joins(:article).joins(:article => :manufacturer).where("items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%'")}
+  scope :filter, ->(search) { joins(:position_code).joins(:article).joins(:article => :manufacturer).where("items.serial LIKE '%#{search}%' OR items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR (#{PositionCode.getQueryFromCode(search)})")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
   scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 #0 0-@')) }
@@ -39,6 +39,17 @@ class Item < ApplicationRecord
   # def self.available_items
   #   Item.all.map { |i| i.available? }
   # end
+  def actualPrice
+    self.price * ((100 + self.discount.to_i) / 100)
+  end
+
+  def complete_price
+    price = self.actualPrice.to_s+' €'
+    if (self.discount.to_i > 0)
+       price += ' ('+self.price+' -'+self.discount+'%'+')'
+    end
+    price
+  end
 
   def complete_name
     self.article.complete_name
@@ -48,9 +59,7 @@ class Item < ApplicationRecord
     self.actualBarcode+' - '+self.article.complete_name
   end
 
-  def cost
-    self.price - (self.price / 100) * self.discount
-  end
+
 
   def self.firstBarcode(barcode)
     Item.barcode(barcode)
@@ -158,7 +167,11 @@ class Item < ApplicationRecord
 
   def generateBarcode
     # unless self.serial.nil? || self.serial == ''
-    if self.article.barcode.nil? || self.article.barcode == '' || !self.serial.nil? || !self.serial != ''
+    if self.id.nil?
+      self.save
+    end
+    if self.barcode.nil? && (self.article.barcode.nil? || self.article.barcode == '' || !self.serial.nil? || !self.serial != '')
+
       self.barcode = self.id.to_s(16).rjust(9,'0')
       self.save
       self.setBarcodeImage
@@ -178,7 +191,10 @@ class Item < ApplicationRecord
   end
 
   def actualBarcode
-    if self.barcode.nil? || (!self.serial.nil? && self.serial.size == 0)
+    if self.barcode.nil?
+      self.generateBarcode
+    end
+    if (self.barcode.nil? || (!self.serial.nil? && self.serial.size == 0) && self.article.barcode.size > 0)
       self.article.barcode
     else
       self.barcode
@@ -194,7 +210,9 @@ class Item < ApplicationRecord
   # end
 
   def printLabel
-    self.setBarcodeImage
+    if self.actualBarcode.nil? or self.actualBarcode == ''
+      self.generateBarcode
+    end
     label = Zebra::Epl::Label.new(
       :width         => 385,
       :length        => 180,
