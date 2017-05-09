@@ -5,6 +5,8 @@ class ItemsController < ApplicationController
   before_action :set_vehicle_for_order, only: [:add_item_to_storage]
   before_action :get_reposition_items, only: [:reposition]
   before_action :search_params, only: [:destroy]
+
+  autocomplete :article, :manufacturerCode, full: true, :id_element => '#article_id'
   # GET /items
   # GET /items.json
   def index
@@ -187,6 +189,11 @@ class ItemsController < ApplicationController
 
   # GET /items/1/edit
   def edit
+    @search = search_params
+    respond_to do |format|
+      # format.js { render :js, :partial => 'items/edit'}
+      format.js { render :js, :partial => 'items/form'}
+    end
   end
 
 
@@ -209,9 +216,13 @@ class ItemsController < ApplicationController
   # PATCH/PUT /items/1
   # PATCH/PUT /items/1.json
   def update
+    @selected_items = Item.filter(search_params).distinct.limited
+    # render :partial => 'items/index'
+    byebug
     respond_to do |format|
       if @item.update(item_params)
-        format.html { redirect_to @item, notice: 'Item was successfully updated.' }
+        # format.html { redirect_to @item, notice: 'Item was successfully updated.' }
+        format.js { render :partial => 'items/index', notice: 'Pezzo aggiornato.' }
         format.json { render :show, status: :ok, location: @item }
       else
         format.html { render :edit }
@@ -228,10 +239,10 @@ class ItemsController < ApplicationController
         ir.delete
       end
     end
+    @search = search_params
     respond_to do |format|
       if @item.destroy
         @selected_items = Item.filter(@search).distinct.limited
-        byebug
         format.js { render :partial => 'items/index', notice: 'Pezzo eliminato.' }
       else
         @selected_items = Item.filter(@search).distinct.limited
@@ -248,7 +259,10 @@ class ItemsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def item_params
-      params.require(:item).permit(:article_id, :purchaseDate, :price, :price, :discount, :discount, :serial, :state, :notes, :expiringDate, :transportDocument_id)
+      p = params.require(:item).permit(:article, :article_id, :purchaseDate, :price, :price, :discount, :discount, :serial, :state, :notes, :expiringDate, :transportDocument_id)
+      p[:article] = Article.where(manufacturerCode: p[:article]).last
+      
+      p
     end
 
     def store_params

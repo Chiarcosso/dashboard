@@ -1,43 +1,42 @@
-= form_for @item do |f|
+%h3= 'Modifica pezzo'
+%br
+%br
+= form_for(@item, format: :js, remote: true) do |f|
   - if @item.errors.any?
     #error_explanation
       %h2= "#{pluralize(@item.errors.count, "error")} prohibited this item from being saved:"
       %ul
         - @item.errors.full_messages.each do |msg|
           %li= msg
-
+  = hidden_field_tag :search, @search
   .field
-    = f.label :article
-    = f.text_field :article
+    = f.label 'Articolo'
+    = text_field_tag 'item[article]', @item.article.complete_name, data: { autocomplete:  autocomplete_article_manufacturerCode_items_path }, class: 'form-control autofocus', id: 'article_id'
+  -# .field
+  -#   = f.label 'Data di acquisto'
+  -#   = f.text :purchaseDate, (l @item.purchaseDate)
   .field
-    = f.label :purchaseDate
-    = f.date_select :purchaseDate
-  .field
-    = f.label :price
+    = f.label 'Prezzo'
     = f.text_field :price
   .field
-    = f.label :price
-    = f.text_field :price
-  .field
-    = f.label :discount
+    = f.label 'Sconto (%)'
     = f.text_field :discount
   .field
-    = f.label :discount
-    = f.text_field :discount
-  .field
-    = f.label :serial
+    = f.label 'Seriale / Matricola'
     = f.text_field :serial
   .field
-    = f.label :state
-    = f.text_field :state
+    = f.label 'Stato'
+    -# = f.select :state, Item.states
+    = f.select :state, :collection => Item.states.keys.to_a
   .field
-    = f.label :notes
+    = f.label 'Note'
     = f.text_area :notes
   .field
-    = f.label :expiringDate
-    = f.date_select :expiringDate
-  .field
-    = f.label :transportDocument
-    = f.text_field :transportDocument
+    = f.label 'Data scadenza'
+    = f.text_field :expiringDate, value: @item.expiringDate.nil? ? (l Date.current) : (l @item.expiringDate)
+  -# .field
+  -#   = f.label 'DDT nr.'
+  -#   = f.text_field :transportDocument
+
   .actions
     = f.submit 'Save'

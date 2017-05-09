@@ -5,7 +5,9 @@ Rails.application.routes.draw do
   resources :vehicles
   resources :vehicle_models
   resources :offices
-  resources :items
+  resources :items do
+    get :autocomplete_article_manufacturerCode, :on => :collection
+  end
   resources :transport_documents
   resources :companies
   resources :article_categories
@@ -60,6 +62,7 @@ Rails.application.routes.draw do
   post   '/article/categories/', to: 'articles#list_categories', as: :list_article_categories
 
   get    '/items_from_order/:order', to: 'items#from_order', as: :items_from_order
+  get    '/items/edit/:id/:search', to: 'items#edit', as: :p_edit_item
 
   post   '/items_reposition', to: 'items#reposition', as: :items_reposition
   post   '/items/store', to: 'items#store', as: :store_item

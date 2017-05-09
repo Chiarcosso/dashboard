@@ -1,4 +1,7 @@
 .container-fluid
+  = 'Totale: '+Item.count.to_s+' oggetti'
+  %br
+  %br
   = form_tag(items_path, method: :get, remote: true, type: :script) do |f|
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path
 .container-fluid
@@ -22,7 +25,7 @@
 
 .container-fluid.scrollable-panel
   - @selected_items.each do |item|
-    .row
+    .row.hover-hilight.popup-link{'data-target': p_edit_item_path(id: item.id, search: @search), 'data-name': 'edit-item'}
       .col-sm-1
         = button_to "x", "/items/#{item.id}", :method => :delete, :remote => true
       .col-sm-2
