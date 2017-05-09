@@ -485,7 +485,6 @@ class OrdersController < ApplicationController
         @destination = 'Worksheet'
         @order = OutputOrder.findByRecipient(@recipient).last
       end
-      byebug
     end
 
     def get_order

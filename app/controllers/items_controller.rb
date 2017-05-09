@@ -218,7 +218,6 @@ class ItemsController < ApplicationController
   def update
     @selected_items = Item.filter(search_params).distinct.limited
     # render :partial => 'items/index'
-    byebug
     respond_to do |format|
       if @item.update(item_params)
         # format.html { redirect_to @item, notice: 'Item was successfully updated.' }
@@ -261,7 +260,7 @@ class ItemsController < ApplicationController
     def item_params
       p = params.require(:item).permit(:article, :article_id, :purchaseDate, :price, :price, :discount, :discount, :serial, :state, :notes, :expiringDate, :transportDocument_id)
       p[:article] = Article.where(manufacturerCode: p[:article]).last
-      
+
       p
     end
 
