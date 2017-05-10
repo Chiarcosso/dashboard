@@ -63,7 +63,7 @@ Rails.application.routes.draw do
 
   get    '/items_from_order/:order', to: 'items#from_order', as: :items_from_order
   get    '/items/edit/:id/:search', to: 'items#edit', as: :p_edit_item
-
+  delete '/items/:id/:search',to: 'items#destroy', as: :p_delete_item
   post   '/items_reposition', to: 'items#reposition', as: :items_reposition
   post   '/items/store', to: 'items#store', as: :store_item
   get    '/items_storage_insert', to: 'items#storage_insert', as: :items_storage_insert

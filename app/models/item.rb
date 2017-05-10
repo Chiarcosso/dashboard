@@ -40,7 +40,7 @@ class Item < ApplicationRecord
   #   Item.all.map { |i| i.available? }
   # end
   def actualPrice
-    self.price * ((100 + self.discount.to_i) / 100)
+    self.price.to_f * ((100 - self.discount.to_f) / 100)
   end
 
   def complete_price
@@ -192,7 +192,7 @@ class Item < ApplicationRecord
 
   def actualBarcode
     if self.barcode.nil?
-      self.generateBarcode
+      # self.generateBarcode
     end
     if (self.barcode.nil? || (!self.serial.nil? && self.serial.size == 0) && self.article.barcode.size > 0)
       self.article.barcode

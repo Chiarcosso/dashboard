@@ -102,7 +102,7 @@
                     -#   = hidden_field_tag 'store[items_to_store]', si
                     .row-fluid
                       .col-sm-10
-                        %b= i.article.complete_name + (i.serial.size == 0 ? '' : '  ('+i.serial+')')
+                        %b= i.article.complete_name + (i.serial.to_s.size == 0 ? '' : '  ('+i.serial+')')
                         %div= i.complete_price
                         %div= i.amount
                         -# %div= i.actualItems
@@ -121,5 +121,8 @@
     setValue: ($(this).data('no-default')=='true'?'':today())
   });
 
+  $('form').submit(function(e){
+    alert();
+  })
   //alert($('[data-behaviour~=datepicker]').data('behavior'));
   //$('[data-behaviour=datepicker]').datepicker();

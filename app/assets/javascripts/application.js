@@ -140,7 +140,6 @@ function domInit() {
   $('.on-top').off('click');
   $('.on-top').on('click',function(e){
     e.stopPropagation();
-      console.log(e);
   });
 
   $('.hover-hilight').off('click');
@@ -218,8 +217,6 @@ function domInit() {
 
   $('.popup-link').off('click');
   $('.popup-link').on('click', function(e){
-
-      console.log(e);
     var target = $(this).data('target');
     var name = $(this).data('name');
     $.ajax({

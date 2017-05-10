@@ -13,7 +13,7 @@ class ItemsController < ApplicationController
     if search_params.nil? or search_params == ''
       @selected_items = Array.new
     else
-      @selected_items = Item.filter(search_params).distinct.limited
+      @selected_items = Item.filter(search_params).unassigned.distinct.limited
     end
     render :partial => 'items/index'
   end
@@ -44,11 +44,11 @@ class ItemsController < ApplicationController
     tmp = Hash.new
     Item.unpositioned.unassigned.each do |un|
       d = un.expiringDate.nil?? 'noDate' : un.expiringDate.strftime('%Y%m%d')
-      if tmp[un.article.id.to_s+'-'+un.serial+'-'+d].nil?
+      if tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d].nil?
         un.setAmount 1
-        tmp[un.article.id.to_s+'-'+un.serial+'-'+d] = un
+        tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d] = un
       else
-        tmp[un.article.id.to_s+'-'+un.serial+'-'+d].setAmount tmp[un.article.id.to_s+'-'+un.serial+'-'+d].amount+1
+        tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d].setAmount tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d].amount+1
       end
     end
     tmp.each do |k,u|
@@ -113,21 +113,22 @@ class ItemsController < ApplicationController
       item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
       @items << item
     end
-
     # if params[:barcode] != ''
     if @vehicle.id.nil?
       partial = 'items/new_order'
     else
       partial = 'items/vehicle_order'
     end
-    unless @article.nil? || @save
+    # unless @article.nil? || @save ||
+
+    if @addItem
       item = Item.new
       item.article = @article
       item.setAmount 1
       item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
+      item.position_code = PositionCode.findByCode('P0 #0 0-@')
       @items << item
     end
-
     if @save
       unpositionedItems = Item.unpositioned.to_a
       @items.each do |i|
@@ -135,28 +136,30 @@ class ItemsController < ApplicationController
         # OrderArticle.create({order: @order, article: i.article, amount: i.amount})
         i.setActualItems
         i.amount.times do
-
           item = Item.new(i.attributes)
           item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
 
           unpositionedItems.each do |unpItem|
             if unpItem.article == item.article && unpItem.price == item.price && unpItem.discount == item.discount && unpItem.serial == item.serial && unpItem.state == item.state && unpItem.expiringDate == item.expiringDate
               item = unpItem
+              unpositionedItems -= [unpItem]
               break
             end
           end
+
           if item.id.nil?
             item = Item.create(i.attributes)
-          else
-            unpositionedItems -= [item]
+            item.item_relations << ItemRelation.create(:since => Time.now)
+          # else
+          #   unpositionedItems -= [item]
           end
           i.addActualItems item.id
           unless @vehicle.id.nil?
 
           end
-          item.save
-          item.item_relations << ItemRelation.create(:since => Time.now)
-          if item.barcode.nil? || item.serial.size > 0
+          # item.save
+
+          if item.barcode.nil? || (!item.serial.nil? && item.serial.size > 0)
             item.generateBarcode
           end
 
@@ -167,15 +170,18 @@ class ItemsController < ApplicationController
       @newItems = Array.new
       @save = false
 
-      respond_to do |format|
-        format.js { render :js, :partial => partial }
-      end
+      # respond_to do |format|
+      #   format.js { render :js, :partial => partial }
+      # end
     else
-      respond_to do |format|
-        format.js { render :js, :partial => partial }
-      end
+      # respond_to do |format|
+      #   format.js { render :js, :partial => partial }
+      # end
     end
-
+    # respond_to do |format|
+      # format.js { render :js, :partial => partial }
+    # end
+    render :js, :partial => partial
   end
 
   def from_order
@@ -239,12 +245,11 @@ class ItemsController < ApplicationController
       end
     end
     @search = search_params
+    @selected_items = Item.filter(@search).unassigned.distinct.limited
     respond_to do |format|
       if @item.destroy
-        @selected_items = Item.filter(@search).distinct.limited
         format.js { render :partial => 'items/index', notice: 'Pezzo eliminato.' }
       else
-        @selected_items = Item.filter(@search).distinct.limited
         format.js { render :partial => 'items/index', notice: 'Impossibile eliminare il pezzo.' }
       end
     end
@@ -274,11 +279,13 @@ class ItemsController < ApplicationController
         @articles = Array.new
         @articles << @article
         @newArticle = false
-      elsif Article.where(barcode: params[:barcode]).count > 0
+        @addItem = true
+      elsif params[:barcode].to_s != '' && Article.where(barcode: params[:barcode]).count > 0
         @articles = Article.where(barcode: params[:barcode])
         @article = @articles.first
         @newArticle = false
-      elsif !@save
+        @addItem = true
+      elsif params['commit'] != 'Conferma'
         @newArticle = true
         @article = Article.new({:barcode => params[:barcode]})
         @articles = Array.new

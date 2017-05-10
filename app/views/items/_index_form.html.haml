@@ -3,7 +3,7 @@
   %br
   %br
   = form_tag(items_path, method: :get, remote: true, type: :script) do |f|
-    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path
+    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path, id: 'search'
 .container-fluid
   .row.item-block.tab-header
     .col-sm-1
@@ -27,7 +27,7 @@
   - @selected_items.each do |item|
     .row.hover-hilight.popup-link{'data-target': p_edit_item_path(id: item.id, search: @search), 'data-name': 'edit-item'}
       .col-sm-1
-        = button_to "x", "/items/#{item.id}", :method => :delete, :remote => true
+        = button_to "x", "/items/#{item.id}/#{@search}", :method => :delete, :remote => true, class: 'on-top getsearch'
       .col-sm-2
         = item.id.to_s+' - '+item.article.complete_name.to_s
       .col-sm-1
