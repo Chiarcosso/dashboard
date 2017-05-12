@@ -191,10 +191,8 @@ class Item < ApplicationRecord
   end
 
   def actualBarcode
-    if self.barcode.nil?
-      # self.generateBarcode
-    end
-    if (self.barcode.nil? || (!self.serial.nil? && self.serial.size == 0) && self.article.barcode.size > 0)
+
+    if self.serial.to_s.size == 0
       self.article.barcode
     else
       self.barcode

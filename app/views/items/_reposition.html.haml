@@ -1,14 +1,60 @@
-= form_tag(items_reposition_path, method: :post, remote: true, type: :script) do |f|
-  = text_field_tag :search, @search, placeholder: 'Codice a barre..', class: 'form-control autofocus', 'data-target': items_reposition_path
+= form_tag(items_reposition_path, method: :post, id: 'reposForm', remote: true, type: :script) do |f|
+  .container
+    .row
+      .col-sm-4
+        = text_field_tag :search, @search, placeholder: 'Codice a barre..', class: 'form-control autofocus prevent-cr', id: 'first', 'data-target': items_reposition_path
+      .col-sm-4
+        = text_field_tag :amount, @amount, placeholder: 'Numero..', class: 'form-control autofocus prevent-cr', id: 'second', 'data-target': items_reposition_path
+      .col-sm-4
+        = text_field_tag :position, @position, placeholder: 'Posizione..', class: 'form-control autofocus', id: 'third', 'data-target': items_reposition_path
 
-  .container.scrollable-panel
+  .container.scrollable-panel#itm-cont
     - @locals[:items].each do |i|
       .row
         .col-sm-6
           = hidden_field_tag 'items[]', i.id
           = i.complete_name
-        .col-sm-6
+        .col-sm-2
           = i.position_code.code
+        .col-sm-4
+          -# = i.position_code.code
+
+    -# = buton_to :commit, 'Conferma'
 
 :javascript
   activateAF();
+
+  $('#first').off('keypress');
+  $('#first').on('keypress',function(e){
+    var barcode = $(this).val();
+    if (e.which == 13) {
+      e.stopPropagation();
+      e.preventDefault();
+      $.ajax({
+        url: '/items/find/'+barcode,
+        method: 'get',
+        format: 'json',
+        complete: function(data){
+          console.log(data.responseJSON);
+          $.each(data.responseJSON,function(itm){
+            $('#itm-cont').append("<div class=\"row\"><div class=\"col-sm-6\"></div></div>")
+          })
+          $('#second').focus();
+        }
+      });
+    }
+  });
+  $('#second').off('keypress');
+  $('#second').on('keypress',function(e){
+    if (e.which == 13) {
+      e.stopPropagation();
+      e.preventDefault();
+      $('#third').focus();
+    }
+  });
+  $('#third').off('keypress');
+  $('#third').on('keypress',function(e){
+    if (e.which == 13) {
+      $('#reposForm').submit();
+    }
+  });

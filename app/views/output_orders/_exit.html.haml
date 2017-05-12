@@ -50,8 +50,8 @@
     if(e.which == 13){
       var barcode = $('#check_item_').val();
       $('input[data-barcode='+barcode+']').each(function(){
+        console.log(this.id,this.checked,barcode);
         if(!this.checked){
-          console.log(this.id,this.checked);
           $(this).attr('checked','checked');
           $(this).parents('.row').css('background-color','#afa');
           $('#check_item_').val('');

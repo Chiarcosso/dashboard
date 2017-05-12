@@ -18,6 +18,9 @@ class ItemsController < ApplicationController
     render :partial => 'items/index'
   end
 
+  def find
+    render json: Item.filter(search_params)
+  end
   # GET /items/1
   # GET /items/1.json
   def show
@@ -44,11 +47,12 @@ class ItemsController < ApplicationController
     tmp = Hash.new
     Item.unpositioned.unassigned.each do |un|
       d = un.expiringDate.nil?? 'noDate' : un.expiringDate.strftime('%Y%m%d')
-      if tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d].nil?
+      p = un.complete_price
+      if tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p].nil?
         un.setAmount 1
-        tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d] = un
+        tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p] = un
       else
-        tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d].setAmount tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d].amount+1
+        tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p].setAmount tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p].amount+1
       end
     end
     tmp.each do |k,u|
@@ -131,6 +135,7 @@ class ItemsController < ApplicationController
     end
     if @save
       unpositionedItems = Item.unpositioned.to_a
+      newItems = Array.new
       @items.each do |i|
         # i.transportDocument = @transportDocument
         # OrderArticle.create({order: @order, article: i.article, amount: i.amount})
@@ -150,18 +155,18 @@ class ItemsController < ApplicationController
           if item.id.nil?
             item = Item.create(i.attributes)
             item.item_relations << ItemRelation.create(:since => Time.now)
+            newItems += [item]
           # else
           #   unpositionedItems -= [item]
           end
-          i.addActualItems item.id
-          unless @vehicle.id.nil?
 
+          if item.article.barcode.nil? || item.serial.to_s.size > 0
+            i.barcode = item.barcode
           end
+          i.addActualItems item.id
           # item.save
 
-          if item.barcode.nil? || (!item.serial.nil? && item.serial.size > 0)
-            item.generateBarcode
-          end
+
 
         end
       end
@@ -222,7 +227,7 @@ class ItemsController < ApplicationController
   # PATCH/PUT /items/1
   # PATCH/PUT /items/1.json
   def update
-    @selected_items = Item.filter(search_params).distinct.limited
+    @selected_items = Item.filter(search_params).unassigned.distinct.limited
     # render :partial => 'items/index'
     respond_to do |format|
       if @item.update(item_params)
@@ -264,8 +269,13 @@ class ItemsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def item_params
       p = params.require(:item).permit(:article, :article_id, :purchaseDate, :price, :price, :discount, :discount, :serial, :state, :notes, :expiringDate, :transportDocument_id)
-      p[:article] = Article.where(manufacturerCode: p[:article]).last
-
+      Article.all.each do |a|
+        if a.complete_name == p[:article]
+          p[:article] = a
+          break
+        end
+      end
+      # p[:article] = Article.where(manufacturerCode: p[:article]).last
       p
     end
 
@@ -324,8 +334,11 @@ class ItemsController < ApplicationController
 
     def get_reposition_items
       @locals = Hash.new
-
       @locals[:items] = Array.new
+      unless params[:amount].nil? or params[:amount].empty?
+        amount = params.require(:amount).to_i
+      end
+
       unless params[:items].nil? || params[:items] == ''
         params.require(:items).each do |i|
           @locals[:items] << Item.find(i.to_i)
@@ -333,17 +346,30 @@ class ItemsController < ApplicationController
       end
       unless params[:search].nil? || params[:search] == ''
         @search = params.require(:search)
-        Item.firstBarcode(@search).each do |i|
+        Item.firstBarcode(@search).order(:position_code_id).each do |i|
           @locals[:items] << i
         end
         pc = PositionCode.findByCode(@search)
         unless pc.nil?
+          c = 1
           @locals[:items].each do |i|
-            i.position_code = pc
+            if c <= amount.to_i
+              i.position_code = pc
+              c += 1
+            else
+              break
+            end
+
           end
         end
       end
 
+    end
+
+    def find_params
+      unless params[:code].nil? || params[:code] == ''
+        params.require(:code)
+      end
     end
 
     def search_params
