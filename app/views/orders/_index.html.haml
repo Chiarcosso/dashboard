@@ -1,5 +1,10 @@
+%h3= 'Elenco commesse'
 .container-fluid
-  = form_tag(items_path, method: :get, remote: true, type: :script) do |f|
+  = 'Totale: '+OutputOrder.count.to_s+' ordini'
+  = '('+OutputOrder.unprocessed.count.to_s+' non evasi'+')'
+  %br
+  %br
+  = form_tag(output_path(destination: (@search or '')), method: :get, remote: true, type: :script) do |f|
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path
 .container-fluid
   .row.item-block.tab-header

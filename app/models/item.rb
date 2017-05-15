@@ -33,7 +33,7 @@ class Item < ApplicationRecord
   @actualItems = Array.new
 
   def showLabel
-    self.article.complete_name+(self.serial == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
+    self.article.complete_name+(self.serial.to_s == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
   end
 
   # def self.available_items

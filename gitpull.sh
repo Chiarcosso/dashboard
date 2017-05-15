@@ -1,12 +1,20 @@
 #! /bin/bash
-echo $-
+
 speedy=false;
 if [ $- == '-s' ]
   then
     speedy=true;
 fi
+
 sudo service iptables stop
 sudo service nginx stop
+
+FN="log/production-$(date +%Y%m%d-%H%M%S).log"
+sudo mv log/production.log $FN
+touch log/production.log
+sudo chown dashboard:nginx log/production.log
+sudo chmod 664 log/production
+
 if [[ $speedy == false ]]; then
   bundle exec rake tmp:cache:clear RAILS_ENV=production
 fi
@@ -16,5 +24,6 @@ if [[ $speedy == false ]]; then
   bundle exec rake assets:precompile RAILS_ENV=production
   bundle install
 fi
+
 sudo service iptables start
 sudo service nginx start

@@ -2,6 +2,7 @@ class Worksheet < ApplicationRecord
   resourcify
 
   belongs_to :vehicle
+  scope :filter, ->(search) { where("code LIKE ?",'%'+search+'%') }
 
   def complete_name
     unless self.code.nil?

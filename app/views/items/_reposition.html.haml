@@ -1,11 +1,11 @@
 = form_tag(items_reposition_path, method: :post, id: 'reposForm', remote: true, type: :script) do |f|
   .container
     .row
-      .col-sm-4
+      .col-sm-3
         = text_field_tag :search, @search, placeholder: 'Codice a barre..', class: 'form-control autofocus prevent-cr', id: 'first', 'data-target': items_reposition_path
-      .col-sm-4
+      .col-sm-3
         = text_field_tag :amount, @amount, placeholder: 'Numero..', class: 'form-control autofocus prevent-cr', id: 'second', 'data-target': items_reposition_path
-      .col-sm-4
+      .col-sm-3
         = text_field_tag :position, @position, placeholder: 'Posizione..', class: 'form-control autofocus', id: 'third', 'data-target': items_reposition_path
 
   .container.scrollable-panel#itm-cont
@@ -35,9 +35,10 @@
         method: 'get',
         format: 'json',
         complete: function(data){
-          console.log(data.responseJSON);
-          $.each(data.responseJSON,function(itm){
-            $('#itm-cont').append("<div class=\"row\"><div class=\"col-sm-6\"></div></div>")
+          //console.log(data.responseJSON);
+          $.each(data.responseJSON,function(k,itm){
+            //console.log(itm);
+            $('#itm-cont').append('<div class="row"><div class="col-sm-1">'+itm['id']+'</div><div class="col-sm-6">'+itm['name']+'</div><div class="col-sm-4">'+itm['position']+'</div></div>')
           })
           $('#second').focus();
         }
@@ -49,7 +50,11 @@
     if (e.which == 13) {
       e.stopPropagation();
       e.preventDefault();
-      $('#third').focus();
+
+      if ($(this).val().slice(-1) == '#'){
+        console.log($(this).val().slice(-1))
+        $('#third').focus();
+      }
     }
   });
   $('#third').off('keypress');

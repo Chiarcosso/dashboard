@@ -19,7 +19,11 @@ class ItemsController < ApplicationController
   end
 
   def find
-    render json: Item.filter(search_params)
+    a = Array.new
+    Item.filter(find_params).unassigned.each do |i|
+      a << { id: i.id, name: i.complete_name, position: i.position_code.code }
+    end
+    render json: a
   end
   # GET /items/1
   # GET /items/1.json

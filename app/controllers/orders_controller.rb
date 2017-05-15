@@ -12,7 +12,13 @@ class OrdersController < ApplicationController
   # GET /orders
   # GET /orders.json
   def index
-    @orders = Order.all
+    search_params
+    if @search.nil? or @search == ''
+      byebug
+      @orders = Order.all
+    else
+      @orders = OutputOrder.findByRecipient(@search)
+    end
     respond_to do |format|
       format.js { render :js, :partial => 'orders/edit_output_orders' }
     end
@@ -498,10 +504,10 @@ class OrdersController < ApplicationController
 
     def search_params
       unless params[:search].nil?
-        if params[:search].length == 0
-          return params[:search]
+        if params[:search].size == 0
+          @search = nil
         end
-        params.require(:search)
+        @search = params.require(:search)
       end
     end
 end

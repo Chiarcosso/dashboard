@@ -16,8 +16,15 @@ class OutputOrder < ApplicationRecord
     total
   end
 
-  def self.findByRecipient(recipient)
-    OutputOrder.where(destination_type: recipient.class.to_s).where(destination: recipient)
+  def self.findByRecipient(search)
+    recipients = Array.new
+    recipients += Worksheet.filter(search).to_a
+    byebug
+    hits = Array.new
+    recipients.each do |r|
+      hits << OutputOrder.where(destination_type: r.class.to_s).where(destination: r)
+    end
+    hits
   end
 
   def processed?
