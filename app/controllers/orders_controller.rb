@@ -28,7 +28,7 @@ class OrdersController < ApplicationController
     if @order.nil?
       @checked_items = Array.new
     else
-      @checked_items = @order.items
+      @checked_items = @order.last.items
     end
     # unless @newItem.nil?
     #   already_in = false

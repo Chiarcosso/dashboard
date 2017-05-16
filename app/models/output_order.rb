@@ -18,7 +18,7 @@ class OutputOrder < ApplicationRecord
 
   def self.findByRecipient(search)
     recipients = Array.new
-    recipients += Worksheet.filter(search).to_a
+    recipients += Worksheet.filter(search.code).to_a
     hits = Array.new
     recipients.each do |r|
       hits << OutputOrder.where(destination_type: r.class.to_s).where(destination: r)
