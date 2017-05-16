@@ -13,7 +13,7 @@ class ItemsController < ApplicationController
     if search_params.nil? or search_params == ''
       @selected_items = Array.new
     else
-      @selected_items = Item.filter(search_params).unassigned.distinct.limited
+      @selected_items = Item.filter(search_params).distinct.limited
     end
     render :partial => 'items/index'
   end

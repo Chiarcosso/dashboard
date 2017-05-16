@@ -43,7 +43,7 @@ class Item < ApplicationRecord
   end
 
   def price
-   "%.2f" % self[:price]
+   "%.2f" % self[:price].to_f
   end
   # def self.available_items
   #   Item.all.map { |i| i.available? }
