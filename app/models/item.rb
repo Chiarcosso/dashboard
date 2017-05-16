@@ -26,6 +26,8 @@ class Item < ApplicationRecord
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
   scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 #0 0-@')) }
+  scope :newestItem, ->(article) { joins(:article).where(article_id: article.id).order(created_at: :desc).limit(1) }
+  scope :oldestItem, ->(article) { joins(:article).where(article_id: article.id).order(created_at: :asc).limit(1) }
   # scope :unassigned, -> {  }
   enum state: [:nuovo,:usato,:rigenerato,:ricoperto,:riscolpito,:preparato,:danneggiato,:smaltimento]
 
@@ -36,6 +38,13 @@ class Item < ApplicationRecord
     self.article.complete_name+(self.serial.to_s == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
   end
 
+  def oldestItem
+    Item.oldestItem(self.article).first
+  end
+
+  def price
+   "%.2f" % self[:price]
+  end
   # def self.available_items
   #   Item.all.map { |i| i.available? }
   # end

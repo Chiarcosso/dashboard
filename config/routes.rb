@@ -76,6 +76,7 @@ Rails.application.routes.draw do
   get    '/output/:destination', to: 'orders#output', as: :output
   post   '/output/ws/:code', to: 'orders#edit_output', as: :edit_output
   get    '/output/', to: 'orders#index', as: :output_orders
+  post   '/output/', to: 'orders#index', as: :output_orders_search
   post   '/output/add_item', to: 'orders#add_item', as: :add_item_to_order
   get    '/output_order/exit/:id', to: 'orders#exit_order', as: :output_order_exit
   post   '/output_order/confirm', to: 'orders#confirm_order', as: :output_order_confirm

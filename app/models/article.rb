@@ -18,6 +18,7 @@ class Article < ApplicationRecord
   scope :no_barcode, -> { where(barcode: '') }
   scope :manufacturer, ->(search) { include(:company).where("manufacturer_id = companies.id").where("companies.name LIKE '%#{search}%'")}
 
+
   enum measure_unit: [:pezzi,:kg,:l]
 
   def self.incompleteItems
@@ -27,6 +28,10 @@ class Article < ApplicationRecord
   # def availability
   #   Item.available_items.article(self)
   # end
+
+  def lastPrice
+    Item.newestItem(self).first.complete_price
+  end
 
   def availability(*checked)
     unless checked.empty?

@@ -14,7 +14,6 @@ class OrdersController < ApplicationController
   def index
     search_params
     if @search.nil? or @search == ''
-      byebug
       @orders = Order.all
     else
       @orders = OutputOrder.findByRecipient(@search)
@@ -503,7 +502,7 @@ class OrdersController < ApplicationController
     end
 
     def search_params
-      unless params[:search].nil?
+      unless params[:search].nil? or params[:search] == ''
         if params[:search].size == 0
           @search = nil
         end
