@@ -13,7 +13,7 @@ FN="log/production-$(date +%Y%m%d-%H%M%S).log"
 sudo mv ./log/production.log $FN
 touch ./log/production.log
 sudo chown dashboard:nginx log/production.log
-sudo chmod 664 log/production
+sudo chmod 664 log/production.log
 
 if [[ $speedy == false ]]; then
   bundle exec rake tmp:cache:clear RAILS_ENV=production

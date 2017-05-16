@@ -49,7 +49,7 @@ class Item < ApplicationRecord
   #   Item.all.map { |i| i.available? }
   # end
   def actualPrice
-    self.price.to_f * ((100 - self.discount.to_f) / 100)
+    (self.price.to_f * ((100 - self.discount.to_f) / 100)).round 2
   end
 
   def complete_price
