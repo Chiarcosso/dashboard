@@ -75,7 +75,7 @@ class VehicleModelsController < ApplicationController
       end
 
       p = params.require(:vehicle_model).permit(:name, :vehicle_type, :description)
-      p[:vehicle_type] = p[:vehicle_type].to_i
+      p[:vehicle_type] = VehicleType.find(p[:vehicle_type].to_i)
       p
     end
 end

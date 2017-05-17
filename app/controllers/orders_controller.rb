@@ -18,6 +18,7 @@ class OrdersController < ApplicationController
     else
       @orders = OutputOrder.findByRecipient(@search)
     end
+    byebug
     respond_to do |format|
       format.js { render :js, :partial => 'orders/edit_output_orders' }
     end

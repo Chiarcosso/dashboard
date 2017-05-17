@@ -31,7 +31,7 @@ Rails.application.routes.draw do
   get   '/admin/queries', to: 'admin#queries', as: :admin_queries
   post   '/admin/queries/vehicles', to: 'admin#send_query_vehicles', as: :admin_queries_vehicles
   post   '/admin/queries/people', to: 'admin#send_query_people', as: :admin_queries_people
-
+  get    '/admin/soap', to: 'admin#soap', as: :admin_soap
   get    '/admin/users', to: 'users#index', as: :users_admin
   post   '/admin/users', to: 'users#create', as: :create_user_admin
   get    '/admin/users/new', to: 'users#new', as: :new_user_admin
@@ -82,8 +82,8 @@ Rails.application.routes.draw do
   post   '/output_order/confirm', to: 'orders#confirm_order', as: :output_order_confirm
   post   '/output_order/:id', to: 'orders#edit_output_order', as: :output_order_edit
   delete '/output_order/:id', to: 'orders#destroy_output_order', as: :output_order_delete
-  post    '/output_order/pdf/:id', to: 'orders#print_pdf', as: :output_order_pdf
-  post    '/output_order/pdf/module/:id', to: 'orders#print_pdf_module', as: :output_order_pdf_module
+  post   '/output_order/pdf/:id', to: 'orders#print_pdf', as: :output_order_pdf
+  post   '/output_order/pdf/module/:id', to: 'orders#print_pdf_module', as: :output_order_pdf_module
   # get    '/output/office', to: 'items#output_office', as: :output_office
   # get    '/output/worksheet', to: 'items#output_worksheet', as: :output_worksheet
   # get    '/output/vehicle', to: 'items#output_vehicle', as: :output_vehicle
