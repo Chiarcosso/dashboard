@@ -52,7 +52,7 @@ class Vehicle < ApplicationRecord
   end
 
   def complete_name
-    self.model.manufacturer.name+' '+self.plate
+    self.plate+' '+self.model.complete_name
   end
 
 end

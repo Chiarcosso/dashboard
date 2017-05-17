@@ -18,7 +18,6 @@ class OrdersController < ApplicationController
     else
       @orders = OutputOrder.findByRecipient(@search)
     end
-    byebug
     respond_to do |format|
       format.js { render :js, :partial => 'orders/edit_output_orders' }
     end
@@ -392,7 +391,7 @@ class OrdersController < ApplicationController
       when :Office
         @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
       when :Vehicle
-        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
+        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find_by_plate(params.require(:recipient)).first
       when :Worksheet
         unless params[:recipient].nil? || params[:recipient] == ''
           @recipient = Worksheet.findByCode(params.require(:recipient))
@@ -440,7 +439,7 @@ class OrdersController < ApplicationController
       when :Office
         @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
       when :Vehicle
-        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find(params.require(:recipient).to_i)
+        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find_by_plate(params.require(:recipient)).first
       when :Worksheet
         unless params[:recipient].nil? || params[:recipient] == ''
           @recipient = Worksheet.findByCode(params.require(:recipient))

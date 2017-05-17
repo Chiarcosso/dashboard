@@ -3,6 +3,89 @@ class AdminController < ApplicationController
   before_action :authorize_admin
   before_action :query_params, only: [:send_query]
 
+  def soap
+    user = 'chiarcosso_ws'
+    passwd = 'MfE3isk2Z0'
+    endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
+    # endpoint = 'http://192.168.88.10:80/mdc_webservice/services/MdcServiceManager'
+
+    client = Savon.client(
+                  :wsdl => endpoint+"?wsdl",
+                  :ssl_verify_mode => :none,
+                  :endpoint => endpoint,
+                  :raise_errors => false,
+                  :open_timeout => 120,
+                  :read_timeout => 120
+                  )
+
+    # puts "\n"
+    # puts '--------'+endpoint+"?wsdl"+'----------------'+"\n"
+    # puts "\n"
+    # puts client.operations.size.to_s+' operazioni:'+"\n"
+    # puts "\n"
+
+    # client.operations.sort.each do |o|
+    #   puts o.to_s+"\n"
+    # end
+
+    # -- Operations list --
+    #
+    # begin_transaction
+    # begin_transaction_with_isolation_level
+    # check_configuration
+    # close_session
+    # commit_transaction
+    # delete_tabgen
+    # delete_tabgen_by_selector
+    # download_file
+    # echo
+    # end_transaction
+    # insert_or_update_tabgen
+    # insert_or_update_tabgen_list
+    # insert_tabgen
+    # open_session
+    # rollback_transaction_changes
+    # select_application_gps_record
+    # select_application_gps_records
+    # select_data_collection_extra_heads
+    # select_data_collection_extra_rows
+    # select_data_collection_heads
+    # select_data_collection_rows
+    # select_device_gps_records
+    # select_devices_by_alternative_code
+    # select_devices_by_code
+    # select_devices_by_username
+    # select_tabgen
+    # select_tabgen_by_selector
+    # send_push_notification
+    # send_push_notification_ext
+    # send_same_push_notification_ext
+    # send_same_push_notification_ext_raw
+    # update_data_collection_extra_rows_status
+    # update_data_collection_rows_status
+    # update_device_reference
+    # upload_file
+    # upload_image
+
+    # puts "\n"
+    # puts '--------'+endpoint+'---------------------'+"\n"
+    # puts "\n"
+
+    begin
+    response = client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd})
+
+    rescue Savon::SOAPFault => error
+      # puts Logger.methods.sort
+      puts error.http.inspect
+      # raise
+    end
+
+    puts "\n"
+    puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
+    @result = response
+
+  end
+
   def queries
     @list = Query.where(:model_class => 'Vehicle').first.nil?? '' : Query.where(:model_class => 'Vehicle').first.query
     render 'admin/query'

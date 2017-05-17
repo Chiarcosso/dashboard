@@ -34,7 +34,7 @@
         .col-sm-1
           = item.expiringDate.nil?? '' : (l item.expiringDate)
 
-  %b='Articoli assegnati '+(@recipient.nil? ? '' : @recipient.complete_name)
+  %b='Articoli assegnati '+((@recipient.nil? || @recipient.id.nil?) ? '' : @recipient.complete_name)
   .container
     .row
       - case @destination.to_sym
@@ -46,7 +46,8 @@
             = select_tag :recipient, options_from_collection_for_select(Office.all, "id", "name", @recipient.id), class: 'form-control'
         - when :Vehicle
           .col-sm-12
-            = select_tag :recipient, options_from_collection_for_select(Vehicle.all, "id", "complete_name", @recipient.id), class: 'form-control'
+            = text_field_tag :vrecipient, @recipient.plate, data: { autocomplete:  autocomplete_vehicle_information_information_orders_path }, class: 'form-control autofocus', id: 'recipient'
+            = hidden_field_tag :vvehicle_id, @recipient.plate, id: 'vehicle_id'
         - when :Worksheet
           .col-sm-4
             = text_field_tag :recipient, @recipient.nil? ? nil : @recipient.code, placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control finder', data: { target: '/output/ws/' }
@@ -54,7 +55,7 @@
           .col-sm-8
             -# = select_tag :vehicle, options_from_collection_for_select(Vehicle.order_by_plate, "id", "plate", @recipient.nil? ? nil : @recipient.vehicle), class: 'form-control'
             = hidden_field_tag :vehicle_id, @recipient.vehicle.id, id: 'vehicle_id'
-            = text_field_tag :vehicle, @recipient.vehicle.plate, data: { autocomplete:  autocomplete_vehicle_information_information_orders_path }, class: 'form-control autofocus', id: 'vehicle'
+            = text_field_tag :vehicle, @recipient.vehicle.plate, data: { autocomplete: autocomplete_vehicle_information_information_orders_path }, class: 'form-control autofocus', id: 'vehicle'
   %br
   .container-fluid.scrollable-panel.half
     - @checked_items.reverse.each do |item|
@@ -80,3 +81,5 @@
   preventCr();
   activateFinder();
   $('#vehicle').val($('#vehicle').data('value'));
+  $('#vrecipient').val($('#vvehicle_id').val());
+  console.log($('#vehicle').val());
