@@ -11,11 +11,15 @@ class AdminController < ApplicationController
 
     client = Savon.client(
                   :wsdl => endpoint+"?wsdl",
-                  :ssl_verify_mode => :none,
+                  # :ssl_verify_mode => :none,
                   :endpoint => endpoint,
-                  :raise_errors => false,
-                  :open_timeout => 120,
-                  :read_timeout => 120
+                  :env_namespace => :soapenv,
+                  # :raise_errors => false,
+                  # :convert_response_tags_to => :snakecase,
+                  :convert_request_keys_to => :none,
+                  :namespace => 'http://ws.dataexchange.mdc.gullivernet.com/xsd',
+                  :open_timeout => 10,
+                  :read_timeout => 300
                   )
 
     # puts "\n"
@@ -23,10 +27,11 @@ class AdminController < ApplicationController
     # puts "\n"
     # puts client.operations.size.to_s+' operazioni:'+"\n"
     # puts "\n"
+    @operations = Array.new
 
-    # client.operations.sort.each do |o|
-    #   puts o.to_s+"\n"
-    # end
+    client.operations.sort.each do |o|
+      @operations << o.to_s
+    end
 
     # -- Operations list --
     #
@@ -70,10 +75,55 @@ class AdminController < ApplicationController
     # puts "\n"
     # puts '--------'+endpoint+'---------------------'+"\n"
     # puts "\n"
+    begin
+    print 'SOAP response (open_session): '
+    os_response = client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd})
+    # client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd})
+    puts '                           OK'
+    puts 'SID'
+    puts os_response
+    puts
+    rescue Savon::SOAPFault => error
+      # puts Logger.methods.sort
+      puts error.http.inspect
+      puts "\n"
+      puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
+    end
+
+    # @result = response
+    # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
+    @results = Array.new
+    @results[0] = Nokogiri::XML(os_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
+      xml.strict
+    end
+    @sessionID = @results[0].remove_namespaces!.xpath('//sessionID')[0].children[0].to_s
+    puts @sessionID
 
     begin
-    response = client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd})
+    print 'SOAP response (begin_transaction): '
+    bt_response = client.call(:begin_transaction, message: {sessionID: {sessionID: @sessionID}}, :attributes => { 'sessionID' => { "xsi:type" => "SessionID" } })
+    puts '                           OK'
+    rescue Savon::SOAPFault => error
+      # puts Logger.methods.sort
+      puts error.http.inspect
+      # raise
+    end
+    puts bt_response
+    puts "\n"
+    puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
+    # @result = response
+    # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
 
+    @results[1] = Nokogiri::XML(bt_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
+      # xml.strict
+    end
+    @results[1].remove_namespaces!
+
+    begin
+    print 'SOAP response (select_data_collection_heads): '
+    bt_response = client.call(:select_data_collection_heads, message: {'sessionID': @sessionID, applicationID: 'FERIE', deviceCode: 'T2', status: 0}, :attributes => { 'SessionID' => { "xsi:type" => "ax21:SessionID" } })
+    # bt_response = client.call(:select_data_collection_heads, message: {'ax22:SessionID': @sessionID, applicationID: 'FERIE', deviceCode: 'T2', status: 0})
+    puts '                           OK'
     rescue Savon::SOAPFault => error
       # puts Logger.methods.sort
       puts error.http.inspect
@@ -82,8 +132,33 @@ class AdminController < ApplicationController
 
     puts "\n"
     puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
-    @result = response
+    # @result = response
+    # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
 
+    @results[1] = Nokogiri::XML(bt_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
+      xml.strict
+    end
+    @results[1].remove_namespaces!
+
+    begin
+    print 'SOAP response (close_session): '
+    cs_response = client.call(:close_session, message: {sessionID: @sessionID})
+    puts '                           OK'
+    rescue Savon::SOAPFault => error
+      # puts Logger.methods.sort
+      puts error.http.inspect
+      # raise
+    end
+
+    puts "\n"
+    puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
+    # @result = response
+    # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
+
+    @results[2] = Nokogiri::XML(cs_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
+      xml.strict
+    end
+    @results[2].remove_namespaces!
   end
 
   def queries

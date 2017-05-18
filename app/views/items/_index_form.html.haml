@@ -26,7 +26,7 @@
 
 .container-fluid.scrollable-panel
   - @selected_items.each do |item|
-    .row.hover-hilight.popup-link{'data-target': p_edit_item_path(id: item.id, search: @search), 'data-name': 'edit-item'}
+    .row.hover-hilight.popup-link{'data-target': p_edit_item_path(id: item.id, search: Base64.encode64(@search)), 'data-name': 'edit-item'}
       .col-sm-1
         = button_to "x", "/items/#{item.id}/#{@search}", :method => :delete, :remote => true, class: 'on-top getsearch'
       .col-sm-2

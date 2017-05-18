@@ -204,7 +204,7 @@ class ItemsController < ApplicationController
 
   # GET /items/1/edit
   def edit
-    @search = search_params
+    @search = Base64.decode64(search_params)
     respond_to do |format|
       # format.js { render :js, :partial => 'items/edit'}
       format.js { render :js, :partial => 'items/form'}
@@ -231,7 +231,7 @@ class ItemsController < ApplicationController
   # PATCH/PUT /items/1
   # PATCH/PUT /items/1.json
   def update
-    @selected_items = Item.filter(search_params).unassigned.distinct.limited
+    @selected_items = Item.filter(search_params).distinct.limited
     # render :partial => 'items/index'
     respond_to do |format|
       if @item.update(item_params)

@@ -99,7 +99,7 @@ class OutputOrder < ApplicationRecord
     self.items.each do |i|
       table << ["#{i.article.complete_name}","#{i.serial}","#{i.position_code.code}","#{i.complete_price}"]
     end
-    table << ["Totale","","","#{self.total} €"]
+    table << ["Totale","","","#{"%.2f" % self.total.to_f} €"]
 
     pdf.move_down 20
     pdf.table table,
