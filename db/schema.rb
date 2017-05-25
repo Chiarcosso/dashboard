@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170413113801) do
+ActiveRecord::Schema.define(version: 20170525120141) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -296,11 +296,12 @@ ActiveRecord::Schema.define(version: 20170413113801) do
   end
 
   create_table "worksheets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",        null: false
+    t.string   "code",                    null: false
     t.date     "closingDate"
-    t.integer  "vehicle_id",  null: false
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.integer  "vehicle_id",              null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+    t.integer  "hours",       default: 0, null: false
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end
 

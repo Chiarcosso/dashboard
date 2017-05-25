@@ -55,9 +55,9 @@ class Item < ApplicationRecord
   def complete_price
     price = self.actualPrice.to_s+' €'
     if (self.discount.to_i > 0)
-       price += ' ('+self.price.to_s+' -'+self.discount.to_s+'%'+')'
+       price += " \n("+self.price.to_s+' -'+self.discount.to_s+'%'+')'
     end
-    price
+    price.tr('.',',')
   end
 
   def complete_name

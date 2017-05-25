@@ -18,10 +18,12 @@ class OutputOrder < ApplicationRecord
 
   def self.findByRecipient(search)
     recipients = Array.new
-    recipients += Worksheet.filter(search.code).to_a
+    recipients += Worksheet.filter(search).to_a
     hits = Array.new
     recipients.each do |r|
-      hits << OutputOrder.where(destination_type: r.class.to_s).where(destination: r)
+      OutputOrder.where(destination_type: r.class.to_s).where(destination: r).each do |oo|
+        hits << oo
+      end
     end
     hits
   end
@@ -99,14 +101,21 @@ class OutputOrder < ApplicationRecord
     self.items.each do |i|
       table << ["#{i.article.complete_name}","#{i.serial}","#{i.position_code.code}","#{i.complete_price}"]
     end
-    table << ["Totale","","","#{"%.2f" % self.total.to_f} €"]
+    total = self.total.to_f
+    if self.destination.class == Worksheet
+      table << ["Ore di lavoro","","","#{self.destination.hours_complete_price}"]
+      table << ["Materiale di consumo","","","#{self.destination.materials_complete_price}"]
+      total += self.destination.hours_price+self.destination.materials_price
+    end
+
+    table << ["Totale","","","#{"%.2f" % total} €".tr('.',',')]
 
     pdf.move_down 20
     pdf.table table,
       # :border_style => :grid,
       # :font_size => 11,
       :position => :center,
-      :column_widths => { 0 => 170, 1 => 190, 2 => 95, 3 => 85},
+      :column_widths => { 0 => 170, 1 => 190, 2 => 85, 3 => 95},
       # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
       :row_colors => ["d2e3ed", "FFFFFF"]
 

@@ -14,7 +14,7 @@ class OrdersController < ApplicationController
   def index
     search_params
     if @search.nil? or @search == ''
-      @orders = Order.all
+      @orders = OutputOrder.order(:processed => :asc, :created_at => :desc)
     else
       @orders = OutputOrder.findByRecipient(@search)
     end

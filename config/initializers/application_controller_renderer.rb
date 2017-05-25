@@ -4,3 +4,4 @@
 #   http_host: 'example.org',
 #   https: false
 # )
+ActiveSupport::Dependencies.explicitly_unloadable_constants << 'Handsoap::Service'

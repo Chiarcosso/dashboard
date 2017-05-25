@@ -2,31 +2,47 @@ class AdminController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_admin
   before_action :query_params, only: [:send_query]
+  require 'savon-multipart'
+  require "#{Rails.root}/app/models/mdc_webservice"
+  include AdminHelper
 
   def soap
     user = 'chiarcosso_ws'
     passwd = 'MfE3isk2Z0'
     endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
-    # endpoint = 'http://192.168.88.10:80/mdc_webservice/services/MdcServiceManager'
+    @endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
 
+    # endpoint = 'http://192.168.88.10:80/mdc_webservice/services/MdcServiceManager'
+    # MDC_WSDL_ENDPOINT = {
+    #   :uri => 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
+    # }
+    # client  = Handsoap::Service.new
+    boundary = 'MIMEBoundary_'+SecureRandom.hex
     client = Savon.client(
                   :wsdl => endpoint+"?wsdl",
                   # :ssl_verify_mode => :none,
+                  # :headers => {
+                  #   'content-type' => 'multipart/related;  boundary="'+boundary+'"; type="application/xop+xml";',
+                  #   'content-transfer-encoding' => 'binary',
+                  #   'content-ID' => '<0.955339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>',
+                  #   'type' => 'application/xop+xml'
+                  # },
+                  :multipart => true,
+                  # :pretty_print_xml => true,
                   :endpoint => endpoint,
-                  :env_namespace => :soapenv,
-                  # :raise_errors => false,
-                  # :convert_response_tags_to => :snakecase,
-                  :convert_request_keys_to => :none,
-                  :namespace => 'http://ws.dataexchange.mdc.gullivernet.com/xsd',
+                  :logger => Rails.logger,
+                  :log => true,
+                  :namespace => 'http://ws.dataexchange.mdc.gullivernet.com',
+                  :namespace_identifier => 'ns3',
                   :open_timeout => 10,
-                  :read_timeout => 300
+                  :read_timeout => 300,
+                  :namespaces => {
+                      'xmlns:xsd' => 'http://ws.dataexchange.mdc.gullivernet.com',
+                      'xmlns:ns1' => 'http://ws.dataexchange.mdc.gullivernet.com',
+                      'xmlns:ns3' => 'http://ws.dataexchange.mdc.gullivernet.com'
+                    }
                   )
 
-    # puts "\n"
-    # puts '--------'+endpoint+"?wsdl"+'----------------'+"\n"
-    # puts "\n"
-    # puts client.operations.size.to_s+' operazioni:'+"\n"
-    # puts "\n"
     @operations = Array.new
 
     client.operations.sort.each do |o|
@@ -72,16 +88,13 @@ class AdminController < ApplicationController
     # upload_file
     # upload_image
 
-    # puts "\n"
-    # puts '--------'+endpoint+'---------------------'+"\n"
-    # puts "\n"
     begin
     print 'SOAP response (open_session): '
-    os_response = client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd})
+    os_response = client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd},multipart: false)
     # client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd})
     puts '                           OK'
-    puts 'SID'
-    puts os_response
+    # puts 'SID'
+    # puts os_response
     puts
     rescue Savon::SOAPFault => error
       # puts Logger.methods.sort
@@ -89,76 +102,144 @@ class AdminController < ApplicationController
       puts "\n"
       puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
     end
-
-    # @result = response
-    # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
+    #
+    # # @result = response
+    # # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
     @results = Array.new
     @results[0] = Nokogiri::XML(os_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
       xml.strict
     end
-    @sessionID = @results[0].remove_namespaces!.xpath('//sessionID')[0].children[0].to_s
+    @sessionID = ::SessionID.new(@results[0].remove_namespaces!.xpath('//sessionID')[0].children[0].to_s)
+
     puts @sessionID
 
-    begin
-    print 'SOAP response (begin_transaction): '
-    bt_response = client.call(:begin_transaction, message: {sessionID: {sessionID: @sessionID}}, :attributes => { 'sessionID' => { "xsi:type" => "SessionID" } })
-    puts '                           OK'
-    rescue Savon::SOAPFault => error
-      # puts Logger.methods.sort
-      puts error.http.inspect
-      # raise
-    end
-    puts bt_response
-    puts "\n"
-    puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
-    # @result = response
-    # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
+    # request = HTTPI::Request.new
+    # request.url = endpoint
+    # request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:beginTransaction xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId><ns1:sessionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@sessionID}</ns1:sessionID></ns3:sessionId></ns3:beginTransaction></soapenv:Body></soapenv:Envelope>"
+    # request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
+    # # request.body = "--#{boundary}\r\nContent-Type: application/xop+xml; charset=UTF-8; type=\"text/xml\"\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>\r\n\r\n<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:closeSession xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId><ns1:sessionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@sessionID}</ns1:sessionID></ns3:sessionId></ns3:closeSession></soapenv:Body></soapenv:Envelope>\r\n--#{boundary}--\r\n"
+    # puts
+    # puts request.inspect
+    response = HTTPI.post(build_begin_transaction(@sessionID))
+    # puts response.inspect
+    # @results[1] = response
 
-    @results[1] = Nokogiri::XML(bt_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
-      # xml.strict
-    end
-    @results[1].remove_namespaces!
+    response = HTTPI.post(build_select_data_collection_heads(@sessionID,{applicationID: 'FERIE', deviceCode: 'T2', status: 0}))
+    # puts response.inspect
+    collectionHeads = unpack_response(response)
 
-    begin
-    print 'SOAP response (select_data_collection_heads): '
-    bt_response = client.call(:select_data_collection_heads, message: {'sessionID': @sessionID, applicationID: 'FERIE', deviceCode: 'T2', status: 0}, :attributes => { 'SessionID' => { "xsi:type" => "ax21:SessionID" } })
-    # bt_response = client.call(:select_data_collection_heads, message: {'ax22:SessionID': @sessionID, applicationID: 'FERIE', deviceCode: 'T2', status: 0})
-    puts '                           OK'
-    rescue Savon::SOAPFault => error
-      # puts Logger.methods.sort
-      puts error.http.inspect
-      # raise
+    collectionHeads[:data].each_with_index do |ch,i|
+      response = HTTPI.post(build_select_data_collection_rows(@sessionID,data_transform(ch)))
+      @results[i] = response
     end
 
-    puts "\n"
-    puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
-    # @result = response
-    # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
+    response = HTTPI.post(build_end_transaction(@sessionID))
+    # puts response.inspect
+    # @results[3] = response
 
-    @results[1] = Nokogiri::XML(bt_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
-      xml.strict
-    end
-    @results[1].remove_namespaces!
+    response = HTTPI.post(build_close_session(@sessionID))
+    # puts response.inspect
+    # @results[4] = response
 
-    begin
-    print 'SOAP response (close_session): '
-    cs_response = client.call(:close_session, message: {sessionID: @sessionID})
-    puts '                           OK'
-    rescue Savon::SOAPFault => error
-      # puts Logger.methods.sort
-      puts error.http.inspect
-      # raise
-    end
+    # request = HTTPI::Request.new
+    # request.url = endpoint
+    # request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:selectDataCollectionHeads xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId><ns1:sessionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@sessionID}</ns1:sessionID></ns3:sessionId><ns3:applicationID>FERIE</ns3:applicationID><ns3:deviceCode>T1</ns3:deviceCode><ns3:status>0</ns3:status></ns3:selectDataCollectionHeads></soapenv:Body></soapenv:Envelope>"
+    # request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
+    # # request.body = "--#{boundary}\r\nContent-Type: application/xop+xml; charset=UTF-8; type=\"text/xml\"\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>\r\n\r\n<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:closeSession xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId><ns1:sessionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@sessionID}</ns1:sessionID></ns3:sessionId></ns3:closeSession></soapenv:Body></soapenv:Envelope>\r\n--#{boundary}--\r\n"
+    # puts
+    # puts request.inspect
+    # response = HTTPI.post(request)
+    # puts response.inspect
+    # @results[2] = response
+    #
+    # request = HTTPI::Request.new
+    # request.url = endpoint
+    # request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:endTransaction xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId><ns1:sessionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@sessionID}</ns1:sessionID></ns3:sessionId></ns3:endTransaction></soapenv:Body></soapenv:Envelope>"
+    # request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
+    # # request.body = "--#{boundary}\r\nContent-Type: application/xop+xml; charset=UTF-8; type=\"text/xml\"\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>\r\n\r\n<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:closeSession xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId><ns1:sessionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@sessionID}</ns1:sessionID></ns3:sessionId></ns3:closeSession></soapenv:Body></soapenv:Envelope>\r\n--#{boundary}--\r\n"
+    # puts
+    # puts request.inspect
+    # response = HTTPI.post(request)
+    # puts response.inspect
+    # @results[3] = response
+    #
+    # request = HTTPI::Request.new
+    # request.url = endpoint
+    # request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:closeSession xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId><ns1:sessionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@sessionID}</ns1:sessionID></ns3:sessionId></ns3:closeSession></soapenv:Body></soapenv:Envelope>"
+    # request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
+    # # request.body = "--#{boundary}\r\nContent-Type: application/xop+xml; charset=UTF-8; type=\"text/xml\"\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>\r\n\r\n<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:closeSession xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId><ns1:sessionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@sessionID}</ns1:sessionID></ns3:sessionId></ns3:closeSession></soapenv:Body></soapenv:Envelope>\r\n--#{boundary}--\r\n"
+    # puts
+    # puts request.inspect
+    # response = HTTPI.post(request)
+    # puts response.inspect
+    # @results[4] = response
+    # begin
+    # print 'SOAP response (begin_transaction): '
+    # bt_response = client.call(:close_session, message: {'ns3:sessionID': { 'ns1:sessionID': @sessionID }}, :attributes => {
+    #   'content-type' => 'multipart/related;  boundary="'+boundary+'"; type="application/xop+xml";',
+    #   'content-transfer-encoding' => 'binary',
+    #   'content-ID' => '<0.'+boundary+'@apache.org>',
+    #   'type' => 'application/xop+xml'
+    # },multipart: true)
+    # # bt_response = client.call(:echo, message: {'sessionID': {'ns2:sessionID': @sessionID}, applicationID: 'FERIE', deviceCode: 'T2', status: 0}, :multipart => true)
+    # # bt_response = client.call(:echo, message: {'text': 'blabla'}, :multipart => true)
+    # puts '                           OK'
+    # rescue Savon::SOAPFault => error
+    #   # puts Logger.methods.sort
+    #   puts error.http.inspect
+    #   # raise
+    # end
+    # puts bt_response
+    # puts "\n"
+    # puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
+    # # @result = response
+    # # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
+    #
+    # @results[1] = Nokogiri::XML(bt_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
+    #   # xml.strict
+    # end
+    # @results[1].remove_namespaces!
 
-    puts "\n"
-    puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
-    # @result = response
-    # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
-
-    @results[2] = Nokogiri::XML(cs_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
-      xml.strict
-    end
-    @results[2].remove_namespaces!
+    # begin
+    # print 'SOAP response (select_data_collection_heads): '
+    # bt_response = client.call(:select_data_collection_heads, message: {'sessionID': @sessionID, applicationID: 'FERIE', deviceCode: 'T2', status: 0}, :attributes => { 'SessionID' => { "xsi:type" => "ax21:SessionID" } })
+    # # bt_response = client.call(:select_data_collection_heads, message: {'ax22:SessionID': @sessionID, applicationID: 'FERIE', deviceCode: 'T2', status: 0})
+    # puts '                           OK'
+    # rescue Savon::SOAPFault => error
+    #   # puts Logger.methods.sort
+    #   puts error.http.inspect
+    #   # raise
+    # end
+    #
+    # puts "\n"
+    # puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
+    # # @result = response
+    # # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
+    #
+    # @results[1] = Nokogiri::XML(bt_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
+    #   xml.strict
+    # end
+    # @results[1].remove_namespaces!
+    #
+    # begin
+    # print 'SOAP response (close_session): '
+    # cs_response = client.call(:close_session, message: {sessionID: @sessionID})
+    # puts '                           OK'
+    # rescue Savon::SOAPFault => error
+    #   # puts Logger.methods.sort
+    #   puts error.http.inspect
+    #   # raise
+    # end
+    #
+    # puts "\n"
+    # puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
+    # # @result = response
+    # # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
+    #
+    # @results[2] = Nokogiri::XML(cs_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
+    #   xml.strict
+    # end
+    # @results[2].remove_namespaces!
   end
 
   def queries

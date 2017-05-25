@@ -4,8 +4,9 @@
   = '('+OutputOrder.unprocessed.count.to_s+' non evasi'+')'
   %br
   %br
-  = form_tag(output_orders_search_path(search: (@search or '')), method: :post, remote: true, type: :script) do |f|
-    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path
+  = form_tag(output_orders_search_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': items_path, id: 'search'
+  -# = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_orders_search_path, id: 'search'
 .container-fluid
   .row.item-block.tab-header
     .col-sm-1
@@ -21,17 +22,18 @@
     .col-sm-1
       Data creazione
     .col-sm-1
-      Modifica
+      Ore
     .col-sm-1
       Stampa
 
 .container-fluid.scrollable-panel
-  - OutputOrder.order(:processed => :asc, :created_at => :desc).each do |order|
+  - @orders.each do |order|
     .row
       .col-sm-1
         = button_to "x", "/output_order/#{order.id}", :method => :delete, :remote => true
       .col-sm-1
         = order.id
+        = order.destination.class
       .col-sm-2
         = order.destination.complete_name
       .col-sm-3
@@ -41,7 +43,12 @@
       .col-sm-1
         = (l order.created_at)
       .col-sm-1
-        = button_to "Modifica", "/output_order/#{order.id}", :method => :post, :remote => true
+        -# = button_to "Ore", "/output_order/#{order.id}", :method => :post, :remote => true
+        - if order.destination.class == Worksheet
+          = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+            = hidden_field_tag 'worksheet[id]', order.destination.id
+            = number_field_tag 'worksheet[hours]', order.destination.hours, min: 0, size: 1
+            = submit_tag :Ok
       .col-sm-1
         = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf)
 -# .container-fluid.scrollable-panel

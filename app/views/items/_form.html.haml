@@ -33,7 +33,7 @@
     = f.text_area :notes
   .field
     = f.label 'Data scadenza'
-    = f.text_field :expiringDate, value: @item.expiringDate.nil? ? (l Date.current) : (l @item.expiringDate)
+    = f.text_field :expiringDate, value: @item.expiringDate.nil? ? '' : (l @item.expiringDate)
   -# .field
   -#   = f.label 'DDT nr.'
   -#   = f.text_field :transportDocument

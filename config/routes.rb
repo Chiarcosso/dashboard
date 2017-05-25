@@ -88,5 +88,5 @@ Rails.application.routes.draw do
   # get    '/output/worksheet', to: 'items#output_worksheet', as: :output_worksheet
   # get    '/output/vehicle', to: 'items#output_vehicle', as: :output_vehicle
   # get    '/output/equipment', to: 'items#output_equipment', as: :output_equipment
-
+  post   '/worksheet/hours', to: 'worksheets#set_hours', as: :worksheet_hours
 end
