@@ -66,6 +66,11 @@ body{
   z-index: 2001;
 }
 
+.small-button{
+  width: 70px;
+  font-size: smaller;
+}
+
 .hover-hilight{
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */

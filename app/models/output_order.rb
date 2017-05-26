@@ -4,9 +4,12 @@ class OutputOrder < ApplicationRecord
   has_many :items, through: :output_order_items
   belongs_to :createdBy, class_name: User
   belongs_to :destination, polymorphic: true
+  # belongs_to :worksheet, ->  { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
 
   scope :unprocessed, -> { where(:processed => false)}
   scope :processed, -> { where(:processed => true)}
+  # scope :worksheet, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
+  scope :open_worksheets_filter, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('worksheets.closingDate is null') }
 
   def total
     total = 0

@@ -128,11 +128,12 @@ class AdminController < ApplicationController
     # puts response.inspect
     collectionHeads = unpack_response(response)
 
-    collectionHeads[:data].each_with_index do |ch,i|
-      response = HTTPI.post(build_select_data_collection_rows(@sessionID,data_transform(ch)))
-      @results[i] = response
-    end
-
+    # collectionHeads[:data].each_with_index do |ch,i|
+    #   response = HTTPI.post(build_select_data_collection_rows(@sessionID,data_transform(ch)))
+    #   @results[i] = response
+    # end
+      response = HTTPI.post(build_select_data_collection_rows(@sessionID,data_transform(collectionHeads[:data].last)))
+      @results[0] = response
     response = HTTPI.post(build_end_transaction(@sessionID))
     # puts response.inspect
     # @results[3] = response

@@ -3,6 +3,7 @@ class Worksheet < ApplicationRecord
 
   belongs_to :vehicle
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
+  scope :open, -> { where(closingDate: nil) }
 
   def complete_name
     unless self.code.nil?
@@ -14,6 +15,14 @@ class Worksheet < ApplicationRecord
 
   def hours_price
     self.hours.to_f * 30
+  end
+
+  def toggle_closure
+    if self.closingDate .nil?
+      self.update(closingDate: Date.current)
+    else
+      self.update(closingDate: nil)
+    end
   end
 
   def hours_complete_price

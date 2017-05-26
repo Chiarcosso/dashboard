@@ -1,10 +1,13 @@
 %h3= 'Elenco commesse'
 .container-fluid
-  = 'Totale: '+OutputOrder.count.to_s+' ordini'
-  = '('+OutputOrder.unprocessed.count.to_s+' non evasi'+')'
-  %br
-  %br
   = form_tag(output_orders_search_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+    = 'Totale: '+OutputOrder.count.to_s+' ordini'
+    = '('+OutputOrder.unprocessed.count.to_s+' non evasi)'
+    %br
+    = check_box_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil, @open_worksheets_filter
+    = 'Solo schede officina aperte'
+    %br
+    %br
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': items_path, id: 'search'
   -# = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_orders_search_path, id: 'search'
 .container-fluid
@@ -39,7 +42,14 @@
       .col-sm-3
         = order.items.map { |i| i.complete_name }.join(', ')
       .col-sm-1
-        = order.processed?
+        - if order.destination.class == Worksheet
+          = form_tag(worksheet_closure_toggle_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+            = hidden_field_tag :id, order.destination.id
+            = hidden_field_tag :search, @search
+            = hidden_field_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil
+            = submit_tag order.destination.closingDate.nil?? 'Chiudi' : (l order.destination.closingDate), class: 'small-button'
+        - else
+          = order.processed?
       .col-sm-1
         = (l order.created_at)
       .col-sm-1
@@ -47,7 +57,7 @@
         - if order.destination.class == Worksheet
           = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
             = hidden_field_tag 'worksheet[id]', order.destination.id
-            = number_field_tag 'worksheet[hours]', order.destination.hours, min: 0, size: 1
+            = number_field_tag 'worksheet[hours]', order.destination.hours, min: 0, size: 1, step: 0.5
             = submit_tag :Ok
       .col-sm-1
         = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf)
@@ -67,3 +77,8 @@
 :javascript
 
   domInit();
+  $('#open_worksheets_filter').off('change');
+  $('#open_worksheets_filter').on('change',function(){
+    console.log($(this).val());
+    $(this).form().submit();
+  });

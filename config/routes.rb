@@ -89,4 +89,5 @@ Rails.application.routes.draw do
   # get    '/output/vehicle', to: 'items#output_vehicle', as: :output_vehicle
   # get    '/output/equipment', to: 'items#output_equipment', as: :output_equipment
   post   '/worksheet/hours', to: 'worksheets#set_hours', as: :worksheet_hours
+  post   "/worksheet/toogle_closure", to: 'orders#toggle_worksheet_closure', as: :worksheet_closure_toggle
 end

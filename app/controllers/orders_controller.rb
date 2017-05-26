@@ -13,11 +13,36 @@ class OrdersController < ApplicationController
   # GET /orders.json
   def index
     search_params
-    if @search.nil? or @search == ''
-      @orders = OutputOrder.order(:processed => :asc, :created_at => :desc)
+    if @open_worksheets_filter
+      @orders = OutputOrder.open_worksheets_filter
     else
-      @orders = OutputOrder.findByRecipient(@search)
+      @orders = OutputOrder.all
     end
+    if @search.nil? or @search == ''
+      @orders = @orders.order(:processed => :asc, :created_at => :desc)
+    else
+      @orders = @orders.findByRecipient(@search)
+    end
+
+    respond_to do |format|
+      format.js { render :js, :partial => 'orders/edit_output_orders' }
+    end
+  end
+
+  def toggle_worksheet_closure
+    Worksheet.find(params[:id].to_i).toggle_closure
+    search_params
+    if @open_worksheets_filter
+      @orders = OutputOrder.open_worksheets_filter
+    else
+      @orders = OutputOrder.all
+    end
+    if @search.nil? or @search == ''
+      @orders = @orders.order(:processed => :asc, :created_at => :desc)
+    else
+      @orders = @orders.findByRecipient(@search)
+    end
+
     respond_to do |format|
       format.js { render :js, :partial => 'orders/edit_output_orders' }
     end
@@ -512,5 +537,9 @@ class OrdersController < ApplicationController
         end
         @search = params.require(:search)
       end
+      unless params[:open_worksheets_filter].nil? or params[:open_worksheets_filter] == ''
+        @open_worksheets_filter = params[:open_worksheets_filter] == 'on' ? true : false
+      end
+
     end
 end
