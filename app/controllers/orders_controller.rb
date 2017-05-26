@@ -24,6 +24,7 @@ class OrdersController < ApplicationController
   end
 
   def edit_output
+    @order = OutputOrder.findByRecipient(params.require(:code))
     @search = search_params.nil?? '' : search_params
     if @order.nil?
       @checked_items = Array.new
@@ -160,6 +161,7 @@ class OrdersController < ApplicationController
     # @selected_items -= @checked_items
     if @save
       get_order
+      # @order = OutputOrder.findByCode(params.require(:code))
       if @order.nil?
         @order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination)
       end
@@ -314,15 +316,16 @@ class OrdersController < ApplicationController
   # DELETE /orders/1.json
   def destroy_output_order
 
-    if @order.delete
+    if @order.destroy
 
       @msg = 'Ordine eliminato'
     else
       @msg = 'Errore'
     end
-    respond_to do |format|
-      format.js { render :js, :partial => 'orders/output_orders' }
-    end
+    # respond_to do |format|
+    #   format.js { render :js, :partial => 'orders/output_orders' }
+    # end
+    index
   end
 
   private
@@ -485,10 +488,11 @@ class OrdersController < ApplicationController
     end
 
     def worksheet_params
-      unless params[:code].nil? or params[:code] == ''
-        @recipient = Worksheet.findByCode(params.require(:code))
+      code = (params[:code].nil? or params[:code] == '') ? params.require(:recipient) : params.require(:code)
+      unless code.nil? or code == ''
+        @recipient = Worksheet.findByCode(code)
         @destination = 'Worksheet'
-        @order = OutputOrder.findByRecipient(@recipient).last
+        @order = OutputOrder.findByRecipient(@recipient.code).last
       end
     end
 
