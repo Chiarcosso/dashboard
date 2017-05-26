@@ -49,7 +49,7 @@
   $('#check_item_').on('keypress',function(e){
     if(e.which == 13){
       var barcode = $('#check_item_').val();
-      $('input[data-barcode='+barcode+']').each(function(){
+      $('input[data-barcode="'+barcode+'"]').each(function(){
         console.log(this.id,this.checked,barcode);
         if(!this.checked){
           $(this).attr('checked','checked');

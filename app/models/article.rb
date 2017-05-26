@@ -30,7 +30,10 @@ class Article < ApplicationRecord
   # end
 
   def lastPrice
-    Item.newestItem(self).first.complete_price
+    i = Item.newestItem(self).first
+    unless i.nil?
+      i.complete_price
+    end
   end
 
   def availability(*checked)
