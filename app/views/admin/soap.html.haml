@@ -4,12 +4,12 @@
   = 'Session ID: '+@sessionID.id
   %br
   %br
-  - @operations.each do |o|
-    = o
-    %br
-
-  %br
-  %br
+  -# - @operations.each do |o|
+  -#   = o
+  -#   %br
+  -#
+  -# %br
+  -# %br
 
   - @results.each do |r|
     = r.class
@@ -20,8 +20,8 @@
       %br
       = r.code
       %br
-
+      = unpack_response(r).inspect
     - rescue
-    = unpack_response(r).inspect
+      = r.inspect
     %br
     %br

@@ -17,37 +17,37 @@ class AdminController < ApplicationController
     #   :uri => 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
     # }
     # client  = Handsoap::Service.new
-    boundary = 'MIMEBoundary_'+SecureRandom.hex
-    client = Savon.client(
-                  :wsdl => endpoint+"?wsdl",
-                  # :ssl_verify_mode => :none,
-                  # :headers => {
-                  #   'content-type' => 'multipart/related;  boundary="'+boundary+'"; type="application/xop+xml";',
-                  #   'content-transfer-encoding' => 'binary',
-                  #   'content-ID' => '<0.955339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>',
-                  #   'type' => 'application/xop+xml'
-                  # },
-                  :multipart => true,
-                  # :pretty_print_xml => true,
-                  :endpoint => endpoint,
-                  :logger => Rails.logger,
-                  :log => true,
-                  :namespace => 'http://ws.dataexchange.mdc.gullivernet.com',
-                  :namespace_identifier => 'ns3',
-                  :open_timeout => 10,
-                  :read_timeout => 300,
-                  :namespaces => {
-                      'xmlns:xsd' => 'http://ws.dataexchange.mdc.gullivernet.com',
-                      'xmlns:ns1' => 'http://ws.dataexchange.mdc.gullivernet.com',
-                      'xmlns:ns3' => 'http://ws.dataexchange.mdc.gullivernet.com'
-                    }
-                  )
-
-    @operations = Array.new
-
-    client.operations.sort.each do |o|
-      @operations << o.to_s
-    end
+    # boundary = 'MIMEBoundary_'+SecureRandom.hex
+    # client = Savon.client(
+    #               :wsdl => endpoint+"?wsdl",
+    #               # :ssl_verify_mode => :none,
+    #               # :headers => {
+    #               #   'content-type' => 'multipart/related;  boundary="'+boundary+'"; type="application/xop+xml";',
+    #               #   'content-transfer-encoding' => 'binary',
+    #               #   'content-ID' => '<0.955339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>',
+    #               #   'type' => 'application/xop+xml'
+    #               # },
+    #               :multipart => true,
+    #               # :pretty_print_xml => true,
+    #               :endpoint => endpoint,
+    #               :logger => Rails.logger,
+    #               :log => true,
+    #               :namespace => 'http://ws.dataexchange.mdc.gullivernet.com',
+    #               :namespace_identifier => 'ns3',
+    #               :open_timeout => 10,
+    #               :read_timeout => 300,
+    #               :namespaces => {
+    #                   'xmlns:xsd' => 'http://ws.dataexchange.mdc.gullivernet.com',
+    #                   'xmlns:ns1' => 'http://ws.dataexchange.mdc.gullivernet.com',
+    #                   'xmlns:ns3' => 'http://ws.dataexchange.mdc.gullivernet.com'
+    #                 }
+    #               )
+    #
+    # @operations = Array.new
+    #
+    # client.operations.sort.each do |o|
+    #   @operations << o.to_s
+    # end
 
     # -- Operations list --
     #
@@ -88,28 +88,30 @@ class AdminController < ApplicationController
     # upload_file
     # upload_image
 
-    begin
-    print 'SOAP response (open_session): '
-    os_response = client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd},multipart: false)
-    # client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd})
-    puts '                           OK'
-    # puts 'SID'
-    # puts os_response
-    puts
-    rescue Savon::SOAPFault => error
-      # puts Logger.methods.sort
-      puts error.http.inspect
-      puts "\n"
-      puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
-    end
+    # begin
+    # print 'SOAP response (open_session): '
+    # os_response = client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd},multipart: false)
+    # # client.call(:open_session, message: {useSharedDatabaseConnection: 0, username: user, password: passwd})
+    # puts '                           OK'
+    # # puts 'SID'
+    # # puts os_response
+    # puts
+    # rescue Savon::SOAPFault => error
+    #   # puts Logger.methods.sort
+    #   puts error.http.inspect
+    #   puts "\n"
+    #   puts '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'+"\n"
+    # end
     #
     # # @result = response
     # # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
     @results = Array.new
-    @results[0] = Nokogiri::XML(os_response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
-      xml.strict
-    end
-    @sessionID = ::SessionID.new(@results[0].remove_namespaces!.xpath('//sessionID')[0].children[0].to_s)
+    # r = HTTPI.post(build_open_session(0, user, passwd))
+    # byebug
+    # @results[0] = Nokogiri::XML(HTTPI.post(build_open_session(0, user, passwd)).body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
+    #   xml.strict
+    # end
+    @sessionID = ::SessionID.new(HTTPI.post(build_open_session(0, user, passwd)).body.match(/<ax21:sessionID>(.*?)<\/ax21:sessionID>/)[1].to_s)
 
     puts @sessionID
 
@@ -132,8 +134,19 @@ class AdminController < ApplicationController
     #   response = HTTPI.post(build_select_data_collection_rows(@sessionID,data_transform(ch)))
     #   @results[i] = response
     # end
-      response = HTTPI.post(build_select_data_collection_rows(@sessionID,data_transform(collectionHeads[:data].last)))
-      @results[0] = response
+    response = HTTPI.post(build_select_data_collection_rows(@sessionID,data_transform(collectionHeads[:data].last)))
+    @results[0] = response
+
+    filenames = response.body.scan(/>([^>]*?.pdf)<\//)
+    filenames.each_with_index do |fn,i|
+      tmp = fn[0].split('/')
+      fn = tmp[tmp.size-1]
+      puts fn
+      response = HTTPI.post(build_download_file(@sessionID,fn[0]))
+      @results[i+1] = response
+    end
+
+
     response = HTTPI.post(build_end_transaction(@sessionID))
     # puts response.inspect
     # @results[3] = response

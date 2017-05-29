@@ -15,9 +15,9 @@ gem 'coffee-rails', '~> 4.2'
 # gem 'coffee-routes'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
-gem 'savon'
+# gem 'savon'
 # gem 'handsoap'
-gem 'savon-multipart'
+# gem 'savon-multipart'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
