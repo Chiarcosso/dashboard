@@ -2,7 +2,6 @@ class AdminController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_admin
   before_action :query_params, only: [:send_query]
-  require 'savon-multipart'
   require "#{Rails.root}/app/models/mdc_webservice"
   include AdminHelper
 
