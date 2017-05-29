@@ -1,0 +1,16 @@
+= form_for @equipment do |f|
+  - if @equipment.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@equipment.errors.count, "error")} prohibited this equipment from being saved:"
+      %ul
+        - @equipment.errors.full_messages.each do |message|
+          %li= message
+
+  .field
+    = f.label :name
+    = f.text_field :name
+  .field
+    = f.label :equipment_group
+    = f.text_field :equipment_group
+  .actions
+    = f.submit 'Save'

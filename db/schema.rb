@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170526135129) do
+ActiveRecord::Schema.define(version: 20170529114843) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -70,6 +70,28 @@ ActiveRecord::Schema.define(version: 20170526135129) do
 
   create_table "company_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "equipment", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",       null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "equipment_articles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "equipment_id", null: false
+    t.integer  "article_id",   null: false
+    t.string   "size"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+    t.index ["article_id"], name: "index_equipment_articles_on_article_id", using: :btree
+    t.index ["equipment_id"], name: "index_equipment_articles_on_equipment_id", using: :btree
+  end
+
+  create_table "equipment_groups", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",       null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -310,6 +332,8 @@ ActiveRecord::Schema.define(version: 20170526135129) do
   add_foreign_key "company_people", "companies"
   add_foreign_key "company_people", "company_relations"
   add_foreign_key "company_people", "people"
+  add_foreign_key "equipment_articles", "articles"
+  add_foreign_key "equipment_articles", "equipment"
   add_foreign_key "item_relations", "items"
   add_foreign_key "item_relations", "offices"
   add_foreign_key "item_relations", "people"

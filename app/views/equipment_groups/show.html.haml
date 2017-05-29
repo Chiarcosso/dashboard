@@ -1,0 +1,9 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @equipment_group.name
+
+= link_to 'Edit', edit_equipment_group_path(@equipment_group)
+\|
+= link_to 'Back', equipment_groups_path

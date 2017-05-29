@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :equipment
+  resources :equipment_groups
   resources :company_relations
   resources :vehicle_informations
   resources :position_codes

@@ -1,0 +1,23 @@
+%h1 Listing equipment
+
+%table
+  %thead
+    %tr
+      %th Name
+      %th Equipment group
+      %th
+      %th
+      %th
+
+  %tbody
+    - @equipment.each do |equipment|
+      %tr
+        %td= equipment.name
+        %td= equipment.equipment_group
+        %td= link_to 'Show', equipment
+        %td= link_to 'Edit', edit_equipment_path(equipment)
+        %td= link_to 'Destroy', equipment, method: :delete, data: { confirm: 'Are you sure?' }
+
+%br
+
+= link_to 'New Equipment', new_equipment_path

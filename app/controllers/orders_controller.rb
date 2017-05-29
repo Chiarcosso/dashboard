@@ -161,7 +161,8 @@ class OrdersController < ApplicationController
 
   def add_item
     # @destination = output_params
-    @search = search_params.nil?? '' : search_params
+    # @search = search_params.nil?? '' : search_params
+    search_params
     @checked_items = chk_list_params
     unless @newItem.nil?
       already_in = false
@@ -176,9 +177,8 @@ class OrdersController < ApplicationController
         @checked_items << @newItem
       end
     end
-
     unless @search == ''
-      @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
+      @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
     else
       @selected_items = Array.new
     end
@@ -412,7 +412,6 @@ class OrdersController < ApplicationController
 
     def output_params
       @destination = params.require(:destination)
-
       case params.require(:destination).to_sym
       when :Person
         @recipient = params[:recipient].nil?? Person.all.first : Person.find(params.require(:recipient).to_i)
@@ -540,6 +539,5 @@ class OrdersController < ApplicationController
       unless params[:open_worksheets_filter].nil? or params[:open_worksheets_filter] == ''
         @open_worksheets_filter = params[:open_worksheets_filter] == 'on' ? true : false
       end
-
     end
 end
