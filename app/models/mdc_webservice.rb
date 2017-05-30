@@ -138,6 +138,6 @@ class VacationRequest
     case @type
       when 0 then @from.strftime("%D/%M/%Y")
       when 1 then @from.strftime("%H:%m:%s")
-
+    end
   end
 end
