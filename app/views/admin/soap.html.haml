@@ -12,16 +12,17 @@
   -# %br
 
   - @results.each do |r|
-    = r.class
+
     %br
-    = r.inspect
-    - begin
+
+      - pack = unpack_response(r)
+      = pack[:action]
       %br
       %br
       = r.code
       %br
-      = unpack_response(r).inspect
-    - rescue
+      = pack[:data].inspect
+    
       = r.inspect
     %br
     %br

@@ -5,6 +5,9 @@ class EquipmentGroupsController < ApplicationController
   # GET /equipment_groups.json
   def index
     @equipment_groups = EquipmentGroup.all
+    respond_to do |format|
+      format.js { render :partial => 'equipment/index_remote' }
+    end
   end
 
   # GET /equipment_groups/1

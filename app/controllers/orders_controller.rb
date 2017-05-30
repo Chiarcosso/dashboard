@@ -70,7 +70,7 @@ class OrdersController < ApplicationController
     #   end
     # end
 
-    unless @search == ''
+    unless @search.to_s == ''
       @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
     else
       @selected_items = Array.new
@@ -148,7 +148,7 @@ class OrdersController < ApplicationController
     end
     @search = search_params.nil?? '' : search_params
     @checked_items = Array.new
-    unless @search == ''
+    unless @search.to_s == ''
       @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
     else
       @selected_items = Array.new
@@ -177,7 +177,7 @@ class OrdersController < ApplicationController
         @checked_items << @newItem
       end
     end
-    unless @search == ''
+    unless @search.to_s == ''
       @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
     else
       @selected_items = Array.new

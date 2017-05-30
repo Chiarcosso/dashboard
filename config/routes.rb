@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  resources :equipment
+  # resources :equipment do
+  #
+  # end
   resources :equipment_groups
   resources :company_relations
   resources :vehicle_informations
@@ -92,4 +94,8 @@ Rails.application.routes.draw do
   # get    '/output/equipment', to: 'items#output_equipment', as: :output_equipment
   post   '/worksheet/hours', to: 'worksheets#set_hours', as: :worksheet_hours
   post   "/worksheet/toogle_closure", to: 'orders#toggle_worksheet_closure', as: :worksheet_closure_toggle
+
+  get '/equipment', to: 'equipment#index', as: :equipment
+  get '/equipment_home', to: 'equipment#home', as: :equipment_home
+  # get '/equipment_groups', to: 'equipment_groups#index', as: :equipment_groups
 end

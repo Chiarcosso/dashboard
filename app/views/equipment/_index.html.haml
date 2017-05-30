@@ -1,0 +1,4 @@
+%h3= 'Articoli'
+- if @equipment.size > 0
+  - @equipment.each do |e|
+    = e.name

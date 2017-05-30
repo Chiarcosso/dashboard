@@ -138,10 +138,9 @@ class AdminController < ApplicationController
 
     filenames = response.body.scan(/>([^>]*?.pdf)<\//)
     filenames.each_with_index do |fn,i|
-      tmp = fn[0].split('/')
-      fn = tmp[tmp.size-1]
+      req = build_download_file(@sessionID,fn[0])
       puts fn
-      response = HTTPI.post(build_download_file(@sessionID,fn[0]))
+      response = HTTPI.post(req)
       @results[i+1] = response
     end
 

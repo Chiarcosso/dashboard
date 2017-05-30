@@ -1,0 +1,16 @@
+%h2 Dotazione
+
+.row-fluid
+  .col-sm-2
+    .panel
+      =link_to "Dotazioni", equipment_path, :remote=> true, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
+      =link_to "Gruppi di articoli", equipment_groups_path, :remote=> true, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
+      -# =link_to "Categorie", article_categories_path, :remote=> true, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
+      -# =link_to "Elenco ordini uscita", output_orders_path, :remote=> true, :method => :get, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
+      -# =link_to "Crea articolo", new_article_path, :remote=> true, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
+      -# =link_to "Elenco articoli", incomplete_articles_path, :remote=> true, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
+      -# =link_to "Elenco pezzi", items_path, :remote=> true, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
+      -# =link_to "Riposiziona pezzi", items_reposition_path, :remote=> true, :method => :post, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
+  .col-sm-10
+    #equipment_content.container-fluid
+      =render :partial => 'equipment/index'

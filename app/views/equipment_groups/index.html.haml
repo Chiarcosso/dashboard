@@ -1,21 +1,4 @@
-%h1 Listing equipment_groups
-
-%table
-  %thead
-    %tr
-      %th Name
-      %th
-      %th
-      %th
-
-  %tbody
-    - @equipment_groups.each do |equipment_group|
-      %tr
-        %td= equipment_group.name
-        %td= link_to 'Show', equipment_group
-        %td= link_to 'Edit', edit_equipment_group_path(equipment_group)
-        %td= link_to 'Destroy', equipment_group, method: :delete, data: { confirm: 'Are you sure?' }
-
-%br
-
-= link_to 'New Equipment group', new_equipment_group_path
+%h3= 'Gruppi'
+- if @equipment_groups.size > 0
+  - @equipment_groups.each do |e|
+    = e.name

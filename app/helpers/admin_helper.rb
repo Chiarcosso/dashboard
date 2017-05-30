@@ -13,25 +13,36 @@ module AdminHelper
         response = response.body
       end
     # begin
-      action = response.match(/<soapenv:Body><ns:(.*)Response .*/m,1)[1]
-      return_data = Array.new
-      response.scan(/<ns:return .*?xsi:type="ax21:(.*?)"[^>]*>(.*?)<\/ns:return>/m) do |ret|
-        return_data << {type: ret[0], body: ret[1]}
-      end
-      data = Array.new
-      return_data.each do |r|
-        tmp = Hash.new
-        tmp[:data_type] = r[:type]
-        r[:body].scan(/<ax21:([^>]*)>([^<]*)<\/ax21:[^>]*/).each do |match|
-          tmp[match[0].to_sym] = match[1]
+      error = response.match(/<soapenv:Fault>.*?<\/soapenv:Fault/m)
+      action = response.match(/<soapenv:Body><ns:(.*?)Response .*/m,1)
+      if error.nil?
+        unless action[1] == 'downloadFile'
+          return_data = Array.new
+          response.scan(/<ns:return .*?xsi:type="ax21:(.*?)"[^>]*>(.*?)<\/ns:return>/m) do |ret|
+            return_data << {type: ret[0], body: ret[1]}
+          end
+          data = Array.new
+          return_data.each do |r|
+            tmp = Hash.new
+            tmp[:data_type] = r[:type]
+            r[:body].scan(/<ax21:([^>]*)>([^<]*)<\/ax21:[^>]*/).each do |match|
+              tmp[match[0].to_sym] = match[1]
+            end
+            data << tmp
+          end
+        else
+          tmp = response[/%PDF.*/m]
+          # data = XMPR::XMP.new(tmp)
+          File.open('tmp.pdf','w+') do |f|
+            f.write(tmp.force_encoding('UTF-8'))
+          end
         end
-        data << tmp
       end
     # rescue
     #   action = 'Error'
     #   data = {body: response}
     # end
-    return {action: action, data:data}
+    return {action: action, data: data}
 
   end
 

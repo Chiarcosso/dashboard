@@ -1,12 +1,22 @@
 class EquipmentController < ApplicationController
+  before_action :authenticate_user!
+  before_action :authorize
+
   before_action :set_equipment, only: [:show, :edit, :update, :destroy]
 
   # GET /equipment
   # GET /equipment.json
   def index
     @equipment = Equipment.all
+    respond_to do |format|
+      format.js { render :partial => 'equipment/index_remote' }
+    end
   end
 
+  def home
+    @equipment = Equipment.all
+    render 'equipment/home'
+  end
   # GET /equipment/1
   # GET /equipment/1.json
   def show
@@ -70,5 +80,12 @@ class EquipmentController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def equipment_params
       params.require(:equipment).permit(:name, :equipment_group_id)
+    end
+
+    def authorize
+      if (!current_user.has_role? :admin) && (!current_user.has_role? :magazzino)
+        # render text:"No access for you!"
+        render "home/_agenda"
+      end
     end
 end
