@@ -1,6 +1,8 @@
 %h3='Elenco pezzi'
 .container-fluid
   = 'Totale: '+Item.count.to_s+' oggetti'
+  -# %br
+  -# = "Valore totale: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s}€, gomme a parte)"
   %br
   %br
   = form_tag(items_path, method: :get, remote: true, type: :script) do |f|

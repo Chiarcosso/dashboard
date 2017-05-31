@@ -19,7 +19,7 @@ gem 'httpi'
 # gem 'savon'
 # gem 'handsoap'
 # gem 'savon-multipart'
-gem 'xmpr'
+# gem 'xmpr'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 gem 'jquery-ui-rails'

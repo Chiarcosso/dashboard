@@ -1,7 +1,7 @@
 = button_to 'Ricarica', admin_soap_path, method: :get
 .container-fluid.scrollable-panel
   -# = @result
-  = 'Session ID: '+@sessionID.id
+  = 'Session ID: '+@sessionID
   %br
   %br
   -# - @operations.each do |o|
@@ -15,14 +15,8 @@
 
     %br
 
-      - pack = unpack_response(r)
-      = pack[:action]
-      %br
-      %br
-      = r.code
-      %br
-      = pack[:data].inspect
-    
+      
+
       = r.inspect
     %br
     %br

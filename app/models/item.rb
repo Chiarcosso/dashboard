@@ -18,6 +18,8 @@ class Item < ApplicationRecord
 
   scope :available_items, -> { where('items.id not in (select item_id from output_order_items)')}
   scope :barcode, ->(barcode) { joins(:article).where("items.barcode = '#{barcode}' OR articles.barcode = '#{barcode}'") }
+  scope :tyres, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').joins('left join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name like \'%Gomme%\'') }
+  scope :notyres, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').joins('left join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name not like \'%Gomme%\'') }
   # scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
   scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL") }
   scope :limited, -> { limit(100) }
@@ -50,6 +52,22 @@ class Item < ApplicationRecord
   # end
   def actualPrice
     (self.price.to_f * ((100 - self.discount.to_f) / 100)).round 2
+  end
+
+  def self.total_value
+    total = 0.0
+    Item.unassigned.each do |i|
+      total += i.actualPrice
+    end
+    total
+  end
+
+  def self.total_value_no_tyres
+    total = 0.0
+    Item.unassigned.notyres.each do |i|
+      total += i.actualPrice
+    end
+    total
   end
 
   def complete_price

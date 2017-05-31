@@ -51,6 +51,7 @@ class ArticlesController < ApplicationController
             @article.categories << ac
           end
         end
+        @filteredArticles = Array.new
         format.js { render :partial => 'articles/incomplete' }
       else
         format.js { render :partial => 'articles/to_categories' }

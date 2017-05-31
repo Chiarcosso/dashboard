@@ -8,8 +8,13 @@ class AdminController < ApplicationController
   def soap
     user = 'chiarcosso_ws'
     passwd = 'MfE3isk2Z0'
-    endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
-    @endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
+
+    ws = MdcWebservice.new(user,passwd)
+    @sessionID = ws.session_id.id
+    puts @sessionID
+    @results = ws.get_data({applicationID: 'FERIE', deviceCode: 'T2', status: 0})
+    # endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
+    # @endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
 
     # endpoint = 'http://192.168.88.10:80/mdc_webservice/services/MdcServiceManager'
     # MDC_WSDL_ENDPOINT = {
@@ -104,15 +109,15 @@ class AdminController < ApplicationController
     #
     # # @result = response
     # # @result = response.http.body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]
-    @results = Array.new
+    # @results = Array.new
     # r = HTTPI.post(build_open_session(0, user, passwd))
     # byebug
     # @results[0] = Nokogiri::XML(HTTPI.post(build_open_session(0, user, passwd)).body.match(/.*<?xml version.*?>[ ]*(<.*>)/m)[1]) do |xml|
     #   xml.strict
     # end
-    @sessionID = ::SessionID.new(HTTPI.post(build_open_session(0, user, passwd)).body.match(/<ax21:sessionID>(.*?)<\/ax21:sessionID>/)[1].to_s)
+    # @sessionID = ::SessionID.new(HTTPI.post(build_open_session(0, user, passwd)).body.match(/<ax21:sessionID>(.*?)<\/ax21:sessionID>/)[1].to_s)
 
-    puts @sessionID
+    # puts @sessionID
 
     # request = HTTPI::Request.new
     # request.url = endpoint
@@ -121,35 +126,35 @@ class AdminController < ApplicationController
     # # request.body = "--#{boundary}\r\nContent-Type: application/xop+xml; charset=UTF-8; type=\"text/xml\"\r\nContent-Transfer-Encoding: binary\r\nContent-ID: <0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>\r\n\r\n<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:closeSession xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId><ns1:sessionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@sessionID}</ns1:sessionID></ns3:sessionId></ns3:closeSession></soapenv:Body></soapenv:Envelope>\r\n--#{boundary}--\r\n"
     # puts
     # puts request.inspect
-    response = HTTPI.post(build_begin_transaction(@sessionID))
+    # response = HTTPI.post(build_begin_transaction(@sessionID))
     # puts response.inspect
     # @results[1] = response
 
-    response = HTTPI.post(build_select_data_collection_heads(@sessionID,{applicationID: 'FERIE', deviceCode: 'T2', status: 0}))
+    # response = HTTPI.post(build_select_data_collection_heads(@sessionID,{applicationID: 'FERIE', deviceCode: 'T2', status: 0}))
     # puts response.inspect
-    collectionHeads = unpack_response(response)
+    # collectionHeads = unpack_response(response)
 
     # collectionHeads[:data].each_with_index do |ch,i|
     #   response = HTTPI.post(build_select_data_collection_rows(@sessionID,data_transform(ch)))
     #   @results[i] = response
     # end
-    response = HTTPI.post(build_select_data_collection_rows(@sessionID,data_transform(collectionHeads[:data].last)))
-    @results[0] = response
+    # response = ws.get_data({applicationID: 'FERIE', deviceCode: 'T2', status: 0})
+    # @results[0] = response
 
-    filenames = response.body.scan(/>([^>]*?.pdf)<\//)
-    filenames.each_with_index do |fn,i|
-      req = build_download_file(@sessionID,fn[0])
-      puts fn
-      response = HTTPI.post(req)
-      @results[i+1] = response
-    end
+    # filenames = response.body.scan(/>([^>]*?.pdf)<\//)
+    # filenames.each_with_index do |fn,i|
+    #   req = build_download_file(@sessionID,fn[0])
+    #   puts fn
+    #   response = HTTPI.post(req)
+    #   @results[i+1] = response
+    # end
 
 
-    response = HTTPI.post(build_end_transaction(@sessionID))
+    # response = HTTPI.post(build_end_transaction(@sessionID))
     # puts response.inspect
     # @results[3] = response
 
-    response = HTTPI.post(build_close_session(@sessionID))
+    # response = HTTPI.post(build_close_session(@sessionID))
     # puts response.inspect
     # @results[4] = response
 

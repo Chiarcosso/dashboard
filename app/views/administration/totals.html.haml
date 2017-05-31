@@ -1,0 +1,6 @@
+%h1= 'Totali'
+%br
+%br
+%h3= "Magazzino:"
+%br
+= "Valore totale pezzi in giacenza: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s}€, gomme a parte)"
