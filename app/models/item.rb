@@ -70,6 +70,14 @@ class Item < ApplicationRecord
     total
   end
 
+  def self.total_value_tyres
+    total = 0.0
+    Item.unassigned.tyres.each do |i|
+      total += i.actualPrice
+    end
+    total
+  end
+
   def complete_price
     price = self.actualPrice.to_s+' €'
     if (self.discount.to_i > 0)
