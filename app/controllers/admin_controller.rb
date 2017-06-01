@@ -6,13 +6,14 @@ class AdminController < ApplicationController
   include AdminHelper
 
   def soap
-    user = 'chiarcosso_ws'
-    passwd = 'MfE3isk2Z0'
-
-    ws = MdcWebservice.new(user,passwd)
+    
+    ws = MdcWebservice.new
     @sessionID = ws.session_id.id
     puts @sessionID
-    @results = ws.get_data({applicationID: 'FERIE', deviceCode: 'T2', status: 0})
+    @results = ws.get_vacation_data({applicationID: 'FERIE', deviceCode: 'T2', status: 0})
+    @results.each do |r|
+      r.send_mail
+    end
     # endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
     # @endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
 

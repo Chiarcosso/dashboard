@@ -10,6 +10,7 @@
     %br
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': items_path, id: 'search'
   -# = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_orders_search_path, id: 'search'
+  -# = will_paginate @orders, :params => {format: :js }
 .container-fluid
   .row.item-block.tab-header
     .col-sm-1

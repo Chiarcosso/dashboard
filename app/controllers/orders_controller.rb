@@ -14,14 +14,14 @@ class OrdersController < ApplicationController
   def index
     search_params
     if @open_worksheets_filter
-      @orders = OutputOrder.open_worksheets_filter
+      @orders = OutputOrder.open_worksheets_filter #.paginate(:page => params[:page], :per_page => 5)
     else
-      @orders = OutputOrder.all
+      @orders = OutputOrder.all #.paginate(:page => params[:page], :per_page => 5)
     end
     if @search.nil? or @search == ''
-      @orders = @orders.order(:processed => :asc, :created_at => :desc)
+      @orders = @orders.order(:processed => :asc, :created_at => :desc) #.paginate(:page => params[:page], :per_page => 5)
     else
-      @orders = @orders.findByRecipient(@search)
+      @orders = @orders.findByRecipient(@search) #.paginate(:page => params[:page], :per_page => 5)
     end
 
     respond_to do |format|
@@ -33,14 +33,14 @@ class OrdersController < ApplicationController
     Worksheet.find(params[:id].to_i).toggle_closure
     search_params
     if @open_worksheets_filter
-      @orders = OutputOrder.open_worksheets_filter
+      @orders = OutputOrder.open_worksheets_filter #.paginate(:page => params[:page], :per_page => 30)
     else
-      @orders = OutputOrder.all
+      @orders = OutputOrder.all #.paginate(:page => params[:page], :per_page => 30)
     end
     if @search.nil? or @search == ''
-      @orders = @orders.order(:processed => :asc, :created_at => :desc)
+      @orders = @orders.order(:processed => :asc, :created_at => :desc) #.paginate(:page => params[:page], :per_page => 30)
     else
-      @orders = @orders.findByRecipient(@search)
+      @orders = @orders.findByRecipient(@search) #.paginate(:page => params[:page], :per_page => 30)
     end
 
     respond_to do |format|
@@ -418,7 +418,7 @@ class OrdersController < ApplicationController
       when :Office
         @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
       when :Vehicle
-        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find_by_plate(params.require(:recipient)).first
+        @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate(params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
       when :Worksheet
         unless params[:recipient].nil? || params[:recipient] == ''
           @recipient = Worksheet.findByCode(params.require(:recipient))
@@ -466,7 +466,7 @@ class OrdersController < ApplicationController
       when :Office
         @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
       when :Vehicle
-        @recipient = params[:recipient].nil?? Vehicle.all.first : Vehicle.find_by_plate(params.require(:recipient)).first
+        @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate(params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
       when :Worksheet
         unless params[:recipient].nil? || params[:recipient] == ''
           @recipient = Worksheet.findByCode(params.require(:recipient))

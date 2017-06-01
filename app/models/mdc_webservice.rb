@@ -1,6 +1,9 @@
 class MdcWebservice
 
-  def initialize(username, password, useSharedDatabaseConnection = 0)
+  def initialize
+    username = 'chiarcosso_ws'
+    password = 'MfE3isk2Z0'
+    useSharedDatabaseConnection = 0
 
     @endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
 
@@ -26,6 +29,26 @@ class MdcWebservice
     @sessionID
   end
 
+  def get_vacation_data(ops)
+    self.begin_transaction
+
+    data = Array.new
+    dch = self.select_data_collection_heads(ops)
+    unless dch[:data].nil?
+      dch[:data].each_with_index do |ch,i|
+        data[i] = VacationRequest.new(self.select_data_collection_rows(ch)[:data],self)
+        # data[i][:data].each do |d|
+        #   self.update_data_collection_rows_status(d.dataCollectionRowKey)
+        # end
+      end
+    end
+    self.commit_transaction
+    self.end_transaction
+    self.close_session
+
+    return data
+  end
+
   def get_data(ops)
     self.begin_transaction
 
@@ -34,9 +57,12 @@ class MdcWebservice
     unless dch[:data].nil?
       dch[:data].each_with_index do |ch,i|
         data[i] = self.select_data_collection_rows(ch)
+        data[i][:data].each do |d|
+          self.update_data_collection_rows_status(d.dataCollectionRowKey)
+        end
       end
     end
-
+    self.commit_transaction
     self.end_transaction
     self.close_session
 
@@ -60,6 +86,16 @@ class MdcWebservice
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:beginTransaction xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId></ns3:beginTransaction></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
 
+    HTTPI.post(request)
+  end
+
+  def commit_transaction
+
+    request = HTTPI::Request.new
+    request.url = @endpoint
+    request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:commitTransaction xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId></ns3:commitTransaction></soapenv:Body></soapenv:Envelope>"
+    request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
+# puts request.body
     HTTPI.post(request)
   end
 
@@ -98,6 +134,16 @@ class MdcWebservice
     unpack_response(HTTPI.post(request).body)
   end
 
+  def update_data_collection_rows_status(dataCollectionRowKey,status = 1)
+
+    request = HTTPI::Request.new
+    request.url = @endpoint
+    request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:updateDataCollectionRowsStatus xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:keys>#{dataCollectionRowKey.xml}</ns3:keys><ns3:status>#{status}</ns3:status></ns3:updateDataCollectionRowsStatus></soapenv:Body></soapenv:Envelope>"
+    request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
+    # puts request.body
+    HTTPI.post(request)
+  end
+
   def download_file(filename)
 
     request = HTTPI::Request.new
@@ -114,8 +160,7 @@ class MdcWebservice
     case definition[:data_type]
       when 'SessionID' then SessionID.new(definition[:sessionID])
       when 'DataCollectionHead' then DataCollectionHead.new(definition[:applicationCode],definition[:applicationID],definition[:collectionID],definition[:deviceCode])
-      when 'DataCollectionRow' then
-        DataCollectionRow.new(definition)
+      when 'DataCollectionRow' then DataCollectionRow.new(definition[:dataCollectionRow])
     end
   end
 
@@ -210,21 +255,47 @@ class DataCollectionRow
 
   def initialize(definition)
     @data = Array.new
-    puts definition.class
-    case definition.class
-      when String then
+    case definition.class.to_s
+      when 'String' then
         definition.scan(/<ax21:(.*?)>(.*?)</).each do |r|
           if r[1].to_s.size > 0
-            @data << {r[0].to_sym => r[1]}
+            case key
+              when :applicationCode then @applicationCode = value
+              when :applicationID then @applicationID = value
+              when :collectionID then @collectionID = value
+              when :deviceCode then @deviceCode = value
+              when :idd then @idd = value
+              when :progressiveNo then @progressiveNo = value
+              else
+                @data << {r[0].to_sym => r[1]}
+            end
           end
         end
-      when Hash then byebug
+      when 'Hash' then
         definition.each do |key,value|
           if value.to_s.size > 0
-            @data << {key => value}
+            case key
+              when :applicationCode then @applicationCode = value
+              when :applicationID then @applicationID = value
+              when :collectionID then @collectionID = value
+              when :deviceCode then @deviceCode = value
+              when :idd then @idd = value
+              when :progressiveNo then @progressiveNo = value
+              else
+                @data << {key => value}
+            end
           end
         end
     end
+    @dataCollectionRowKey = DataCollectionRowKey.new(@applicationCode,@collectionID,@deviceCode,@idd,@progressiveNo)
+  end
+
+  def applicationID
+    @applicationID
+  end
+
+  def dataCollectionRowKey
+    @dataCollectionRowKey
   end
 
   def data
@@ -233,30 +304,89 @@ class DataCollectionRow
 
 end
 
+class DataCollectionRowKey
+
+  def initialize(applicationCode,collectionID,deviceCode,idd,progressiveNo)
+    @applicationCode = applicationCode
+    @collectionID = collectionID
+    @deviceCode = deviceCode
+    @idd = idd
+    @progressiveNo = progressiveNo
+  end
+
+  def xml
+    "<ns2:dataCollectionRowKey xmlns:ns2=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:applicationCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@applicationCode}</ns1:applicationCode><ns1:collectionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@collectionID}</ns1:collectionID><ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@deviceCode}</ns1:deviceCode></ns2:dataCollectionRowKey>"
+  end
+
+end
+
 class VacationRequest
-  def initialize(person,from,to,type,application)
-    @person = person
-    @from = from
-    @to = to
-    @type = type
-    @application = application
+
+  #array of dataCollectionRows
+  def initialize(dataCollectionRows, mdc = MdcWebservice.new)
+
+    dataCollectionRows.each do |dcr|
+      next if dcr.applicationID != 'FERIE'
+
+      @type = 0
+      @date = Date.new(dcr[:date])
+      @device = dcr[:deviceCode]
+      case dcr[:field_code]
+        when 'date_from' then @date_from = Date.new(dcr[:extendedValue])
+        when 'date_to' then @date_to = Date.new(dcr[:extendedValue])
+        when 'time_from' then @time_from = Date.new(dcr[:extendedValue])
+        when 'time_to' then @time_to = Date.new(dcr[:extendedValue])
+      end
+      puts dcr[:formCode]
+      puts dcr[:progressiveno]
+      if dcr[:formCode] == 'pdf_report' and dcr[:progressiveNo] == 3
+
+        @form = mdc.download_file(dcr[:description])[/%PDF.*/m]
+      end
+    end
+
+
+  end
+
+  def send_mail
+    HumanResourcesMailer.new.vacation_request(self)
+  end
+
+  def filename
+    'test.pdf'
+  end
+
+  def form
+    @form
   end
 
   def type
-    case @type
-      when 0 then 'Ferie'
-      when 1 then 'Permesso'
-    end
+    'ferie'
   end
 
   def person
-    @person
+    @device
+  end
+
+  def date
+    @date#.strftime('%d/%M/%Y')
+  end
+
+  def when
+    "dal #{from} al #{to}"
   end
 
   def from
     case @type
-      when 0 then @from.strftime("%D/%M/%Y")
-      when 1 then @from.strftime("%H:%m:%s")
+    when 0 then @date_from.strftime("%D/%M/%Y")
+    when 1 then @time_from.strftime("%H:%m:%s")
+    end
+  end
+
+  def to
+    case @type
+    when 0 then @date_from.strftime("%D/%M/%Y")
+    when 1 then @time_from.strftime("%H:%m:%s")
     end
   end
 end
