@@ -88,7 +88,7 @@ class Article < ApplicationRecord
       :width         => 385,
       :length        => 180,
       :print_speed   => 3,
-      :print_density => 6
+      :print_density => 9
     )
     # box = Zebra::Epl::Box.new :position => [0, 0], :end_position => [385, 180], :line_thickness => 2
     # label << box

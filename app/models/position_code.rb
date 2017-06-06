@@ -44,7 +44,7 @@ class PositionCode < ApplicationRecord
       :width         => 385,
       :length        => 180,
       :print_speed   => 3,
-      :print_density => 6
+      :print_density => 9
     )
     if self.description.size > 32
       text  = Zebra::Epl::Text.new :data => self.description[0..31], :position => [10, 10], :font => Zebra::Epl::Font::SIZE_3

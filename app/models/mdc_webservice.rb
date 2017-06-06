@@ -378,7 +378,7 @@ class VacationRequest
   end
 
   def filename
-    'test.pdf'
+    "#{self.date('%Y%m%d')} #{person}.pdf'"
   end
 
   def form
@@ -397,8 +397,12 @@ class VacationRequest
     @dataCollectionRowKey.deviceCode
   end
 
-  def date
-    @date.strftime('%d/%m/%Y')
+  def date(format = '%d/%m/%Y')
+    if format == 'raw'
+      @date
+    else
+      @date.strftime(format)
+    end
   end
 
   def when
