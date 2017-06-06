@@ -134,13 +134,16 @@ class MdcWebservice
     unpack_response(HTTPI.post(request).body)
   end
 
-  def update_data_collection_rows_status(dataCollectionRowKey,status = 1)
-
+  def update_data_collection_rows_status(dataCollectionRows,status = 1)
+    keys  = ''
+    dataCollectionRows.each do |dcr|
+      keys += "<ns3:keys>#{dcr.dataCollectionRowKey.xml}</ns3:keys>"
+    end
     request = HTTPI::Request.new
     request.url = @endpoint
-    request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:updateDataCollectionRowsStatus xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns1:keys>#{dataCollectionRowKey.xml}</ns1:keys><ns3:status>#{status}</ns3:status></ns3:updateDataCollectionRowsStatus></soapenv:Body></soapenv:Envelope>"
+    request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:updateDataCollectionRowsStatus xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{keys}<ns3:status>#{status}</ns3:status></ns3:updateDataCollectionRowsStatus></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    # puts request.body
+    puts request.body
     HTTPI.post(request)
   end
 
@@ -328,7 +331,8 @@ class DataCollectionRowKey
   end
 
   def xml
-    "<ns2:dataCollectionRowKey xmlns:ns2=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:applicationCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@applicationCode}</ns1:applicationCode><ns1:collectionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@collectionID}</ns1:collectionID><ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@deviceCode}</ns1:deviceCode></ns2:dataCollectionRowKey>"
+    # "<ns2:dataCollectionRowKey xmlns:ns2=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:applicationCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@applicationCode}</ns1:applicationCode><ns1:collectionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@collectionID}</ns1:collectionID><ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@deviceCode}</ns1:deviceCode></ns2:dataCollectionRowKey>"
+    "<ns1:applicationCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@applicationCode}</ns1:applicationCode><ns1:collectionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@collectionID}</ns1:collectionID><ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@deviceCode}</ns1:deviceCode><ns1:idd xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@idd}</ns1:idd><ns1:progressiveNo xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@progressiveNo}</ns1:progressiveNo>"
   end
 
 end
@@ -348,20 +352,20 @@ class VacationRequest
       @date = Date.strptime(dcr.data[:date], '%Y%m%d')
       @dataCollectionRowKey = dcr.dataCollectionRowKey
       case dcr.data[:fieldCode]
-      when 'date_from' then @data[:date_from] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
-      when 'date_to' then @data[:date_to] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
-      when 'time_from' then @data[:time_from] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
-      when 'time_to' then @data[:time_to] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
+        when 'date_from' then @data[:date_from] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
+        when 'date_to' then @data[:date_to] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
+        when 'time_from' then @data[:time_from] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
+        when 'time_to' then @data[:time_to] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
       end
 
-      if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2        
+      if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
          @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
       end
 
     end
 
     @data = nil if @data[:date_from].nil? or @data[:date_to].nil?
-
+    mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
   end
 
   def send_mail
