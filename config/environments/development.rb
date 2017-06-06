@@ -47,7 +47,19 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
-   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  #  config.action_mailer.default_url_options = { host: '10.0.0.100', port: 25 }
+   config.action_mailer.delivery_method = :smtp
+# SMTP settings for gmail
+config.action_mailer.smtp_settings = {
+ :address              => "10.0.0.100",
+ :port                 => 25,
+#  :user_name            => 'auto-mailer',
+#  :password             => '12345678',
+#  :authentication       => "plain",
+:enable_starttls_auto => true,
+:openssl_verify_mode => 'none'
+}
+
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
@@ -56,5 +68,5 @@ Rails.application.configure do
   #config.file_watcher = ActiveSupport::EventedFileUpdateChecker
   config.file_watcher = ActiveSupport::FileUpdateChecker
 
-  
+
 end

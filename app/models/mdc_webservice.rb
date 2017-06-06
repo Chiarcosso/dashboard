@@ -138,7 +138,7 @@ class MdcWebservice
 
     request = HTTPI::Request.new
     request.url = @endpoint
-    request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:updateDataCollectionRowsStatus xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:keys>#{dataCollectionRowKey.xml}</ns3:keys><ns3:status>#{status}</ns3:status></ns3:updateDataCollectionRowsStatus></soapenv:Body></soapenv:Envelope>"
+    request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:updateDataCollectionRowsStatus xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns1:keys>#{dataCollectionRowKey.xml}</ns1:keys><ns3:status>#{status}</ns3:status></ns3:updateDataCollectionRowsStatus></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
     # puts request.body
     HTTPI.post(request)
@@ -157,10 +157,11 @@ class MdcWebservice
   private
 
   def data_transform(definition)
+    # byebug if definition[:data_type]=='DataCollectionRow'
     case definition[:data_type]
       when 'SessionID' then SessionID.new(definition[:sessionID])
       when 'DataCollectionHead' then DataCollectionHead.new(definition[:applicationCode],definition[:applicationID],definition[:collectionID],definition[:deviceCode])
-      when 'DataCollectionRow' then DataCollectionRow.new(definition[:dataCollectionRow])
+      when 'DataCollectionRow' then DataCollectionRow.new(definition)
     end
   end
 
@@ -178,6 +179,7 @@ class MdcWebservice
           response.scan(/<ns:return .*?xsi:type="ax21:(.*?)"[^>]*>(.*?)<\/ns:return>/m) do |ret|
             return_data << {type: ret[0], body: ret[1]}
           end
+
           data = Array.new
           return_data.each do |r|
             tmp = Hash.new
@@ -186,6 +188,7 @@ class MdcWebservice
               tmp[match[0].to_sym] = match[1]
             end
             data << data_transform(tmp)
+
           end
         else
           tmp = response[/%PDF.*/m]
@@ -254,7 +257,7 @@ end
 class DataCollectionRow
 
   def initialize(definition)
-    @data = Array.new
+    @data = Hash.new
     case definition.class.to_s
       when 'String' then
         definition.scan(/<ax21:(.*?)>(.*?)</).each do |r|
@@ -267,7 +270,8 @@ class DataCollectionRow
               when :idd then @idd = value
               when :progressiveNo then @progressiveNo = value
               else
-                @data << {r[0].to_sym => r[1]}
+                # @data << {r[0].to_sym => r[1]}
+                @data[r[0].to_sym] = r[1]
             end
           end
         end
@@ -280,9 +284,10 @@ class DataCollectionRow
               when :collectionID then @collectionID = value
               when :deviceCode then @deviceCode = value
               when :idd then @idd = value
-              when :progressiveNo then @progressiveNo = value
+              when :progressiveNo then @progressiveNo = value.to_i
               else
-                @data << {key => value}
+                # @data << {key => value}
+                @data[key.to_sym] = value
             end
           end
         end
@@ -314,6 +319,14 @@ class DataCollectionRowKey
     @progressiveNo = progressiveNo
   end
 
+  def deviceCode
+    @deviceCode
+  end
+
+  def progressiveNo
+    @progressiveNo
+  end
+
   def xml
     "<ns2:dataCollectionRowKey xmlns:ns2=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:applicationCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@applicationCode}</ns1:applicationCode><ns1:collectionID xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@collectionID}</ns1:collectionID><ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@deviceCode}</ns1:deviceCode></ns2:dataCollectionRowKey>"
   end
@@ -323,28 +336,31 @@ end
 class VacationRequest
 
   #array of dataCollectionRows
-  def initialize(dataCollectionRows, mdc = MdcWebservice.new)
+  def initialize(dataCollectionRows, mdc)
 
+    @data = Hash.new
     dataCollectionRows.each do |dcr|
+
       next if dcr.applicationID != 'FERIE'
-
       @type = 0
-      @date = Date.new(dcr[:date])
-      @device = dcr[:deviceCode]
-      case dcr[:field_code]
-        when 'date_from' then @date_from = Date.new(dcr[:extendedValue])
-        when 'date_to' then @date_to = Date.new(dcr[:extendedValue])
-        when 'time_from' then @time_from = Date.new(dcr[:extendedValue])
-        when 'time_to' then @time_to = Date.new(dcr[:extendedValue])
-      end
-      puts dcr[:formCode]
-      puts dcr[:progressiveno]
-      if dcr[:formCode] == 'pdf_report' and dcr[:progressiveNo] == 3
 
-        @form = mdc.download_file(dcr[:description])[/%PDF.*/m]
+
+      @date = Date.strptime(dcr.data[:date], '%Y%m%d')
+      @dataCollectionRowKey = dcr.dataCollectionRowKey
+      case dcr.data[:fieldCode]
+      when 'date_from' then @data[:date_from] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
+      when 'date_to' then @data[:date_to] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
+      when 'time_from' then @data[:time_from] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
+      when 'time_to' then @data[:time_to] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
       end
+
+      if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2        
+         @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
+      end
+
     end
 
+    @data = nil if @data[:date_from].nil? or @data[:date_to].nil?
 
   end
 
@@ -352,41 +368,50 @@ class VacationRequest
     HumanResourcesMailer.new.vacation_request(self)
   end
 
+  def text
+    "Richiesta #{self.type}\n\nIl #{self.date}, #{self.person} ha richiesto #{self.type} #{self.when}.\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore del sistema."
+    # render 'human_resources_mailer/vacation_request'
+  end
+
   def filename
     'test.pdf'
   end
 
   def form
-    @form
+    @data[:form]
   end
 
   def type
     'ferie'
   end
 
+  def data
+    @data
+  end
+
   def person
-    @device
+    @dataCollectionRowKey.deviceCode
   end
 
   def date
-    @date#.strftime('%d/%M/%Y')
+    @date.strftime('%d/%m/%Y')
   end
 
   def when
-    "dal #{from} al #{to}"
+    "dal #{self.from} al #{self.to}"
   end
 
   def from
     case @type
-    when 0 then @date_from.strftime("%D/%M/%Y")
-    when 1 then @time_from.strftime("%H:%m:%s")
+    when 0 then @data[:date_from].strftime("%d/%m/%Y")
+    when 1 then @data[:time_from].strftime("%H:%m:%s")
     end
   end
 
   def to
     case @type
-    when 0 then @date_from.strftime("%D/%M/%Y")
-    when 1 then @time_from.strftime("%H:%m:%s")
+    when 0 then @data[:date_from].strftime("%d/%m/%Y")
+    when 1 then @data[:time_from].strftime("%H:%m:%s")
     end
   end
 end
