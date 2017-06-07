@@ -2,13 +2,19 @@
   .container
     .row
       .col-sm-3
-        = text_field_tag :search, @search, placeholder: 'Codice a barre..', class: 'form-control autofocus prevent-cr', id: 'first', 'data-target': items_reposition_path
+        = text_field_tag :search, @locals[:search], placeholder: 'Codice a barre..', class: "form-control #{@locals[:goners].size > 0 ? '' : 'autofocus '}prevent-cr", id: 'first', 'data-target': items_reposition_path
       .col-sm-3
-        = text_field_tag :amount, @amount, placeholder: 'Numero..', class: 'form-control autofocus prevent-cr', id: 'second', 'data-target': items_reposition_path
+        = text_field_tag :amount, @amount, placeholder: 'Numero..', class: "form-control #{@locals[:goners].size > 0 ? 'autofocus ' : ''}prevent-cr", id: 'second', 'data-target': items_reposition_path
       .col-sm-3
         = text_field_tag :position, @position, placeholder: 'Posizione..', class: 'form-control autofocus', id: 'third', 'data-target': items_reposition_path
 
   .container.scrollable-panel#itm-cont
+    #num="#{@locals[:items].size} elementi"
+    %br
+    %br
+    - @locals[:goners].each do |g|
+      = hidden_field_tag 'goners[]', g.id
+
     - @locals[:items].each do |i|
       .row
         .col-sm-1
@@ -38,10 +44,13 @@
         format: 'json',
         complete: function(data){
           //console.log(data.responseJSON);
+          var count = 0;
           $.each(data.responseJSON,function(k,itm){
             //console.log(itm);
-            $('#itm-cont').append('<div class="row"><div class="col-sm-1">'+itm['id']+'</div><div class="col-sm-6">'+itm['name']+'</div><div class="col-sm-4">'+itm['position']+'</div></div>')
+            $('#itm-cont').append('<div class="row"><div class="col-sm-1"><input type="hidden" name="items[]" value="'+itm['id']+'"/>'+itm['id']+'</div><div class="col-sm-6">'+itm['name']+'</div><div class="col-sm-4">'+itm['position']+'</div></div>')
+            count += 1
           })
+          $('#num').html(count+' elementi')
           $('#second').focus();
         }
       });

@@ -339,35 +339,44 @@ class ItemsController < ApplicationController
     def get_reposition_items
       @locals = Hash.new
       @locals[:items] = Array.new
+      @locals[:goners] = Array.new
       unless params[:amount].nil? or params[:amount].empty?
         amount = params.require(:amount).to_i
       end
+      unless params[:position].nil? or params[:position].empty?
+        position = params.require(:position)
+      end
 
-      # unless params[:items].nil? || params[:items] == ''
-      #   params.require(:items).each do |i|
-      #     @locals[:items] << Item.find(i.to_i)
-      #   end
-      # end
-      unless params[:search].nil? || params[:search] == ''
-        @search = params.require(:search)
-        Item.firstBarcode(@search).order(:position_code_id).each do |i|
-          @locals[:items] << i
+      unless params[:items].nil? || params[:items] == ''
+        params.require(:items).each do |i|
+          @locals[:items] << Item.find(i.to_i)
         end
-        pc = PositionCode.findByCode(@search)
+      else
+        unless params[:search].nil? || params[:search] == '' || @locals[:goners].size > 0
+          @locals[:search] = params.require(:search)
+          Item.firstBarcode(@locals[:search]).order(:position_code_id).each do |i|
+            @locals[:items] << i
+          end
+        end
+      end
+      unless params[:search].nil? || params[:search] == ''
+        @locals[:search] = params.require(:search)
+
+        pc = PositionCode.findByCode(position)
         unless pc.nil?
           c = 1
           @locals[:items].each do |i|
             if c <= amount.to_i
               i.update(:position_code => pc)
+              @locals[:goners] << i
               c += 1
             else
               break
             end
-
           end
+          @locals[:items] -= @locals[:goners]
         end
       end
-byebug
     end
 
     def find_params

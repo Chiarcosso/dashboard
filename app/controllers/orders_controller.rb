@@ -418,7 +418,12 @@ class OrdersController < ApplicationController
       when :Office
         @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
       when :Vehicle
-        @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate(params[:vvehicle_id].nil? ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+        # @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+        if params[:vrecipient] == '' and params[:vvehicle_id] == ''
+          @recipient = Vehicle.new
+        else
+          @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+        end
       when :Worksheet
         unless params[:recipient].nil? || params[:recipient] == ''
           @recipient = Worksheet.findByCode(params.require(:recipient))
@@ -466,7 +471,12 @@ class OrdersController < ApplicationController
       when :Office
         @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
       when :Vehicle
-        @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate(params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+        # @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate(params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+        if params[:vrecipient] == '' and params[:vvehicle_id] == ''
+          @recipient = Vehicle.new
+        else
+          @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+        end
       when :Worksheet
         unless params[:recipient].nil? || params[:recipient] == ''
           @recipient = Worksheet.findByCode(params.require(:recipient))
