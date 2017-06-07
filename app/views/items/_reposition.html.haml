@@ -11,6 +11,8 @@
   .container.scrollable-panel#itm-cont
     - @locals[:items].each do |i|
       .row
+        .col-sm-1
+          = i.id
         .col-sm-6
           = hidden_field_tag 'items[]', i.id
           = i.complete_name

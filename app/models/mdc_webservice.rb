@@ -1,8 +1,9 @@
 class MdcWebservice
 
   def initialize
-    username = 'chiarcosso_ws'
-    password = 'MfE3isk2Z0'
+
+    username = ENV['MDC_USERNAME']
+    password = ENV['MDC_PASSWD']
     useSharedDatabaseConnection = 0
 
     @endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'

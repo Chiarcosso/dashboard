@@ -343,11 +343,11 @@ class ItemsController < ApplicationController
         amount = params.require(:amount).to_i
       end
 
-      unless params[:items].nil? || params[:items] == ''
-        params.require(:items).each do |i|
-          @locals[:items] << Item.find(i.to_i)
-        end
-      end
+      # unless params[:items].nil? || params[:items] == ''
+      #   params.require(:items).each do |i|
+      #     @locals[:items] << Item.find(i.to_i)
+      #   end
+      # end
       unless params[:search].nil? || params[:search] == ''
         @search = params.require(:search)
         Item.firstBarcode(@search).order(:position_code_id).each do |i|
@@ -358,7 +358,7 @@ class ItemsController < ApplicationController
           c = 1
           @locals[:items].each do |i|
             if c <= amount.to_i
-              i.position_code = pc
+              i.update(:position_code => pc)
               c += 1
             else
               break
@@ -367,7 +367,7 @@ class ItemsController < ApplicationController
           end
         end
       end
-
+byebug
     end
 
     def find_params

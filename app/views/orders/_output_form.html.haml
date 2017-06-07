@@ -26,7 +26,7 @@
           -# = hidden_field_tag :item, item.id
           = item.article.complete_name.to_s
         .col-sm-1
-          = item.article.availability(@checked_items).size
+          = "#{item.article.availability(@checked_items).size} (min. #{item.article.minimalReserve.to_i})"
         .col-sm-3
           = item.serial
         .col-sm-1
