@@ -138,7 +138,7 @@ class ItemsController < ApplicationController
       @items << item
     end
     if @save
-      unpositionedItems = Item.unpositioned.to_a
+      unpositionedItems = Item.unassigned.unpositioned.to_a
       newItems = Array.new
       @items.each do |i|
         # i.transportDocument = @transportDocument
