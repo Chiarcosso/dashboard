@@ -30,7 +30,7 @@ class Article < ApplicationRecord
   # end
 
   def under_reserve?(*checked)
-    self.minimalReserve > self.availability(checked).size
+    self.minimalReserve.to_f > self.availability(checked).size
   end
 
   def lastPrice
