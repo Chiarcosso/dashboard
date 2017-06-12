@@ -21,7 +21,7 @@
     -# = hidden_field_tag :search, @search
     = hidden_field_tag :destination, @destination
     - @selected_items.each do |key, item|
-      .row.hover-hilight{'data-target': add_item_to_order_path, 'data-data': item.id}
+      .row.hover-hilight{class: ('signal-danger' if item.article.under_reserve?), 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
         .col-sm-4
           -# = hidden_field_tag :item, item.id
           = item.article.complete_name.to_s
@@ -80,6 +80,8 @@
   domInit();
   preventCr();
   activateFinder();
+  activateReserveAlert();
+
   $('#vehicle').val($('#vehicle').data('value'));
   $('#vrecipient').val($('#vvehicle_id').val());
   console.log($('#vehicle').val());

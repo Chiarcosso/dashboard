@@ -29,6 +29,10 @@ class Article < ApplicationRecord
   #   Item.available_items.article(self)
   # end
 
+  def under_reserve?(*checked)
+    self.minimalReserve > self.availability(checked).size
+  end
+
   def lastPrice
     i = Item.newestItem(self).first
     unless i.nil?

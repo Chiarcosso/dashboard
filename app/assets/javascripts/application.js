@@ -33,6 +33,14 @@ function activateClose(){
   });
 };
 
+function activateReserveAlert(){
+  if($('.signal-danger').length > 0){
+    $.each($('.signal-danger'),function(){
+      alert($(this).data('name')+' è sotto la scorta minima.');
+    });
+  }
+}
+
 function activateFinder(){
   $('.finder').off();
   $('.finder').on('keyup',function(e){

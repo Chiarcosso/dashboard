@@ -41,6 +41,34 @@ body{
   margin-bottom: .25em;
 }
 
+.signal-danger{
+  background-color: #f44;
+}
+
+.signal-danger a:link{
+  color: #000;
+}
+
+.signal-danger a:visited{
+  color: #000;
+}
+
+.signal-danger a:active{
+  color: #000;
+}
+
+.signal-danger a:hover{
+  color: #000;
+}
+
+.signal-warning{
+  background-color: #ff0;
+}
+
+.signal-ok{
+  background-color: #0f0;
+}
+
 .store-box{
   margin: .1em;
   border-radius: .5em;

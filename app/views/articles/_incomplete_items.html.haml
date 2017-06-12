@@ -3,8 +3,8 @@
   = 'Totale: '+Article.count.to_s+' oggetti'
   %br
   %br
-  = form_tag(incomplete_articles_path, method: :get, remote: true, type: :script) do |f|
-    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': articles_path
+  = form_tag(incomplete_articles_path, method: :get, remote: true, type: :script, class: 'prevent-cr') do |f|
+    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': articles_path
 -# - if Article.incompleteItems.empty?
   = "Non ci sono articoli incompleti"
 -# - else
@@ -15,9 +15,9 @@
     %b= 'Articolo'
   .col-sm-2
     %b= 'Codice a barre'
-  .col-sm-1
+  .col-sm-2
     %b= 'Disp.'
-  .col-sm-3
+  .col-sm-2
     %b= 'Ultimo prezzo'
   .col-sm-1
     %b= 'Categorie'
@@ -30,3 +30,4 @@
 
   domInit();
   activateAF();
+  activateReserveAlert();
