@@ -1,6 +1,6 @@
 %h3='Elenco articoli'
 .container-fluid
-  = 'Totale: '+Article.count.to_s+' oggetti'
+  = @filteredArticles.size.to_s+' di '+Article.count.to_s+' articoli'
   %br
   %br
   = form_tag(incomplete_articles_path, method: :get, remote: true, type: :script, class: 'prevent-cr') do |f|
