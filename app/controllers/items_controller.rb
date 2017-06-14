@@ -51,13 +51,14 @@ class ItemsController < ApplicationController
     tmp = Hash.new
     Item.unpositioned.unassigned.each do |un|
       d = un.expiringDate.nil?? 'noDate' : un.expiringDate.strftime('%Y%m%d')
-      p = un.complete_price
+      p = un.complete_price.to_s
       if tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p].nil?
         un.setAmount 1
         tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p] = un
       else
         tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p].setAmount tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p].amount+1
       end
+
     end
     tmp.each do |k,u|
       @items << u
@@ -249,7 +250,7 @@ class ItemsController < ApplicationController
   # DELETE /items/1.json
   def destroy
     @item.item_relations.each do |ir|
-      if ir.office.nil? && ir.vehicle.nil? && ir.person.nil?
+      if ir.office.nil? && ir.vehicle.nil? && ir.person.nil? && ir.worksheet_id.nil?
         ir.delete
       end
     end
