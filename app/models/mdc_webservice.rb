@@ -26,6 +26,23 @@ class MdcWebservice
 
   end
 
+  def self.look_for(what)
+    mdc = MdcWebservice.new
+    results = Array.new
+    case what
+    when :vacation then
+      Person.mdc.order_mdc_user.each do |p|
+        puts "Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
+        mdc.get_vacation_data({applicationID: 'FERIE', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
+          r.send_mail unless r.data.nil?
+          results << r
+        end
+      end
+    end
+    mdc.close_session
+    return results
+  end
+
   def session_id
     @sessionID
   end
@@ -45,7 +62,6 @@ class MdcWebservice
     end
     self.commit_transaction
     self.end_transaction
-    self.close_session
 
     return data
   end
@@ -121,7 +137,7 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:selectDataCollectionHeads xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:applicationID>#{ops[:applicationID]}</ns3:applicationID><ns3:deviceCode>#{ops[:deviceCode]}</ns3:deviceCode><ns3:status>#{ops[:status]}</ns3:status></ns3:selectDataCollectionHeads></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-
+    # byebug if ops[:deviceCode] == 'T3'
     unpack_response(HTTPI.post(request))
   end
 
@@ -175,7 +191,7 @@ class MdcWebservice
         response = response.body
       end
     # begin
-      error = response.match(/<soapenv:Fault>.*?<\/soapenv:Fault/m)
+      error = response.match(/<soapenv:Fault>.*?<\/soapenv:Fault>/m)
       if error.nil?
         action = response.match(/<soapenv:Body><ns:(.*?)Response .*/m,1)[1]
         unless action == 'downloadFile'
@@ -202,7 +218,7 @@ class MdcWebservice
           end
         end
       else
-        # byebug
+        puts error
       end
     # rescue
     #   action = 'Error'
@@ -374,12 +390,12 @@ class VacationRequest
   end
 
   def text
-    "Richiesta #{self.type}\n\nIl #{self.date}, #{self.person} ha richiesto #{self.type} #{self.when}.\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore del sistema."
+    "Richiesta #{self.type}\n\nIl #{self.date}, #{self.person.complete_name} ha richiesto #{self.type} #{self.when}.\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore del sistema."
     # render 'human_resources_mailer/vacation_request'
   end
 
   def filename
-    "#{self.date('%Y%m%d')} #{person}.pdf'"
+    "#{self.date('%Y%m%d')} #{person.complete_name}.pdf"
   end
 
   def form
@@ -395,7 +411,7 @@ class VacationRequest
   end
 
   def person
-    @dataCollectionRowKey.deviceCode
+    Person.find_by_mdc_user(@dataCollectionRowKey.deviceCode)
   end
 
   def date(format = '%d/%m/%Y')
@@ -419,8 +435,8 @@ class VacationRequest
 
   def to
     case @type
-    when 0 then @data[:date_from].strftime("%d/%m/%Y")
-    when 1 then @data[:time_from].strftime("%H:%m:%s")
+    when 0 then @data[:date_to].strftime("%d/%m/%Y")
+    when 1 then @data[:time_to].strftime("%H:%m:%s")
     end
   end
 end

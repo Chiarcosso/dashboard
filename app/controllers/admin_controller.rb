@@ -10,11 +10,16 @@ class AdminController < ApplicationController
     ws = MdcWebservice.new
     @sessionID = ws.session_id.id
     puts @sessionID
-    @results = ws.get_vacation_data({applicationID: 'FERIE', deviceCode: 'T1', status: 0})
-    @results.each do |r|
-      r.send_mail unless r.data.nil?
-      # byebug if r.data.nil?
-    end
+    @results = Array.new
+    @resuts = MdcWebservice.look_for(:vacation)
+    # Person.mdc.each do |p|
+    #   tmp = ws.get_vacation_data({applicationID: 'FERIE', deviceCode: p.mdc_user.upcase, status: 0})
+    #   tmp.each do |r|
+    #     r.send_mail unless r.data.nil?
+    #     # byebug if r.data.nil?
+    #   end
+    #   @results += tmp
+    # end
     # endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
     # @endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
 

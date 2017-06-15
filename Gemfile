@@ -46,6 +46,7 @@ gem 'cancancan'
 gem 'rolify'
 gem 'sanitize-rails'
 
+gem 'whenever', :require => false
 # gem 'ancestry'
 
 gem 'bootstrap-datepicker-rails'

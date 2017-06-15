@@ -7,7 +7,7 @@ class HumanResourcesMailer < ApplicationMailer
 
     # attachments [:content_type => "application/pdf", :body => application.form]
     attachments[application.filename] = {:mime_type => 'application/pdf', :content => application.form }
-    mail(to: 'fabio.boccacini@chiarcosso.com', body: application.text, subject: 'Richiesta '+application.type).deliver
+    mail(to: 'fabio.boccacini@chiarcosso.com', body: application.text, subject: 'Richiesta '+application.type+', '+application.person.complete_name).deliver
 
   end
 

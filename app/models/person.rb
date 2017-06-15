@@ -7,7 +7,13 @@ class Person < ApplicationRecord
 
   # scope :order_alpha, -> { order(:surname) }
   scope :filter, ->(name) { where('name like ? or surname like ?', "%#{name}%", "%#{name}%").order(:surname) }
+  scope :mdc, -> { where('mdc_user is not null') }
+  scope :order_mdc_user, -> { order(:mdc_user)}
   # scope :company, ->(name) { joins(:companies).where('company.name like ?',"%#{name}%") }
+
+  def self.find_by_mdc_user(user)
+    Person.mdc.where(:mdc_user => user).first
+  end
 
   def complete_name
     self.name+' '+self.surname
