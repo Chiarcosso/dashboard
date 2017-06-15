@@ -371,8 +371,8 @@ class VacationRequest
       case dcr.data[:fieldCode]
         when 'date_from' then @data[:date_from] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
         when 'date_to' then @data[:date_to] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
-        when 'time_from' then @data[:time_from] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
-        when 'time_to' then @data[:time_to] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
+        # when 'time_from' then @data[:time_from] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
+        # when 'time_to' then @data[:time_to] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
       end
 
       if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
