@@ -1,13 +1,17 @@
 class PeopleController < ApplicationController
-  before_action :set_person, only: [:show, :edit, :update, :destroy]
-
+  before_action :set_person, only: [:show, :edit, :update, :destroy, :add_role]
+  before_action :search_params, only: [:index]
 
   autocomplete :company, :name, full: true
 
   # GET /people
   # GET /people.json
   def index
-    @people = Person.all
+    if @search.nil? || @search == ""
+      @filteredPeople = Array.new
+    else
+      @filteredPeople = Person.filter(@search)
+    end
   end
 
   # GET /people/1
@@ -30,9 +34,9 @@ class PeopleController < ApplicationController
     @person = Person.new(person_params)
     respond_to do |format|
       if @person.save
-        relation_params
-        CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
-        format.html { redirect_to people_path, notice: 'Person was successfully created.' }
+        # relation_params
+        # CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
+        format.html { redirect_to edit_person_path(@person.id), notice: 'Persona creata con successo.' }
         format.json { render :show, status: :created, location: @person }
       else
         format.html { render :new }
@@ -46,14 +50,35 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        relation_params
-        CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
+        # relation_params
+        # CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
         format.html { redirect_to people_path, notice: 'Person was successfully updated.' }
         format.json { render :show, status: :ok, location: @person }
       else
         format.html { render :edit }
         format.json { render json: @person.errors, status: :unprocessable_entity }
       end
+    end
+  end
+
+  def add_role
+    company = Company.find(params[:relation][:company].to_i)
+    role = CompanyRelation.find(params[:relation][:relation].to_i)
+    CompanyPerson.create(person: @person, company: company, company_relation: role)
+    # unless params[:id].nil? || params[:id] == ''
+    #   cp = CompanyPerson.find(params.require(:id))
+    #   p = cp.person_id
+    #   cp.destroy
+    # end
+    render :js, :partial => 'people/relations_list_js'
+  end
+
+  def delete_role
+    unless params[:id].nil? || params[:id] == ''
+      cp = CompanyPerson.find(params.require(:id))
+      @person = cp.person
+      cp.destroy
+      render :js, :partial => 'people/relations_list_js'
     end
   end
 
@@ -73,9 +98,15 @@ class PeopleController < ApplicationController
       @person = Person.find(params[:id])
     end
 
+    def search_params
+      unless params[:search].nil? || params[:search] == ''
+        @search = params.require(:search)
+      end
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
-      params.require(:person).permit(:name, :surname, :notes)
+      params.require(:person).permit(:name, :surname, :notes, :mdc_user)
     end
 
     def relation_params

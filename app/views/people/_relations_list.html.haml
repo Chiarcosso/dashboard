@@ -2,7 +2,14 @@
   .row
     .col-sm-3
       =r.company.name
-      =hidden_field_tag 'relations[[company]]', r.company
-    .col-sm-3
+      -# =hidden_field_tag 'relations[[company]]', r.company
+    .col-sm-2
       =r.company_relation.name
-      =hidden_field_tag 'relations[[relation]]', r.company
+      -# =hidden_field_tag 'relations[[relation]]', r.company
+    .col-sm-1
+      %button{ class: 'ajax-link-stand-alone', 'data-label': "roulo di #{r.company_relation.name}, ditta #{r.company.name}, per #{@person.complete_name}", 'data-method': :delete, 'data-route': delete_person_role_path(r.id) }= 'x'
+
+
+:javascript
+
+  domInit();

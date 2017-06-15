@@ -2,19 +2,20 @@
 -#   = form_for(@user, url: users_admin_path, method: 'patch') do |f|
 -#     = f.select "person", options_from_collection_for_select(Person.all, "id", "complete_name"), include_blank: "- Nuova persona -", class: 'form-control'
 
-= form_for(@person) do |f|
-  - if @person.errors.any?
-    #error_explanation
-      %h2
-        = pluralize(person.errors.count, "error")
-        prohibited this person from being saved:
-      %ul
-        - person.errors.full_messages.each do |message|
-          %li= message
 
-  .container
-    .row
-      .col-sm-6
+
+.container
+  .row
+    .col-sm-6
+      = form_for(@person) do |f|
+        - if @person.errors.any?
+          #error_explanation
+            %h2
+              = pluralize(person.errors.count, "error")
+              prohibited this person from being saved:
+            %ul
+              - person.errors.full_messages.each do |message|
+                %li= message
         .form-group
           = f.label 'Nome'
           = f.text_field :name, class: 'form-control'
@@ -24,24 +25,34 @@
         .form-group
           = f.label 'Note'
           = f.text_area :notes, class: 'form-control'
+        .form-group
+          = f.label 'Utente MDC'
+          = f.text_field :mdc_user, class: 'form-control'
+        .form-group
+          = f.submit 'Aggiorna'
+    - unless @person.id.nil?
       .col-sm-6
         .container
           .row
-            .col-sm-3
-              .form-group
-                = f.label "Ditta / Associazione"
-                -# = text_field_tag "relation[company]", '', data: { autocomplete: autocomplete_company_name_people_path }, class: 'form-control autofocus'
-                = select_tag "relation[company]", options_from_collection_for_select(Company.all, "id", "name"), include_blank: "- Selezionare -", class: 'form-control'
-            .col-sm-3
-              .form-group
-                = f.label 'Ruolo'
-                = select_tag "relation[relation]", options_from_collection_for_select(CompanyRelation.all, "id", "name"), include_blank: "- Selezionare -", class: 'form-control'
+            = form_tag(person_add_role_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
+              = hidden_field_tag 'id', @person.id
+              .col-sm-3
+                .form-group
+                  %b= "Ditta / Associazione"
+                  -# = text_field_tag "relation[company]", '', data: { autocomplete: autocomplete_company_name_people_path }, class: 'form-control autofocus'
+                  = select_tag "relation[company]", options_from_collection_for_select(Company.all, "id", "name"), include_blank: "- Selezionare -", class: 'form-control'
+              .col-sm-3
+                .form-group
+                  %b= 'Ruolo'
+                  = select_tag "relation[relation]", options_from_collection_for_select(CompanyRelation.all, "id", "name"), include_blank: "- Selezionare -", class: 'form-control ajax-link-select'
+
           #relations.container.scrollable-panel
             =render :partial => 'people/relations_list'
 
-  .actions
-    = f.submit 'Crea'
+-# .actions
+-#   = f.submit 'Aggiorna'
 
-  :javascript
+:javascript
 
-    activateAutoComplete();
+  domInit();
+  activateAutoComplete();

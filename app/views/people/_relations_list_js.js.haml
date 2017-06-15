@@ -1,0 +1,2 @@
+removejtk();
+$("#relations").html("#{escape_javascript(render :partial => 'people/relations_list', locals: { order: @order, item: @item }  )} ");

@@ -1,6 +1,8 @@
 -# %p#notice= notice
 %h3 Persone
 .container
+  = form_tag(people_path, method: :get, type: :script, class: 'prevent-cr') do |f|
+    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': people_path
   .row
     .col-sm-3
       %b='Nome'
@@ -13,7 +15,7 @@
     .col-sm-2
 
 .container.scrollable-panel
-  -Person.order_alpha.each do |p|
+  -@filteredPeople.each do |p|
     .row.hover-hilight
       .col-sm-3
         =p.list_name

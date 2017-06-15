@@ -209,7 +209,7 @@ function domInit() {
 
   $('.ajax-link').off('click');
   $('.ajax-link').on('click',function(e){
-    preventDefault();
+    e.preventDefault();
     var target = $(this).data('target');
     var method = $(this).parents('form').first().children('input[name=_method]').val();
     var data = $(this).data('data');
@@ -221,6 +221,44 @@ function domInit() {
           console.log(data);
         }
       });
+  });
+
+  $('.ajax-link-select').off('change');
+  $('.ajax-link-select').on('change',function(e){
+    e.preventDefault();
+    var form = $(this).parents('form').first()[0];
+    var target = form.action;
+    var method = form.method;
+    var data = $(form).serializeArray();
+    $.ajax({
+        type: method,
+        url: target,
+        data: data,
+        complete: function(data){
+          console.log(data);
+        }
+      });
+  });
+
+  $('.ajax-link-stand-alone').off('click');
+  $('.ajax-link-stand-alone').on('click',function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    var route = $(this).data('route');
+    var method = $(this).data('method');
+    var data = $(this).data('data');
+    var label = $(this).data('label');
+    if(confirm('Eliminare '+label)){
+      $.ajax({
+          type: method,
+          url: route,
+          data: data,
+          complete: function(data){
+            console.log(data);
+          }
+        });
+    }
+
   });
 
   $('.popup-link').off('click');

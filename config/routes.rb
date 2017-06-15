@@ -26,6 +26,9 @@ Rails.application.routes.draw do
   end
   devise_for :users
 
+  delete '/people/delete_role/:id', to: 'people#delete_role', as: :delete_person_role
+  post '/people/add_role', to: 'people#add_role', as: :person_add_role
+
   # devise_scope :user do
   #   root "devise/sessions#new"
   # end
