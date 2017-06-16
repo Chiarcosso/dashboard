@@ -5,7 +5,7 @@ class Person < ApplicationRecord
   has_many :companies, through: :relations
   has_many :company_relations, through: :relations
 
-  # scope :order_alpha, -> { order(:surname) }
+  scope :order_alpha, -> { order(:surname) }
   scope :filter, ->(name) { where('name like ? or surname like ?', "%#{name}%", "%#{name}%").order(:surname) }
   scope :mdc, -> { where('mdc_user is not null') }
   scope :order_mdc_user, -> { order(:mdc_user)}
