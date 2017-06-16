@@ -15,12 +15,13 @@ class MdcWebservice
     request.open_timeout = 10
 
     tries = 1
-    while @sessionID.nil? do
+    while @sessionID.nil? and tries < 10 do
       puts "Connecting (try #{tries}).."
       begin
         @sessionID = ::SessionID.new(HTTPI.post(request).body.match(/<ax21:sessionID>(.*?)<\/ax21:sessionID>/)[1].to_s)
       rescue
         tries += 1
+        sleep 2
       end
     end
 

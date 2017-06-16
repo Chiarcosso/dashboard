@@ -37,7 +37,7 @@
         = button_to "x", "/output_order/#{order.id}", :method => :delete, :remote => true
       .col-sm-1
         = order.id
-        = order.destination.class
+        -# = order.destination.class
       .col-sm-2
         = order.destination.complete_name
       .col-sm-3
