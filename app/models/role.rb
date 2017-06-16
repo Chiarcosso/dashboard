@@ -10,5 +10,5 @@ class Role < ApplicationRecord
             :allow_nil => true
 
   scopify
-  scope :admin, ->(admin) { !admin ? where("name != 'admin'") }
+  scope :admin, ->(admin) { !admin ? where("name != 'admin'") : where('true')}
 end
