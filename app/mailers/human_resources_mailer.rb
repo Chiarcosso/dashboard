@@ -1,5 +1,6 @@
 class HumanResourcesMailer < ApplicationMailer
 
+  mail_list = ['pierluigi.ottoborgo@chiarcosso.com','alessandra.copetto@chiarcosso.com','aurora.seffino@chiarcosso.com']
   def vacation_request(application)
     @application = application
     # byebug
@@ -7,7 +8,9 @@ class HumanResourcesMailer < ApplicationMailer
 
     # attachments [:content_type => "application/pdf", :body => application.form]
     attachments[application.filename] = {:mime_type => 'application/pdf', :content => application.form }
-    mail(to: 'fabio.boccacini@chiarcosso.com', body: application.text, subject: 'Richiesta '+application.type+', '+application.person.complete_name).deliver
+    mail_list.each do |address|
+      mail(to: address, body: application.text, subject: 'Richiesta '+application.type+', '+application.person.complete_name).deliver
+    end
 
   end
 
