@@ -77,7 +77,7 @@ class OutputOrder < ApplicationRecord
       # end
       pdf.move_down 40
       pdf.font_size = 14
-      pdf.text "Il sottoscritto #{self.receiver.complete_name}, ritira la seguente attrezzatura per il mezzo targato #{self.destination.plate}:", align: :left
+      pdf.text "Il sottoscritto #{self.receiver.nil?? '______________________' : self.receiver.complete_name }, ritira la seguente attrezzatura per il mezzo targato #{self.destination.plate}:", align: :left
       # pdf.text "per il mezzo targato #{self.destination.plate}:", align: :left
       pdf.move_down 20
       pdf.font_size = 10
