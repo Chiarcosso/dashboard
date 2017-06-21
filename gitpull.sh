@@ -7,7 +7,7 @@ if [ $- == '-s' ]
 fi
 
 sudo service iptables stop
-sudo service nginx stop
+#sudo service nginx stop
 
 # FN="log/production-$(date +%Y%m%d-%H%M%S).log"
 # sudo mv ./log/production.log $FN
@@ -27,4 +27,4 @@ if [[ $speedy == false ]]; then
 fi
 
 sudo service iptables start
-sudo service nginx start
+sudo service nginx restart

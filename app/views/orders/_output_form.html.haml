@@ -46,7 +46,10 @@
             = select_tag :recipient, options_from_collection_for_select(Office.all, "id", "name", @recipient.id), class: 'form-control'
         - when :Vehicle
           .col-sm-12
-            = text_field_tag :vrecipient, @recipient.plate, data: { autocomplete:  autocomplete_vehicle_information_information_orders_path }, class: 'form-control autofocus', id: 'recipient'
+            %b='Ritira '
+            = select_tag :precipient, options_from_collection_for_select(Person.order_alpha, "id", "list_name", @receiver.id), class: 'form-control'
+            %b='Targa'
+            = text_field_tag :vrecipient, @recipient.plate, data: { autocomplete:  autocomplete_vehicle_information_information_orders_path }, class: 'form-control autofocus', id: 'recipient', placeholder: 'Inserire la targa..'
             = hidden_field_tag :vvehicle_id, @recipient.plate, id: 'vehicle_id'
         - when :Worksheet
           .col-sm-4
@@ -73,7 +76,7 @@
           = item.expiringDate.nil?? '' : (l item.expiringDate)
 
 
-  .container-fluid
+  .container-fluid.floor
     = submit_tag 'Conferma', class:'prevent-cr'
 :javascript
 

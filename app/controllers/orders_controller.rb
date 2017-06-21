@@ -188,12 +188,14 @@ class OrdersController < ApplicationController
       get_order
       # @order = OutputOrder.findByCode(params.require(:code))
       if @order.nil?
-        @order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination)
+        @order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination, receiver: @receiver)
       end
+      @order.receiver = @receiver
       @order.output_order_items.clear
       @checked_items.each do |ci|
         @order.items << ci
       end
+      @order.save
       # redirect_to storage_output_path
     end
     respond_to do |format|
@@ -424,6 +426,11 @@ class OrdersController < ApplicationController
         else
           @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
         end
+        if params[:precipient] == '' or params[:precipient].nil?
+          @receiver = Person.new
+        else
+          @receiver = Person.find(params.require(:precipient).to_i)
+        end
       when :Worksheet
         unless params[:recipient].nil? || params[:recipient] == ''
           @recipient = Worksheet.findByCode(params.require(:recipient))
@@ -476,6 +483,11 @@ class OrdersController < ApplicationController
           @recipient = Vehicle.new
         else
           @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+        end
+        if params[:precipient] == '' or params[:precipient].nil?
+          @receiver = Person.new
+        else
+          @receiver = Person.find(params.require(:precipient).to_i)
         end
       when :Worksheet
         unless params[:recipient].nil? || params[:recipient] == ''

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170615115457) do
+ActiveRecord::Schema.define(version: 20170621100759) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -182,8 +182,10 @@ ActiveRecord::Schema.define(version: 20170615115457) do
     t.datetime "created_at",                       null: false
     t.datetime "updated_at",                       null: false
     t.boolean  "processed",        default: false
+    t.integer  "receiver_id"
     t.index ["createdBy_id"], name: "index_output_orders_on_createdBy_id", using: :btree
     t.index ["destination_type", "destination_id"], name: "index_output_orders_on_destination_type_and_destination_id", using: :btree
+    t.index ["receiver_id"], name: "index_output_orders_on_receiver_id", using: :btree
   end
 
   create_table "people", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -347,6 +349,7 @@ ActiveRecord::Schema.define(version: 20170615115457) do
   add_foreign_key "order_articles", "orders"
   add_foreign_key "orders", "companies", column: "supplier_id"
   add_foreign_key "orders", "users", column: "created_by_id"
+  add_foreign_key "output_orders", "people", column: "receiver_id"
   add_foreign_key "output_orders", "users", column: "createdBy_id"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"

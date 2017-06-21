@@ -4,6 +4,7 @@ class OutputOrder < ApplicationRecord
   has_many :items, through: :output_order_items
   belongs_to :createdBy, class_name: User
   belongs_to :destination, polymorphic: true
+  belongs_to :receiver, class_name: Person
   # belongs_to :worksheet, ->  { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
 
   # scope :unprocessed, -> { where(:processed => false)}
@@ -76,7 +77,7 @@ class OutputOrder < ApplicationRecord
       # end
       pdf.move_down 40
       pdf.font_size = 14
-      pdf.text "Il sottoscritto ________________________, ritira la seguente attrezzatura per il mezzo targato #{self.destination.plate}:", align: :left
+      pdf.text "Il sottoscritto #{self.receiver.complete_name}, ritira la seguente attrezzatura per il mezzo targato #{self.destination.plate}:", align: :left
       # pdf.text "per il mezzo targato #{self.destination.plate}:", align: :left
       pdf.move_down 20
       pdf.font_size = 10
@@ -85,7 +86,7 @@ class OutputOrder < ApplicationRecord
       pdf.font_size = 12
       table = [['N.','Oggetto','Data consegna']]
       self.items.each do |i|
-        table << [1,i.article.complete_name,Date.today.to_s]
+        table << [1,i.article.complete_name,Date.today.strftime("%d/%m/%Y")]
       end
       pdf.move_down 20
       pdf.table table,
