@@ -1,0 +1,76 @@
+= form_tag(items_pricing_path, method: :post, id: 'priceForm', remote: true, type: :script) do |f|
+  .container
+    .row
+      .col-sm-3
+        = text_field_tag :search, @locals[:search], placeholder: 'Codice a barre..', class: "form-control autofocus prevent-cr", id: 'first', 'data-target': items_reposition_path
+      .col-sm-3
+        = text_field_tag :price, @price, placeholder: 'Prezzo..', class: "form-control prevent-cr", id: 'second', 'data-target': items_pricing_path
+      .col-sm-3
+        = text_field_tag :discount, @discount, placeholder: 'Sconto..', class: 'form-control autofocus', id: 'third', 'data-target': items_pricing_path
+
+  .container.scrollable-panel#itm-cont
+    #num="#{@locals[:items].size} elementi"
+    %br
+    %br
+    -# - @locals[:goners].each do |g|
+    -#   = hidden_field_tag 'goners[]', g.id
+
+    - @locals[:items].each do |i|
+      .row
+        .col-sm-1
+          = i.id
+        .col-sm-6
+          = hidden_field_tag 'items[]', i.id
+          = i.complete_name
+        .col-sm-2
+          = i.complete_price
+        .col-sm-4
+          -# = i.discount
+
+    -# = buton_to :commit, 'Conferma'
+
+:javascript
+  activateAF();
+
+  $('#first').off('keypress');
+  $('#first').on('keypress',function(e){
+    var barcode = $(this).val();
+    if (e.which == 13) {
+      e.stopPropagation();
+      e.preventDefault();
+      $.ajax({
+        url: '/items/find_free/'+barcode,
+        method: 'get',
+        format: 'json',
+        complete: function(data){
+          //console.log(data.responseJSON);
+          var count = 0;
+          $.each(data.responseJSON,function(k,itm){
+            //console.log(itm);
+            $('#itm-cont').append('<div class="row"><div class="col-sm-1"><input type="hidden" name="items[]" value="'+itm['id']+'"/>'+itm['id']+'</div><div class="col-sm-6">'+itm['name']+'</div><div class="col-sm-4">'+itm['complete_price']+'</div></div>')
+            count += 1
+          })
+          $('#num').html(count+' elementi')
+          $('#second').focus();
+        }
+      });
+    }
+  });
+  $('#second').off('keypress');
+  $('#second').on('keypress',function(e){
+    if (e.which == 13) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      //if ($(this).val().slice(-1) == '#'){
+        console.log($(this).val())
+        $('#third').focus();
+      //}
+    }
+  });
+  $('#third').off('keypress');
+  $('#third').on('keypress',function(e){
+    if (e.which == 13) {
+      $('#priceForm').submit();
+    }
+  });

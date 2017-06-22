@@ -4,6 +4,7 @@ class ItemsController < ApplicationController
   before_action :set_items_for_order, only: [:add_item_to_storage]
   before_action :set_vehicle_for_order, only: [:add_item_to_storage]
   before_action :get_reposition_items, only: [:reposition]
+  before_action :get_pricing_items, only: [:pricing]
   before_action :search_params, only: [:destroy]
 
   autocomplete :article, :manufacturerCode, full: true, :id_element => '#article_id'
@@ -16,6 +17,14 @@ class ItemsController < ApplicationController
       @selected_items = Item.filter(search_params).distinct.limited
     end
     render :partial => 'items/index'
+  end
+
+  def find_free
+    a = Array.new
+    Item.filter(find_params).for_free.each do |i|
+      a << { id: i.id, name: i.complete_name, complete_price: i.complete_price }
+    end
+    render json: a
   end
 
   def find
@@ -41,6 +50,14 @@ class ItemsController < ApplicationController
   def reposition
     @partial = 'items/reposition'
     @title = 'Riposizionamento'
+    respond_to do |format|
+      format.js { render :js, :partial => 'layouts/popup'}
+    end
+  end
+
+  def pricing
+    @partial = 'items/pricing'
+    @title = 'Prezzatura'
     respond_to do |format|
       format.js { render :js, :partial => 'layouts/popup'}
     end
@@ -333,6 +350,36 @@ class ItemsController < ApplicationController
       unless params[:items].nil?
         params.require(:items).tap do |itm|
           itm.permit(:article, :price, :discount, :serial, :state, :expiringDate, :amount)
+        end
+      end
+    end
+
+    def get_pricing_items
+      @locals = Hash.new
+      @locals[:items] = Array.new
+      unless params[:price].nil? or params[:price].empty?
+        price = params.require(:price).tr(',','.').to_f
+      end
+      unless params[:discount].nil? or params[:discount].empty?
+        discount = params.require(:discount).tr(',','.').to_f
+      end
+
+      unless params[:items].nil? || params[:items] == ''
+        params.require(:items).each do |i|
+          @locals[:items] << Item.find(i.to_i)
+        end
+      else
+        unless params[:search].nil? || params[:search] == '' || @locals[:goners].size > 0
+          @locals[:search] = params.require(:search)
+          Item.firstBarcode(@locals[:search]).for_free.order(:position_code_id).each do |i|
+            @locals[:items] << i
+          end
+        end
+      end
+      unless params[:search].nil? || params[:search] == ''
+        @locals[:search] = params.require(:search)
+        @locals[:items].each do |i|
+            i.update(:price => price, :discount => discount)
         end
       end
     end

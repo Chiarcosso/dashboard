@@ -73,7 +73,9 @@ Rails.application.routes.draw do
   get    '/items/edit/:id/:search', to: 'items#edit', as: :p_edit_item
   delete '/items/:id/:search',to: 'items#destroy', as: :p_delete_item
   post   '/items_reposition', to: 'items#reposition', as: :items_reposition
+  post   '/items_pricing', to: 'items#pricing', as: :items_pricing
   get    '/items/find/:code', to: 'items#find', as: :item_find
+  get    '/items/find_free/:code', to: 'items#find_free', as: :item_find_free
   post   '/items/store', to: 'items#store', as: :store_item
   get    '/items_storage_insert', to: 'items#storage_insert', as: :items_storage_insert
   post   '/items_storage_insert', to: 'items#add_item_to_storage', as: :add_item_to_storage

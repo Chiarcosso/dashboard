@@ -27,6 +27,7 @@ class Item < ApplicationRecord
   scope :filter, ->(search) { joins(:position_code).joins(:article).joins(:article => :manufacturer).where("items.serial LIKE '%#{search}%' OR items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR (#{PositionCode.getQueryFromCode(search)})")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
+  scope :for_free, -> { where('price <= 0') }
   scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 #0 0-@')) }
   scope :newestItem, ->(article) { joins(:article).where(article_id: article.id).order(created_at: :desc).limit(1) }
   scope :oldestItem, ->(article) { joins(:article).where(article_id: article.id).order(created_at: :asc).limit(1) }
@@ -80,7 +81,7 @@ class Item < ApplicationRecord
 
   def complete_price
     price = self.actualPrice.to_s+' €'
-    if (self.discount.to_i > 0)
+    if (self.discount.to_f > 0)
        price += " \n("+self.price.to_s+' -'+self.discount.to_s+'%'+')'
     end
     price.tr('.',',')
