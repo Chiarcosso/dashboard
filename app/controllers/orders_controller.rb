@@ -16,7 +16,7 @@ class OrdersController < ApplicationController
     if @open_worksheets_filter
       @orders = OutputOrder.open_worksheets_filter #.paginate(:page => params[:page], :per_page => 5)
     else
-      @orders = OutputOrder.all #.paginate(:page => params[:page], :per_page => 5)
+      @orders = OutputOrder.limit(100) #.paginate(:page => params[:page], :per_page => 5)
     end
     if @search.nil? or @search == ''
       @orders = @orders.order(:processed => :asc, :created_at => :desc) #.paginate(:page => params[:page], :per_page => 5)

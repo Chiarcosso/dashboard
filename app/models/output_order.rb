@@ -8,6 +8,7 @@ class OutputOrder < ApplicationRecord
   # belongs_to :worksheet, ->  { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
 
   # scope :unprocessed, -> { where(:processed => false)}
+  
   scope :unprocessed, -> { left_outer_joins(:output_order_items).where("output_order_items.id IS NOT NULL").where(:processed => false).distinct }
   scope :processed, -> { where(:processed => true)}
   # scope :worksheet, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
