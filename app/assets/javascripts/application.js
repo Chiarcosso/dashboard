@@ -155,7 +155,10 @@ function domInit() {
     var itemRow = $(this);
 
     if ($(this).data('popup') == true) {
-      $('body').append('<div class="popup">Quantità <input type="number" value="1" id="amount" name="amount" class="form-control"></div>');
+      $('body').append('<div class="popup">Quantità <input type="number" value="1" id="amount" name="amount" class="form-control"><div class="close">Chiudi</div></div>');
+      $('.popup').css({height: '10em'});
+      activateClose();
+
       $('#amount').focus();
       $('#amount').off('keypress');
       $('#amount').on('keypress',function(e){
