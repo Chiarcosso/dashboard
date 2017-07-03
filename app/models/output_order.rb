@@ -70,7 +70,6 @@ class OutputOrder < ApplicationRecord
       pdf.font_size = 12
       table = [['N.','DPI','Data consegna']]
       self.compacted_items.each do |i|
-        byebug
         table << [i[1][:amount],i[1][:name],Date.today.strftime("%d/%m/%Y")]
       end
       pdf.move_down 20

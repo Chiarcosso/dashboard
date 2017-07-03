@@ -5,7 +5,7 @@
   = button_to 'Stampa lista', output_order_pdf_path(@order.id,format: :pdf)
 - if @order.destination.class.name == 'Person' or @order.destination.class.name == 'Vehicle'
   .inline-input
-    = button_to 'Stampa modulo', output_order_pdf_module_path(@order.id,format: :pdf), id: 'form-button'
+    = button_to 'Stampa modulo', output_order_pdf_module_path(@order.id,format: :pdf), id: 'form-button', :disabled => 'disabled'
 %br
 %br
 = text_field 'check_item', '', placeholder: 'Codice a barre', class: 'form-control autofocus', 'data-order': @order.id.to_s
@@ -37,7 +37,7 @@
       .col-sm-2
         =i.position_code.code
       .col-sm-1
-        %input{type: :checkbox, disabled: :disabled, class: 'itm_out_chk', id: i.id, 'data-barcode': i.actualBarcode}
+        %input{type: :checkbox, class: 'itm_out_chk', id: i.id, 'data-barcode': i.actualBarcode}
 
 :javascript
   //domInit();
@@ -45,6 +45,44 @@
   activateAF();
   activateDelete();
 
+  $('.itm_out_chk').off('change');
+  $('.itm_out_chk').on('change',function(){
+    var complete = true;
+    //if($(this).checked){
+    //  $(this).css('background-color','#afa');
+    //} else {
+    //  $(this).css('background-color','#fff');
+    //}
+    //$(this).css('background-color','#afa');
+    $('.itm_out_chk').each(function(i,el){
+      if(!$(el)[0].checked){
+        complete = false;
+        $(el).parents('.row').first().css('background-color','#fff');
+      } else {
+        $(el).parents('.row').first().css('background-color','#afa');
+      }
+    })
+    if(complete){
+      $('#form-button').prop("disabled",false);
+      var id =$('#check_item_').data('order');
+      if(confirm('Conferma ordine nr. '+id)){
+        $.ajax({
+          url: 'output_order/confirm/',
+          method: 'post',
+          data: {id: id},
+          complete: function(data){
+            console.log(data);
+          }
+        });
+        $("div[data-target='/output_order/exit/"+id+"']").remove();
+        //$('#form-button').trigger('click');
+        //$('.close').first().trigger('click');
+      }
+
+    } else {
+      $('#form-button').prop("disabled",true);
+    }
+  });
   $('#check_item_').off('keypress');
   $('#check_item_').on('keypress',function(e){
     if(e.which == 13){
@@ -66,7 +104,7 @@
         }
       })
       if(complete){
-        //$('#form-button').prop("disabled",false);
+        $('#form-button').prop("disabled",false);
         var id =$('#check_item_').data('order');
         if(confirm('Conferma ordine nr. '+id)){
           $.ajax({
@@ -79,9 +117,11 @@
           });
           $("div[data-target='/output_order/exit/"+id+"']").remove();
           //$('#form-button').trigger('click');
-          $('.close').first().trigger('click');
+          //$('.close').first().trigger('click');
         }
 
+      } else {
+        $('#form-button').prop("disabled",true);
       }
     }
   })
