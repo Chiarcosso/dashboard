@@ -124,7 +124,7 @@ body{
 
 
 .colored:nth-child(even){
-  background-color: #888;
+  background-color: #eee;
 }
 
 .hover-hilight:hover{
