@@ -2,7 +2,7 @@
 %br
 .container-fluid.scrollable-panel#output-list
   - OutputOrder.unprocessed.each do |oo|
-    .row.hover-hilight.popup-link{'data-target': output_order_exit_path(oo.id), 'data-name': 'ouput-exit'}
+    .row.colored.hover-hilight.popup-link{'data-target': output_order_exit_path(oo.id), 'data-name': 'ouput-exit'}
       .col-sm-1
         = oo.id
       .col-sm-2

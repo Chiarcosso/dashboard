@@ -32,7 +32,7 @@
 
 .container-fluid.scrollable-panel
   - @orders.each do |order|
-    .row
+    .row.colored
       .col-sm-1
         %hr
         = button_to "x", "/output_order/#{order.id}", :method => :delete, :remote => true

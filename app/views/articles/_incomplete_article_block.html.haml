@@ -1,4 +1,4 @@
-.row{ :class => ('signal-danger' if article.under_reserve?), 'data-name' => article.complete_name }
+.row.colored{ :class => ('signal-danger' if article.under_reserve?), 'data-name' => article.complete_name }
 
   .col-sm-1
     = button_to "x", "/articles/#{article.id}", :method => :delete, :remote => true

@@ -122,6 +122,11 @@ body{
                                   supported by Chrome and Opera */
 }
 
+
+.colored:nth-child(even){
+  background-color: #888;
+}
+
 .hover-hilight:hover{
   background-color: #ccc;
   cursor: pointer;

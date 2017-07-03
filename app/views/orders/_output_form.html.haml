@@ -19,11 +19,11 @@
         Scadenza
 
   -# = form_tag(add_item_to_order_path, method: :post, remote: true, type: :script) do |f|
-  .container-fluid.scrollable-panel.half
+  .container-fluid.scrollable-panel.half.colored
     -# = hidden_field_tag :search, @search
     = hidden_field_tag :destination, @destination
     - @selected_items.each do |key, item|
-      .row.hover-hilight{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
+      .row.colored.hover-hilight{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
         .col-sm-4
           -# = hidden_field_tag :item, item.id
           = item.article.complete_name.to_s
@@ -64,7 +64,7 @@
   %br
   .container-fluid.scrollable-panel.half
     - @checked_items.reverse.each do |item|
-      .row.hover-hilight{'data-target': add_item_to_order_path, 'data-data': item.id}
+      .row.colored.hover-hilight{'data-target': add_item_to_order_path, 'data-data': item.id}
         .col-sm-4
           = hidden_field_tag 'items[][id]', item.id
           = item.article.complete_name.to_s
