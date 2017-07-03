@@ -10,8 +10,8 @@
       .col-sm-1
         = l(oo.created_at)
       .col-sm-8
-        - oo.items.each do |i|
-          = i.showLabel
+        - oo.compacted_items.each do |i|
+          = i[1][:amount].to_s+'x '+i[1][:name]
           %br
 
 :javascript

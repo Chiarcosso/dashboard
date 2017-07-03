@@ -2,9 +2,18 @@ class Worksheet < ApplicationRecord
   resourcify
 
   belongs_to :vehicle
+
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
   scope :open, -> { where(closingDate: nil) }
 
+  def opened?
+    if self.closingDate.nil?
+      return true
+    else
+      return false
+    end
+  end
+  
   def complete_name
     unless self.code.nil?
       self.code+' (Targa: '+self.vehicle.plate+')'

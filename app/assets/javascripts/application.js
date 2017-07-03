@@ -152,14 +152,38 @@ function domInit() {
 
   $('.hover-hilight').off('click');
   $('.hover-hilight').on('click',function(e){
-    var route = $(this).data('target');
-    $(this).parents('form').first().append('<input type=hidden name="item" value="'+$(this).data('data')+'">')
-    var valuesToSubmit = $(this).parents('form').first().serialize();
-    $.ajax({
-      method: 'post',
-      url: route,
-      data: valuesToSubmit
-    });
+    var itemRow = $(this);
+
+    if ($(this).data('popup') == true) {
+      $('body').append('<div class="popup">Quantità <input type="number" value="1" id="amount" name="amount" class="form-control"></div>');
+      $('#amount').focus();
+      $('#amount').off('keypress');
+      $('#amount').on('keypress',function(e){
+        if(e.which == '13'){
+          $('.popup').remove();
+          // itemRow.find('#chamount').val($(this).val());
+          $('#chamount').val($(this).val());
+          var route = itemRow.data('target');
+          itemRow.parents('form').first().append('<input type=hidden name="item" value="'+itemRow.data('data')+'">')
+
+          var valuesToSubmit = itemRow.parents('form').first().serialize();
+          $.ajax({
+            method: 'post',
+            url: route,
+            data: valuesToSubmit
+          });
+        }
+      });
+    } else {
+      var route = $(this).data('target');
+      $(this).parents('form').first().append('<input type=hidden name="item" value="'+$(this).data('data')+'">')
+      var valuesToSubmit = $(this).parents('form').first().serialize();
+      $.ajax({
+        method: 'post',
+        url: route,
+        data: valuesToSubmit
+      });
+    }
   });
 
   if($('.autosearch').length > 0){

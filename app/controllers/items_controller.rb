@@ -176,7 +176,7 @@ class ItemsController < ApplicationController
 
           if item.id.nil?
             item = Item.create(i.attributes)
-            item.item_relations << ItemRelation.create(:since => Time.now)
+            # item.item_relations << ItemRelation.create(:since => Time.now)
             newItems += [item]
           # else
           #   unpositionedItems -= [item]

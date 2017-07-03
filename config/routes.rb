@@ -39,6 +39,8 @@ Rails.application.routes.draw do
   post   '/admin/queries/vehicles', to: 'admin#send_query_vehicles', as: :admin_queries_vehicles
   post   '/admin/queries/people', to: 'admin#send_query_people', as: :admin_queries_people
   get    '/admin/soap', to: 'admin#soap', as: :admin_soap
+  get    '/admin/vacation', to: 'admin#get_vacation', as: :admin_vacation
+  get    '/admin/gear', to: 'admin#get_gear', as: :admin_gear
   get    '/admin/totals', to: 'administration#totals', as: :admin_totals
   get    '/admin/users', to: 'users#index', as: :users_admin
   post   '/admin/users', to: 'users#create', as: :create_user_admin

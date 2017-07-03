@@ -24,6 +24,7 @@ class Item < ApplicationRecord
   scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL") }
   scope :limited, -> { limit(100) }
   scope :article, ->(article) { where(:article => article) }
+  scope :not_this, ->(item) { where('items.id != ?',item.id) }
   scope :filter, ->(search) { joins(:position_code).joins(:article).joins(:article => :manufacturer).where("items.serial LIKE '%#{search}%' OR items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR (#{PositionCode.getQueryFromCode(search)})")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }

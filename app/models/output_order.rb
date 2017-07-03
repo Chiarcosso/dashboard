@@ -8,7 +8,7 @@ class OutputOrder < ApplicationRecord
   # belongs_to :worksheet, ->  { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
 
   # scope :unprocessed, -> { where(:processed => false)}
-  
+
   scope :unprocessed, -> { left_outer_joins(:output_order_items).where("output_order_items.id IS NOT NULL").where(:processed => false).distinct }
   scope :processed, -> { where(:processed => true)}
   # scope :worksheet, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
@@ -34,6 +34,19 @@ class OutputOrder < ApplicationRecord
     hits
   end
 
+  def compacted_items
+    compact_list = Hash.new
+    self.items.each do |i|
+      if compact_list[i.article.complete_name].nil?
+        compact_list[i.article.complete_name] = {:name => i.article.complete_name, :amount => 1, :total_price => i.actualPrice}
+      else
+        compact_list[i.article.complete_name][:amount] += 1
+        compact_list[i.article.complete_name][:total_price] += i.actualPrice
+      end
+    end
+    return compact_list
+  end
+
   def processed?
     self.processed ? 'Evaso' : 'Non evaso'
   end
@@ -56,8 +69,9 @@ class OutputOrder < ApplicationRecord
 
       pdf.font_size = 12
       table = [['N.','DPI','Data consegna']]
-      self.items.each do |i|
-        table << [1,i.article.complete_name,Date.today.to_s]
+      self.compacted_items.each do |i|
+        byebug
+        table << [i[1][:amount],i[1][:name],Date.today.strftime("%d/%m/%Y")]
       end
       pdf.move_down 20
       pdf.table table,
@@ -86,8 +100,8 @@ class OutputOrder < ApplicationRecord
 
       pdf.font_size = 12
       table = [['N.','Oggetto','Data consegna']]
-      self.items.each do |i|
-        table << [1,i.article.complete_name,Date.today.strftime("%d/%m/%Y")]
+      self.compacted_items.each do |i|
+        table << [i[1][:amount],i[1][:name],Date.today.strftime("%d/%m/%Y")]
       end
       pdf.move_down 20
       pdf.table table,

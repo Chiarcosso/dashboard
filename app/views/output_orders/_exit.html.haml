@@ -1,11 +1,11 @@
-%b='Ordine nr. '+@order.id.to_s
+%b="Ordine nr. #{@order.id.to_s} - #{@order.destination.complete_name}"
 .inline-input
   = button_tag 'Elimina', class: 'delete', 'data-object': 'ordine', 'data-target': output_order_delete_path(@order.id), 'data-id': @order.id
 .inline-input
   = button_to 'Stampa lista', output_order_pdf_path(@order.id,format: :pdf)
 - if @order.destination.class.name == 'Person' or @order.destination.class.name == 'Vehicle'
   .inline-input
-    = button_to 'Stampa modulo', output_order_pdf_module_path(@order.id,format: :pdf)
+    = button_to 'Stampa modulo', output_order_pdf_module_path(@order.id,format: :pdf), id: 'form-button', :disabled => 'disabled'
 %br
 %br
 = text_field 'check_item', '', placeholder: 'Codice a barre', class: 'form-control autofocus', 'data-order': @order.id.to_s
@@ -66,6 +66,7 @@
         }
       })
       if(complete){
+        $('#form-button').prop("disabled",false);
         var id =$('#check_item_').data('order');
         if(confirm('Conferma ordine nr. '+id)){
           $.ajax({
@@ -77,7 +78,8 @@
             }
           });
           $("div[data-target='/output_order/exit/"+id+"']").remove();
-          $('.close').first().trigger('click');
+          //$('#form-button').trigger('click');
+          //$('.close').first().trigger('click');
         }
 
       }

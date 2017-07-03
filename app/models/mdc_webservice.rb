@@ -31,14 +31,22 @@ class MdcWebservice
     mdc = MdcWebservice.new
     results = Array.new
     case what
-    when :vacation then
-      Person.mdc.order_mdc_user.each do |p|
-        puts "Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
-        mdc.get_vacation_data({applicationID: 'FERIE', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
-          r.send_mail unless r.data.nil?
-          results << r
+      when :vacation then
+        Person.mdc.order_mdc_user.each do |p|
+          puts "VACATION Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
+          mdc.get_vacation_data({applicationID: 'FERIE', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
+            r.send_mail unless r.data.nil?
+            results << r
+          end
         end
-      end
+      when :gear then
+        Person.mdc.order_mdc_user.each do |p|
+          puts "GEAR Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
+          mdc.get_gear_data({applicationID: 'GEAR', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
+            r.send_mail unless r.data.nil?
+            results << r
+          end
+        end
     end
     mdc.close_session
     return results
@@ -56,6 +64,25 @@ class MdcWebservice
     unless dch[:data].nil?
       dch[:data].each_with_index do |ch,i|
         data[i] = VacationRequest.new(self.select_data_collection_rows(ch)[:data],self)
+        # data[i][:data].each do |d|
+        #   self.update_data_collection_rows_status(d.dataCollectionRowKey)
+        # end
+      end
+    end
+    self.commit_transaction
+    self.end_transaction
+
+    return data
+  end
+
+  def get_gear_data(ops)
+    self.begin_transaction
+
+    data = Array.new
+    dch = self.select_data_collection_heads(ops)
+    unless dch[:data].nil?
+      dch[:data].each_with_index do |ch,i|
+        data[i] = GearRequest.new(self.select_data_collection_rows(ch)[:data],self)
         # data[i][:data].each do |d|
         #   self.update_data_collection_rows_status(d.dataCollectionRowKey)
         # end
@@ -138,8 +165,10 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:selectDataCollectionHeads xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:applicationID>#{ops[:applicationID]}</ns3:applicationID><ns3:deviceCode>#{ops[:deviceCode]}</ns3:deviceCode><ns3:status>#{ops[:status]}</ns3:status></ns3:selectDataCollectionHeads></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    # byebug if ops[:deviceCode] == 'T3'
-    unpack_response(HTTPI.post(request))
+    # puts request.body
+    resp = HTTPI.post(request)
+    # puts resp.body
+    unpack_response(resp.body)
   end
 
   def select_data_collection_rows(dataCollectionHead)
@@ -148,8 +177,10 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:selectDataCollectionRows xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{dataCollectionHead.xml}</ns3:selectDataCollectionRows></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-
-    unpack_response(HTTPI.post(request).body)
+    puts request.body
+    resp = HTTPI.post(request)
+    puts resp.body
+    unpack_response(resp.body)
   end
 
   def update_data_collection_rows_status(dataCollectionRows,status = 1)
@@ -440,4 +471,71 @@ class VacationRequest
     when 1 then @data[:time_to].strftime("%H:%m:%s")
     end
   end
+end
+
+class GearRequest
+
+  #array of dataCollectionRows
+  def initialize(dataCollectionRows, mdc)
+
+    @data = Hash.new
+    @data[:items] = Array.new
+    dataCollectionRows.each do |dcr|
+
+      next if dcr.applicationID != 'GEAR'
+      @type = 0
+
+
+      @date = Date.strptime(dcr.data[:date], '%Y%m%d')
+      @dataCollectionRowKey = dcr.dataCollectionRowKey
+      @data[:items] << dcr.data[:recordValue]
+
+      if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
+         @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
+      end
+
+    end
+
+    @data = nil if @data.empty?
+    mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
+  end
+
+  def send_mail
+    StorageMailer.new.gear_request(self)
+    # StorageMailer.new.gear_request(self)
+  end
+
+  def text
+    text = "Richiesta dotazione\n\nIl #{self.date}, #{self.person.complete_name} ha richiesto la seguente dotazione:\n\n"
+    @data[:items].each do |i|
+      text += "#{i}\n"
+    end
+    text += "\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore del sistema."
+    # render 'human_resources_mailer/vacation_request'
+  end
+
+  def filename
+    "#{self.date('%Y%m%d')} #{person.complete_name}.pdf"
+  end
+
+  def form
+    @data[:form]
+  end
+
+  def data
+    @data
+  end
+
+  def person
+    Person.find_by_mdc_user(@dataCollectionRowKey.deviceCode)
+  end
+
+  def date(format = '%d/%m/%Y')
+    if format == 'raw'
+      @date
+    else
+      @date.strftime(format)
+    end
+  end
+
 end

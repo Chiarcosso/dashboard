@@ -6,6 +6,14 @@ body{
   margin-top: 5em;
 }
 
+#center{
+  height: 90vh;
+}
+
+#articles_content{
+  height: 80%;
+}
+
 .scrollable-panel{
   position: relative;
   height: 100%;
@@ -34,7 +42,7 @@ body{
 
 .floor{
   position: absolute;
-  bottom: 0vh; 
+  bottom: 0vh;
 }
 
 .item_box{

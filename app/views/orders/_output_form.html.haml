@@ -1,4 +1,6 @@
 = form_tag(add_item_to_order_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
+
+  = hidden_field_tag :chamount, 1
   .container-fluid
     - @selected_items
     -# = form_tag(output_path(@destination), method: :get, remote: true, type: :script) do |f|
@@ -21,12 +23,12 @@
     -# = hidden_field_tag :search, @search
     = hidden_field_tag :destination, @destination
     - @selected_items.each do |key, item|
-      .row.hover-hilight{class: ('signal-danger' if item.article.under_reserve?), 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
+      .row.hover-hilight{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
         .col-sm-4
           -# = hidden_field_tag :item, item.id
           = item.article.complete_name.to_s
         .col-sm-1
-          = "#{item.article.availability(@checked_items).size} (min. #{item.article.minimalReserve.to_i})"
+          = "#{item.article.availability(@checked_items).size} #{item.article.measure_unit} (min. #{item.article.minimalReserve.to_i})"
         .col-sm-3
           = item.serial
         .col-sm-1

@@ -30,7 +30,11 @@ class OrdersController < ApplicationController
   end
 
   def toggle_worksheet_closure
-    Worksheet.find(params[:id].to_i).toggle_closure
+    ws = Worksheet.find(params[:id].to_i)
+    OutputOrder.where("destination_type = 'Worksheet' and destination_id = ?",ws.id).each do |oo|
+      oo.update(:processed => !ws.opened?)
+    end
+    ws.toggle_closure
     search_params
     if @open_worksheets_filter
       @orders = OutputOrder.open_worksheets_filter #.paginate(:page => params[:page], :per_page => 30)
@@ -175,6 +179,16 @@ class OrdersController < ApplicationController
         @checked_items -= [@newItem]
       else
         @checked_items << @newItem
+      end
+    end
+    unless @search.to_s == ''
+      @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
+    else
+      @selected_items = Array.new
+    end
+    unless @newItems.nil?
+      @newItems.each do |ni|
+        @checked_items << ni
       end
     end
     unless @search.to_s == ''
@@ -463,6 +477,12 @@ class OrdersController < ApplicationController
       end
       unless params[:item].nil?
         @newItem = Item.find(params.require(:item).to_i)
+        if params[:chamount].to_i > 1
+          @newItems = Item.article(@newItem.article).not_this(@newItem).unassigned.limit(params[:chamount].to_i-1)
+          # (params[:chamount].to_i - 1).times do
+          #
+          # end
+        end
       end
     end
 

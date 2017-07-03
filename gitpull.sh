@@ -18,7 +18,7 @@ sudo service iptables stop
 if [[ $speedy == false ]]; then
   bundle exec rake tmp:cache:clear RAILS_ENV=production
 fi
-git pull
+git pull --commit
 
 bundle install
 if [[ $speedy == false ]]; then

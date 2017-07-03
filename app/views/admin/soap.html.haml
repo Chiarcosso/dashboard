@@ -1,7 +1,8 @@
-= button_to 'Ricarica', admin_soap_path, method: :get
+= button_to 'Ferie', admin_vacation_path, method: :get
+= button_to 'Dotazione', admin_gear_path, method: :get
 .container-fluid.scrollable-panel
   -# = @result
-  = 'Session ID: '+@sessionID
+  -# = 'Session ID: '+@sessionID
   %br
   %br
   -# - @operations.each do |o|
@@ -10,20 +11,14 @@
   -#
   -# %br
   -# %br
+  - unless @results.nil?
+    - @results.each do |r|
 
-  - @results.each do |r|
-
-    %br
-    %br
-    =r.class
-    %br
-    =r.inspect
-    -# - r[:data].each do |d|
-    -#   = d.class
-      -# - d.data.each do |v|
-      -#   = v
-      -#   %br
-
-
-    %br
-    %br
+      %br
+      %br
+      =r.class
+      %br
+      =r.inspect
+    
+      %br
+      %br

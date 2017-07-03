@@ -9,5 +9,5 @@
         = link_to "Ordine per minuteria", output_path(:Office), remote: true, class: 'btn btn-primary'
       .col-sm-3
         = link_to "Ordine per dotazione mezzo", output_path(:Vehicle), remote: true, class: 'btn btn-primary'
-
-= render :partial => 'storage/output_orders_list'
+    .row
+      = render :partial => 'storage/output_orders_list'
