@@ -479,7 +479,7 @@ class GearRequest
   def initialize(dataCollectionRows, mdc)
 
     @data = Hash.new
-    @data[:items] = Array.new
+    @data[:items] = {personal_gear: Array.new, vehicle_gear: Array.new, shoe_size: nil, overall_size: nil, pickup_dt: nil, pickup_tm: nil}
     dataCollectionRows.each do |dcr|
 
       next if dcr.applicationID != 'GEAR'
@@ -488,8 +488,14 @@ class GearRequest
 
       @date = Date.strptime(dcr.data[:date], '%Y%m%d')
       @dataCollectionRowKey = dcr.dataCollectionRowKey
-      @data[:items] << dcr.data[:recordValue]
-
+      case dcr.data[:formCode]
+        when 'personal_gear' then @data[:items][:personal_gear] << dcr.data[:recordValue]
+        when 'vehicle_gear' then @data[:items][:vehicle_gear] << dcr.data[:recordValue]
+        when 'shoe_size' then @data[:items][:shoe_size] = dcr.data[:recordValue]
+        when 'overall_size' then @data[:items][:overall_size] = dcr.data[:recordValue]
+        when 'pickup' then dcr.data[:fieldCode] == 'pickup_dt' ? @data[:items][:pickup_dt] = dcr.data[:extendedValue] : @data[:items][:pickup_tm] = dcr.data[:extendedValue]
+        # when 'pickup_tm' then @data[:items][:pickup_tm] = dcr.data[:recordValue]
+      end
       if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
          @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
       end
@@ -506,10 +512,28 @@ class GearRequest
   end
 
   def text
-    text = "Richiesta dotazione\n\nIl #{self.date}, #{self.person.complete_name} ha richiesto la seguente dotazione:\n\n"
-    @data[:items].each do |i|
-      text += "#{i}\n"
+    text = "Richiesta dotazione\n\nIl #{self.date}, #{self.person.complete_name} ha richiesto la seguente dotazione:\n\n\n"
+    unless @data[:items][:personal_gear].empty?
+      text += "Dotazione personale:\n\n"
+      @data[:items][:personal_gear].each do |i|
+        text += "   #{i}\n"
+      end
+      unless @data[:items][:shoe_size].nil?
+        text += "\n   Misura scarpe: #{@data[:items][:shoe_size]}"
+      end
+      unless @data[:items][:overall_size].nil?
+        text += "\n   Taglia tuta: #{@data[:items][:overall_size]}"
+      end
+      text += "\n\n"
     end
+    unless @data[:items][:vehicle_gear].empty?
+      text += "Dotazione mezzo:\n\n"
+      @data[:items][:vehicle_gear].each do |i|
+        text += "   #{i}\n"
+      end
+      text += "\n\n"
+    end
+    text += "Il ritiro è previsto il #{@data[:items][:pickup_dt]} alle #{@data[:items][:pickup_tm]} circa.\n\n"
     text += "\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore del sistema."
     # render 'human_resources_mailer/vacation_request'
   end

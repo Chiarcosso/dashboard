@@ -1,7 +1,7 @@
 class HumanResourcesMailer < ApplicationMailer
 
 
-  ADDRESS_LIST = ['pierluigi.ottoborgo@chiarcosso.com','alessandra.copetto@chiarcosso.com','aurora.seffino@chiarcosso.com']
+  ADDRESS_LIST = ['personale@chiarcosso.it']
 
   def vacation_request(application)
     @application = application
@@ -13,6 +13,6 @@ class HumanResourcesMailer < ApplicationMailer
     end
 
   end
-  
+
 
 end
