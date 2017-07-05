@@ -56,7 +56,15 @@ Rails.application.configure do
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "vagrant_#{Rails.env}"
   config.action_mailer.perform_caching = false
-  config.action_mailer.default_url_options = { host: '10.0.0.100', port: 25 }
+  config.action_mailer.default_url_options = {
+   :address              => "10.0.0.100",
+   :port                 => 25,
+  #  :user_name            => 'auto-mailer',
+  #  :password             => '12345678',
+  #  :authentication       => "plain",
+  :enable_starttls_auto => true,
+  :openssl_verify_mode => 'none'
+  }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
