@@ -57,15 +57,15 @@ Rails.application.configure do
   # config.active_job.queue_name_prefix = "vagrant_#{Rails.env}"
   config.action_mailer.delivery_method = :smtp
   # config.action_mailer.perform_caching = false
+  config.action_mailer.perform_deliveries = true
   config.action_mailer.default_url_options = {
    :address              => "10.0.0.100",
    :port                 => 25,
-   :domain              => 'fwchiarcosso.chiarcosso',
+   :domain              => 'dashboard.chiarcosso',
   #  :user_name            => 'auto-mailer',
   #  :password             => '12345678',
   #  :authentication       => "plain",
-  :enable_starttls_auto => false,
-  :openssl_verify_mode => 'none'
+  :enable_starttls_auto => false
   }
   config.action_mailer.raise_delivery_errors = true
   # Ignore bad email addresses and do not raise email delivery errors.

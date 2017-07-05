@@ -1,16 +1,16 @@
 .row{ :class => (article.under_reserve? ? 'signal-danger' : 'colored'), 'data-name' => article.complete_name }
 
   .col-sm-1
-    = button_to "x", "/articles/#{article.id}", :method => :delete, :remote => true
+    = button_to "x", "/articles/#{article.id}/#{@search}", :method => :delete, :remote => true
   .col-sm-3
-    = link_to article.id.to_s+' :: '+article.complete_name, edit_article_path(article.id), :remote => true
+    = link_to article.id.to_s+' :: '+article.complete_name, p_edit_article_path(article.id,@search), :remote => true
   .col-sm-2
-    = link_to article.barcode.to_s, edit_article_path(article.id), :remote => true
+    = link_to article.barcode.to_s, p_edit_article_path(article.id,@search), :remote => true
   .col-sm-2
-    = link_to article.availability.size.to_s+" (min. #{article.minimalReserve.to_i})", edit_article_path(article.id), :remote => true
+    = link_to article.availability.size.to_s+" (min. #{article.minimalReserve.to_i})", p_edit_article_path(article.id,@search), :remote => true
   .col-sm-2
-    = link_to article.lastPrice, edit_article_path(article.id), :remote => true
+    = link_to article.lastPrice, p_edit_article_path(article.id,@search), :remote => true
   .col-sm-1
-    = link_to article.categoriesList, edit_article_path(article.id), :remote => true
+    = link_to article.categoriesList, p_edit_article_path(article.id,@search), :remote => true
   -# .col-sm-1
   -#   = button_to "Stampa", "/articles/print/#{article.id}", :method => :post, :remote => true

@@ -138,8 +138,8 @@ class ArticlesController < ApplicationController
           @categories << c
           @categories.concat c.childrenTree(@selectedCategories.uniq)
         end
-        @filteredArticles = Article.filter(@article.manufacturer.name)
-        @search = @article.manufacturer.name
+        @search = search_params
+        @filteredArticles = Article.filter(@search)
         if params["commit"] == "Salva"
           format.js { render :partial => 'articles/incomplete', notice: 'Articolo modificato.' }
         else
