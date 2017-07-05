@@ -1,6 +1,6 @@
 class StorageMailer < ApplicationMailer
 
-  ADDRESS_LIST = ['fabio.boccacini@chiarcosso.com','magazzino@chiarcosso.it']
+  ADDRESS_LIST = ['magazzino@chiarcosso.it','fabio.boccacini@chiarcosso.com']
 
   def gear_request(application)
     @application = application
