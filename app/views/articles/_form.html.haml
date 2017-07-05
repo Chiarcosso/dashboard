@@ -6,11 +6,13 @@
       - @article.errors.full_messages.each do |msg|
         %li= msg
 
-.container-fluid
+.container-fluid.scrollable-panel
   .row-fluid
     .col-sm-6
       = form_for @article, :html=>{:multipart => true,:remote=>true} do |f|
+        = hidden_field_tag :search, @search
         .field
+          -# = hidden_field_tag :search, value: @search
           = f.label "Codice a barre"
           = f.text_field :barcode, class: 'form-control', id: 'barcode-articles'
         .field

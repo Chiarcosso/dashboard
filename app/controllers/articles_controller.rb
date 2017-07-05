@@ -84,6 +84,7 @@ class ArticlesController < ApplicationController
 
   # GET /articles/1/edit
   def edit
+    @search = search_params
     respond_to do |format|
       format.js { render :partial => 'articles/new'}
       format.json { render :show, status: :created, location: @article }
@@ -196,14 +197,14 @@ class ArticlesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def article_params
 
-      unless params[:search] == ''
+      unless params[:manufacturer] == ''
         # @manufacturer = Company.find(:all,:conditions => ['name LIKE ?', "#{params[:manufacturer]}"])
         @manufacturer = Company.where('name LIKE ?', "#{params[:manufacturer]}").first
         if @manufacturer.nil?
           @manufacturer = Company.create(:name => params[:manufacturer])
         end
       else
-        @manufacturer = nil
+        @manufacturer = Company.first
       end
       params[:article][:measure_unit] = params[:article][:measure_unit].to_i
       params.require(:article).permit(:barcode, :manufacturerCode, :name, :description, :containedAmount, :minimalReserve, :position_code, :measure_unit)
