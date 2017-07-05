@@ -60,7 +60,7 @@ Rails.application.configure do
   config.action_mailer.default_url_options = {
    :address              => "10.0.0.100",
    :port                 => 25,
-   :domain              => 'fwchiarcosso.chiarcosso'
+   :domain              => 'fwchiarcosso.chiarcosso',
   #  :user_name            => 'auto-mailer',
   #  :password             => '12345678',
   #  :authentication       => "plain",
