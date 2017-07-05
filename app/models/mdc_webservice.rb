@@ -35,7 +35,11 @@ class MdcWebservice
         Person.mdc.order_mdc_user.each do |p|
           puts "VACATION Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
           mdc.get_vacation_data({applicationID: 'FERIE', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
-            r.send_mail unless r.data.nil?
+            begin
+              r.send_mail unless r.data.nil?
+            rescue
+              mdc.update_data_collection_rows_status(r.dataCollectionRows,0)
+            end
             results << r
           end
         end
@@ -43,7 +47,11 @@ class MdcWebservice
         Person.mdc.order_mdc_user.each do |p|
           puts "GEAR Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
           mdc.get_gear_data({applicationID: 'GEAR', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
-            r.send_mail unless r.data.nil?
+            begin
+              r.send_mail unless r.data.nil?
+            rescue
+              mdc.update_data_collection_rows_status(r.dataCollectionRows,0)
+            end
             results << r
           end
         end
@@ -177,9 +185,9 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:selectDataCollectionRows xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{dataCollectionHead.xml}</ns3:selectDataCollectionRows></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    puts request.body
+    # puts request.body
     resp = HTTPI.post(request)
-    puts resp.body
+    # puts resp.body
     unpack_response(resp.body)
   end
 
@@ -192,7 +200,7 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:updateDataCollectionRowsStatus xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{keys}<ns3:status>#{status}</ns3:status></ns3:updateDataCollectionRowsStatus></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    puts request.body
+    # puts request.body
     HTTPI.post(request)
   end
 
