@@ -8,7 +8,8 @@ class StorageMailer < ApplicationMailer
     m = mail(body: application.text, subject: 'Richiesta dotazione, '+application.person.complete_name)
     StorageMailer::ADDRESS_LIST.each do |address|
       m.to = address
-      m.deliver
+      puts m
+      puts m.deliver
     end
 
   end

@@ -9,7 +9,9 @@ class HumanResourcesMailer < ApplicationMailer
     m = mail(body: application.text, subject: 'Richiesta '+application.type+', '+application.person.complete_name)
     HumanResourcesMailer::ADDRESS_LIST.each do |address|
       m.to = address
-      m.deliver
+
+      puts m
+      puts m.deliver
     end
 
   end
