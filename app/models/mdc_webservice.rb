@@ -567,7 +567,6 @@ class GearRequest
             Net::SMTPSyntaxError,
             Net::SMTPUnknownError,
             OpenSSL::SSL::SSLError => e
-            log_exception(e)
       puts
       puts 'An error occurred sending mail..'
       puts  e.inspect
