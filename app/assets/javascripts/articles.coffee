@@ -8,8 +8,9 @@
   $('.cr-field').off 'keypress'
   $('.cr-field').keypress (e) ->
     if $(':focus').attr('type') != 'submit'
+      alert e.which
       if e.which == 13
-        alert();
+        console.log e
         e.preventDefault()
         # console.log($(':focus').attr('type'))
         # nx = $(':focus').parent.next.nth-child 2.focus
@@ -21,7 +22,8 @@
         if nx.children('select').length > 0
           nx.children('select').first().focus().select()
         else
-          $('#article-submit').focus()
+          $('#article-submit').last().focus()
+        $('.cr-field').off 'keypress'
 
 @initCategories = () ->
 
