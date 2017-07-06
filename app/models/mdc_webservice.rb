@@ -38,7 +38,7 @@ class MdcWebservice
             begin
               r.send_mail unless r.data.nil?
             rescue
-              mdc.update_data_collection_rows_status(r.dataCollectionRows,0)
+              r.reset_status
             end
             results << r
           end
@@ -50,7 +50,7 @@ class MdcWebservice
             begin
               r.send_mail unless r.data.nil?
             rescue
-              mdc.update_data_collection_rows_status(r.dataCollectionRows,0)
+              r.reset_status
             end
             results << r
           end
@@ -399,8 +399,9 @@ class VacationRequest
   #array of dataCollectionRows
   def initialize(dataCollectionRows, mdc)
 
+    @dataCollectionRows = dataCollectionRows
     @data = Hash.new
-    dataCollectionRows.each do |dcr|
+    @dataCollectionRows.each do |dcr|
 
       next if dcr.applicationID != 'FERIE'
       @type = 0
@@ -425,6 +426,18 @@ class VacationRequest
     mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
   end
 
+  def dataCollectionRows
+    @dataCollectionRows
+  end
+
+  def update_status
+    update_data_collection_rows_status(@dataCollectionRows,status = 1)
+  end
+
+  def reset_status
+    update_data_collection_rows_status(@dataCollectionRows,status = 0)
+  end
+  
   def send_mail
     HumanResourcesMailer.new.vacation_request(self)
   end
@@ -486,9 +499,10 @@ class GearRequest
   #array of dataCollectionRows
   def initialize(dataCollectionRows, mdc)
 
+    @dataCollectionRows = dataCollectionRows
     @data = Hash.new
     @data[:items] = {personal_gear: Array.new, vehicle_gear: Array.new, shoe_size: nil, overall_size: nil, pickup_dt: nil, pickup_tm: nil}
-    dataCollectionRows.each do |dcr|
+    @dataCollectionRows.each do |dcr|
 
       next if dcr.applicationID != 'GEAR'
       @type = 0
@@ -512,6 +526,18 @@ class GearRequest
 
     @data = nil if @data.empty?
     mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
+  end
+
+  def dataCollectionRows
+    @dataCollectionRows
+  end
+
+  def update_status
+    update_data_collection_rows_status(@dataCollectionRows,status = 1)
+  end
+
+  def reset_status
+    update_data_collection_rows_status(@dataCollectionRows,status = 0)
   end
 
   def send_mail
