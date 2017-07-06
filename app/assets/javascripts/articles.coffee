@@ -9,6 +9,7 @@
   $('.cr-field').keypress (e) ->
     if $(':focus').attr('type') != 'submit'
       if e.which == 13
+        alert();
         e.preventDefault()
         # console.log($(':focus').attr('type'))
         # nx = $(':focus').parent.next.nth-child 2.focus
