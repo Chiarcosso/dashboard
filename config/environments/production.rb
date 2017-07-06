@@ -63,10 +63,12 @@ Rails.application.configure do
   config.action_mailer.smtp_settings = {
    :address              => "10.0.0.100",
    :port                 => 25,
-   :domain              => 'chiarcosso'
+   :domain              => 'chiarcosso',
   #  :user_name            => '',
   #  :password             => '',
   #  :authentication       => "plain",
+    :enable_starttls_auto => true,
+    :openssl_verify_mode => 'none'
   }
   # Mail.defaults do
   #   delivery_method Rails.configuration.action_mailer.delivery_method, Rails.configuration.action_mailer.smtp_settings
