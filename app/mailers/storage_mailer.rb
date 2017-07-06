@@ -29,8 +29,8 @@ class StorageMailer < ApplicationMailer
     #     puts 'An error occurred sending mail..'
     #     puts  e.inspect
     #     puts
-    #   end
-    end
-
-  end
+  #   #   end
+  #   end
+  #
+  # end
 end
