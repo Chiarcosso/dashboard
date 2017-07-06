@@ -10,7 +10,7 @@ class HumanResourcesMailer < ApplicationMailer
     HumanResourcesMailer::ADDRESS_LIST.each do |address|
       m.to = address
       begin
-      m.deliver_now
+      self.deliver_now
       puts m
       rescue EOFError,
               IOError,

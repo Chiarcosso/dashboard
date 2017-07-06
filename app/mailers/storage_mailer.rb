@@ -9,7 +9,7 @@ class StorageMailer < ApplicationMailer
     StorageMailer::ADDRESS_LIST.each do |address|
       m.to = address
       begin
-      m.deliver_now
+      self.deliver_now
       puts m
       rescue EOFError,
               IOError,

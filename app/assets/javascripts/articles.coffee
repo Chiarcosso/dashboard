@@ -23,8 +23,10 @@
           nx.children('select').first().focus().select()
         else
           $('#article-submit').last().focus()
-        $('.cr-field').off 'keypress'
 
+@deinit = () ->
+  $('.cr-field').off 'keypress'
+  
 @initCategories = () ->
 
   $('.category_check').off 'change'
