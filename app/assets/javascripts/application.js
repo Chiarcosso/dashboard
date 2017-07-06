@@ -153,13 +153,11 @@ function domInit() {
         e.preventDefault();
         // console.log($(':focus').attr('type'))
         // nx = $(':focus').parent.next.nth-child 2.focus
-        nx = $(':focus').next('.cr-field');
-        console.log($(nx));
-        alert();
-        switch($(nx).attr('type')){
-          case 'textarea':
-          case 'input':
-          case 'select': $(nx).focus().select();
+        nx = $(':focus').parent().next().children('.cr-field').first();
+        switch($(nx).prop('nodeName')){
+          case 'TEXTAREA':
+          case 'INPUT':
+          case 'SELECT': $(nx).focus().select();
             break;
           default: $('#article-submit').first().focus();
         }
