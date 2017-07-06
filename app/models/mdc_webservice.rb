@@ -38,6 +38,9 @@ class MdcWebservice
             begin
               r.send_mail unless r.data.nil?
             rescue
+              puts
+              puts 'An error occurred sending mail..'
+              puts
               r.reset_status
             end
             results << r
@@ -50,6 +53,9 @@ class MdcWebservice
             begin
               r.send_mail unless r.data.nil?
             rescue
+              puts
+              puts 'An error occurred sending mail..'
+              puts
               r.reset_status
             end
             results << r
@@ -437,7 +443,7 @@ class VacationRequest
   def reset_status
     update_data_collection_rows_status(@dataCollectionRows,status = 0)
   end
-  
+
   def send_mail
     HumanResourcesMailer.new.vacation_request(self)
   end
