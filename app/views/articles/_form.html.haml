@@ -14,30 +14,30 @@
         .field
           -# = hidden_field_tag :search, value: @search
           = f.label "Codice a barre"
-          = f.text_field :barcode, class: 'form-control', id: 'barcode-articles'
+          = f.text_field :barcode, class: 'form-control cr-field', id: 'barcode-articles'
         .field
           = f.label "Produttore"
-          = text_field_tag :manufacturer, '', data: { autocomplete: autocomplete_company_name_articles_path, value: (@article.manufacturer.nil?? '' : @article.manufacturer.name) }, class: 'form-control autofocus'
+          = text_field_tag :manufacturer, '', data: { autocomplete: autocomplete_company_name_articles_path, value: (@article.manufacturer.nil?? '' : @article.manufacturer.name) }, class: 'form-control autofocus cr-field'
           -# = f.autocomplete_field :manufacturer, autocomplete_company_name_articles_path
           -# %div{'data-target': new_company_path, 'data-name': 'add_company', class: 'btn btn-primary popup-link'}
           -#   +
           -# = f.collection_select(:manufacturer, Company.all, :id, :name, {:include_blank => 'Generico', :selected => @article.getManufacturer}, { :class => 'form-control' })
         .field
           = f.label "Codice produttore"
-          = f.text_field :manufacturerCode, class: 'form-control'
+          = f.text_field :manufacturerCode, class: 'form-control cr-field'
         .field
           = f.label "Articolo"
-          = f.text_field :name, class: 'form-control'
+          = f.text_field :name, class: 'form-control cr-field'
         .field
           = f.label "Descrizione"
-          = f.text_field :description, class: 'form-control'
+          = f.text_field :description, class: 'form-control cr-field'
         .field
           = f.label "Quantità contenuta"
-          = f.number_field :containedAmount, class: 'form-control', step: :any
+          = f.number_field :containedAmount, class: 'form-control cr-field', step: :any
           = f.select :measure_unit, Article.measure_units, class: 'form-control input-row'
         .field
           = f.label "Riserva minima"
-          = f.number_field :minimalReserve, class: 'form-control', step: :any
+          = f.number_field :minimalReserve, class: 'form-control cr-field', step: :any
         .field
           = f.submit 'Salva', id: "article-submit-back"
           = f.submit 'Salva e passa alle categorie', id: "article-submit"

@@ -5,12 +5,12 @@
 
   $('#barcode-articles').focus().select()
 
-  $(document).off 'keypress'
-  $(document).keypress (e) ->
+  $('.cr-field').off 'keypress'
+  $('.cr-field').keypress (e) ->
     if $(':focus').attr('type') != 'submit'
       if e.which == 13
         e.preventDefault()
-        console.log($(':focus').attr('type'))
+        # console.log($(':focus').attr('type'))
         # nx = $(':focus').parent.next.nth-child 2.focus
         nx = $(':focus').parent().next()
         if nx.children('textarea').length > 0
