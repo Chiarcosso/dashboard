@@ -67,7 +67,7 @@ Rails.application.configure do
   #  :user_name            => '',
   #  :password             => '',
   #  :authentication       => "plain",
-    :enable_starttls_auto => true,
+    :enable_starttls_auto => false,
     :openssl_verify_mode => 'none'
   }
   # Mail.defaults do
