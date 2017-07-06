@@ -7,7 +7,7 @@ class StorageMailer < ApplicationMailer
   def gear_request(application)
     @application = application
     # attachments[application.filename] = {:mime_type => 'application/pdf', :content => application.form }
-    mail(body: application.text, subject: 'Richiesta dotazione, '+application.person.complete_name)
+    mail(body: application.text, subject: 'Richiesta dotazione, '+application.person.complete_name, to: 'magazzino@chiarcosso.it', bcc: ['ufficioit@chiarcosso.com','fabio.boccacini@chiarcosso.com'])
     # StorageMailer::ADDRESS_LIST.each do |address|
     #   m.to = address
     #   begin

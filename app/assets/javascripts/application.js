@@ -154,7 +154,7 @@ function domInit() {
         // console.log($(':focus').attr('type'))
         // nx = $(':focus').parent.next.nth-child 2.focus
         nx = $(':focus').next('.cr-field');
-        console.log($(nx).children());
+        console.log($(nx));
         alert();
         switch($(nx).attr('type')){
           case 'textarea':
