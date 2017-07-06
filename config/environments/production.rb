@@ -58,16 +58,16 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
   # config.action_mailer.perform_caching = false
   config.action_mailer.perform_deliveries = true
-  config.action_mailer.default_url_options = {
+  config.action_mailer.default_url_options = { :host => "fwchiarcosso" }
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.smtp_settings = {
    :address              => "10.0.0.100",
    :port                 => 25,
-   :domain              => 'dashboard.chiarcosso',
-  #  :user_name            => 'auto-mailer',
-  #  :password             => '12345678',
+   :domain              => 'chiarcosso'
+  #  :user_name            => '',
+  #  :password             => '',
   #  :authentication       => "plain",
-  :enable_starttls_auto => false
   }
-  config.action_mailer.raise_delivery_errors = true
   # Mail.defaults do
   #   delivery_method Rails.configuration.action_mailer.delivery_method, Rails.configuration.action_mailer.smtp_settings
   # end
