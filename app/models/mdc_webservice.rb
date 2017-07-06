@@ -444,11 +444,11 @@ class VacationRequest
   end
 
   def update_status
-    update_data_collection_rows_status(@dataCollectionRows,status = 1)
+    mdc.update_data_collection_rows_status(@dataCollectionRows,status = 1)
   end
 
   def reset_status
-    update_data_collection_rows_status(@dataCollectionRows,status = 0)
+    mdc.update_data_collection_rows_status(@dataCollectionRows,status = 0)
   end
 
   def send_mail
@@ -546,11 +546,11 @@ class GearRequest
   end
 
   def update_status
-    update_data_collection_rows_status(@dataCollectionRows,status = 1)
+    mdc.update_data_collection_rows_status(@dataCollectionRows,status = 1)
   end
 
   def reset_status
-    update_data_collection_rows_status(@dataCollectionRows,status = 0)
+    mdc.update_data_collection_rows_status(@dataCollectionRows,status = 0)
   end
 
   def send_mail
