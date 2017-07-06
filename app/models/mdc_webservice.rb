@@ -413,6 +413,7 @@ class VacationRequest
   def initialize(dataCollectionRows, mdc)
 
     @dataCollectionRows = dataCollectionRows
+    @mdc = mdc
     @data = Hash.new
     @dataCollectionRows.each do |dcr|
 
@@ -444,11 +445,11 @@ class VacationRequest
   end
 
   def update_status
-    mdc.update_data_collection_rows_status(@dataCollectionRows,status = 1)
+    @mdc.update_data_collection_rows_status(@dataCollectionRows,status = 1)
   end
 
   def reset_status
-    mdc.update_data_collection_rows_status(@dataCollectionRows,status = 0)
+    @mdc.update_data_collection_rows_status(@dataCollectionRows,status = 0)
   end
 
   def send_mail
@@ -512,6 +513,7 @@ class GearRequest
   #array of dataCollectionRows
   def initialize(dataCollectionRows, mdc)
 
+    @mdc = mdc
     @dataCollectionRows = dataCollectionRows
     @data = Hash.new
     @data[:items] = {personal_gear: Array.new, vehicle_gear: Array.new, shoe_size: nil, overall_size: nil, pickup_dt: nil, pickup_tm: nil}
@@ -546,11 +548,11 @@ class GearRequest
   end
 
   def update_status
-    mdc.update_data_collection_rows_status(@dataCollectionRows,status = 1)
+    @mdc.update_data_collection_rows_status(@dataCollectionRows,status = 1)
   end
 
   def reset_status
-    mdc.update_data_collection_rows_status(@dataCollectionRows,status = 0)
+    @mdc.update_data_collection_rows_status(@dataCollectionRows,status = 0)
   end
 
   def send_mail
