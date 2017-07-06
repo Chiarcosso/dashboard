@@ -471,7 +471,7 @@ class VacationRequest
   end
 
   def send_mail
-    HumanResourcesMailer.new.vacation_request(self)
+    HumanResourcesMailer.new.vacation_request(self).deliver_now
   end
 
   def text
@@ -573,7 +573,7 @@ class GearRequest
   end
 
   def send_mail
-    StorageMailer.new.gear_request(self)
+    StorageMailer.new.gear_request(self).deliver_now
     # StorageMailer.new.gear_request(self)
   end
 
