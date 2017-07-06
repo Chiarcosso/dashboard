@@ -26,7 +26,7 @@
 
 @deinit = () ->
   $('.cr-field').off 'keypress'
-  
+
 @initCategories = () ->
 
   $('.category_check').off 'change'
