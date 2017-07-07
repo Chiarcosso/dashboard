@@ -437,7 +437,7 @@ class VacationRequest
 
   def send_mail
     begin
-      StorageMailer.vacation_request(self).deliver_now
+      HumanResourcesMailer.vacation_request(self).deliver_now
     rescue EOFError,
             IOError,
             Errno::ECONNRESET,
