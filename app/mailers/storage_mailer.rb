@@ -1,7 +1,7 @@
 class StorageMailer < ApplicationMailer
 
 
-  default to: 'magazzino@chiarcosso.it',
+  default to: 'magazzino@chiarcosso.it'
           # bcc: ['ufficioit@chiarcosso.com','fabio.boccacini@chiarcosso.com']
 
   def gear_request(application)
