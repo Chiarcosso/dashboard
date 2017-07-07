@@ -35,26 +35,9 @@ class MdcWebservice
         Person.mdc.order_mdc_user.each do |p|
           puts "VACATION Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
           mdc.get_vacation_data({applicationID: 'FERIE', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
-            begin
+
               r.send_mail unless r.data.nil?
-            rescue EOFError,
-                    IOError,
-                    Errno::ECONNRESET,
-                    Errno::ECONNABORTED,
-                    Errno::EPIPE,
-                    Errno::ETIMEDOUT,
-                    Net::SMTPAuthenticationError,
-                    Net::SMTPServerBusy,
-                    Net::SMTPSyntaxError,
-                    Net::SMTPUnknownError,
-                    OpenSSL::SSL::SSLError => e
-                    log_exception(e, options)
-              puts
-              puts 'An error occurred sending mail..'
-              puts  e.inspect
-              puts
-              r.reset_status
-            end
+
             results << r
           end
         end
@@ -453,7 +436,26 @@ class VacationRequest
   end
 
   def send_mail
-    HumanResourcesMailer.new.vacation_request(self).deliver_now
+    begin
+      StorageMailer.vacation_request(self).deliver_now
+    rescue EOFError,
+            IOError,
+            Errno::ECONNRESET,
+            Errno::ECONNABORTED,
+            Errno::EPIPE,
+            Errno::ETIMEDOUT,
+            Net::SMTPAuthenticationError,
+            Net::SMTPServerBusy,
+            Net::SMTPSyntaxError,
+            Net::SMTPUnknownError,
+            OpenSSL::SSL::SSLError => e
+      puts
+      puts 'An error occurred sending mail..'
+      puts  e.inspect
+      puts
+      self.reset_status
+    end
+    # HumanResourcesMailer.new.vacation_request(self).deliver_now
   end
 
   def text
