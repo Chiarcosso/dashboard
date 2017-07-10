@@ -53,12 +53,12 @@ class OrdersController < ApplicationController
   end
 
   def edit_output
-    @order = OutputOrder.findByRecipient(params.require(:code))
+    @order = OutputOrder.findByRecipient(params.require(:code)).last
     @search = search_params.nil?? '' : search_params
     if @order.nil?
       @checked_items = Array.new
     else
-      @checked_items = @order.last.items
+      @checked_items = @order.items
     end
     # unless @newItem.nil?
     #   already_in = false
@@ -558,7 +558,12 @@ class OrdersController < ApplicationController
       unless code.nil? or code == ''
         @recipient = Worksheet.findByCode(code)
         @destination = 'Worksheet'
-        @order = OutputOrder.findByRecipient(@recipient.code).last
+        unless @recipient.nil?
+          @order = OutputOrder.findByRecipient(@recipient.code).last
+        else
+          @order = OutputOrder.new
+          @recipient = Worksheet.new(:code => code, :vehicle => Vehicle.new)
+        end
       end
     end
 
