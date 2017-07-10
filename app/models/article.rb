@@ -110,8 +110,8 @@ class Article < ApplicationRecord
       :position                  => [10, 110],
       :height                    => 40,
       :print_human_readable_code => true,
-      :narrow_bar_width          => 3,
-      :wide_bar_width            => 6,
+      :narrow_bar_width          => 2,
+      :wide_bar_width            => 4,
       :type                      => Zebra::Epl::BarcodeType::CODE_128_AUTO
     )
     label << barcode
