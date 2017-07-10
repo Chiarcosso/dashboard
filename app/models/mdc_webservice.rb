@@ -438,6 +438,9 @@ class VacationRequest
   def send_mail
     begin
       HumanResourcesMailer.vacation_request(self).deliver_now
+      puts
+      puts'Mail sent.'
+      puts
     rescue EOFError,
             IOError,
             Errno::ECONNRESET,
@@ -560,6 +563,9 @@ class GearRequest
   def send_mail
     begin
       StorageMailer.gear_request(self).deliver_now
+      puts
+      puts'Mail sent.'
+      puts
     rescue EOFError,
             IOError,
             Errno::ECONNRESET,

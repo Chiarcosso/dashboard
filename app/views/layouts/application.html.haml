@@ -22,5 +22,12 @@
         -# = link_to "Indietro", :back, class: "btn btn-primary"
 
     = render 'layouts/footer'
+    .loading-screen
+      .loading-text
+        = 'Caricamento..'
     -# %p.notice= notice
     -# %p.alert= alert
+
+:javascript
+  activateLoadingScreen();
+  deactivateLoadingScreen();

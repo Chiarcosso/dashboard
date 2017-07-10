@@ -21,6 +21,32 @@ body{
   overflow-y: auto;
 }
 
+.loading-screen{
+  /*z-index: 2000;*/
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background: black;
+  opacity: 0.5;
+  width: 100vw;
+  height: 100vh;
+  font-size: 10em;
+}
+
+.loading-text{
+  transform: translate(-50%,-50%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
 .half{
   height:45%;
 }

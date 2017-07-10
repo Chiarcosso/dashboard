@@ -18,6 +18,38 @@
 //= require jquery-ui
 //= require autocomplete-rails
 //= require_tree .
+function activateLoadingScreen(){
+  $('form').on('submit',function(){
+    
+    if(!$(this).hasClass('no-loader') && $(this).children('.no-loader').length == 0) {
+      activateLoadingScreen();
+    }
+  });
+  $('input[type=submit]').on('click',function(){
+
+    if(!$(this).hasClass('no-loader')) {
+      activateLoadingScreen();
+    }
+  });
+  $('a').on('click',function(){
+
+    if(!$(this).hasClass('no-loader')) {
+      activateLoadingScreen();
+    }
+  });
+  $('button').on('click',function(){
+
+    if(!$(this).hasClass('no-loader')) {
+      activateLoadingScreen();
+    }
+  });
+
+  $('.loading-screen').show();
+}
+
+function deactivateLoadingScreen(){
+  $('.loading-screen').hide();
+}
 
 function reloadSelectBoxes(){
   $('select').each(function(select){
@@ -30,6 +62,7 @@ function activateClose(){
   $('.close').on('click',function(){
     specificCloseFunctions();
     $(this).parent().remove();
+    deactivateLoadingScreen();
   });
 };
 
@@ -47,6 +80,7 @@ function activateFinder(){
     var target = $(this).data('target')+$(this).val();
     e.preventDefault();
     if (e.which == 13){
+      activateLoadingScreen();
       $.ajax({
         url: target,
         method: 'post'
@@ -63,6 +97,7 @@ function activateDelete(){
     var target = $(this).data('target');
     var id = $(this).data('id');
     if(confirm('Conferma eliminazione '+object+' nr. '+id)){
+      activateLoadingScreen();
       $.ajax({
         url: target,
         method: 'delete',
@@ -145,6 +180,8 @@ function domInit() {
       $(this).parents('.popup').children('.close:first').trigger('click');
   });
 
+  activateLoadingScreen();
+
   $('.cr-field').on('keypress');
   $('.cr-field').on('keypress',function(e){
     if ($(':focus').attr('type') != 'submit'){
@@ -199,6 +236,7 @@ function domInit() {
           itemRow.parents('form').first().append('<input type=hidden name="item" value="'+itemRow.data('data')+'">')
 
           var valuesToSubmit = itemRow.parents('form').first().serialize();
+          activateLoadingScreen();
           $.ajax({
             method: 'post',
             url: route,
@@ -210,6 +248,7 @@ function domInit() {
       var route = $(this).data('target');
       $(this).parents('form').first().append('<input type=hidden name="item" value="'+$(this).data('data')+'">')
       var valuesToSubmit = $(this).parents('form').first().serialize();
+      activateLoadingScreen();
       $.ajax({
         method: 'post',
         url: route,
@@ -247,7 +286,7 @@ function domInit() {
       // timer = window.setTimeout(function(){
           form.append('<input type="hidden" id="no-commit" name="no-commit" value="no-commit">');
           // $(element).parent('form').submit();
-
+          activateLoadingScreen();
           var valuesToSubmit = form.serialize();
           var route = form.attr('action');
           var method = form.attr('method');
@@ -265,6 +304,7 @@ function domInit() {
 
   $('.ajax-link').off('click');
   $('.ajax-link').on('click',function(e){
+    activateLoadingScreen();
     e.preventDefault();
     var target = $(this).data('target');
     var method = $(this).parents('form').first().children('input[name=_method]').val();
@@ -281,6 +321,7 @@ function domInit() {
 
   $('.ajax-link-select').off('change');
   $('.ajax-link-select').on('change',function(e){
+    activateLoadingScreen();
     e.preventDefault();
     var form = $(this).parents('form').first()[0];
     var target = form.action;
@@ -292,6 +333,7 @@ function domInit() {
         data: data,
         complete: function(data){
           console.log(data);
+
         }
       });
   });
@@ -305,6 +347,7 @@ function domInit() {
     var data = $(this).data('data');
     var label = $(this).data('label');
     if(confirm('Eliminare '+label)){
+      activateLoadingScreen();
       $.ajax({
           type: method,
           url: route,
@@ -319,6 +362,7 @@ function domInit() {
 
   $('.popup-link').off('click');
   $('.popup-link').on('click', function(e){
+    activateLoadingScreen();
     var target = $(this).data('target');
     var name = $(this).data('name');
     $.ajax({
@@ -329,6 +373,7 @@ function domInit() {
            $('#'+name).html(data.responseText);
            $('#'+name).append('<div class="close">Chiudi</div>');
            activateClose();
+           deactivateLoadingScreen();
         }
     });
 
@@ -336,4 +381,5 @@ function domInit() {
 
   });
 
+  deactivateLoadingScreen();
 };

@@ -71,7 +71,7 @@
             = submit_tag :Ok
       .col-sm-1
         %hr
-        = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf)
+        = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf), class: 'no-loader'
 -# .container-fluid.scrollable-panel
 -#   - @selected_items.all.each do |item|
 -#     .row

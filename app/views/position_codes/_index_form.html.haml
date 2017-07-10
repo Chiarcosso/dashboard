@@ -60,7 +60,7 @@
         .col-sm-2
           = pc.code
         .col-sm-1
-          = button_to "Stampa", "/position_codes/print/#{pc.id}", :method => :post, :remote => true
+          = button_to "Stampa", "/position_codes/print/#{pc.id}", :method => :post, :remote => true, class: 'no-loader'
 
 
 :javascript

@@ -96,21 +96,22 @@ class Article < ApplicationRecord
     )
     # box = Zebra::Epl::Box.new :position => [0, 0], :end_position => [385, 180], :line_thickness => 2
     # label << box
-    text  = Zebra::Epl::Text.new :data => self.expiringDate?? 'Sc. '+self.expiringDate.strftime('%d/%m/%Y') : '', :position => [10, 10], :font => Zebra::Epl::Font::SIZE_3
+
+    text  = Zebra::Epl::Text.new :data => self.expiringDate?? 'Sc. '+self.expiringDate.strftime('%d/%m/%Y') : '', :position => [10, 0], :font => Zebra::Epl::Font::SIZE_3
     label << text
     # text  = Zebra::Epl::Text.new :data => self.position_code.code, :position => [220, 10], :font => Zebra::Epl::Font::SIZE_2
     # label << text
-    text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 40], :font => Zebra::Epl::Font::SIZE_2
+    text  = Zebra::Epl::Text.new :data => self.article.complete_name, :position => [10, 30], :font => Zebra::Epl::Font::SIZE_2
     label << text
-    text  = Zebra::Epl::Text.new :data => self.serial.nil?? '' : 'Mat. '+self.serial, :position => [10, 70], :font => Zebra::Epl::Font::SIZE_4
+    text  = Zebra::Epl::Text.new :data => self.serial.nil?? '' : 'Mat. '+self.serial, :position => [10, 60], :font => Zebra::Epl::Font::SIZE_4
     label << text
     barcode = Zebra::Epl::Barcode.new(
       :data                      => self.barcode,
-      :position                  => [30, 120],
-      :height                    => 30,
+      :position                  => [10, 110],
+      :height                    => 40,
       :print_human_readable_code => true,
-      :narrow_bar_width          => 2,
-      :wide_bar_width            => 4,
+      :narrow_bar_width          => 3,
+      :wide_bar_width            => 6,
       :type                      => Zebra::Epl::BarcodeType::CODE_128_AUTO
     )
     label << barcode
