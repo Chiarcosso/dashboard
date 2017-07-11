@@ -25,10 +25,39 @@ class OutputOrder < ApplicationRecord
   def self.findByRecipient(search)
     recipients = Array.new
     recipients += Worksheet.filter(search).to_a
+    recipients += Office.filter(search).to_a
+    recipients += Person.filter(search).to_a
+    recipients += Vehicle.filter(search).to_a
+    receivers = Person.filter(search).to_a
+    items = Item.assigned.filter(search).to_a
+    # byebug
     hits = Array.new
     recipients.each do |r|
-      OutputOrder.where(destination_type: r.class.to_s).where(destination: r).each do |oo|
-        hits << oo
+      unless r.nil?
+        OutputOrder.where(destination_type: r.class.to_s).where(destination: r).each do |oo|
+          hits << oo unless oo.nil?
+        end
+      end
+    end
+    receivers.each do |r|
+      unless r.nil?
+        OutputOrder.where(receiver: r).each do |oo|
+          hits << oo unless oo.nil?
+        end
+      end
+    end
+    items.each do |r|
+      unless r.nil?
+        nogo = false
+        oo = r.output_orders.order(:created_at).last
+        hits.each do |h|
+          if h == oo or oo.nil?
+            nogo = true
+          end
+        end
+        unless nogo
+          hits << oo unless oo.nil?
+        end
       end
     end
     hits

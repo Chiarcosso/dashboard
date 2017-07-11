@@ -20,7 +20,7 @@
 //= require_tree .
 function activateLoadingScreen(){
   $('form').on('submit',function(){
-    
+
     if(!$(this).hasClass('no-loader') && $(this).children('.no-loader').length == 0) {
       activateLoadingScreen();
     }
@@ -33,7 +33,7 @@ function activateLoadingScreen(){
   });
   $('a').on('click',function(){
 
-    if(!$(this).hasClass('no-loader')) {
+    if(!$(this).hasClass('no-loader') && !$(this).hasClass('dropdown-toggle') ) {
       activateLoadingScreen();
     }
   });

@@ -34,22 +34,17 @@
   - @orders.each do |order|
     .row.colored
       .col-sm-1
-        %hr
         = button_to "x", "/output_order/#{order.id}", :method => :delete, :remote => true
       .col-sm-1
-        %hr
         = order.id
         -# = order.destination.class
       .col-sm-2
-        %hr
         = order.destination.complete_name
       .col-sm-3
-        %hr
         - order.compacted_items.each do |i|
           = i[1][:amount].to_s+'x '+i[1][:name]
           %br
       .col-sm-1
-        %hr
         - if order.destination.class == Worksheet
           = form_tag(worksheet_closure_toggle_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
             = hidden_field_tag :id, order.destination.id
@@ -59,10 +54,8 @@
         - else
           = order.processed?
       .col-sm-1
-        %hr
         = (l order.created_at)
       .col-sm-1
-        %hr
         -# = button_to "Ore", "/output_order/#{order.id}", :method => :post, :remote => true
         - if order.destination.class == Worksheet
           = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
@@ -70,7 +63,6 @@
             = number_field_tag 'worksheet[hours]', order.destination.hours, min: 0, size: 1, step: 0.5
             = submit_tag :Ok
       .col-sm-1
-        %hr
         = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf), class: 'no-loader'
 -# .container-fluid.scrollable-panel
 -#   - @selected_items.all.each do |item|

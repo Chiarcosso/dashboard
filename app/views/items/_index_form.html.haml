@@ -44,7 +44,7 @@
       .col-sm-2
         = item.actual_position
       .col-sm-1
-        = button_to "Stampa", "/items/print/#{item.id}", :method => :post, :remote => true, class: 'on-top'
+        = button_to "Stampa", "/items/print/#{item.id}", :method => :post, :remote => true, class: 'on-top no-loader'
 -# .container-fluid.scrollable-panel
 -#   - @selected_items.all.each do |item|
 -#     .row

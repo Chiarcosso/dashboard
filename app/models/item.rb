@@ -22,6 +22,7 @@ class Item < ApplicationRecord
   scope :notyres, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').joins('left join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name not like \'%gomme%\' or article_categories.name is null') }
   # scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
   scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL") }
+  scope :assigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NOT NULL") }
   scope :limited, -> { limit(100) }
   scope :article, ->(article) { where(:article => article) }
   scope :not_this, ->(item) { where('items.id != ?',item.id) }

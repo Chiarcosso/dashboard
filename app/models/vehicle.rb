@@ -12,8 +12,11 @@ class Vehicle < ApplicationRecord
   scope :order_by_chassis, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.information_type': VehicleInformation.types['N. di telaio']) }
   scope :find_by_chassis, ->(chassis) { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.information_type': VehicleInformation.types['N. di telaio']).where('vehicle_informations.information LIKE ?','%'+chassis+'%') }
   scope :find_by_manufacturer, ->(manufacturer) { joins(:model).joins('vehicle_models.manufacturer').where('companies.name LIKE ?', '%'+manufacturer+'%') }
+  scope :find_by_model, ->(search) { joins(:model).where('vehicle_models.name LIKE ?', '%'+search+'%') }
   scope :find_by_property, ->(property) { joins(:property).where('companies.name LIKE ?', '%'+property+'%') }
   scope :null_scope, -> { where(id: nil) }
+  scope :filter, ->(search) { joins(:vehicle_informations).joins(:model).where("vehicle_informations.information LIKE '%#{search}%' or vehicle_models.name LIKE '%#{search}%'").distinct }
+  # scope :filter, ->(search) { find_by_plate(search).or(find_by_chassis(search)).or(find_by_model(search)).or(find_by_manufacturer(search)) }
 
   self.per_page = 30
 
