@@ -107,5 +107,8 @@ Rails.application.routes.draw do
 
   get '/equipment', to: 'equipment#index', as: :equipment
   get '/equipment_home', to: 'equipment#home', as: :equipment_home
+
+  get '/mdc/transport_orders', to: 'ws#index', as: :mdc_transport_documents
+  post 'mdc/close_fare', to: 'ws#close_fare', as: :close_fare
   # get '/equipment_groups', to: 'equipment_groups#index', as: :equipment_groups
 end

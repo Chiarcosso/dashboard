@@ -31,7 +31,8 @@
       -#         .col-sm-2
       -#           =r.company_relation.name
       .col-sm-3
-        =p.notes
+        = 'MDC: '+p.mdc_user.to_s+' - ' unless p.mdc_user.nil?
+        = p.notes.to_s
       .col-sm-2
         .inline-input
           =button_to 'Modifica', edit_person_path(p.id), class: 'inline-input', method: :get

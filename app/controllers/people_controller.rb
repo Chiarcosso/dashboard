@@ -31,9 +31,23 @@ class PeopleController < ApplicationController
   # POST /people
   # POST /people.json
   def create
-    @person = Person.new(person_params)
+    @person = Person.where(:name => person_params.require(:name)).where(:surname => person_params.require(:surname)).first
+    if @person.nil?
+      @person = Person.new(person_params)
+    else
+      @person.update(params.require(:person).permit(:name,:surname,:notes,:mdc_user))
+    end
     respond_to do |format|
       if @person.save
+        Person.where(mdc_user: @person.mdc_user).where("id != #{@person.id}").update(mdc_user: nil)
+        mdc = MdcWebservice.new
+        mdc.begin_transaction
+        Person.mdc.each do |p|
+          mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: p.mdc_user.upcase, key: p.mdc_user, order: 1, tabname: 'USERS', values: [p.mdc_user.upcase,p.mdc_user,p.name,p.surname,p.id]}))
+        end
+        mdc.commit_transaction
+        mdc.end_transaction
+        mdc.close_session
         # relation_params
         # CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
         format.html { redirect_to edit_person_path(@person.id), notice: 'Persona creata con successo.' }
@@ -50,9 +64,18 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
+        Person.where(mdc_user: @person.mdc_user).where("id != #{@person.id}").update(mdc_user: nil)
+        mdc = MdcWebservice.new
+        mdc.begin_transaction
+        Person.mdc.each do |p|
+          mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: p.mdc_user.upcase, key: p.mdc_user, order: 1, tabname: 'USERS', values: [p.mdc_user.upcase,p.mdc_user,p.name,p.surname,p.id]}))
+        end
+        mdc.commit_transaction
+        mdc.end_transaction
+        mdc.close_session
         # relation_params
         # CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
-        format.html { redirect_to people_path, notice: 'Person was successfully updated.' }
+        format.html { redirect_to people_path, notice: 'Aggiornato con successo.' }
         format.json { render :show, status: :ok, location: @person }
       else
         format.html { render :edit }
