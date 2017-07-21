@@ -1,14 +1,19 @@
-.scrollable-panel
+.scrollable-panel.full-panel
   .container
     = "Record: #{@results.count}"
+    = button_to 'Ricarica', mdc_transport_documents_path, method: :get
     - @results.each do |r|
       - r.each do |res|
         .row
           .col-sm-12
             %hr
             %b IDPosizione:
-            = res.data[:id]
-            -# = res.dataCollectionRows.inspect
+            = res.id
+            %b Autista:
+            = res.person.complete_name
+            %br
+            = res.definition
+            -# = res.inspect
             - keys  = ''
             - res.dataCollectionRows.each do |dcr|
               - keys += "<ns3:keys>#{dcr.dataCollectionRowKey.xml}</ns3:keys>"

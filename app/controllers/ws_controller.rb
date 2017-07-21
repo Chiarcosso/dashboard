@@ -36,7 +36,7 @@ class WsController < ApplicationController
 
         mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: id, deviceCode: ''})])
         mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{driver.mdc_user.upcase}|", key: id, order: 0, tabname: 'FARES', values: [msg]}))
-        mdc.send_push_notification_ext(["|#{driver.mdc_user.upcase}|"],[NotificationExt.new({collectionID: nil, doSync: true, playNotificationSound: true, message: msg})])
+        mdc.send_push_notification_ext(["#{driver.mdc_user.upcase}"],[NotificationExt.new({collectionID: nil, doSync: true, playNotificationSound: true, message: msg})])
         mdc.commit_transaction
         mdc.end_transaction
         mdc.close_session

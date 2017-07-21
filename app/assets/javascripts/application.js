@@ -18,6 +18,13 @@
 //= require jquery-ui
 //= require autocomplete-rails
 //= require_tree .
+function activateGallery(){
+  $('.gallery-image').off('click');
+  $('.gallery-image').on('click',function(){
+    $('body').append('<div class="pop-up"><div class="close">Chiudi</div></div>');
+  });
+}
+
 function activateLoadingScreen(){
   $('form').on('submit',function(){
 

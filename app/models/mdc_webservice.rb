@@ -7,12 +7,13 @@ class MdcWebservice
     useSharedDatabaseConnection = 0
 
     @endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
+    @media_address = 'http://chiarcosso.mobiledatacollection.it/server_chiarcosso/mediaanswers/'
 
     request = HTTPI::Request.new
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:openSession xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:useSharedDatabaseConnection>#{useSharedDatabaseConnection}</ns3:useSharedDatabaseConnection><ns3:username>#{username}</ns3:username><ns3:password>#{password}</ns3:password></ns3:openSession></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    request.open_timeout = 5
+    request.open_timeout = 3
 
     tries = 1
     while @sessionID.nil? and tries < 10 do
@@ -25,6 +26,10 @@ class MdcWebservice
       end
     end
 
+  end
+
+  def media_address
+    @media_address
   end
 
   def self.look_for(what)
@@ -179,9 +184,9 @@ class MdcWebservice
 
   def send_push_notification_ext(deviceCodes,notifications)
 
-    dc = ''
+    dc = '|'
     deviceCodes.each do |d|
-      dc += "<ns1:device xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com\">#{d}</ns1:device>"
+      dc += "#{d}|"
     end
     nots = ''
     notifications.each do |n|
@@ -568,6 +573,7 @@ class FareDocuments
     @dataCollectionRows = dataCollectionRows
     @mdc = mdc
     @data = Hash.new
+    @data[:photos] = Array.new
     @dataCollectionRows.each do |dcr|
 
       next if dcr.applicationID != 'FARES'
@@ -576,26 +582,34 @@ class FareDocuments
 
       @date = Date.strptime(dcr.data[:date], '%Y%m%d')
       @dataCollectionRowKey = dcr.dataCollectionRowKey
-      @data[:photos] = Array.new
       case dcr.data[:formCode]
         when 'fare' then @data[:id] = dcr.data[:value]
         when 'photos' then
-          byebug
-          file = mdc.download_file(dcr.data[:description]).body[/Content-Type: image\/jpeg.?*\r\n\r\n(.?*)\r\n--MIMEBoundary/m,1]
-          @data[:photos] << file.force_encoding("utf-8") unless file.nil?
+          # file = mdc.download_file(dcr.data[:description]).body[/Content-Type: image\/jpeg.?*\r\n\r\n(.?*)\r\n--MIMEBoundary/m,1]
+          # @data[:photos] << file.force_encoding("utf-8") unless file.nil?
+          img = dcr.data[:description][/\/.*?([^\/]*.$)/,1] unless dcr.data[:description].nil?
+          @data[:photos] << mdc.media_address+img unless img.nil?
       end
       # if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
       #    @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
       # end
 
     end
-
     # @data = nil if @data[:date_from].nil? or @data[:date_to].nil?
     # mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
   end
 
   def data
     @data
+  end
+
+  def definition
+    request = HTTPI::Request.new
+    request.url = "http://portale.chiarcosso/invia-viaggi/rest.php?id=#{self.id}"
+    # request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendPushNotificationExt xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:notificationExtList>#{nots}</ns3:notificationExtList></ns3:sendPushNotificationExt></soapenv:Body></soapenv:Envelope>"
+    # request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
+
+    HTTPI.post(request).body
   end
 
   def dataCollectionRows
@@ -606,15 +620,20 @@ class FareDocuments
     @data[:id]
   end
 
+  def person
+    Person.find_by_mdc_user(@dataCollectionRowKey.deviceCode)
+  end
+
   def photos
-    tmp = Array.new
-    @data[:photos].each_with_index do |p,i|
-      fh = File.open("public/foto/#{self.id}-#{i}.jpg",'w')
-      fh.write(p)
-      fh.close
-      tmp << "/foto/#{self.id}-#{i}.jpg"
-    end
-    tmp
+    # tmp = Array.new
+    # @data[:photos].each_with_index do |p,i|
+    #   fh = File.open("public/foto/#{self.id}-#{i}.jpg",'w')
+    #   fh.write(p)
+    #   fh.close
+    #   tmp << "/foto/#{self.id}-#{i}.jpg"
+    # end
+    # tmp
+    @data[:photos]
   end
 end
 

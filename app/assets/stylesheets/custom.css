@@ -66,6 +66,10 @@ body{
   padding-bottom: 20em;
 }
 
+.h58{
+  height: 58%;
+}
+
 .floor{
   position: absolute;
   bottom: 0vh;
