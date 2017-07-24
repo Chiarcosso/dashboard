@@ -17,12 +17,19 @@
             - keys  = ''
             - res.dataCollectionRows.each do |dcr|
               - keys += "<ns3:keys>#{dcr.dataCollectionRowKey.xml}</ns3:keys>"
-            = form_tag(close_fare_path, method: :post) do |f|
+            = form_tag(mdc_close_fare_path, method: :post) do |f|
               = hidden_field_tag :data_collection_rows, Base64.encode64(keys)
               = submit_tag 'Chiudi'
+            = form_tag(mdc_download_ws_pdf_path(format: :pdf), method: :post) do |f|
+              - res.photos.each do |p|
+                = hidden_field_tag 'photos[]', p
+              = submit_tag 'PDF', class: 'no-loader'
         .row
           .col-sm-12
             - res.photos.each do |p|
-              = image_tag(p, size: '320x240', class: 'gallery-image')
+              = image_tag(p, class: 'gallery-image', style: 'height:50%;width:auto;')
             %br
             %br
+
+:javascript
+  activateGallery();

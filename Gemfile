@@ -54,6 +54,8 @@ gem 'bootstrap-datepicker-rails'
 gem 'chunky_png'
 gem 'cairo'
 gem 'barby'
+gem 'fastimage'
+gem "mini_magick"
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 gem 'remotipart'

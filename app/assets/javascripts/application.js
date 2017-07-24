@@ -18,10 +18,37 @@
 //= require jquery-ui
 //= require autocomplete-rails
 //= require_tree .
+
 function activateGallery(){
   $('.gallery-image').off('click');
   $('.gallery-image').on('click',function(){
-    $('body').append('<div class="pop-up"><div class="close">Chiudi</div></div>');
+    $('body').append('<div class="popup" id="gallery"><div class="close">Chiudi</div><img src="'+this.src+'" class="gimage"/></div>');
+    var move = false
+    var offsetX = 0;
+    var offsetY = 0;
+    $('.gimage').on('mousedown',function(e){
+      offsetX = e['pageX']
+      offsetY = e['pageY']
+      console.log(e,$(this).offset());
+      move = true;
+    });
+    $('.gimage').on('mouseup',function(){
+      move = false;
+    });
+    $('.gimage').on('mousemove',function(e){
+      if(move){
+        spaceX = offsetX - e['pageX'];
+        spaceY = offsetY - e['pageY'];
+        $(this).offset({top: $(this).offset()['top'] - spaceY, left: $(this).offset()['left'] - spaceX});
+        offsetX = e['pageX'];
+        offsetY = e['pageY'];
+        console.log($(this).offset());
+      }
+    });
+    $('.gimage').on('dragstart',function(e){
+      e.preventDefault();
+    });
+    activateClose();
   });
 }
 
