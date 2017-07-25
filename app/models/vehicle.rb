@@ -15,7 +15,7 @@ class Vehicle < ApplicationRecord
   scope :find_by_model, ->(search) { joins(:model).where('vehicle_models.name LIKE ?', '%'+search+'%') }
   scope :find_by_property, ->(property) { joins(:property).where('companies.name LIKE ?', '%'+property+'%') }
   scope :null_scope, -> { where(id: nil) }
-  scope :filter, ->(search) { joins(:vehicle_informations).joins(:model).where("vehicle_informations.information LIKE '%#{search}%' or vehicle_models.name LIKE '%#{search}%'").distinct }
+  scope :filter, ->(search) { joins(:vehicle_informations).joins(:model).joins('inner join companies on vehicle_models.manufacturer_id = companies.id').where("vehicle_informations.information LIKE '%#{search}%' or vehicle_models.name LIKE '%#{search}%' or companies.name LIKE '%#{search}%'").distinct.limit(150) }
   # scope :filter, ->(search) { find_by_plate(search).or(find_by_chassis(search)).or(find_by_model(search)).or(find_by_manufacturer(search)) }
 
   self.per_page = 30

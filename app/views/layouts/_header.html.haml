@@ -14,7 +14,7 @@
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
             = navbar_item "Magazzino", storage_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
-            = navbar_item "Gestione oli", oils_path
+            -# = navbar_item "Gestione oli", oils_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
             = navbar_item "Mezzi", vehicles_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))

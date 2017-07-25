@@ -10,7 +10,7 @@
     .col-sm-4
       .field
         = f.label 'Modello'
-        = f.select :model, options_from_collection_for_select(VehicleModel.all,'id','complete_name', selected: @vehicle.model), class: 'form-control'
+        = f.select :model, options_from_collection_for_select(VehicleModel.order_by_model,'id','complete_name', selected: @vehicle.model), class: 'form-control'
       .field
         = f.label 'Targa'
         = text_field_tag 'initial_plate[info]',@vehicle.plate, class: 'form-control'

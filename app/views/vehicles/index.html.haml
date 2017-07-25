@@ -2,7 +2,7 @@
 %h3 Mezzi
 
 = form_tag(vehicles_path, method: :get) do |f|
-  = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': vehicles_path
+  = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch autofocus', 'data-target': vehicles_path
 -# = will_paginate @vehicles
 .container
   .row
@@ -15,7 +15,7 @@
     .col-sm-2
       %b='Proprietà'
     .col-sm-1
-      %b='Circola'
+      %b='ODS'
     .col-sm-2
       %b='Note'
     .col-sm-1
@@ -23,24 +23,31 @@
 
 
 .container.scrollable-panel
-  - @vehicles.each do |v|
-    .row
-      .col-sm-1
-        =v.plate
-      .col-sm-2
-        =v.chassis_number
-      .col-sm-2
-        =v.model.complete_name
-      .col-sm-2
-        =v.property.name
-      .col-sm-1
-        =v.dismissed ? 'No' : 'Si'
-      .col-sm-2
-        =v.notes
-      .col-sm-1
-        =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
-      .col-sm-1
-        =button_to 'x', vehicle_path(v.id), remote: true, method: :delete, class: 'inline'
+  - unless @vehicles.nil?
+    - @vehicles.each do |v|
+      .row
+        .col-sm-1
+          =v.plate
+        .col-sm-2
+          =v.chassis_number
+        .col-sm-2
+          =v.model.complete_name
+        .col-sm-2
+          =v.property.name
+        .col-sm-1
+          =v.worksheets.pluck(:code).join ', '
+        .col-sm-2
+          =v.notes
+        .col-sm-1
+          =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
+        .col-sm-1
+          = form_tag(vehicle_path(v.id), method: :delete) do |f|
+            = hidden_field_tag :search, @search
+            = submit_tag 'x', class: 'inline'
 
 .container
   =button_to 'Crea', new_vehicle_path, method: :get
+
+:javascript
+
+  activateAF();

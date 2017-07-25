@@ -6,6 +6,7 @@ class VehicleModel < ApplicationRecord
 
   enum vehicle_type: ['Motrice', 'Trattore', 'Rimorchio', 'Semirimorchio', 'Minivan', 'Automobile', 'Furgone', 'Ciclomotore']
 
+  scope :order_by_model, -> { joins(:manufacturer).order('companies.name').order('vehicle_models.name') }
   def complete_name
     self.manufacturer.name+' '+self.name
   end

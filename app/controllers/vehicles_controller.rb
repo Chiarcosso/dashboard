@@ -1,22 +1,16 @@
 class VehiclesController < ApplicationController
   before_action :set_vehicle, only: [:show, :edit, :update, :destroy]
-  before_action :search_params, only: [:index]
+  before_action :search_params, only: [:index,:destroy]
   autocomplete :vehicle, :plate, full: true
 
   # GET /vehicles
   # GET /vehicles.json
   def index
-    unless params[:search].nil?
-      @search = params.require(:search)
-    else
-      @search = ''
-    end
-    @vehicles = Vehicle.filter(@search)#.paginate(:page => params[:page], :per_page => 30)
 
-    # @vehicles = Vehicle.includes(Vehicle.find_by_plate(@search)).includes(Vehicle.find_by_chassis(@search)).includes(Vehicle.find_by_property(@search)).take(100).paginate(:page => params[:page], :per_page => 30)
-    # byebug
+    @vehicles = Vehicle.filter(@search) unless @search.nil?#.paginate(:page => params[:page], :per_page => 30)
+
     respond_to do |format|
-      format.html { render 'vehicles/index'}
+      format.html { render 'vehicles/index', notice: @notice}
     end
   end
 
@@ -85,24 +79,24 @@ class VehiclesController < ApplicationController
   # DELETE /vehicles/1
   # DELETE /vehicles/1.json
   def destroy
-    @vehicle.destroy
-    respond_to do |format|
-      format.html { redirect_to vehicles_url, notice: 'Vehicle was successfully destroyed.' }
-      format.json { head :no_content }
+    if @vehicle.nil?
+      @notice = 'Mezzo non trovato'
+    else
+      @vehicle.destroy
+      @notice = 'Mezzo eliminato'
     end
+    index
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_vehicle
-      @vehicle = Vehicle.find(params[:id])
+      @vehicle = Vehicle.find(params.require(:id)) rescue @vehicle = nil
     end
 
     def search_params
       unless params[:search].nil? || params[:search] == ''
         @search = params.require(:search)
-      else
-        @search = ''
       end
     end
 

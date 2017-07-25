@@ -13,7 +13,11 @@ class Worksheet < ApplicationRecord
       return false
     end
   end
-  
+
+  def code_number
+    self.code.tr 'EWC*' ''
+  end
+
   def complete_name
     unless self.code.nil?
       self.code+' (Targa: '+self.vehicle.plate+')'
