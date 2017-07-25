@@ -22,17 +22,32 @@
 function activateGallery(){
   $('.gallery-image').off('click');
   $('.gallery-image').on('click',function(){
-    $('body').append('<div class="popup" id="gallery"><div class="close">Chiudi</div><img src="'+this.src+'" class="gimage"/></div>');
+    $('body').append('<div class="popup" id="gallery"><div class="close">Chiudi</div><img src="'+this.src+'" class="gimage gi-rotate-0"/></div>');
     var move = false
     var offsetX = 0;
     var offsetY = 0;
     $('.gimage').on('mousedown',function(e){
       offsetX = e['pageX']
       offsetY = e['pageY']
-      console.log(e,$(this).offset());
       move = true;
+      moved = false;
     });
-    $('.gimage').on('mouseup',function(){
+    $('.gimage').on('mouseup',function(e){
+      if(!moved){
+        if($(this).hasClass('gi-rotate-0')){
+          $(this).removeClass('gi-rotate-0');
+          $(this).addClass('gi-rotate-90');
+        } else if($(this).hasClass('gi-rotate-90')){
+          $(this).removeClass('gi-rotate-90');
+          $(this).addClass('gi-rotate-180');
+        } else if($(this).hasClass('gi-rotate-180')){
+          $(this).removeClass('gi-rotate-180');
+          $(this).addClass('gi-rotate-270');
+        } else if($(this).hasClass('gi-rotate-270')){
+          $(this).removeClass('gi-rotate-270');
+          $(this).addClass('gi-rotate-0');
+        }
+      }
       move = false;
     });
     $('.gimage').on('mousemove',function(e){
@@ -42,9 +57,10 @@ function activateGallery(){
         $(this).offset({top: $(this).offset()['top'] - spaceY, left: $(this).offset()['left'] - spaceX});
         offsetX = e['pageX'];
         offsetY = e['pageY'];
-        console.log($(this).offset());
+        moved = true;
       }
     });
+
     $('.gimage').on('dragstart',function(e){
       e.preventDefault();
     });
