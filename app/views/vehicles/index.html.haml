@@ -1,9 +1,9 @@
 -# %p#notice= notice
 %h3 Mezzi
 
-= form_tag(vehicles_path, method: :get, remote: true, type: :script) do |f|
+= form_tag(vehicles_path, method: :get) do |f|
   = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': vehicles_path
-= will_paginate @vehicles
+-# = will_paginate @vehicles
 .container
   .row
     .col-sm-1

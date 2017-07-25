@@ -6,9 +6,18 @@ class VehiclesController < ApplicationController
   # GET /vehicles
   # GET /vehicles.json
   def index
-    @vehicles = Vehicle.order_by_plate.paginate(:page => params[:page], :per_page => 30)
+    unless params[:search].nil?
+      @search = params.require(:search)
+    else
+      @search = ''
+    end
+    @vehicles = Vehicle.filter(@search)#.paginate(:page => params[:page], :per_page => 30)
+
     # @vehicles = Vehicle.includes(Vehicle.find_by_plate(@search)).includes(Vehicle.find_by_chassis(@search)).includes(Vehicle.find_by_property(@search)).take(100).paginate(:page => params[:page], :per_page => 30)
     # byebug
+    respond_to do |format|
+      format.html { render 'vehicles/index'}
+    end
   end
 
   # GET /vehicles/1
