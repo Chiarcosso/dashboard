@@ -68,7 +68,7 @@ class PeopleController < ApplicationController
         mdc = MdcWebservice.new
         mdc.begin_transaction
         Person.mdc.each do |p|
-          mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: p.mdc_user.upcase, key: p.mdc_user, order: 1, tabname: 'USERS', values: [p.mdc_user.upcase,p.mdc_user,p.name,p.surname,p.id]}))
+          mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{ p.mdc_user.upcase}|", key: p.mdc_user, order: 1, tabname: 'USERS', values: [p.mdc_user.upcase,p.mdc_user,p.name,p.surname,p.id]}))
         end
         mdc.commit_transaction
         mdc.end_transaction

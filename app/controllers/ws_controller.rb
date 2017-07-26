@@ -18,10 +18,45 @@ class WsController < ApplicationController
     mdc = MdcWebservice.new
     mdc.begin_transaction
     mdc.update_data_collection_rows_status(Base64.decode64(params.require(:data_collection_rows)))
+    mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: params.require(:id), deviceCode: ''})])
+    Person.mdc.each do |p|
+      mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
+    end
+    # mdc.send_push_notification(['ALL'],'Aggiornamento viaggi.')
+    # mdc.send_push_notification(Person.mdc.pluck(:mdc_user),'Aggiornamento viaggi.')
     mdc.commit_transaction
     mdc.end_transaction
     mdc.close_session
     index
+  end
+
+
+  def update_fares
+    driver = Person.find_by_complete_name(Base64.decode64(params.require(:driver))).first
+    unless driver.nil?
+      if driver.mdc_user.nil?
+        @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{driver.complete_name} non ha un utente assegnato."
+      else
+        id = params.require(:id)
+        msg = Base64.decode64(params.require('ChatMessage'))
+        mdc = MdcWebservice.new
+
+        mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: id, deviceCode: ''})])
+        mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{driver.mdc_user.upcase}|", key: id, order: 0, tabname: 'FARES', values: [msg]}))
+        Person.mdc.each do |p|
+          mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.') unless p == driver
+        end
+        mdc.send_push_notification([driver.mdc_user],msg)
+        mdc.commit_transaction
+        mdc.end_transaction
+        mdc.close_session
+        @msg = "Messaggio inviato. Targa: #{params[:VehiclePlateNumber]}, #{driver.complete_name} (utente: #{driver.mdc_user})."
+      end
+    else
+      @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{Base64.decode64(params.require(:driver))} non esiste."
+    end
+
+    render :partial => 'layouts/messages'
   end
 
   def print_pdf
@@ -57,28 +92,4 @@ class WsController < ApplicationController
     end
   end
 
-  def update_fares
-    driver = Person.find_by_complete_name(Base64.decode64(params.require(:driver))).first
-    unless driver.nil?
-      if driver.mdc_user.nil?
-        @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{driver.complete_name} non ha un utente assegnato."
-      else
-        id = params.require(:id)
-        msg = Base64.decode64(params.require('ChatMessage'))
-        mdc = MdcWebservice.new
-
-        mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: id, deviceCode: ''})])
-        mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{driver.mdc_user.upcase}|", key: id, order: 0, tabname: 'FARES', values: [msg]}))
-        mdc.send_push_notification([driver.mdc_user],msg)
-        mdc.commit_transaction
-        mdc.end_transaction
-        mdc.close_session
-        @msg = "Messaggio inviato. Targa: #{params[:VehiclePlateNumber]}, #{driver.complete_name} (utente: #{driver.mdc_user})."
-      end
-    else
-      @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{Base64.decode64(params.require(:driver))} non esiste."
-    end
-
-    render :partial => 'layouts/messages'
-  end
 end
