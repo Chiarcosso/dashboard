@@ -157,7 +157,7 @@ class Item < ApplicationRecord
     # if self.item_relations.size > 0
     if self.output_orders.size > 0
       relation = self.last_order
-      byebug
+      return relation.destination.complete_name
       # unless relation.office.nil?
       #   return relation.office.name+@od
       # end
