@@ -154,23 +154,26 @@ class Item < ApplicationRecord
     else
       @od = ''
     end
-    if self.item_relations.size > 0
-      relation = self.last_position
-      unless relation.office.nil?
-        return relation.office.name+@od
-      end
-      unless relation.vehicle.nil?
-        return relation.vehicle.plate+@od
-      end
-      unless relation.person.nil?
-        return relation.person.complete_name+@od
-      end
-      unless relation.worksheet.nil?
-        return relation.worksheet.complete_name+@od
-      end
-      return self.position_code.code+@od
+    # if self.item_relations.size > 0
+    if self.output_orders.size > 0
+      relation = self.last_order
+      byebug
+      # unless relation.office.nil?
+      #   return relation.office.name+@od
+      # end
+      # unless relation.vehicle.nil?
+      #   return relation.vehicle.plate+@od
+      # end
+      # unless relation.person.nil?
+      #   return relation.person.complete_name+@od
+      # end
+      # unless relation.worksheet.nil?
+      #   return relation.worksheet.complete_name+@od
+      # end
+      # return self.position_code.code+@od
     else
-      return nil
+      # return nil
+      return self.position_code.code+@od
     end
   end
 
