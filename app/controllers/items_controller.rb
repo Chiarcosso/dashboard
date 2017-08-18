@@ -5,7 +5,7 @@ class ItemsController < ApplicationController
   before_action :set_vehicle_for_order, only: [:add_item_to_storage]
   before_action :get_reposition_items, only: [:reposition]
   before_action :get_pricing_items, only: [:pricing]
-  before_action :search_params, only: [:destroy]
+  before_action :destroy_search_params, only: [:destroy]
 
   autocomplete :article, :manufacturerCode, full: true, :id_element => '#article_id'
   # GET /items
@@ -271,7 +271,7 @@ class ItemsController < ApplicationController
         ir.delete
       end
     end
-    @search = search_params
+    @search = destroy_search_params
     @selected_items = Item.filter(@search).unassigned.distinct.limited
     respond_to do |format|
       if @item.destroy
@@ -435,7 +435,14 @@ class ItemsController < ApplicationController
 
     def search_params
       unless params[:search].nil? || params[:search] == ''
-        @search = params.require(:search)
+        @search =  params.require(:search)
+      end
+      @search
+    end
+
+    def destroy_search_params
+      unless params[:search].nil? || params[:search] == ''
+        @search =  Base64.decode64(params.require(:search))
       end
       @search
     end

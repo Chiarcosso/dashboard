@@ -30,7 +30,7 @@
   - @selected_items.each do |item|
     .row.colored.hover-hilight.popup-link{'data-target': p_edit_item_path(id: item.id, search: Base64.encode64(@search)), 'data-name': 'edit-item'}
       .col-sm-1
-        = button_to "x", "/items/#{item.id}/#{@search}", :method => :delete, :remote => true, class: 'on-top getsearch'
+        = button_to "x", "/items/#{item.id}/#{ Base64.encode64(@search)}", :method => :delete, :remote => true, class: 'on-top getsearch'
       .col-sm-2
         = item.id.to_s+' - '+item.article.complete_name.to_s
       .col-sm-1
