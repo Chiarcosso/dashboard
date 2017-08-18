@@ -18,7 +18,7 @@
     .col-sm-3
       .field
         = f.label 'Tipo'
-        = f.select :vehicle_type, VehicleModel.vehicle_types, class: 'form-control'
+        = f.collection_select :vehicle_type, VehicleType.order(:name),:id,:name, class: 'form-control'
     .col-sm-3
       .field
         = f.label 'Descrizione/note'
