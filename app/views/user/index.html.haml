@@ -2,7 +2,7 @@
   .container-fluid
     = link_to "Aggiungi", new_user_admin_path, :class => "btn btn-primary"
 .panel
-  .container-fluid
+  .container-fluid.scrollable-panel
     - @users.each do |usr|
       .container-fluid
         =render :partial => 'user/partials/user_block', :locals => { :usr => usr }
