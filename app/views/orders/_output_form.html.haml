@@ -42,7 +42,7 @@
       - case @destination.to_sym
         - when :Person
           .col-sm-12
-            = select_tag :recipient, options_from_collection_for_select(Person.order_alpha, "id", "list_name", @recipient.id), class: 'form-control'
+            = select_tag :recipient, options_from_collection_for_select(Person.order_alpha_surname, "id", "list_name", @recipient.id), class: 'form-control'
         - when :Office
           .col-sm-12
             = select_tag :recipient, options_from_collection_for_select(Office.all, "id", "name", @recipient.id), class: 'form-control'
