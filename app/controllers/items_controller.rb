@@ -68,7 +68,7 @@ class ItemsController < ApplicationController
     tmp = Hash.new
     Item.unpositioned.unassigned.each do |un|
       d = un.expiringDate.nil?? 'noDate' : un.expiringDate.strftime('%Y%m%d')
-      p = un.complete_price.to_s
+      p = un.actualPrice.to_s
       if tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p].nil?
         un.setAmount 1
         tmp[un.article.id.to_s+'-'+un.serial.to_s+'-'+d+'-'+p] = un
