@@ -709,7 +709,7 @@ class VacationRequest
   end
 
   def text
-    "Richiesta #{self.type}\n\nIl #{self.date}, #{self.person.complete_name} ha richiesto #{self.type} #{self.when}.\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore del sistema."
+    "Richiesta #{self.type}\n\nIl #{self.date}, #{self.person.complete_name} ha richiesto #{self.type} #{self.when}.\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore di sistema."
     # render 'human_resources_mailer/vacation_request'
   end
 
@@ -856,7 +856,7 @@ class GearRequest
       text += "\n\n"
     end
     text += "Il ritiro è previsto il #{@data[:items][:pickup_dt]} alle #{@data[:items][:pickup_tm]} circa.\n\n"
-    text += "\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore del sistema."
+    text += "\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore di sistema."
     # render 'human_resources_mailer/vacation_request'
   end
 

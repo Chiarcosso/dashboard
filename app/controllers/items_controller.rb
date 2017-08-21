@@ -429,7 +429,7 @@ class ItemsController < ApplicationController
 
     def find_params
       unless params[:code].nil? || params[:code] == ''
-        params.require(:code)
+        Base64.decode64(params.require(:code))
       end
     end
 

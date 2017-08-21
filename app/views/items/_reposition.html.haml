@@ -39,7 +39,7 @@
       e.stopPropagation();
       e.preventDefault();
       $.ajax({
-        url: '/items/find/'+barcode,
+        url: '/items/find/'+btoa(barcode),
         method: 'get',
         format: 'json',
         complete: function(data){
