@@ -84,7 +84,7 @@ class ArticlesController < ApplicationController
 
   # GET /articles/1/edit
   def edit
-    @search = search_params
+    @search = find_params
     respond_to do |format|
       format.js { render :partial => 'articles/new'}
       format.json { render :show, status: :created, location: @article }
@@ -156,11 +156,12 @@ class ArticlesController < ApplicationController
   # DELETE /articles/1
   # DELETE /articles/1.json
   def destroy
-
+    @search = find_params
+    @filteredArticles = Article.filter(@search)
     respond_to do |format|
-      if @article.destroy
+      begin @article.destroy
         format.js { render :partial => 'articles/incomplete', notice: 'Articolo eliminato.' }
-      else
+      rescue
         format.js { render :partial => 'articles/incomplete', notice: 'Impossibile eliminare articolo.' }
       end
     end
@@ -186,6 +187,12 @@ class ArticlesController < ApplicationController
         c = c.to_i
       end
       params
+    end
+
+    def find_params
+      unless params[:search].nil? || params[:search] == ''
+        Base64.decode64(params.require(:search))
+      end
     end
 
     def search_params

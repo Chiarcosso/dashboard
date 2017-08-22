@@ -3,7 +3,7 @@
   = @filteredArticles.size.to_s+' di '+Article.count.to_s+' articoli'
   %br
   %br
-  = form_tag(incomplete_articles_path, method: :get, remote: true, type: :script) do |f|
+  = form_tag(incomplete_articles_path, method: :post, remote: true, type: :script) do |f|
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autofocus', 'data-target': articles_path
 -# - if Article.incompleteItems.empty?
   = "Non ci sono articoli incompleti"

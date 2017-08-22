@@ -68,8 +68,9 @@ Rails.application.routes.draw do
   post   '/items/print/:id', to: 'items#print', as: :items_print
   post   '/articles/print/:id', to: 'articles#print', as: :articles_print
 
-  get    '/incomplete_articles', to: 'articles#incomplete', as: :incomplete_articles
-  get '/articles/edit/:id/:search', to: 'articles#edit', as: :p_edit_article
+  post   '/incomplete_articles', to: 'articles#incomplete', as: :incomplete_articles
+  get    '/articles/edit/:id/:search', to: 'articles#edit', as: :p_edit_article
+  delete '/articles/:id/:search', to: 'articles#destroy', as: :p_delete_article
   post   '/article_categories/manage', to: 'article_categories#manage', as: :manage_article_categories
   post   '/article/categories/', to: 'articles#list_categories', as: :list_article_categories
 
