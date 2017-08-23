@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170621100759) do
+ActiveRecord::Schema.define(version: 20170822152836) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -45,6 +45,24 @@ ActiveRecord::Schema.define(version: 20170621100759) do
     t.integer  "measure_unit",     limit: 3,                              null: false
     t.index ["created_by_id"], name: "index_articles_on_created_by_id", using: :btree
     t.index ["manufacturer_id"], name: "index_articles_on_manufacturer_id", using: :btree
+  end
+
+  create_table "carwash_driver_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "code",       null: false
+    t.integer  "person_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_carwash_driver_codes_on_code", using: :btree
+    t.index ["person_id"], name: "index_carwash_driver_codes_on_person_id", using: :btree
+  end
+
+  create_table "carwash_vehicle_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "code",       null: false
+    t.integer  "vehicle_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_carwash_vehicle_codes_on_code", using: :btree
+    t.index ["vehicle_id"], name: "index_carwash_vehicle_codes_on_vehicle_id", using: :btree
   end
 
   create_table "companies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -332,6 +350,8 @@ ActiveRecord::Schema.define(version: 20170621100759) do
 
   add_foreign_key "articles", "companies", column: "manufacturer_id"
   add_foreign_key "articles", "users", column: "created_by_id"
+  add_foreign_key "carwash_driver_codes", "people"
+  add_foreign_key "carwash_vehicle_codes", "vehicles"
   add_foreign_key "company_people", "companies"
   add_foreign_key "company_people", "company_relations"
   add_foreign_key "company_people", "people"

@@ -8,7 +8,8 @@
             -# = navbar_dropdown_header 'Personale'
             -# = navbar_dropdown_divider
             = navbar_item "Utenti", users_admin_path
-            = navbar_item "Dotazione", equipment_home_path
+            = navbar_item "Codici", codes_path
+            -# = navbar_item "Dotazione", equipment_home_path
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino))
         = navbar_dropdown "Officina" do
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
@@ -22,7 +23,7 @@
       - if current_user.present? && (current_user.has_role?(:amministrazione) || current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?('mod. ditte'))
         = navbar_dropdown "Amministrazione" do
           - if (current_user.has_role?(:ddt) || current_user.has_role?(:traffico) || current_user.has_role?(:admin))
-            = navbar_item "Ordini di trasporto", mdc_transport_documents_path
+            = navbar_item "Ordini di trasporto", mdc_transport_documents_path('opened')
           - if (current_user.has_role?(:amministrazione) || current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
             = navbar_item "Totali", admin_totals_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))

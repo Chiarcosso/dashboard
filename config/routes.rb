@@ -110,8 +110,10 @@ Rails.application.routes.draw do
   get '/equipment', to: 'equipment#index', as: :equipment
   get '/equipment_home', to: 'equipment#home', as: :equipment_home
 
-  get '/mdc/transport_documents', to: 'ws#index', as: :mdc_transport_documents
+  get  '/mdc/transport_documents/:status', to: 'ws#index', as: :mdc_transport_documents
   post 'mdc/close_fare', to: 'ws#close_fare', as: :mdc_close_fare
   post 'mdc/download_ws_pdf', to: 'ws#print_pdf', as: :mdc_download_ws_pdf
   # get '/equipment_groups', to: 'equipment_groups#index', as: :equipment_groups
+
+  get '/codes/', to: 'codes#index', as: :codes
 end

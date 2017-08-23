@@ -1,7 +1,11 @@
 .scrollable-panel.full-panel
   .container
     = "Record: #{@results.count}"
-    = button_to 'Ricarica', mdc_transport_documents_path, method: :get
+    = button_to 'Ricarica', mdc_transport_documents_path(@status == 0 ? 'opened' : 'closed'), method: :get
+    = radio_button_tag 'status', "opened", @status == 0 ? true : false, id: 'opened'
+    Mostra viaggi aperti
+    = radio_button_tag 'status', "closed", @status == 0 ? false : true, id: 'closed'
+    Mostra viaggi chiusi
     - @results.each do |r|
       - r.each do |res|
         .row
@@ -35,3 +39,9 @@
 
 :javascript
   activateGallery();
+
+  $('input[name=status]').on('click',function(){
+    var form = $('input[value=Ricarica]').parent();
+    form.attr('action','/mdc/transport_documents/'+this.id);
+    form.submit();
+  });

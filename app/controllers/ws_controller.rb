@@ -1,6 +1,7 @@
 class WsController < ApplicationController
   skip_before_filter :authenticate_user!, :only => :update_fares
   protect_from_forgery except: :update_fares
+  before_action :set_status, :only => [:index]
 
 
   def index
@@ -8,7 +9,7 @@ class WsController < ApplicationController
 
     @results = Array.new
     Person.mdc.each do |p|
-      r = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.mdc_user.upcase, status: 0})
+      r = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.mdc_user.upcase, status: @status}).reverse[0,10]
       @results << r unless r.empty?
     end
     render 'mdc/index'
@@ -89,6 +90,16 @@ class WsController < ApplicationController
         "test.pdf",
         type: "application/pdf"
       end
+    end
+  end
+
+  private
+
+  def set_status
+    if params[:status] == 'opened' or params[:status].nil?
+      @status = 0
+    else
+      @status = 1
     end
   end
 
