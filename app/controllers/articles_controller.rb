@@ -22,6 +22,15 @@ class ArticlesController < ApplicationController
     @article.printLabel
   end
 
+  def print_inventory
+    respond_to do |format|
+      format.pdf do
+        pdf = Article.inventory(find_params)
+        send_data pdf.render, filename: "inventario_test.pdf", type: "application/pdf"
+      end
+    end
+  end
+
   def list_categories
 
     @categories = Array.new

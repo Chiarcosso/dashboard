@@ -2,6 +2,9 @@
 .container-fluid
   = @filteredArticles.size.to_s+' di '+Article.count.to_s+' articoli'
   %br
+  = form_tag(print_inventory_path('inventario',format: :pdf), method: :post) do |f|
+    = hidden_field_tag :search, Base64.encode64(@search.to_s)
+    = submit_tag 'Stampa inventario', class: 'no-loader'
   %br
   = form_tag(incomplete_articles_path, method: :post, remote: true, type: :script) do |f|
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autofocus', 'data-target': articles_path
