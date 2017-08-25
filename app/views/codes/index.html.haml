@@ -1,2 +1,12 @@
 %h3
   Badge per il lavaggio
+
+Codici autisti
+%hr
+- CarwashDriverCode.all.each do |cwdc|
+  = cwdc
+
+Codici mezzi
+%hr
+- CarwashVehicleCode.all.each do |cwvc|
+  = cwvc

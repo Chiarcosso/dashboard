@@ -219,6 +219,10 @@ body{
   overflow: hidden;
 }
 
+.gallery-popup{
+  padding-left: 0px;
+}
+
 .popup-content{
   overflow: auto;
 }
@@ -234,4 +238,5 @@ body{
   position: absolute;
   top: 0px;
   right: 0px;
+  z-index: 1000;
 }

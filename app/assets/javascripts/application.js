@@ -22,7 +22,7 @@
 function activateGallery(){
   $('.gallery-image').off('click');
   $('.gallery-image').on('click',function(){
-    $('body').append('<div class="popup" id="gallery"><div class="close">Chiudi</div><img src="'+this.src+'" class="gimage gi-rotate-0"/></div>');
+    $('body').append('<div class="popup gallery-popup" id="gallery"><div class="close">Chiudi</div><div class="scrollable-panel"><img src="'+this.src+'" class="gimage gi-rotate-0"/></div></div>');
     var move = false
     var offsetX = 0;
     var offsetY = 0;
@@ -30,10 +30,15 @@ function activateGallery(){
       offsetX = e['pageX']
       offsetY = e['pageY']
       move = true;
-      moved = false;
+      // moved = false;
     });
     $('.gimage').on('mouseup',function(e){
-      if(!moved){
+      move = false;
+    });
+    $('.gimage').on('contextmenu',function(e){
+      // if(!moved){
+
+        e.preventDefault();
         if($(this).hasClass('gi-rotate-0')){
           $(this).removeClass('gi-rotate-0');
           $(this).addClass('gi-rotate-90');
@@ -47,9 +52,28 @@ function activateGallery(){
           $(this).removeClass('gi-rotate-270');
           $(this).addClass('gi-rotate-0');
         }
-      }
-      move = false;
+      // }
+      // move = false;
     });
+
+    // $('.gimage').on('mouseup',function(e){
+    //   if(!moved){
+    //     if($(this).hasClass('gi-rotate-0')){
+    //       $(this).removeClass('gi-rotate-0');
+    //       $(this).addClass('gi-rotate-90');
+    //     } else if($(this).hasClass('gi-rotate-90')){
+    //       $(this).removeClass('gi-rotate-90');
+    //       $(this).addClass('gi-rotate-180');
+    //     } else if($(this).hasClass('gi-rotate-180')){
+    //       $(this).removeClass('gi-rotate-180');
+    //       $(this).addClass('gi-rotate-270');
+    //     } else if($(this).hasClass('gi-rotate-270')){
+    //       $(this).removeClass('gi-rotate-270');
+    //       $(this).addClass('gi-rotate-0');
+    //     }
+    //   }
+    //   move = false;
+    // });
     $('.gimage').on('mousemove',function(e){
       if(move){
         spaceX = offsetX - e['pageX'];
@@ -57,7 +81,7 @@ function activateGallery(){
         $(this).offset({top: $(this).offset()['top'] - spaceY, left: $(this).offset()['left'] - spaceX});
         offsetX = e['pageX'];
         offsetY = e['pageY'];
-        moved = true;
+        // moved = true;
       }
     });
 
