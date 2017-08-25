@@ -1,0 +1,4 @@
+- CarwashDriverCode.all.each do |cwdc|
+  = text_field_tag :code, cwdc.code, class: 'a'+cwdc.id.to_s, disabled: :disabled
+  %div{class: 'a'+cwdc.id.to_s}
+    = cwdc.person.complete_name

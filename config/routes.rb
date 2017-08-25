@@ -117,4 +117,7 @@ Rails.application.routes.draw do
   # get '/equipment_groups', to: 'equipment_groups#index', as: :equipment_groups
 
   get '/codes/', to: 'codes#index', as: :codes
+  post '/codes/carwash_driver_code/new', to: 'codes#new_driver_code', as: :new_carwash_driver_code
+  post '/codes/carwash_driver_code/edit', to: 'codes#edit_driver_code', as: :edit_carwash_driver_code
+  delete '/codes/carwash_driver_code/:id/delete', to: 'codes#delete_driver_code', as: :delete_carwash_driver_code
 end

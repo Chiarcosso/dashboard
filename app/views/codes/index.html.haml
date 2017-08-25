@@ -1,10 +1,16 @@
 %h3
   Badge per il lavaggio
+%br
+%br
 
 Codici autisti
+%br
+= form_for(:carwash_driver_code, method: :post, action: new_carwash_driver_code_path, remote: true) do |f|
+  = f.text_field :code
+  = f.submit 'Nuovo'
 %hr
-- CarwashDriverCode.all.each do |cwdc|
-  = cwdc
+.panel.scrollable-panel
+  = render :partial => 'codes/drivers_codes'
 
 Codici mezzi
 %hr
