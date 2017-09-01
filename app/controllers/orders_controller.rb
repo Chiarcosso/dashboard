@@ -9,6 +9,14 @@ class OrdersController < ApplicationController
   before_action :exit_params, only: [:exit_order,:confirm_order,:destroy_output_order, :print_pdf, :print_pdf_module]
 
   autocomplete :vehicle_information, :information, full: true, :id_element => '#vehicle_id'
+
+  def autocomplete_person_filter
+    # result = Array.new
+    # Person.filter(params.permit(:term)[:term]).each do |p|
+    #   result << { id: p.id.to_s, label: p.complete_name, value: p.complete_name, name: p.name}
+    # end
+    render :json => Person.filter(params.permit(:term)[:term]).map{ |p| { id: p.id.to_s, label: p.complete_name, value: p.id, name: p.name} }
+  end
   # GET /orders
   # GET /orders.json
   def index

@@ -8,6 +8,7 @@ class Person < ApplicationRecord
   scope :order_alpha, -> { order(:name).order(:surname) }
   scope :order_alpha_surname, -> { order(:surname).order(:name) }
   scope :find_by_complete_name,->(name) { where("concat_ws(' ',surname,name) LIKE ?", name) }
+  scope :find_by_complete_name_inv,->(name) { where("concat_ws(' ',name,surname) LIKE ?", name) }
   scope :filter, ->(name) { where("name like ? or surname like ? or mdc_user like ? or ('mdc' like ? and mdc_user is not null and mdc_user != '')", "%#{name}%", "%#{name}%", "%#{name}%", "%#{name}%").order(:surname) }
   scope :mdc, -> { where("mdc_user is not null and mdc_user != ''") }
   scope :order_mdc_user, -> { order(:mdc_user)}

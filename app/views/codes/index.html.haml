@@ -2,17 +2,87 @@
   Badge per il lavaggio
 %br
 %br
+.container
+  .row
+    .col-sm-6
+      Codici autisti
+      %br
+      = form_tag(new_carwash_driver_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
+        = text_field_tag 'carwash_driver_code[person]', nil, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
+        = hidden_field_tag 'carwash_driver_code[person_id]', '', id: :person_id
+        = submit_tag 'Abilita'
+      %hr
+      .scrollable-panel#drivers_codes
+        = render :partial => 'codes/drivers_codes'
 
-Codici autisti
-%br
-= form_for(:carwash_driver_code, method: :post, action: new_carwash_driver_code_path, remote: true) do |f|
-  = f.text_field :code
-  = f.submit 'Nuovo'
-%hr
-.panel.scrollable-panel
-  = render :partial => 'codes/drivers_codes'
+    .col-sm-6
+      Codici mezzi
+      %br
+      = form_tag(new_carwash_vehicle_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
+        = text_field_tag 'carwash_vehicle_code[plate]', nil, data: { autocomplete: autocomplete_vehicle_information_information_codes_path }, class: 'form-control autofocus', id: 'person_id'
+        = hidden_field_tag 'carwash_vehicle_code[vehicle_id]', '', id: :vehicle_id
+        = submit_tag 'Abilita'
+      -# = form_for(:carwash_vehicle_code, url: new_carwash_vehicle_code_path, method: :post, remote: true) do |f|
+      -#   = f.text_field :code, id: :vehicle_code
+      -#   = f.submit 'Nuovo'
+      %hr
+      .scrollable-panel#vehicles_codes
+        = render :partial => 'codes/vehicles_codes'
+  .row
+    .col-sm-12
+      = form_tag(carwash_print_path(format: :pdf), method: :post) do |f|
+        = button_tag 'Stampa selezionati', id: :print_cards, class: 'no-loader'
+:javascript
 
-Codici mezzi
-%hr
-- CarwashVehicleCode.all.each do |cwvc|
-  = cwvc
+  $('#print_cards').off('click');
+  $('#print_cards').on('click',function(e){
+    var drivers = [];
+    var vehicles = [];
+    $('input[name^=print-drivers]:checked').each(function(){
+      drivers.push($(this).val());
+    });
+    $('input[name^=print-vehicles]:checked').each(function(){
+      vehicles.push($(this).val());
+    });
+    var data = {drivers: drivers, vehicles: vehicles};
+
+    var form = $(this).parent();
+    $.each(drivers,function(){
+      form.append('<input type="hidden" value="'+this+'" name="drivers[]">');
+    });
+    $.each(vehicles,function(){
+      form.append('<input type="hidden" value="'+this+'" name="vehicles[]">');
+    });
+    setTimeout(function(){
+      $(this).removeAttr('disabled');
+      console.log('enabled');
+    },3000);
+
+  //  $.ajax({
+  //    url: '/codes/carwash_print/',
+  //    method: 'post',
+  //    data: data,
+  //    complete: function(data){
+  //      console.log(data);
+  //    },
+  //    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/pdf,application/xhtml+xml,application/xml' }
+  //  });
+  //  e.preventDefault();
+
+  });
+  //  function transformCode(code,prefix){
+  //    var patt = new RegExp(/[0-9]*/);
+  //    // code = patt.exec(code);
+  //    if(code.charAt(0) == prefix){
+  //      return code;
+  //    } else {
+  //      return prefix+code;
+  //    }
+  //  };
+
+  //  $('#person_code').on('keyup',function(e){
+  //    $(this).val(transformCode($(this).val(),'A'));
+  //  });
+  //  $('#vehicle_code').on('keyup',function(e){
+  //    $(this).val(transformCode($(this).val(),'M'));
+  //  });

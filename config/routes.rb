@@ -20,9 +20,14 @@ Rails.application.routes.draw do
   end
   resources :orders do
     get :autocomplete_vehicle_information_information, :on => :collection
+    # get :autocomplete_person_filter, :on => :collection
   end
   resources :people do
     get :autocomplete_company_name, :on => :collection
+  end
+  resources :codes, except: [:create,:edit,:update,:delete,:show] do
+    get :autocomplete_person_surname, :on => :collection
+    get :autocomplete_vehicle_information_information, :on => :collection
   end
   devise_for :users
 
@@ -116,8 +121,14 @@ Rails.application.routes.draw do
   post 'mdc/download_ws_pdf', to: 'ws#print_pdf', as: :mdc_download_ws_pdf
   # get '/equipment_groups', to: 'equipment_groups#index', as: :equipment_groups
 
-  get '/codes/', to: 'codes#index', as: :codes
-  post '/codes/carwash_driver_code/new', to: 'codes#new_driver_code', as: :new_carwash_driver_code
-  post '/codes/carwash_driver_code/edit', to: 'codes#edit_driver_code', as: :edit_carwash_driver_code
-  delete '/codes/carwash_driver_code/:id/delete', to: 'codes#delete_driver_code', as: :delete_carwash_driver_code
+  # get '/codes/', to: 'codes#index', as: :codes
+  post '/codes/carwash_driver_code/new', to: 'codes#new_carwash_driver_code', as: :new_carwash_driver_code
+  post '/codes/carwash_driver_code/update', to: 'codes#update_carwash_driver_code', as: :update_carwash_driver_code
+  # delete '/codes/carwash_driver_code/:id/delete', to: 'codes#delete_carwash_driver_code', as: :delete_carwash_driver_code
+  post '/codes/carwash_vehicle_code/new', to: 'codes#new_carwash_vehicle_code', as: :new_carwash_vehicle_code
+  post '/codes/carwash_vehicle_code/update', to: 'codes#update_carwash_vehicle_code', as: :update_carwash_vehicle_code
+  get  '/codes/carwash_check/:code', to: 'codes#carwash_check', as: :carwash_check
+
+  post '/codes/carwash_print/', to: 'codes#carwash_print', as: :carwash_print
+  get  '/codes/mdc', to: 'codes#mdc_index'
 end
