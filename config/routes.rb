@@ -128,7 +128,11 @@ Rails.application.routes.draw do
   post '/codes/carwash_vehicle_code/new', to: 'codes#new_carwash_vehicle_code', as: :new_carwash_vehicle_code
   post '/codes/carwash_vehicle_code/update', to: 'codes#update_carwash_vehicle_code', as: :update_carwash_vehicle_code
   get  '/codes/carwash_check/:code', to: 'codes#carwash_check', as: :carwash_check
+  get  '/codes/carwash_authorize/:codes', to: 'codes#carwash_authorize', as: :carwash_authorize
+  get  '/codes/carwash_close/:sessionid', to: 'codes#carwash_close', as: :carwash_close
 
   post '/codes/carwash_print/', to: 'codes#carwash_print', as: :carwash_print
   get  '/codes/mdc', to: 'codes#mdc_index'
+
+  get '/carwash/', to: 'carwash#index', as: :carwash
 end

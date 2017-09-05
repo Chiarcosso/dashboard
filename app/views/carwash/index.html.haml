@@ -1,0 +1,68 @@
+%h3='Lavaggi aperti'
+.container.half.scrollable-panel
+  .row
+    .col-sm-2
+      %b
+        Autista
+    .col-sm-2
+      %b
+        Targa 1
+    .col-sm-2
+      %b
+        Targa 2
+    .col-sm-2
+      %b
+        Pista
+    .col-sm-2
+      %b
+        Inizio
+  - CarwashUsage.opened.order(:starting_time => :desc).each do |c|
+    .row
+      .col-sm-2
+        = c.person.complete_name
+      .col-sm-2
+        = c.vehicle_1.plate
+      .col-sm-2
+        = c.vehicle_2.plate
+      .col-sm-2
+        = c.row
+      .col-sm-2
+        = l(c.starting_time)
+      .col-sm-2
+        = c.session_id
+
+%h3='Lavaggi ultimo mese'
+.container.half.scrollable-panel
+  .row
+    .col-sm-2
+      %b
+        Autista
+    .col-sm-2
+      %b
+        Targa 1
+    .col-sm-2
+      %b
+        Targa 2
+    .col-sm-2
+      %b
+        Pista
+    .col-sm-2
+      %b
+        Inizio
+    .col-sm-2
+      %b
+        Fine
+  - CarwashUsage.lastmonth.order(:ending_time => :desc).each do |c|
+    .row
+      .col-sm-2
+        = c.person.complete_name
+      .col-sm-2
+        = c.vehicle_1.plate
+      .col-sm-2
+        = c.vehicle_2.plate
+      .col-sm-2
+        = c.row
+      .col-sm-2
+        = l(c.starting_time)
+      .col-sm-2
+        = l(c.ending_time)

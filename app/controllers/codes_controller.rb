@@ -84,6 +84,45 @@ class CodesController < ApplicationController
     end
   end
 
+  def carwash_authorize
+    m = params.require(:codes).match(/codici=(.*)?&pista=(.*)?/)
+    row = m[2]
+    codes = m[1].split(',')
+    vehicles = Array.new
+    types = Array.new
+    driver = nil
+    codes.each do |c|
+      code = CarwashDriverCode.findByCode(c).first || CarwashVehicleCode.findByCode(c).first
+      if code.nil?
+        response = 0
+        break
+      elsif code.is_a? CarwashDriverCode
+        driver = code.person
+      else
+        vehicles << code.vehicle
+      end
+    end
+
+    unless driver.nil? or vehicles.size > 2 or vehicles.size < 1
+      cwu = CarwashUsage.create(session_id: SecureRandom.hex(10), person: driver, vehicle_1: vehicles[0], vehicle_2: vehicles[1], row: row, starting_time: DateTime.now)
+      render :json => { sessionid: cwu.session_id, codes: cwu.vehicle_1.vehicle_type.to_s+','+cwu.vehicle_2.vehicle_type.to_s}
+    else
+      render :json => 0
+    end
+
+
+  end
+
+  def carwash_close
+    cwu = CarwashUsage.find_by(:session_id => params.require(:sessionid))
+    if cwu.nil? or !cwu.ending_time.nil?
+      render :json => 1
+    else
+      cwu.update(:ending_time => DateTime.now)
+      render :json => 0
+    end
+  end
+
   def carwash_check
     code = CarwashDriverCode.findByCode(params.permit(:code)[:code]).first || CarwashVehicleCode.findByCode(params.permit(:code)[:code]).first
     if(code.nil?)

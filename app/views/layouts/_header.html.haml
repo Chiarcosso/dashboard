@@ -12,6 +12,8 @@
             -# = navbar_item "Dotazione", equipment_home_path
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino))
         = navbar_dropdown "Officina" do
+          - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin))
+            = navbar_item "Lavaggio", carwash_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
             = navbar_item "Magazzino", storage_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
