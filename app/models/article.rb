@@ -17,7 +17,7 @@ class Article < ApplicationRecord
   scope :filter, ->(search) { joins(:manufacturer).where("articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%'")}
   scope :no_barcode, -> { where(barcode: '') }
   scope :manufacturer, ->(search) { include(:company).where("manufacturer_id = companies.id").where("companies.name LIKE '%#{search}%'")}
-  scope :reserve_check, -> { group(:id).joins(:items).having('count(items.id) < minimalReserve or (minimalReserve = 0 and count(items.id) > 0)') }
+  scope :reserve_check, -> { group(:id).joins('left join items on items.article_id = articles.id').having('count(items.id) < minimalReserve or (minimalReserve = 0 and count(items.id) > 0)') }
   # scope :position_codes, ->(article) { include(:items).include(:position_code).distinct }
 
   enum measure_unit: [:pezzi,:kg,:l]
