@@ -40,11 +40,11 @@
                 .form-group
                   %b= "Ditta / Associazione"
                   -# = text_field_tag "relation[company]", '', data: { autocomplete: autocomplete_company_name_people_path }, class: 'form-control autofocus'
-                  = select_tag "relation[company]", options_from_collection_for_select(Company.all, "id", "name"), include_blank: "- Selezionare -", class: 'form-control'
+                  = select_tag "relation[company]", options_from_collection_for_select(Company.order(:name), "id", "name"), include_blank: "- Selezionare -", class: 'form-control'
               .col-sm-3
                 .form-group
                   %b= 'Ruolo'
-                  = select_tag "relation[relation]", options_from_collection_for_select(CompanyRelation.all, "id", "name"), include_blank: "- Selezionare -", class: 'form-control ajax-link-select'
+                  = select_tag "relation[relation]", options_from_collection_for_select(CompanyRelation.order(:name), "id", "name"), include_blank: "- Selezionare -", class: 'form-control ajax-link-select'
 
           #relations.container.scrollable-panel
             =render :partial => 'people/relations_list'
