@@ -35,7 +35,6 @@ class ArticlesController < ApplicationController
     respond_to do |format|
       format.pdf do
         pdf = Article.reserve
-        byebug
         send_data pdf.render, filename: "scorte.pdf", type: "application/pdf"
       end
     end
