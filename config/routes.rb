@@ -80,6 +80,7 @@ Rails.application.routes.draw do
   post   '/article_categories/manage', to: 'article_categories#manage', as: :manage_article_categories
   post   '/article/categories/', to: 'articles#list_categories', as: :list_article_categories
   post   '/articles/inventory/', to: 'articles#print_inventory', as: :print_inventory
+  post   '/articles/reserve/', to: 'articles#print_reserve', as: :print_reserve
 
   get    '/items_from_order/:order', to: 'items#from_order', as: :items_from_order
   get    '/items/edit/:id/:search', to: 'items#edit', as: :p_edit_item

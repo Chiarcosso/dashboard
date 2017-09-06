@@ -17,6 +17,7 @@ class Article < ApplicationRecord
   scope :filter, ->(search) { joins(:manufacturer).where("articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%'")}
   scope :no_barcode, -> { where(barcode: '') }
   scope :manufacturer, ->(search) { include(:company).where("manufacturer_id = companies.id").where("companies.name LIKE '%#{search}%'")}
+  scope :reserve_check, -> { group(:id).joins(:items).having('count(items.id) < minimalReserve or (minimalReserve = 0 and count(items.id) > 0)') }
   # scope :position_codes, ->(article) { include(:items).include(:position_code).distinct }
 
   enum measure_unit: [:pezzi,:kg,:l]
@@ -38,13 +39,10 @@ class Article < ApplicationRecord
     pdf = Prawn::Document.new
     pdf.text "Inventario magazzino al #{Time.now.strftime("%d/%m/%Y %H:%M:%S")}"
     pdf.text search_text
-    Article.filter(search).each do |a|
-
-    end
 
     table = [['Articolo','Quantità','Posizioni']]
-    Article.filter(search).each do |a|
-      table << ["#{a.complete_name}","#{a.availability.size}","#{a.position_codes_text.to_a.join("\n")}"]
+    Article.filter(search).order(:name).each do |a|
+      table << ["#{a.complete_name}","#{a.availability.size} / #{a.minimalReserve}","#{a.position_codes_text.to_a.join("\n")}"]
     end
 
     pdf.move_down 20
@@ -63,6 +61,30 @@ class Article < ApplicationRecord
     pdf
   end
 
+  def self.reserve
+    pdf = Prawn::Document.new
+    pdf.text "Scorte minime e disponibilità magazzino al #{Time.now.strftime("%d/%m/%Y %H:%M:%S")}"
+
+    table = [['Articolo','Quantità','Posizioni']]
+    Article.reserve_check.order(:name).each do |a|
+      table << ["#{a.complete_name}","#{a.availability.size} / #{a.minimalReserve}","#{a.position_codes_text.to_a.join("\n")}"]
+    end
+
+    pdf.move_down 20
+    pdf.table table,
+      # :border_style => :grid,
+      # :font_size => 11,
+      :position => :center,
+      :column_widths => { 0 => 265, 1 => 190, 2 => 85},
+      # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+      :row_colors => ["d2e3ed", "FFFFFF"]
+
+    pdf.bounding_box([pdf.bounds.right - 50,pdf.bounds.bottom], :width => 60, :height => 20) do
+    	count = pdf.page_count
+    	pdf.text "Page #{count}"
+    end
+    pdf
+  end
   # def availability
   #   Item.available_items.article(self)
   # end

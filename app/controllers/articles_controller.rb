@@ -31,6 +31,15 @@ class ArticlesController < ApplicationController
     end
   end
 
+  def print_reserve
+    respond_to do |format|
+      format.pdf do
+        pdf = Article.reserve
+        send_data pdf.render, filename: "scorte.pdf", type: "application/pdf"
+      end
+    end
+  end
+
   def list_categories
 
     @categories = Array.new
