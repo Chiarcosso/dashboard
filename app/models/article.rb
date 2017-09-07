@@ -67,7 +67,7 @@ class Article < ApplicationRecord
     pdf.text "Scorte minime e disponibilità magazzino al #{Time.now.strftime("%d/%m/%Y %H:%M:%S")}"
 
     table = [['Articolo','Quantità','Posizioni']]
-    Article.reserve_check.order(:name).each do |a|
+    Article.reserve_check.order(:minimalReserve => :desc,:name => :asc).each do |a|
       table << ["#{a.complete_name}","#{a.availability.size} / #{a.minimalReserve.to_i}","#{a.position_codes_text.to_a.join("\n")}"]
     end
 
