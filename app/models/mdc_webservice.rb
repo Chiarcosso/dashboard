@@ -780,6 +780,7 @@ class GearRequest
       case dcr.data[:formCode]
         when 'personal_gear' then @data[:items][:personal_gear] << dcr.data[:recordValue]
         when 'vehicle_gear' then @data[:items][:vehicle_gear] << dcr.data[:recordValue]
+        when 'vehicle_gear' then @data[:items][:lights_gear] << dcr.data[:recordValue]
         when 'shoe_size' then @data[:items][:shoe_size] = dcr.data[:recordValue]
         when 'overall_size' then @data[:items][:overall_size] = dcr.data[:recordValue]
         when 'pickup' then dcr.data[:fieldCode] == 'pickup_dt' ? @data[:items][:pickup_dt] = dcr.data[:extendedValue] : @data[:items][:pickup_tm] = dcr.data[:extendedValue]
@@ -851,6 +852,13 @@ class GearRequest
     unless @data[:items][:vehicle_gear].empty?
       text += "Dotazione mezzo:\n\n"
       @data[:items][:vehicle_gear].each do |i|
+        text += "   #{i}\n"
+      end
+      text += "\n\n"
+    end
+    unless @data[:items][:lights_gear].empty?
+      text += "Lampadine:\n\n"
+      @data[:items][:lights_gear].each do |i|
         text += "   #{i}\n"
       end
       text += "\n\n"
