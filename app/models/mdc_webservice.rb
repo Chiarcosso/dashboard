@@ -768,7 +768,7 @@ class GearRequest
     @mdc = mdc
     @dataCollectionRows = dataCollectionRows
     @data = Hash.new
-    @data[:items] = {personal_gear: Array.new, vehicle_gear: Array.new, shoe_size: nil, overall_size: nil, pickup_dt: nil, pickup_tm: nil}
+    @data[:items] = {personal_gear: Array.new, vehicle_gear: Array.new, lights_gear: Array.new, shoe_size: nil, overall_size: nil, pickup_dt: nil, pickup_tm: nil}
     @dataCollectionRows.each do |dcr|
 
       next if dcr.applicationID != 'GEAR'
@@ -780,7 +780,7 @@ class GearRequest
       case dcr.data[:formCode]
         when 'personal_gear' then @data[:items][:personal_gear] << dcr.data[:recordValue]
         when 'vehicle_gear' then @data[:items][:vehicle_gear] << dcr.data[:recordValue]
-        when 'vehicle_gear' then @data[:items][:lights_gear] << dcr.data[:recordValue]
+        when 'lights_gear' then @data[:items][:lights_gear] << dcr.data[:recordValue]
         when 'shoe_size' then @data[:items][:shoe_size] = dcr.data[:recordValue]
         when 'overall_size' then @data[:items][:overall_size] = dcr.data[:recordValue]
         when 'pickup' then dcr.data[:fieldCode] == 'pickup_dt' ? @data[:items][:pickup_dt] = dcr.data[:extendedValue] : @data[:items][:pickup_tm] = dcr.data[:extendedValue]
