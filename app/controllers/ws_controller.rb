@@ -96,11 +96,14 @@ class WsController < ApplicationController
         mdc = MdcWebservice.new
 
         mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: id, deviceCode: ''})])
-        mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{driver.mdc_user.upcase}|", key: id, order: 0, tabname: 'FARES', values: [msg]}))
-        Person.mdc.each do |p|
-          mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.') unless p == driver
+        mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{user.user.upcase}|", key: id, order: 0, tabname: 'FARES', values: [msg]}))
+        # Person.mdc.each do |p|
+        #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.') unless p == driver
+        # end
+        MdcUser.each do |p|
+          mdc.send_push_notification([p.user],'Aggiornamento viaggi.') unless p == user
         end
-        mdc.send_push_notification([driver.mdc_user],msg)
+        mdc.send_push_notification([user.user],msg)
         mdc.commit_transaction
         mdc.end_transaction
         mdc.close_session
