@@ -7,13 +7,36 @@ class Person < ApplicationRecord
 
   scope :order_alpha, -> { order(:name).order(:surname) }
   scope :order_alpha_surname, -> { order(:surname).order(:name) }
-  scope :find_by_complete_name,->(name) { where("concat_ws(' ',surname,name) LIKE ?", name) }
-  scope :find_by_complete_name_inv,->(name) { where("concat_ws(' ',name,surname) LIKE ?", name) }
+  # scope :find_by_complete_name,->(name) { where("lower(concat_ws(' ',surname,name)) = ?", name) }
+  # scope :find_by_complete_name_inv,->(name) { where("lower(concat_ws(' ',name,surname)) = ?", name) }
   scope :filter, ->(name) { where("name like ? or surname like ? or mdc_user like ? or ('mdc' like ? and mdc_user is not null and mdc_user != '')", "%#{name}%", "%#{name}%", "%#{name}%", "%#{name}%").order(:surname) }
   scope :mdc, -> { where("mdc_user is not null and mdc_user != ''") }
   scope :order_mdc_user, -> { order(:mdc_user)}
   # scope :drivers, -> { include(:relations).where("relations.name = 'Autista'") }
   # scope :company, ->(name) { joins(:companies).where('company.name like ?',"%#{name}%") }
+
+  def self.find_by_complete_name name
+    Person.where("lower(concat_ws(' ',surname,name)) = ?", name).first
+  end
+
+  def self.find_by_complete_name_inv name
+    Person.where("lower(concat_ws(' ',name,surname)) = ?", name).first
+  end
+
+  def rearrange_mdc_users user
+    self.update(:mdc_user => user)
+    unless user.nil?
+      Person.where(mdc_user: self.mdc_user).where("id != #{self.id}").update(mdc_user: nil)
+    end
+    mdc = MdcWebservice.new
+    mdc.begin_transaction
+    Person.mdc.each do |p|
+      mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{ p.mdc_user.upcase}|", key: p.mdc_user, order: 1, tabname: 'USERS', values: [p.mdc_user.upcase,p.mdc_user,p.name,p.surname,p.id]}))
+    end
+    mdc.commit_transaction
+    mdc.end_transaction
+    mdc.close_session
+  end
 
   def self.find_by_mdc_user(user)
     Person.mdc.where(:mdc_user => user).first

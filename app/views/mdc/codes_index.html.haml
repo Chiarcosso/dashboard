@@ -1,0 +1,75 @@
+%h3
+  Utenti MDC
+%br
+%br
+.container
+  = form_tag(new_mdc_code_path, method: :post, type: :script, class: 'prevent-cr') do |f|
+    .row
+      .col-sm-3
+        = text_field_tag 'user', nil, placeholder: 'Utente', class: 'form-control autofocus'
+      .col-sm-3
+        = text_field_tag 'activation_code', nil, placeholder: 'Codice attivazione', class: 'form-control autofocus'
+    .row
+      .col-sm-6
+        = submit_tag 'Crea'
+
+
+  .row
+    .col-sm-12
+      %hr
+      .scrollable-panel#user_list
+        = render :partial => 'mdc/users_list'
+:javascript
+
+  $('#print_cards').off('click');
+  $('#print_cards').on('click',function(e){
+    var drivers = [];
+    var vehicles = [];
+    $('input[name^=print-drivers]:checked').each(function(){
+      drivers.push($(this).val());
+    });
+    $('input[name^=print-vehicles]:checked').each(function(){
+      vehicles.push($(this).val());
+    });
+    var data = {drivers: drivers, vehicles: vehicles};
+
+    var form = $(this).parent();
+    $.each(drivers,function(){
+      form.append('<input type="hidden" value="'+this+'" name="drivers[]">');
+    });
+    $.each(vehicles,function(){
+      form.append('<input type="hidden" value="'+this+'" name="vehicles[]">');
+    });
+    setTimeout(function(){
+      $(this).removeAttr('disabled');
+      console.log('enabled');
+    },3000);
+
+  //  $.ajax({
+  //    url: '/codes/carwash_print/',
+  //    method: 'post',
+  //    data: data,
+  //    complete: function(data){
+  //      console.log(data);
+  //    },
+  //    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/pdf,application/xhtml+xml,application/xml' }
+  //  });
+  //  e.preventDefault();
+
+  });
+  //  function transformCode(code,prefix){
+  //    var patt = new RegExp(/[0-9]*/);
+  //    // code = patt.exec(code);
+  //    if(code.charAt(0) == prefix){
+  //      return code;
+  //    } else {
+  //      return prefix+code;
+  //    }
+  //  };
+
+  //  $('#person_code').on('keyup',function(e){
+  //    $(this).val(transformCode($(this).val(),'A'));
+  //  });
+  //  $('#vehicle_code').on('keyup',function(e){
+  //    $(this).val(transformCode($(this).val(),'M'));
+  //  });

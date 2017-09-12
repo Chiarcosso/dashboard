@@ -8,7 +8,8 @@
             -# = navbar_dropdown_header 'Personale'
             -# = navbar_dropdown_divider
             = navbar_item "Utenti", users_admin_path
-            = navbar_item "Codici", codes_path
+            = navbar_item "Badge lavaggio", codes_path
+            = navbar_item "Codici MDC", mdc_codes_path
             -# = navbar_item "Dotazione", equipment_home_path
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino))
         = navbar_dropdown "Officina" do

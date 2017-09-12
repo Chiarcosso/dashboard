@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170904155531) do
+ActiveRecord::Schema.define(version: 20170908111350) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -165,6 +165,17 @@ ActiveRecord::Schema.define(version: 20170904155531) do
     t.index ["position_code_id"], name: "index_items_on_position_code_id", using: :btree
     t.index ["transportDocument_id"], name: "index_items_on_transportDocument_id", using: :btree
     t.index ["transport_document_id"], name: "index_items_on_transport_document_id", using: :btree
+  end
+
+  create_table "mdc_users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "user",                   null: false
+    t.string   "activation_code",        null: false
+    t.integer  "assigned_to_company_id"
+    t.integer  "assigned_to_person_id"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.index ["assigned_to_company_id"], name: "index_mdc_users_on_assigned_to_company_id", using: :btree
+    t.index ["assigned_to_person_id"], name: "index_mdc_users_on_assigned_to_person_id", using: :btree
   end
 
   create_table "offices", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -383,6 +394,8 @@ ActiveRecord::Schema.define(version: 20170904155531) do
   add_foreign_key "items", "articles"
   add_foreign_key "items", "position_codes"
   add_foreign_key "items", "transport_documents"
+  add_foreign_key "mdc_users", "companies", column: "assigned_to_company_id"
+  add_foreign_key "mdc_users", "people", column: "assigned_to_person_id"
   add_foreign_key "order_articles", "articles"
   add_foreign_key "order_articles", "orders"
   add_foreign_key "orders", "companies", column: "supplier_id"

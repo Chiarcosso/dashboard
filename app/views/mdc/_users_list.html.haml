@@ -1,0 +1,30 @@
+.container-fluid
+  - MdcUser.order(:user).each do |mdcu|
+    = form_tag(update_mdc_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
+      = hidden_field_tag :id, mdcu.id
+      .row
+        .col-sm-1
+          = text_field_tag 'mdc_user', mdcu.user.upcase, class: 'form-control', disabled: :disabled
+        .col-sm-6
+          = text_field_tag 'mdc_user_name', mdcu.holder.nil?? '' : mdcu.holder.complete_name, data: { autocomplete: autocomplete_person_company_ws_path }, class: 'form-control people_companies_auto'
+          = hidden_field_tag :holder, mdcu.holder.nil?? '' : mdcu.holder.id
+          = hidden_field_tag :holder_type, mdcu.holder.class
+        .col-sm-3
+          = text_field_tag 'mdc_activation_code', mdcu.activation_code, placeholder: 'Codice attivazione', class: 'form-control'
+          -# = text_field_tag 'carwash_driver_code[person]', cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
+          -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
+        .col-sm-2
+          = submit_tag 'Modifica'
+          = submit_tag 'Elimina'
+
+:javascript
+
+  $('.people_companies_auto').off('change');
+  $('.people_companies_auto').on('change',function(){
+    var tmp = $(this).val().split('#');
+    var name = tmp[1];
+    var type = tmp[0];
+    $('input[name=holder]').val(tmp[1]);
+    $('input[name=holder_type]').val(tmp[0]);
+    $(this).val(tmp[1]);
+  });

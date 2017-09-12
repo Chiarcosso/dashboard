@@ -29,6 +29,9 @@ Rails.application.routes.draw do
     get :autocomplete_person_surname, :on => :collection
     get :autocomplete_vehicle_information_information, :on => :collection
   end
+  resources :ws do
+    get :autocomplete_person_company, :on => :collection
+  end
   devise_for :users
 
   delete '/people/delete_role/:id', to: 'people#delete_role', as: :delete_person_role
@@ -120,6 +123,9 @@ Rails.application.routes.draw do
   get  '/mdc/transport_documents/:status', to: 'ws#index', as: :mdc_transport_documents
   post 'mdc/close_fare', to: 'ws#close_fare', as: :mdc_close_fare
   post 'mdc/download_ws_pdf', to: 'ws#print_pdf', as: :mdc_download_ws_pdf
+  get  '/mdc/codes', to: 'ws#codes', as: :mdc_codes
+  post '/mdc/new_code', to: 'ws#create_user', as: :new_mdc_code
+  post '/mdc/update_code', to: 'ws#update_user', as: :update_mdc_code
   # get '/equipment_groups', to: 'equipment_groups#index', as: :equipment_groups
 
   # get '/codes/', to: 'codes#index', as: :codes

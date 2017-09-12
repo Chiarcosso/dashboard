@@ -1,8 +1,16 @@
 class WsController < ApplicationController
-  skip_before_filter :authenticate_user!, :only => :update_fares
+  skip_before_action :authenticate_user!, :only => :update_fares
   protect_from_forgery except: :update_fares
   before_action :set_status, :only => [:index]
+  before_action :get_action, only: [:update_user]
+  before_action :get_holder, only: [:update_user]
 
+  def autocomplete_person_company
+    array = Company.filter(params.permit(:term)[:term]).map{ |p| { id: p.id.to_s, label: p.list_name, value: p.class.to_s+'#'+p.list_name, name: p.name} }
+    array += Person.filter(params.permit(:term)[:term]).map{ |p| { id: p.id.to_s, label: p.list_name, value: p.class.to_s+'#'+p.list_name, name: p.name} }
+
+    render :json => array
+  end
 
   def index
     mdc = MdcWebservice.new
@@ -13,6 +21,50 @@ class WsController < ApplicationController
       @results << r unless r.empty?
     end
     render 'mdc/index'
+  end
+
+  def codes
+    render 'mdc/codes_index'
+  end
+
+  def create_user
+    u = params.require(:user)
+    a = params.require(:activation_code) unless params[:activation_code] == ''
+    person = nil
+    if MdcUser.find_by(user: u).nil? and params[:activation_code] != ''
+      Person.mdc.each do |p|
+        if p.mdc_user == u.downcase
+          person = p
+          break
+        end
+      end
+      MdcUser.create(:user => params.require(:user), :activation_code => params.require(:activation_code), :assigned_to_person => person )
+    end
+    render 'mdc/codes_index'
+  end
+
+  def update_user
+    unless @code.nil?
+      case @action
+      when :edit
+        if @holder.class == Person
+          @holder.rearrange_mdc_users @code.user
+          @code.update(activation_code: params.require(:mdc_activation_code), assigned_to_person: @holder, assigned_to_company: nil)
+        elsif @holder.class == Company
+          p = Person.find_by_mdc_user(@code.user)
+          p.rearrange_mdc_users nil unless p.nil?
+          @code.update(activation_code: params.require(:mdc_activation_code), assigned_to_company: @holder, assigned_to_person: nil)
+        end
+      when :delete
+        @code.destroy
+      end
+      # @msg = 'Codice creato.'
+    else
+      # @msg = 'Codice esistente.'
+    end
+    respond_to do |format|
+      format.js { render :partial => 'mdc/users_list_js' }
+    end
   end
 
   def close_fare
@@ -33,10 +85,11 @@ class WsController < ApplicationController
 
 
   def update_fares
-    driver = Person.find_by_complete_name(Base64.decode64(params.require(:driver))).first
-    unless driver.nil?
-      if driver.mdc_user.nil?
-        @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{driver.complete_name} non ha un utente assegnato."
+    # user = Person.find_by_complete_name(Base64.decode64(params.require(:driver)))
+    user = MdcUser.find_by_holder(Base64.decode64(params.require(:driver))) || MdcUser.find_by_holder(Base64.decode64(params.require(:company)))
+    unless user.nil?
+      if user.assigned_to_person.nil? and user.assigned_to_company.nil?
+        @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{user.holder.complete_name} non ha un utente assegnato."
       else
         id = params.require(:id)
         msg = Base64.decode64(params.require('ChatMessage'))
@@ -51,10 +104,10 @@ class WsController < ApplicationController
         mdc.commit_transaction
         mdc.end_transaction
         mdc.close_session
-        @msg = "Messaggio inviato. Targa: #{params[:VehiclePlateNumber]}, #{driver.complete_name} (utente: #{driver.mdc_user})."
+        @msg = "Messaggio inviato. Targa: #{params[:VehiclePlateNumber]}, #{user.holder.complete_name} (utente: #{user.user})."
       end
     else
-      @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{Base64.decode64(params.require(:driver))} non esiste."
+      @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{Base64.decode64(params.require(:driver))} o #{Base64.decode64(params.require(:company))}non esistono."
     end
 
     render :partial => 'layouts/messages'
@@ -100,6 +153,26 @@ class WsController < ApplicationController
       @status = 0
     else
       @status = 1
+    end
+  end
+
+  def get_holder
+    if params.require(:holder_type) == 'Person'
+      @holder = Person.find_by_complete_name(params.require(:holder))
+    elsif params.require(:holder_type) == 'Company'
+      @holder = Company.find_by_name(params.require(:holder))
+    end
+  end
+
+  def get_action
+    unless params[:id].nil?
+      @code = MdcUser.find(params.require(:id).to_i)
+    end
+    case params.permit(:commit)[:commit]
+    when 'Modifica'
+        @action = :edit
+      when 'Elimina'
+        @action = :delete
     end
   end
 
