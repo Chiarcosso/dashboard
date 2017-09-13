@@ -100,7 +100,7 @@ class WsController < ApplicationController
         # Person.mdc.each do |p|
         #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.') unless p == driver
         # end
-        MdcUser.each do |p|
+        MdcUser.all.each do |p|
           mdc.send_push_notification([p.user],'Aggiornamento viaggi.') unless p == user
         end
         mdc.send_push_notification([user.user],msg)
