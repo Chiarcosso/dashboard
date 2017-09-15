@@ -1,6 +1,8 @@
 class CodesController < ApplicationController
 
   before_action :authenticate_user!
+  protect_from_forgery except: [:carwash_check,:carwash_close,:carwash_authorize]
+  skip_before_action :authenticate_user!, :only => [:carwash_check,:carwash_close,:carwash_authorize]
   # before_action :get_person, only: [:new_carwash_driver_code,:update_carwash_driver_code]
   before_action :get_action, only: [:update_carwash_driver_code,:update_carwash_vehicle_code]
   before_action :get_driver_code, only: [:new_carwash_driver_code,:update_carwash_driver_code]
@@ -105,10 +107,11 @@ class CodesController < ApplicationController
 
     unless driver.nil? or vehicles.size > 2 or vehicles.size < 1
       cwu = CarwashUsage.create(session_id: SecureRandom.hex(10), person: driver, vehicle_1: vehicles[0], vehicle_2: vehicles[1], row: row, starting_time: DateTime.now)
-      render :json => { sessionid: cwu.session_id, codes: cwu.vehicle_1.vehicle_type.to_s+','+cwu.vehicle_2.vehicle_type.to_s}
+      response = "#{cwu.session_id},#{cwu.vehicle_1.vehicle_type.id.to_s},#{cwu.vehicle_2.vehicle_type.id.to_s}"
     else
-      render :json => 0
+      response = 0
     end
+    render :html => response
 
 
   end
@@ -116,10 +119,10 @@ class CodesController < ApplicationController
   def carwash_close
     cwu = CarwashUsage.find_by(:session_id => params.require(:sessionid))
     if cwu.nil? or !cwu.ending_time.nil?
-      render :json => 1
+      render :json => 0
     else
       cwu.update(:ending_time => DateTime.now)
-      render :json => 0
+      render :json => 1
     end
   end
 
