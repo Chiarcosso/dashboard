@@ -263,7 +263,7 @@ class CodesController < ApplicationController
   end
 
   def get_person
-    @person = Person.find_by_complete_name(params.require(:carwash_driver_code).permit(:person)[:person]).first
+    @person = Person.find_by_complete_name(params.require(:carwash_driver_code).permit(:person)[:person])
   end
 
   def get_vehicle
