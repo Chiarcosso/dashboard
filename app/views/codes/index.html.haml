@@ -47,6 +47,8 @@
     var data = {drivers: drivers, vehicles: vehicles};
 
     var form = $(this).parent();
+    form.children('input[name="drivers[]"]').remove();
+    form.children('input[name="vehicles[]"]').remove();
     $.each(drivers,function(){
       form.append('<input type="hidden" value="'+this+'" name="drivers[]">');
     });
