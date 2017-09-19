@@ -21,7 +21,7 @@
       .col-sm-2
         = c.person.complete_name
       .col-sm-2
-        = c.vehicle_1.plate
+        = c.vehicle_1.plate unless c.vehicle_1.nil?
       .col-sm-2
         = c.vehicle_2.plate unless c.vehicle_2.nil?
       .col-sm-2

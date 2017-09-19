@@ -103,7 +103,8 @@ class CodesController < ApplicationController
     end
     unless driver.nil? or vehicles.size > 2 or vehicles.size < 1
       cwu = CarwashUsage.create(session_id: SecureRandom.hex(10), person: driver, vehicle_1: vehicles[0], vehicle_2: vehicles[1], row: row, starting_time: DateTime.now)
-      response = "#{cwu.session_id},#{cwu.vehicle_1.vehicle_type.id.to_s}"
+      response = "#{cwu.session_id}"
+      response += ",#{cwu.vehicle_1.vehicle_type.id.to_s}" unless cwu.vehicle_1.nil?
       response += ",#{cwu.vehicle_2.vehicle_type.id.to_s}" unless cwu.vehicle_2.nil?
     else
       response = 0
