@@ -2,9 +2,9 @@
   = navbar_header brand: 'Chiarcosso Dashboard', brand_link: '/', align: 'left'
   = navbar_collapse do
     = navbar_group class: 'foo', id: 'menu' do
-      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:personale))
+      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:personale) || current_user.has_role?(:traffico))
         = navbar_dropdown "Personale" do
-          - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?('amministratore utenti')|| current_user.has_role?(:traffico))
+          - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:traffico) || current_user.has_role?('amministratore utenti'))
             -# = navbar_dropdown_header 'Personale'
             -# = navbar_dropdown_divider
             - if (current_user.has_role?('amministratore utenti') || current_user.has_role?(:admin))
@@ -26,7 +26,7 @@
             = navbar_item "Mezzi", vehicles_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
             = navbar_item "Modelli veicoli", vehicle_models_path
-      - if current_user.present? && (current_user.has_role?(:amministrazione) || current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?('mod. ditte'))
+      - if current_user.present? && (current_user.has_role?(:amministrazione) || current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?(:traffico) || current_user.has_role?('mod. ditte'))
         = navbar_dropdown "Amministrazione" do
           - if (current_user.has_role?(:ddt) || current_user.has_role?(:traffico) || current_user.has_role?(:admin))
             = navbar_item "Ordini di trasporto", mdc_transport_documents_path('opened')
@@ -52,7 +52,7 @@
     = navbar_group align: 'right' do
       - if current_user.present?
         = navbar_text current_user.name
-        -# = navbar_text current_user.roles.pluck(:name).join(', ')
+        = navbar_text current_user.roles.pluck(:name).join(', ')
         = navbar_item "Impostazioni", edit_user_registration_path
         %li
           = link_to "Log Out", destroy_user_session_path, method: :delete, :class => 'navbar_item'
