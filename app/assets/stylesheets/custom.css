@@ -94,7 +94,7 @@ body{
   height:45%;
 }
 
-.inline-input{
+.inline{
   position: relative;
   clear: none;
   display: inline-block;

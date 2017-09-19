@@ -24,8 +24,10 @@
       .col-sm-5
         =v.description
       .col-sm-1
-        -# =button_to 'Modifica', edit_vehicle_model_path(v.id), class: 'inline', method: :get
-        =button_to 'x', vehicle_model_path(v.id), remote: true, method: :delete, class: 'inline'
+        .inline
+          =button_to 'Modifica', edit_vehicle_model_path(v.id), method: :get
+        .inline
+          =button_to 'x', vehicle_model_path(v.id), remote: true, method: :delete
 
 .container
   =button_to 'Crea', new_vehicle_model_path, method: :get

@@ -19,6 +19,7 @@ class VehicleModelsController < ApplicationController
 
   # GET /vehicle_models/1/edit
   def edit
+    @vehicle_model = VehicleModel.find(params.require(:id))
   end
 
   # POST /vehicle_models
