@@ -4,7 +4,7 @@
     = navbar_group class: 'foo', id: 'menu' do
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:personale))
         = navbar_dropdown "Personale" do
-          - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?('amministratore utenti')|| current_user.has_role?('traffico'))
+          - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?('amministratore utenti')|| current_user.has_role?(:traffico))
             -# = navbar_dropdown_header 'Personale'
             -# = navbar_dropdown_divider
             - if (current_user.has_role?('amministratore utenti') || current_user.has_role?(:admin))
