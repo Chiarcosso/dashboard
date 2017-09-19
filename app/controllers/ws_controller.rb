@@ -16,8 +16,8 @@ class WsController < ApplicationController
     mdc = MdcWebservice.new
 
     @results = Array.new
-    Person.mdc.each do |p|
-      r = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.mdc_user.upcase, status: @status}).reverse[0,10]
+    MdcUser.all.each do |p|
+      r = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.user.upcase, status: @status}).reverse[0,10]
       @results << r unless r.empty?
     end
     render 'mdc/index'

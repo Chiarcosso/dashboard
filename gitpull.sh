@@ -1,7 +1,7 @@
 #! /bin/bash
 
 speedy=false;
-if [ $- == '-s' ]
+if [ $1 == '-s' ]
   then
     speedy=true;
 fi
@@ -20,7 +20,7 @@ if [[ $speedy == false ]]; then
 fi
 git pull --commit --no-edit
 
-if [[ $speedy == false ]]; then  
+if [[ $speedy == false ]]; then
   bundle install
   bundle exec rake db:migrate RAILS_ENV=production
   bundle exec rake assets:precompile RAILS_ENV=production

@@ -620,8 +620,9 @@ class FareDocuments
     @data[:id]
   end
 
-  def person
-    Person.find_by_mdc_user(@dataCollectionRowKey.deviceCode)
+  def user
+    # Person.find_by_mdc_user(@dataCollectionRowKey.deviceCode)
+    MdcUser.where(user: @dataCollectionRowKey.deviceCode).first
   end
 
   def photos
