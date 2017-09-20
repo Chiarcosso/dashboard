@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :position_codes
   resources :vehicles
   resources :vehicle_models
+  resources :vehicle_types
   resources :offices
   resources :items do
     get :autocomplete_article_manufacturerCode, :on => :collection

@@ -14,7 +14,7 @@
           -# = text_field_tag 'carwash_driver_code[person]', cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
           -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
         .col-sm-2
-          = submit_tag 'Modifica'
+          = submit_tag 'Modifica' if mdcu.holder.nil?
           = submit_tag 'Elimina'
 
 :javascript

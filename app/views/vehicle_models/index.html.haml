@@ -4,26 +4,26 @@
   .row
     .col-sm-2
       %b='Marca'
-    .col-sm-2
+    .col-sm-3
       %b='Modello'
     .col-sm-2
       %b='Tipo'
-    .col-sm-5
+    .col-sm-3
       %b='Descrizione'
-    .col-sm-1
+    .col-sm-2
 
 .container.scrollable-panel
-  -VehicleModel.all.each do |v|
+  -VehicleModel.all.order_by_model.each do |v|
     .row
       .col-sm-2
         =v.manufacturer.name
-      .col-sm-2
+      .col-sm-3
         =v.name
       .col-sm-2
         =v.vehicle_type.name
-      .col-sm-5
+      .col-sm-3
         =v.description
-      .col-sm-1
+      .col-sm-2
         .inline
           =button_to 'Modifica', edit_vehicle_model_path(v.id), method: :get
         .inline

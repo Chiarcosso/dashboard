@@ -1,0 +1,25 @@
+-# %p#notice= notice
+%h3 Tipi di veicoli
+.container
+  .row
+    .col-sm-2
+      %b='Nome'
+    .col-sm-3
+      %b='Codice lavaggio'
+    .col-sm-3
+
+.container.scrollable-panel
+  -VehicleType.all.order(:name).each do |v|
+    .row
+      .col-sm-2
+        =v.name
+      .col-sm-3
+        =v.carwash_type
+      .col-sm-3
+        .inline
+          =button_to 'Modifica', edit_vehicle_type_path(v.id), method: :get
+        .inline
+          =button_to 'x', vehicle_type_path(v.id), remote: true, method: :delete
+
+.container
+  =button_to 'Crea', new_vehicle_type_path, method: :get
