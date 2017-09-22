@@ -98,7 +98,7 @@ class CodesController < ApplicationController
       if code.is_a? CarwashDriverCode
         driver = code.person
       elsif code.is_a? CarwashVehicleCode
-        vehicles << code.vehicle
+        vehicles << code.vehicle unless code.vehicle_type.carwash_type == 0
       end
     end
     unless driver.nil? or vehicles.size > 2 or vehicles.size < 1

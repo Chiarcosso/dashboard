@@ -1,6 +1,12 @@
 %h3 Nuovo modello
 
 .container
-  = render 'form'
+  .row
+    .col-sm-7
+      .container.scrollable-panel
+        = render 'form'
+    .col-sm-5
+      .container.scrollable-panel
+        = render 'legend'
 
-  = link_to 'Back', vehicle_models_path
+= link_to 'Back', vehicle_models_path

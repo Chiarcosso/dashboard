@@ -7,14 +7,15 @@
           %li= msg
 
   .row
-    .col-sm-3
+    .col-sm-5
       .field
         = f.label 'Tipo'
         = f.text_field :name, class: 'form-control'
-    .col-sm-3
+    .col-sm-4
       .field
         = f.label 'Codice lavaggio'
-        = f.number_field :carwash_type, class: 'form-control'
-    .actions
-      = f.label ' '
-      = f.submit 'Salva'
+        = f.number_field :carwash_type, class: 'form-control', max: 13, min: 1
+    .col-sm-1
+      .actions
+        = f.label ' '
+        = f.submit 'Salva'

@@ -1,6 +1,12 @@
 %h3 Modifica modello
 
-= render 'form'
-
+.container
+  .row
+    .col-sm-8
+      .scrollable-panel.container-fluid
+        = render 'form'
+    .col-sm-4
+      .scrollable-panel.container-fluid
+        = render 'legend'
 
 = link_to 'Back', vehicle_models_path
