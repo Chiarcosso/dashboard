@@ -39,9 +39,9 @@ class OrdersController < ApplicationController
 
   def toggle_worksheet_closure
     ws = Worksheet.find(params[:id].to_i)
-    OutputOrder.where("destination_type = 'Worksheet' and destination_id = ?",ws.id).each do |oo|
-      oo.update(:processed => !ws.opened?)
-    end
+    # OutputOrder.where("destination_type = 'Worksheet' and destination_id = ?",ws.id).each do |oo|
+    #   oo.update(:processed => !ws.opened?)
+    # end
     ws.toggle_closure
     search_params
     if @open_worksheets_filter

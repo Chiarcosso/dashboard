@@ -1,7 +1,7 @@
 #! /bin/bash
 
 speedy=false;
-if [ $1 == '-s' ]
+if [ $1='-s' ]
   then
     speedy=true;
 fi

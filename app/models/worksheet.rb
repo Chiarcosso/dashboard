@@ -36,6 +36,9 @@ class Worksheet < ApplicationRecord
     else
       self.update(closingDate: nil)
     end
+    OutputOrder.where("destination_type = 'Worksheet' and destination_id = ?",self.id).each do |oo|
+      oo.update(:processed => !self.opened?)
+    end
   end
 
   def hours_complete_price
