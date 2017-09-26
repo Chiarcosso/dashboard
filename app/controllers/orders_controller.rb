@@ -563,7 +563,12 @@ class OrdersController < ApplicationController
 
     def worksheet_params
       code = (params[:code].nil? or params[:code] == '') ? params.require(:recipient) : params.require(:code)
+
       unless code.nil? or code == ''
+        if code.index('EWC*').nil?
+          code.gsub!(/[^\d]/, '')
+          code = 'EWC*'+code
+        end
         @recipient = Worksheet.findByCode(code)
         unless params[:vehicle].nil? or params[:vehicle] == ''
           @recipient.vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
