@@ -25,9 +25,9 @@
         .form-group
           = f.label 'Note'
           = f.text_area :notes, class: 'form-control'
-        .form-group
-          = f.label 'Utente MDC'
-          = f.text_field :mdc_user, class: 'form-control'
+        -# .form-group
+        -#   = f.label 'Utente MDC'
+        -#   = f.text_field :mdc_user, class: 'form-control'
         .form-group
           = f.submit 'Aggiorna'
     - unless @person.id.nil?

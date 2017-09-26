@@ -466,7 +466,7 @@ class OrdersController < ApplicationController
             if vehicle.nil?
               vehicle = Vehicle.new
             end
-            @recipient = Worksheet.create(:code => params.require(:recipient), :vehicle => vehicle)
+            @recipient = Worksheet.create(:code => params.require(:recipient).upcase, :vehicle => vehicle)
           elsif @recipient.vehicle.nil?
             vehicle = Vehicle.find_by_plate(params[:vehicle]).first
             # if vehicle.nil?
@@ -528,7 +528,7 @@ class OrdersController < ApplicationController
             if vehicle.nil?
               vehicle = Vehicle.new
             end
-            @recipient = Worksheet.create(:code => params.require(:recipient), :vehicle => vehicle)
+            @recipient = Worksheet.create(:code => params.require(:recipient).upcase, :vehicle => vehicle)
           elsif @recipient.vehicle.nil?
             vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
             # if vehicle.nil?
@@ -565,6 +565,10 @@ class OrdersController < ApplicationController
       code = (params[:code].nil? or params[:code] == '') ? params.require(:recipient) : params.require(:code)
       unless code.nil? or code == ''
         @recipient = Worksheet.findByCode(code)
+        unless params[:vehicle].nil? or params[:vehicle] == ''
+          @recipient.vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
+          @recipient.save
+        end
         @destination = 'Worksheet'
         unless @recipient.nil?
           @order = OutputOrder.findByRecipient(@recipient.code).last
