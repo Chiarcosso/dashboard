@@ -4,7 +4,7 @@
 %br
 .container
   .row
-    .col-sm-6
+    .col-sm-4
       Codici autisti
       %br
       = form_tag(new_carwash_driver_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
@@ -15,7 +15,7 @@
       .scrollable-panel#drivers_codes
         = render :partial => 'codes/drivers_codes'
 
-    .col-sm-6
+    .col-sm-4
       Codici mezzi
       %br
       = form_tag(new_carwash_vehicle_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
@@ -28,6 +28,19 @@
       %hr
       .scrollable-panel#vehicles_codes
         = render :partial => 'codes/vehicles_codes'
+    .col-sm-4
+      Codici speciali
+      %br
+      = form_tag(new_carwash_special_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
+        = text_field_tag 'carwash_special_code[label]', nil, class: 'form-control autofocus'
+        = number_field_tag 'carwash_special_code[carwash_code]', '0'
+        = submit_tag 'Abilita'
+      -# = form_for(:carwash_vehicle_code, url: new_carwash_vehicle_code_path, method: :post, remote: true) do |f|
+      -#   = f.text_field :code, id: :vehicle_code
+      -#   = f.submit 'Nuovo'
+      %hr
+      .scrollable-panel#special_codes
+        = render :partial => 'codes/special_codes'
   .row
     .col-sm-12
       = form_tag(carwash_print_path(format: :pdf), method: :post) do |f|

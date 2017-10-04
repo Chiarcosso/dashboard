@@ -165,6 +165,41 @@ class CodesController < ApplicationController
     end
   end
 
+  def new_carwash_special_code
+    unless params[:carwash_special_code].nil?
+      p = params.require(:carwash_special_code).permit([:label, :carwash_code])
+      unless p[:label] == '' or p[:carwash_code] == ''
+        CarwashSpecialCode.create(code: 'S'+SecureRandom.hex(2).upcase, label: p[:label], carwash_code: p[:carwash_code].to_i)
+      end
+    end
+    # if @code.nil?
+    #   CarwashDriverCode.create(code: params.require(:carwash_driver_code).permit(:code)[:code].upcase)
+    #   # @msg = 'Codice creato.'
+    # else
+    #   # @msg = 'Codice esistente.'
+    # end
+    respond_to do |format|
+      format.js { render :partial => 'codes/special_codes_js' }
+    end
+  end
+
+  def update_carwash_special_code
+    unless @code.nil?
+      case @action
+      when :regenerate
+        @code.regenerate
+      when :delete
+        @code.destroy
+      end
+      # @msg = 'Codice creato.'
+    else
+      # @msg = 'Codice esistente.'
+    end
+    respond_to do |format|
+      format.js { render :partial => 'codes/driver_codes_js' }
+    end
+  end
+
   def new_carwash_vehicle_code
     unless @vehicle.nil? or !@code.nil?
       CarwashVehicleCode.create(code: 'M'+SecureRandom.hex(2).upcase, vehicle: @vehicle)

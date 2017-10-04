@@ -45,6 +45,8 @@ Rails.application.routes.draw do
   root 'home#dashboard'
 
   get   '/admin/queries', to: 'admin#queries', as: :admin_queries
+  get   '/admin/manage', to: 'admin#manage', as: :admin_manage
+  post   '/admin/manage', to: 'admin#manage', as: :admin_manage_post
   post   '/admin/queries/vehicles', to: 'admin#send_query_vehicles', as: :admin_queries_vehicles
   post   '/admin/queries/people', to: 'admin#send_query_people', as: :admin_queries_people
   get    '/admin/soap', to: 'admin#soap', as: :admin_soap
@@ -132,6 +134,9 @@ Rails.application.routes.draw do
   # get '/codes/', to: 'codes#index', as: :codes
   post '/codes/carwash_driver_code/new', to: 'codes#new_carwash_driver_code', as: :new_carwash_driver_code
   post '/codes/carwash_driver_code/update', to: 'codes#update_carwash_driver_code', as: :update_carwash_driver_code
+
+  post '/codes/carwash_special_code/new', to: 'codes#new_carwash_special_code', as: :new_carwash_special_code
+  post '/codes/carwash_special_code/update', to: 'codes#update_carwash_special_code', as: :update_carwash_special_code
   # delete '/codes/carwash_driver_code/:id/delete', to: 'codes#delete_carwash_driver_code', as: :delete_carwash_driver_code
   post '/codes/carwash_vehicle_code/new', to: 'codes#new_carwash_vehicle_code', as: :new_carwash_vehicle_code
   post '/codes/carwash_vehicle_code/update', to: 'codes#update_carwash_vehicle_code', as: :update_carwash_vehicle_code

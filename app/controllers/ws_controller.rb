@@ -134,9 +134,11 @@ class WsController < ApplicationController
       file.close
       size = FastImage::size('tmp.jpg')
 
-      if size[0] > size[1]
-          image = MiniMagick::Image.new("tmp.jpg")
-          image.rotate(-90)
+      unless size.nil?
+        if size[0] > size[1]
+            image = MiniMagick::Image.new("tmp.jpg")
+            image.rotate(-90)
+        end
       end
       pdf.image 'tmp.jpg', :fit => [595.28 - margins*2, 841.89 - margins*2]
     end

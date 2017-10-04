@@ -14,7 +14,9 @@
 
 .container
   .row
-    .col-sm-4
+    .col-sm-1
+      %b='Quantità'
+    .col-sm-3
       %b='Articolo'
     .col-sm-3
       %b='Seriale/matricola'
@@ -23,27 +25,41 @@
     .col-sm-2
       %b='Posizione'
     .col-sm-1
+      -# %input{type: :checkbox, id: 'itm_out_chk_all'}
 .container.half.scrollable-panel
-  - @order.items.each do |i,k|
+  - @order.compacted_items_serial.each do |i|
+    - item = Item.find(i[1][:id].to_i)
     .row
-      .col-sm-4
-        =i.article.complete_name
-      .col-sm-3
-        =i.serial
-      .col-sm-2
-        = image_tag(i.actualBarcode.to_s+'.png',size: '140x30')
-        %br
-        = i.actualBarcode
-      .col-sm-2
-        =i.position_code.code
       .col-sm-1
-        %input{type: :checkbox, class: 'itm_out_chk', id: i.id, 'data-barcode': i.actualBarcode}
+        =i[1][:amount]
+      .col-sm-3
+        =i[1][:name]
+      .col-sm-3
+        =i[1][:serial]
+      .col-sm-2
+        = image_tag(i[1][:image],size: '140x30')
+        %br
+        = i[1][:barcode]
+      .col-sm-2
+        = i[1][:postion]
+      .col-sm-1
+        %input{type: :checkbox, class: 'itm_out_chk', id: i[1][:id], 'data-barcode': i[1][:barcode]}
 
 :javascript
   //domInit();
   activateClose();
   activateAF();
   activateDelete();
+
+  $('#itm_out_chk_all').off('change');
+  $('#itm_out_chk_all').on('change',function(){
+    var chk = $(this)[0].checked;
+    console.log($(this)[0].checked);
+    $('.itm_out_chk').each(function(){
+      $(this)[0].checked = chk;
+      $(this).trigger('change');
+    })
+  });
 
   $('.itm_out_chk').off('change');
   $('.itm_out_chk').on('change',function(){

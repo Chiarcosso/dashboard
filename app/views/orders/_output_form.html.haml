@@ -4,7 +4,12 @@
   .container-fluid
     - @selected_items
     -# = form_tag(output_path(@destination), method: :get, remote: true, type: :script) do |f|
-    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch prevent-cr', 'data-target': add_item_to_order_path
+    .row
+      .col-sm-6
+        = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch prevent-cr', 'data-target': add_item_to_order_path
+      .col-sm-2
+        = 'Pezzi da: '
+        = select_tag :from, options_for_select([['Magazzino','0'],['Officina mobile 1', 'Officina mobile 1'],['Officina mobile 2', 'Officina mobile 2']]), class: 'form-control'
   .container-fluid
     .row.item-block.tab-header
       .col-sm-4

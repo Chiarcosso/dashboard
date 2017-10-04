@@ -190,7 +190,11 @@ class OrdersController < ApplicationController
       end
     end
     unless @search.to_s == ''
-      @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
+      if (@from == '0')
+        @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
+      else
+        @selected_items = Item.assigned_to(Office.where(:name => @from)).unassigned.firstGroupByArticle(@search,@checked_items)
+      end
     else
       @selected_items = Array.new
     end
@@ -200,7 +204,11 @@ class OrdersController < ApplicationController
       end
     end
     unless @search.to_s == ''
-      @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
+      if (@from == '0')
+        @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
+      else
+        @selected_items = Item.assigned_to(Office.where(:name => @from)).unassigned.firstGroupByArticle(@search,@checked_items)
+      end
     else
       @selected_items = Array.new
     end
@@ -599,6 +607,9 @@ class OrdersController < ApplicationController
           @search = nil
         end
         @search = params.require(:search)
+      end
+      unless params[:from].nil?
+        @from = params.require(:from)
       end
       unless params[:open_worksheets_filter].nil? or params[:open_worksheets_filter] == ''
         @open_worksheets_filter = params[:open_worksheets_filter] == 'on' ? true : false

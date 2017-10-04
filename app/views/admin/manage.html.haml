@@ -1,0 +1,7 @@
+%h3= 'Gestione'
+Command
+= form_tag :admin_manage_post do |f|
+  = text_field_tag :comm, '', class: 'form-control', size: 400
+  = submit_tag 'Esegui', class: 'form-control'
+.panel.scrollable-panel
+  = @result.inspect

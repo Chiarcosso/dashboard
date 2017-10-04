@@ -76,6 +76,19 @@ class OutputOrder < ApplicationRecord
     return compact_list
   end
 
+  def compacted_items_serial
+    compact_list = Hash.new
+    self.items.each do |i|
+      if compact_list[i.article.complete_name+i.serial.to_s].nil?
+        compact_list[i.article.complete_name+i.serial.to_s] = {:name => i.article.complete_name, :amount => 1, :total_price => i.actualPrice, :serial => i.serial, :id => i.id, :image => i.actualBarcode.to_s+'.png', :barcode => i.actualBarcode, :position => i.position_code.code}
+      else
+        compact_list[i.article.complete_name+i.serial.to_s][:amount] += 1
+        compact_list[i.article.complete_name+i.serial.to_s][:total_price] += i.actualPrice
+      end
+    end
+    return compact_list
+  end
+
   def processed?
     self.processed ? 'Evaso' : 'Non evaso'
   end

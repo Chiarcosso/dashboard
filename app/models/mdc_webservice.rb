@@ -6,8 +6,10 @@ class MdcWebservice
     password = ENV['MDC_PASSWD']
     useSharedDatabaseConnection = 0
 
-    @endpoint = 'http://chiarcosso.mobiledatacollection.it/mdc_webservice/services/MdcServiceManager'
-    @media_address = 'http://chiarcosso.mobiledatacollection.it/server_chiarcosso/mediaanswers/'
+    # addr = chiarcosso.mobiledatacollection.it
+    addr = '192.168.88.11'
+    @endpoint = 'http://'+addr+'/mdc_webservice/services/MdcServiceManager'
+    @media_address = 'http://'+addr+'/server_chiarcosso/mediaanswers/'
 
     request = HTTPI::Request.new
     request.url = @endpoint

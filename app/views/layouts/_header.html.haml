@@ -43,6 +43,8 @@
       - if current_user.present? && current_user.has_role?(:admin)
         = navbar_dropdown "Admin" do
           - if current_user.has_role?(:admin)
+            = navbar_item "Gestione", admin_manage_path
+          - if current_user.has_role?(:admin)
             = navbar_item "Query", admin_queries_path
           - if current_user.has_role?(:admin)
             = navbar_item "SOAP", admin_soap_path

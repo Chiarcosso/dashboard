@@ -21,7 +21,7 @@ class Article < ApplicationRecord
   scope :reserve_check, -> { where("id in (select article_id from items inner join articles a on items.article_id = a.id left join output_order_items o on o.item_id = items.id where o.output_order_id is null group by article_id having (count(items.id) < articles.minimalReserve or ((articles.minimalReserve = 0 or articles.minimalReserve is null) and count(items.id) > 0))) or ((articles.minimalReserve != 0 and articles.minimalReserve is not null) and id not in (select article_id from items group by article_id))") }
   # scope :position_codes, ->(article) { include(:items).include(:position_code).distinct }
 
-  enum measure_unit: [:pezzi,:kg,:l]
+  enum measure_unit: [:pezzi,:kg,:litri,:metri]
 
   def self.incompleteItems
     Article.all

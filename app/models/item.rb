@@ -23,6 +23,7 @@ class Item < ApplicationRecord
   # scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
   scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL") }
   scope :assigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NOT NULL") }
+  scope :assigned_to, ->(what) { joins(:output_order_items).joins('inner join output_order on output_order.id = output_order_items.output_order_id').where('output_order.destination_type = \'Office\' and output_order.destination = ?',what) }
   scope :limited, -> { limit(100) }
   scope :article, ->(article) { where(:article => article) }
   scope :not_this, ->(item) { where('items.id != ?',item.id) }

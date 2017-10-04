@@ -64,6 +64,7 @@
             = submit_tag :Ok, class: 'no-loader'
       .col-sm-1
         = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf), class: 'no-loader'
+        = button_to 'Stampa modulo', output_order_pdf_module_path(order.id,format: :pdf), class: 'no-loader' if order.destination.class == Person or order.destination.class == Vehicle
 -# .container-fluid.scrollable-panel
 -#   - @selected_items.all.each do |item|
 -#     .row
