@@ -120,7 +120,8 @@ class WsController < ApplicationController
     photos = Array.new
     mdc = MdcWebservice.new
     params.require(:photos).each do |p|
-      p.sub!('http://chiarcosso.mobiledatacollection.it/','/var/lib/tomcat8/webapps/')
+      # p.sub!('http://chiarcosso.mobiledatacollection.it/','/var/lib/tomcat8/webapps/')
+      p.sub!('http://192.168.88.10/','/var/lib/tomcat8/webapps/')
       photos << mdc.download_file(p).body[/Content-Type: image\/jpeg.?*\r\n\r\n(.?*)\r\n--MIMEBoundary/m,1].force_encoding("utf-8")
     end
     margins = 15
