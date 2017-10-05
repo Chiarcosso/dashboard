@@ -8,7 +8,7 @@
       Codici autisti
       %br
       = form_tag(new_carwash_driver_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
-        = text_field_tag 'carwash_driver_code[person]', nil, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
+        = text_field_tag 'carwash_driver_code[person]', nil, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id', placeholder: 'Nome'
         = hidden_field_tag 'carwash_driver_code[person_id]', '', id: :person_id
         = submit_tag 'Abilita'
       %hr
@@ -19,7 +19,7 @@
       Codici mezzi
       %br
       = form_tag(new_carwash_vehicle_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
-        = text_field_tag 'carwash_vehicle_code[plate]', nil, data: { autocomplete: autocomplete_vehicle_information_information_codes_path }, class: 'form-control autofocus', id: 'person_id'
+        = text_field_tag 'carwash_vehicle_code[plate]', nil, data: { autocomplete: autocomplete_vehicle_information_information_codes_path }, class: 'form-control autofocus', id: 'person_id', placeholder: 'Targa'
         = hidden_field_tag 'carwash_vehicle_code[vehicle_id]', '', id: :vehicle_id
         = submit_tag 'Abilita'
       -# = form_for(:carwash_vehicle_code, url: new_carwash_vehicle_code_path, method: :post, remote: true) do |f|
@@ -32,7 +32,7 @@
       Codici speciali
       %br
       = form_tag(new_carwash_special_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
-        = text_field_tag 'carwash_special_code[label]', nil, class: 'form-control autofocus'
+        = text_field_tag 'carwash_special_code[label]', nil, class: 'form-control autofocus', placeholder: 'Nome'
         = number_field_tag 'carwash_special_code[carwash_code]', '0'
         = submit_tag 'Abilita'
       -# = form_for(:carwash_vehicle_code, url: new_carwash_vehicle_code_path, method: :post, remote: true) do |f|

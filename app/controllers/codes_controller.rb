@@ -4,7 +4,7 @@ class CodesController < ApplicationController
   protect_from_forgery except: [:carwash_check,:carwash_close,:carwash_authorize]
   skip_before_action :authenticate_user!, :only => [:carwash_check,:carwash_close,:carwash_authorize]
   # before_action :get_person, only: [:new_carwash_driver_code,:update_carwash_driver_code]
-  before_action :get_action, only: [:update_carwash_driver_code,:update_carwash_vehicle_code]
+  before_action :get_action, only: [:update_carwash_driver_code,:update_carwash_vehicle_code,:update_carwash_special_code]
   before_action :get_driver_code, only: [:new_carwash_driver_code,:update_carwash_driver_code]
   before_action :get_vehicle_code, only: [:new_carwash_vehicle_code,:update_carwash_vehicle_code]
 
@@ -184,6 +184,7 @@ class CodesController < ApplicationController
   end
 
   def update_carwash_special_code
+    @code = CarwashSpecialCode.find(params.require(:id)) unless params[:id].nil?
     unless @code.nil?
       case @action
       when :regenerate
@@ -196,7 +197,7 @@ class CodesController < ApplicationController
       # @msg = 'Codice esistente.'
     end
     respond_to do |format|
-      format.js { render :partial => 'codes/driver_codes_js' }
+      format.js { render :partial => 'codes/special_codes_js' }
     end
   end
 

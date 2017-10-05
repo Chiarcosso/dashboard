@@ -29,7 +29,7 @@
             = form_tag(mdc_download_ws_pdf_path(format: :pdf), method: :post) do |f|
               - res.photos.each do |p|
                 = hidden_field_tag 'photos[]', p
-              = submit_tag 'PDF', class: 'no-loader'
+              = button_tag 'PDF', class: 'no-loader'
         .row
           .col-sm-12
             - res.photos.each do |p|

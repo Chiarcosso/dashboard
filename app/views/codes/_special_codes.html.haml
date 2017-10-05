@@ -5,16 +5,17 @@
       .row
         .col-sm-4
           = text_field_tag 'carwash_special_code[code]', cwdc.code, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
-        .col-sm-6
+        .col-sm-5
           = text_field_tag 'carwash_special_code[label]', cwdc.label, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
-        .col-sm-2
-          = number_field_tag 'carwash_special_code[carwash_code]', cwdc.carwash_code, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+        .col-sm-3
+          = number_field_tag 'carwash_special_code[carwash_code]', cwdc.carwash_code.to_s, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
           -# = text_field_tag 'carwash_driver_code[person]', cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
           -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
       .row
         .col-sm-12
           = submit_tag 'Rigenera'
           = submit_tag 'Elimina'
+          = 'Stampa'
           = check_box_tag "print-vehicles[]",cwdc.id, false, class: 'print'
           %hr
     -# = text_field_tag :person, cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete_source: Person.find_by_complete_name(:name).map(&:name) }, class: 'form-control autofocus', id: 'person'

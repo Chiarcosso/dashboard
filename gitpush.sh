@@ -5,8 +5,8 @@ git commit
 git push
 
 speedy=false
-if [ $1='-s' ]
-  then
+if [ $1=='-s' ]; then
     speedy=true;
 fi
-echo speedy
+echo $1
+echo $speedy
