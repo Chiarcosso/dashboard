@@ -1,8 +1,7 @@
 #! /bin/bash
 
 speedy=false;
-if [ $1='-s' ]
-  then
+if [[ $@ == -s ]]; then
     speedy=true;
 fi
 
