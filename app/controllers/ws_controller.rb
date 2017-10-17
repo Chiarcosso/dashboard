@@ -32,12 +32,12 @@ class WsController < ApplicationController
     a = params.require(:activation_code) unless params[:activation_code] == ''
     person = nil
     if MdcUser.find_by(user: u).nil? and params[:activation_code] != ''
-      Person.mdc.each do |p|
-        if p.mdc_user == u.downcase
-          person = p
-          break
-        end
-      end
+      # Person.mdc.each do |p|
+      #   if p.mdc_user == u.downcase
+      #     person = p
+      #     break
+      #   end
+      # end
       MdcUser.create(:user => params.require(:user), :activation_code => params.require(:activation_code), :assigned_to_person => person )
     end
     render 'mdc/codes_index'
