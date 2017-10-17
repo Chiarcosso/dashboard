@@ -12,6 +12,8 @@
         = hidden_field_tag 'carwash_driver_code[person_id]', '', id: :person_id
         = submit_tag 'Abilita'
       %hr
+      = CarwashDriverCode.all.size.to_s+' tessere.'
+      %hr
       .scrollable-panel#drivers_codes
         = render :partial => 'codes/drivers_codes'
 
@@ -26,6 +28,8 @@
       -#   = f.text_field :code, id: :vehicle_code
       -#   = f.submit 'Nuovo'
       %hr
+      = CarwashVehicleCode.all.size.to_s+' tessere.'
+      %hr
       .scrollable-panel#vehicles_codes
         = render :partial => 'codes/vehicles_codes'
     .col-sm-4
@@ -39,13 +43,23 @@
       -#   = f.text_field :code, id: :vehicle_code
       -#   = f.submit 'Nuovo'
       %hr
+      = CarwashSpecialCode.all.size.to_s+' tessere.'
+      %hr
       .scrollable-panel#special_codes
         = render :partial => 'codes/special_codes'
   .row
     .col-sm-12
-      = form_tag(carwash_print_path(format: :pdf), method: :post) do |f|
-        = button_tag 'Stampa selezionati', id: :print_cards, class: 'no-loader'
+      .ontop
+        = form_tag(carwash_print_path(format: :pdf), method: :post) do |f|
+          = button_tag 'Stampa selezionati', id: :print_cards, class: 'no-loader'
+          = 'Seleziona tutti'
+          = check_box_tag "print-vehicles[]",false, false, id: 'print_all'
 :javascript
+
+  $('#print_all').off('click');
+  $('#print_all').on('click',function(){
+    $('.print').prop('checked',$(this).prop('checked'));
+  });
 
   $('#print_cards').off('click');
   $('#print_cards').on('click',function(e){

@@ -34,7 +34,7 @@
             = navbar_item "Ordini di trasporto", mdc_transport_documents_path('opened')
           - if (current_user.has_role?(:amministrazione) || current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
             = navbar_item "Totali", admin_totals_path
-          - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
+          - if (current_user.has_role?('mod. ditte') || current_user.has_role?(:admin))
             = navbar_item "Ditte", companies_path
           - if (current_user.has_role?(:personale) || current_user.has_role?(:admin))
             = navbar_item "Persone", people_path

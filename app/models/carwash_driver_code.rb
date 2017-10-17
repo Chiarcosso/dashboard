@@ -6,7 +6,18 @@ class CarwashDriverCode < ApplicationRecord
   belongs_to :person
 
   scope :findByCode, ->(code) { where(:code => code) }
+  scope :findByPerson, ->(person) { where(:person => person) }
   scope :order_person, -> { joins(:person).order('people.surname') }
+
+  def self.createUnique person
+    if CarwashDriverCode.findByPerson(person).first.nil?
+      code = 'A'+SecureRandom.hex(2).upcase
+      while !CarwashDriverCode.findByCode(code).first.nil?
+        code = 'A'+SecureRandom.hex(2).upcase
+      end
+      CarwashDriverCode.create(code: code, person: person)
+    end
+  end
 
   def print_owner
     self.person.complete_name

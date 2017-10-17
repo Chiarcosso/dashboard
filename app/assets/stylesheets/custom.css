@@ -127,6 +127,11 @@ body{
   margin-bottom: .25em;
 }
 
+.ontop{
+  position: fixed;
+  z-index: 2000;
+}
+
 .signal-danger{
   background-color: #f44;
 }

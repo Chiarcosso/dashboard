@@ -7,7 +7,18 @@ class CarwashVehicleCode < ApplicationRecord
   has_many :vehicle_informations, :through => :vehicle
 
   scope :findByCode, ->(code) { where(:code => code) }
+  scope :findByVehicle, ->(vehicle) { where(:vehicle => vehicle) }
   scope :order_plate, -> { joins(:vehicle_informations).where('vehicle_informations.information_type = ?',VehicleInformation.types['Targa']).order('vehicle_informations.information') }
+
+  def self.createUnique vehicle
+    if CarwashVehicleCode.findByVehicle(vehicle).first.nil?
+      code = 'M'+SecureRandom.hex(2).upcase
+      while !CarwashVehicleCode.findByCode(code).first.nil?
+        code = 'M'+SecureRandom.hex(2).upcase
+      end
+      CarwashVehicleCode.create(code: code, vehicle: vehicle)
+    end
+  end
 
   def regenerate
     self.update(code: 'M'+SecureRandom.hex(2).upcase)

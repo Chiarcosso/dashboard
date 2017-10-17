@@ -193,7 +193,7 @@ class OrdersController < ApplicationController
       if (@from == '0')
         @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
       else
-        @selected_items = Item.assigned_to(Office.where(:name => @from)).unassigned.firstGroupByArticle(@search,@checked_items)
+        @selected_items = Item.firstGroupByArticle(@search,@checked_items,Item.assigned_to(Office.find(@from.to_i)))
       end
     else
       @selected_items = Array.new
@@ -207,7 +207,7 @@ class OrdersController < ApplicationController
       if (@from == '0')
         @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
       else
-        @selected_items = Item.assigned_to(Office.where(:name => @from)).unassigned.firstGroupByArticle(@search,@checked_items)
+        @selected_items = Item.firstGroupByArticle(@search,@checked_items,Item.assigned_to(Office.find(@from.to_i)))
       end
     else
       @selected_items = Array.new

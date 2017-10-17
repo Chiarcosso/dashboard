@@ -7,6 +7,7 @@ class AdminController < ApplicationController
 
   def manage
     unless params[:comm].nil?
+      @comm = params[:comm]
       begin
         @result = eval(params.require(:comm))
       rescue Exception => e
@@ -42,7 +43,7 @@ class AdminController < ApplicationController
   end
 
   def send_query_vehicles
-    @result = RestClient.get "http://10.0.0.102/queries/vehicles.php"
+    @result = RestClient.get "http://portale.chiarcosso/queries/vehicles.php"
     @result = JSON.parse @result.body
     @results = Array.new
     @type = :vehicles
@@ -93,8 +94,31 @@ class AdminController < ApplicationController
     render 'admin/query'
   end
 
+  def send_query_carwash
+    result = RestClient.get "http://portale.chiarcosso/queries/carwash.php"
+    result = JSON.parse result.body
+    results = {:people => Array.new, :vehicles => Array.new}
+    result['people'].each do |row|
+      person = Person.find_by_complete_name_inv(row['name'])
+      unless person.nil?
+        results[:people] << CarwashDriverCode.createUnique(person)
+      else
+        results[:people] << "#{row} - Non trovato"
+      end
+    end
+    result['vehicles'].each do |row|
+      vehicle = Vehicle.find_by_plate(row['Targa']).first
+      unless vehicle.nil?
+        results[:vehicles] << results[:vehicles] << CarwashVehicleCode.createUnique(vehicle)
+      else
+        results[:vehicles] << "#{row} - Non trovato"
+      end
+    end
+    return results
+  end
+
   def send_query_people
-    @result = RestClient.get "http://10.0.0.102/queries/people.php"
+    @result = RestClient.get "http://portale.chiarcosso/queries/people.php"
     @result = JSON.parse @result.body
     @results = Array.new
     @type = :people
