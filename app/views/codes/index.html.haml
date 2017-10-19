@@ -53,7 +53,7 @@
         = form_tag(carwash_print_path(format: :pdf), method: :post) do |f|
           = button_tag 'Stampa selezionati', id: :print_cards, class: 'no-loader'
           = 'Seleziona tutti'
-          = check_box_tag "print-vehicles[]",false, false, id: 'print_all'
+          = check_box_tag "print-all",false, false, id: 'print_all'
 :javascript
 
   $('#print_all').off('click');
@@ -65,22 +65,30 @@
   $('#print_cards').on('click',function(e){
     var drivers = [];
     var vehicles = [];
+    var special = [];
     $('input[name^=print-drivers]:checked').each(function(){
       drivers.push($(this).val());
     });
     $('input[name^=print-vehicles]:checked').each(function(){
       vehicles.push($(this).val());
     });
+    $('input[name^=print-special]:checked').each(function(){
+      special.push($(this).val());
+    });
     var data = {drivers: drivers, vehicles: vehicles};
 
     var form = $(this).parent();
     form.children('input[name="drivers[]"]').remove();
     form.children('input[name="vehicles[]"]').remove();
+    form.children('input[name="special[]"]').remove();
     $.each(drivers,function(){
       form.append('<input type="hidden" value="'+this+'" name="drivers[]">');
     });
     $.each(vehicles,function(){
       form.append('<input type="hidden" value="'+this+'" name="vehicles[]">');
+    });
+    $.each(special,function(){
+      form.append('<input type="hidden" value="'+this+'" name="special[]">');
     });
     setTimeout(function(){
       $(this).removeAttr('disabled');
