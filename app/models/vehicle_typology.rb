@@ -1,0 +1,2 @@
+class VehicleTypology < ApplicationRecord
+end

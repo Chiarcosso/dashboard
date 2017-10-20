@@ -99,17 +99,21 @@ class CodesController < ApplicationController
     vehicles = Array.new
     types = Array.new
     driver = nil
+    special = nil
     codes.each do |c|
-      code = CarwashDriverCode.findByCode(c).first || CarwashVehicleCode.findByCode(c).first
+      code = CarwashDriverCode.findByCode(c).first || CarwashVehicleCode.findByCode(c).first || CarwashSpecialCode.findByCode(c).first
       if code.is_a? CarwashDriverCode
         driver = code.person
+      elsif code.is_a? CarwashSpecialCode
+        special = code
       elsif code.is_a? CarwashVehicleCode
         vehicles << code.vehicle unless code.vehicle.vehicle_type.carwash_type == 0
       end
     end
-    unless driver.nil? or vehicles.size > 2 or vehicles.size < 1
+    unless driver.nil? or ((vehicles.size > 2 or vehicles.size < 1) and special.nil?)
       cwu = CarwashUsage.create(session_id: SecureRandom.hex(10), person: driver, vehicle_1: vehicles[0], vehicle_2: vehicles[1], row: row, starting_time: DateTime.now)
       response = "#{cwu.session_id}"
+      response += ",#{special.carwash_code}" unless special.nil?
       response += ",#{cwu.vehicle_1.vehicle_type.carwash_type.to_s}" unless cwu.vehicle_1.nil?
       response += ",#{cwu.vehicle_2.vehicle_type.carwash_type.to_s}" unless cwu.vehicle_2.nil?
     else
