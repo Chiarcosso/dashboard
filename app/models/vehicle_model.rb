@@ -6,9 +6,18 @@ class VehicleModel < ApplicationRecord
 
   # enum vehicle_type: ['Motrice', 'Trattore', 'Rimorchio', 'Rimorchio scarrabile', 'Semirimorchio', 'Minivan', 'Automobile', 'Furgone', 'Ciclomotore', 'Muletto']
 
-  scope :order_by_model, -> { joins(:manufacturer).order('companies.name').order('vehicle_models.name') }
-  def complete_name
-    self.manufacturer.name+' '+self.name
+  scope :order_by_model, -> { includes(:manufacturer).order('companies.name').order('vehicle_models.name') }
+
+  def self.not_available
+    VehicleModel.where(:name => 'N/D').first
   end
 
+  def complete_name
+    m = self.manufacturer.nil?? '' : self.manufacturer.name+' '
+    m+self.name
+  end
+
+  def to_s
+    self.complete_name
+  end
 end

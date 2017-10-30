@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  serial: MyString
+  assigned_to: 1
+  assigned_to_class: MyString
+
+two:
+  name: MyString
+  serial: MyString
+  assigned_to: 1
+  assigned_to_class: MyString

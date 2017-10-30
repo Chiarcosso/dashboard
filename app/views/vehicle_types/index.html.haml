@@ -1,25 +1,60 @@
 -# %p#notice= notice
-%h3 Tipi di veicoli
-.container
+.container-fluid
   .row
-    .col-sm-2
-      %b='Nome'
-    .col-sm-3
-      %b='Codice lavaggio'
-    .col-sm-3
+    .col-sm-7
+      %h3 Tipi di veicoli
+      .container-fluid
+        .row
+          .col-sm-5
+            %b='Nome'
+          .col-sm-3
+            %b='Cod. lavaggio'
+            = button_tag '?', class: 'no-loader', id: 'legend'
+          .col-sm-4
+        .row
+          = form_tag(:vehicle_types, method: :post, format: :js, remote: true) do |f|
+            .col-sm-5
+              = text_field_tag 'vehicle_type[name]', '', placeholder: 'Nuovo tipo di mezzo', class: 'form-control'
+            .col-sm-3
+              = number_field_tag 'vehicle_type[carwash_type]', 0, class: 'form-control'
+            .col-sm-4
+              = submit_tag 'Crea', class: 'form-control'
+      %br
+      .scrollable-panel.container-fluid#vehicle_types
+        %br
+        = render :partial => 'vehicle_types/list'
 
-.container.scrollable-panel
-  -VehicleType.all.order(:name).each do |v|
-    .row
-      .col-sm-2
-        =v.name
-      .col-sm-3
-        =v.carwash_type
-      .col-sm-3
-        .inline
-          =button_to 'Modifica', edit_vehicle_type_path(v.id), method: :get
-        .inline
-          =button_to 'x', vehicle_type_path(v.id), remote: true, method: :delete
+    .col-sm-5
+      %h3 Tipologie veicoli
+      .container-fluid
+        .row
+          .col-sm-8
+            %b='Nome'
+          .col-sm-4
+        .row
+          = form_tag(:vehicle_typologies, method: :post, format: :js, remote: true) do |f|
+            .col-sm-8
+              = text_field_tag 'vehicle_typology[name]', '', placeholder: 'Nuova tipologia di mezzo', class: 'form-control'
+            .col-sm-4
+              = submit_tag 'Crea', class: 'form-control'
+      %br
+      .scrollable-panel.container-fluid#vehicle_typologies
+        = render :partial => 'vehicle_typologies/list'
 
-.container
-  =button_to 'Crea', new_vehicle_type_path, method: :get
+.popup#legend-popup
+  .close
+    = 'Chiudi'
+  = render :partial => 'vehicle_types/legend'
+:javascript
+
+  $('#legend-popup').hide();
+
+  $('#legend').off('click');
+  $('#legend').on('click',function(){
+    $('#legend-popup').toggle();
+  })
+
+  $('.close').off('click');
+  $('.close').on('click', function(){
+    $('#legend-popup').toggle();
+  })

@@ -1,0 +1,2 @@
+%b= 'Tipologia'
+= select_tag 'vehicle[vehicle_typology]', options_from_collection_for_select(@vehicle_typologies, "id", "name", @vehicle.vehicle_typology.id), class: 'form-control'

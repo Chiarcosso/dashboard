@@ -1,0 +1,41 @@
+= form_for @vehicle do |f|
+  - if @vehicle.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@vehicle.errors.count, "error")} prohibited this vehicle from being saved:"
+      %ul
+        - @vehicle.errors.full_messages.each do |msg|
+          %li= msg
+
+  .row
+    .col-sm-4
+      .field
+        = f.label 'Modello'
+        = f.select :model, options_from_collection_for_select(VehicleModel.order_by_model,'id','complete_name', selected: @vehicle.model), class: 'form-control'
+      .field
+        = f.label 'Targa'
+        = text_field_tag 'initial_plate[info]',@vehicle.plate, class: 'form-control'
+      .field
+        = f.label 'Non circola'
+        = f.check_box :dismissed, class: 'form-control'
+      .field
+        = f.label 'Data di immatricolazione'
+        = f.text_field :registration_date, class: 'form-control', 'data-behavior' => 'datepicker'
+      .field
+        = f.label 'N. di telaio'
+        = text_field_tag 'initial_serial[info]', @vehicle.chassis_number, class: 'form-control'
+      .field
+        = f.label 'Chilometraggio'
+        = f.number_field :mileage, class: 'form-control'
+    .col-sm-6
+      .field
+        = f.label 'Proprietà'
+        = text_field_tag 'vehicle[property]', (@vehicle.property.nil?? Company.manufacturerChoice.name : @vehicle.property.name), data: { autocomplete: autocomplete_company_name_articles_path }, class: 'form-control autofocus'
+      .field
+        = f.label 'Note'
+        = f.text_area :notes, class: 'form-control'
+  .actions
+    = f.submit 'Save'
+
+:javascript
+
+  activateDatePicker();

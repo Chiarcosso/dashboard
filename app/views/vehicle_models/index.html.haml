@@ -16,7 +16,8 @@
   -VehicleModel.all.order_by_model.each do |v|
     .row
       .col-sm-2
-        =v.manufacturer.name
+        - unless v.manufacturer.nil?
+          =v.manufacturer.name
       .col-sm-3
         =v.name
       .col-sm-2

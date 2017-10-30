@@ -2,6 +2,7 @@ class VehicleInformation < ApplicationRecord
   resourcify
 
   belongs_to :vehicle
-
-  enum type: ['Targa','N. di telaio']
+  belongs_to :vehicle_information_type
+  # enum type: ['Targa','N. di telaio']
+  
 end

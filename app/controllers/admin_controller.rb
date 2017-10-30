@@ -1,9 +1,99 @@
 class AdminController < ApplicationController
+  require 'roo'
+
   before_action :authenticate_user!
   before_action :authorize_admin
   before_action :query_params, only: [:send_query]
   require "#{Rails.root}/app/models/mdc_webservice"
   include AdminHelper
+
+  def import_vehicles
+    @results = Array.new
+    unless params[:file].nil?
+      @data = Roo::Spreadsheet.open(params.require(:file).tempfile)
+      #  @data.each_with_pagename do |sheet|
+      #     sheet[1].each do |row|
+      #       @results << row
+      #     end
+      #  end
+      @model = @data.sheets[0]
+      frow = true
+      trailer = VehicleType.find_by_name('Rimorchio')
+      trailer = VehicleType.create(name: 'Rimorchio', carwash_type: 11) if trailer.nil?
+      semitrailer = VehicleType.find_by_name('Semirimorchio')
+      semitrailer = VehicleType.create(name: 'Semirimorchio', carwash_type: 6) if semitrailer.nil?
+      car = VehicleType.find_by_name('Autovettura')
+      car = VehicleType.create(name: 'Autovettura', carwash_type: 13) if car.nil?
+      van = VehicleType.find_by_name('Furgone')
+      van = VehicleType.create(name: 'Furgone', carwash_type: 13) if van.nil?
+      truck = VehicleType.find_by_name('Motrice')
+      truck = VehicleType.create(name: 'Motrice', carwash_type: 2) if truck.nil?
+      semitruck = VehicleType.find_by_name('Trattore stradale')
+      semitruck = VehicleType.create(name: 'Trattore stradale', carwash_type: 2) if semitruck.nil?
+      types = [semitrailer,semitruck,trailer,truck,car,van]
+
+      at = Company.find_by_name('Autotrasporti Chiarcosso s.r.l.')
+      te = Company.find_by_name('Trans Est s.r.l.')
+      ed = Company.find_by_name('Edilizia Chiarcosso s.r.l.')
+      ed = Company.create(name: 'Edilizia Chiarcosso s.r.l.', vat_number: 'IT00153690300') if ed.nil?
+      @data.each_row_streaming do |row|
+        r = Hash.new
+        row.each_with_index do |cell,index|
+          unless cell.value.nil? or cell.value == '' or cell.value == false or frow
+            # begin
+              case @data.row(1)[index].upcase
+              when 'TARGA'
+                d = cell.value.upcase.tr('. *','')
+              when 'TIPO'
+                case cell.value
+                when 'S'
+                  d = types[0]
+                when 'R'
+                  d = types[2]
+                else
+                  d = types[cell.value.to_i-1]
+                end
+              when 'DITTA'
+                case cell.value
+                when 'A'
+                  d = at
+                when 'T'
+                  d = te
+                when 'E'
+                  d = ed
+                else
+                  d = nil
+                end
+              when 'MODELLO'
+                d = VehicleModel.find_by_name(cell.value)
+                d = VehicleModel.create(name: cell.value, manufacturer: r['Marca'], vehicle_type: r['Tipo'].nil?? types[0] : r['Tipo']) if d.nil?
+              when 'MARCA'
+                d = Company.find_by_name(cell.value.to_s.titleize)
+                d = Company.create(name: cell.value.to_s.titleize) if d.nil?
+              else
+                d = cell.value.to_s
+              end
+            # rescue
+            # #   byebug
+            #   d = cell.value.to_s+' '+@data.row(1)[index].titleize.capitalize
+            #   byebug
+            # end
+            r[@data.row(1)[index].titleize.capitalize] = d
+          end
+
+        end
+        @results << r unless r['Targa'].nil? or frow
+        frow = false
+      end
+      # case File.extname(params.require(:file).original_filename)
+      # when ".csv" then data = Csv.new(file.path, nil, :ignore)
+      # when ".xls" then data = Excel.new(file.path, nil, :ignore)
+      # when ".xlsx" then data = Excelx.new(file.path, nil, :ignore)
+      #   else byebug
+      # end
+    end
+    render 'admin/get_vehicles'
+  end
 
   def manage
     unless params[:comm].nil?

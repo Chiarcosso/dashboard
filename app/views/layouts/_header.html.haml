@@ -45,6 +45,8 @@
           - if current_user.has_role?(:admin)
             = navbar_item "Gestione", admin_manage_path
           - if current_user.has_role?(:admin)
+            = navbar_item "Importa veicoli", admin_import_vehicles_path
+          - if current_user.has_role?(:admin)
             = navbar_item "Query", admin_queries_path
           - if current_user.has_role?(:admin)
             = navbar_item "SOAP", admin_soap_path

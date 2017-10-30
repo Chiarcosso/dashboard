@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :vehicle_typologies
   # resources :equipment do
   #
   # end
@@ -44,6 +45,8 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   root 'home#dashboard'
 
+  get   'admin/import_vehicles', to: 'admin#import_vehicles', as: :admin_import_vehicles
+  post  'admin/import_vehicles', to: 'admin#import_vehicles', as: :admin_import_vehicles_send
   get   '/admin/queries', to: 'admin#queries', as: :admin_queries
   get   '/admin/manage', to: 'admin#manage', as: :admin_manage
   post   '/admin/manage', to: 'admin#manage', as: :admin_manage_post

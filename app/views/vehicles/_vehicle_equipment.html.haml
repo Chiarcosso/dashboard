@@ -1,0 +1,5 @@
+%b= 'Attrezzatura'
+- @equipment.each do |e|
+  %div
+    = checkbox_tag "equipment[#{e.name}]", nil
+    = e.name

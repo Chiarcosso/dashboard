@@ -1,5 +1,6 @@
 class CarwashUsage < ApplicationRecord
   belongs_to :person
+  belongs_to :carwash_special_code
   belongs_to :vehicle_1, class_name: "Vehicle"
   belongs_to :vehicle_2, class_name: "Vehicle"
 

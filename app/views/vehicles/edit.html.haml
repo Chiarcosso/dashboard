@@ -1,7 +1,7 @@
-%h1 Modifica mezzo
+%h1 Modifica mezzo - #{@vehicle.plate}
 
-= render 'form'
+.container
+  = form_tag(vehicle_path(@vehicle), method: :patch) do |f|
+    = render 'form'
 
-= link_to 'Show', @vehicle
-\|
-= link_to 'Back', vehicles_path
+= link_to 'Indietro', vehicles_path

@@ -7,18 +7,18 @@
           %li= msg
 
   .row
-    .col-sm-3
+    .col-sm-4
       .field
         = f.label 'Marca'
         = text_field_tag 'model[manufacturer]', (@vehicle_model.manufacturer.nil?? Company.manufacturerChoice.name : @vehicle_model.manufacturer.name), data: { autocomplete: autocomplete_company_name_articles_path }, class: 'form-control autofocus'
-    .col-sm-3
+    .col-sm-5
       .field
         = f.label 'Modello'
         = f.text_field :name, class: 'form-control'
-    .col-sm-3
-      .field
-        = f.label 'Tipo'
-        = f.collection_select :vehicle_type, VehicleType.order(:name),:id,:name, class: 'form-control'
+    -# .col-sm-3
+    -#   .field
+    -#     = f.label 'Tipo'
+    -#     = f.collection_select :vehicle_type, VehicleType.order(:name),:id,:name, class: 'form-control'
     .col-sm-3
       .field
         = f.label 'Descrizione/note'

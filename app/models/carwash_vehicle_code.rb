@@ -8,7 +8,7 @@ class CarwashVehicleCode < ApplicationRecord
 
   scope :findByCode, ->(code) { where(:code => code) }
   scope :findByVehicle, ->(vehicle) { where(:vehicle => vehicle) }
-  scope :order_plate, -> { joins(:vehicle_informations).where('vehicle_informations.information_type = ?',VehicleInformation.types['Targa']).order('vehicle_informations.information') }
+  scope :order_plate, -> { joins(:vehicle_informations).where('vehicle_informations.vehicle_information_type_id = ?',VehicleInformationType.where(name: 'Targa').first.id).order('vehicle_informations.information') }
 
   def self.createUnique vehicle
     if CarwashVehicleCode.findByVehicle(vehicle).first.nil?

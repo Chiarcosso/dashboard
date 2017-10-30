@@ -1,0 +1,4 @@
+- @information_types.each do |i|
+  %div
+    %b= i.name
+    = text_field_tag "informations[#{i.id}]", @vehicle.find_information(i), class: 'form-control'

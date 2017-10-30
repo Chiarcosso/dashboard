@@ -191,13 +191,18 @@ function activateAF(){
   $('.autofocus').first().select();
 };
 
-function activateDatePicker(){
+function activateDatePicker(date){
+  if(typeof date == null){
+    dt = new Date();
+  } else {
+    dt = new Date(date.substring(0,3),date.substring(4,6),date.substring(7,9));
+  }
 
   $('[data-behavior=datepicker]').datepicker({
     language: "it",
     autoclose: true,
     todayHighlight: true,
-    setValue: ($(this).data('no-default')=='true'?'':today())
+  //  setValue: ($(this).data('no-default')=='true'?'':dt)
   });
 
 };

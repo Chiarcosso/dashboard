@@ -1,5 +1,7 @@
 %h1 Nuovo mezzo
 
-= render 'form'
+.container
+  = form_tag(vehicles_path, method: :post) do |f|
+    = render 'form'
 
-= link_to 'Back', vehicles_path
+= link_to 'Indietro', vehicles_path
