@@ -11,9 +11,9 @@ class Vehicle < ApplicationRecord
   belongs_to :property, class_name: 'Company'
 
   scope :order_by_plate, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type_id': VehicleInformationType.where(:name => 'Targa').first.id) }
-  scope :find_by_plate, ->(plate) { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type': VehicleInformationType.where(:name => 'Targa').first.id).where('vehicle_informations.information LIKE ?','%'+plate+'%') }
+  scope :find_by_plate, ->(plate) { joins(:vehicle_informations).order('vehicle_informations.information ASC, vehicle_informations.date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.where(:name => 'Targa').first.id).where('vehicle_informations.information LIKE ?','%'+plate+'%') }
   scope :order_by_chassis, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type': VehicleInformationType.where(:name => 'N. di telaio').first.id) }
-  scope :find_by_chassis, ->(chassis) { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type': VehicleInformationType.where(:name => 'N. di telaio').first.id).where('vehicle_informations.information LIKE ?','%'+chassis+'%') }
+  scope :find_by_chassis, ->(chassis) { joins(:vehicle_informations).order('vehicle_informations.information ASC, date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.where(:name => 'N. di telaio').first.id).where('vehicle_informations.information LIKE ?','%'+chassis+'%') }
   scope :find_by_manufacturer, ->(manufacturer) { joins(:model).joins('vehicle_models.manufacturer').where('companies.name LIKE ?', '%'+manufacturer+'%') }
   scope :find_by_model, ->(search) { joins(:model).where('vehicle_models.name LIKE ?', '%'+search+'%') }
   scope :find_by_property, ->(property) { joins(:property).where('companies.name LIKE ?', '%'+property+'%') }

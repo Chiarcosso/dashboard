@@ -12,7 +12,7 @@
       = text_field_tag 'vehicle[serie]', @vehicle.serie, class: 'form-control'
     .field
       %b='Prima immatricolazione'
-      = text_field_tag 'vehicle[registration_date]', (l @vehicle.registration_date), class: 'form-control', 'data-behavior' => 'datepicker'
+      = text_field_tag 'vehicle[registration_date]', @vehicle.registration_date.nil?? '' : (l @vehicle.registration_date), class: 'form-control', 'data-behavior' => 'datepicker'
     .field
       %b='Dismesso'
       = check_box_tag 'vehicle[dismissed]', 1, @vehicle.dismissed

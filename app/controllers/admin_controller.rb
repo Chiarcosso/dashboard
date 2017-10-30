@@ -36,23 +36,23 @@ class AdminController < ApplicationController
       te = Company.find_by_name('Trans Est s.r.l.')
       ed = Company.find_by_name('Edilizia Chiarcosso s.r.l.')
       ed = Company.create(name: 'Edilizia Chiarcosso s.r.l.', vat_number: 'IT00153690300') if ed.nil?
+
       @data.each_row_streaming do |row|
         r = Hash.new
+        vehicle = nil
         row.each_with_index do |cell,index|
-          unless cell.value.nil? or cell.value == '' or cell.value == false or frow
+          unless cell.value.nil? or cell.value == '' or cell.value == false or @data.row(1)[index].upcase == cell.value.to_s.upcase
             # begin
+              puts @data.row(1)[index].upcase+' --> '+cell.value.inspect+' ==> '+vehicle.inspect
               case @data.row(1)[index].upcase
               when 'TARGA'
                 d = cell.value.upcase.tr('. *','')
-              when 'TIPO'
-                case cell.value
-                when 'S'
-                  d = types[0]
-                when 'R'
-                  d = types[2]
-                else
-                  d = types[cell.value.to_i-1]
+                vehicle = Vehicle.find_by_plate(d).first
+                if vehicle.nil?
+                  vehicle = Vehicle.new
                 end
+              when 'CIRCOLA'
+                vehicle.dismissed = !cell.value
               when 'DITTA'
                 case cell.value
                 when 'A'
@@ -64,14 +64,94 @@ class AdminController < ApplicationController
                 else
                   d = nil
                 end
+              when 'ANNO'
+                vehicle.registration_date = Date.new(cell.value.to_i,1,1)
+              when 'MARCA'
+                d = Company.find_by_name(cell.value.to_s.humanize.gsub(/\b('?[a-z])/) { $1.capitalize })
+                d = Company.create(name: cell.value.to_s.humanize.gsub(/\b('?[a-z])/) { $1.capitalize }) if d.nil?
+              when 'TIPO'
+                case cell.value
+                when 'S'
+                  d = types[0]
+                when 'R'
+                  d = types[2]
+                else
+                  d = types[cell.value.to_i-1]
+                end
+                vehicle.vehicle_type = d
+              when 'TIPOLOGIA'
+                d = VehicleTypology.find_by_name(cell.value.to_s.capitalize)
+                d = VehicleTypology.create(name: cell.value.to_s.capitalize) if d.nil?
+                vehicle.vehicle_typology = d
+              when 'NOTE'
+                d = cell.value
+                vehicle.notes = d
+              # when 'PIANTANE'
+              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
+              #   e = VehicleEquipment.find_by_name('Piantane')
+              #   e = VehicleEquipment.create(name: 'Piantane') if d.nil?
+              #   r['Attrezzatura'] << e
+              # when 'ADR'
+              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
+              #   d = VehicleEquipment.find_by_name('ADR')
+              #   d = VehicleEquipment.create(name: 'ADR') if d.nil?
+              #   r['Attrezzatura'] << e
+              # when 'GANCI CINGHIE'
+              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
+              #   d = VehicleEquipment.find_by_name('Ganci cinghie')
+              #   d = VehicleEquipment.create(name: 'Ganci cinghie') if d.nil?
+              #   r['Attrezzatura'] << e
+              # when 'GANCI CINGHIE'
+              #   r['SPONDE APERTURA LIBRO'] = Array.new if r['Attrezzatura'].nil?
+              #   d = VehicleEquipment.find_by_name('SPONDE APERTURA LIBRO')
+              #   d = VehicleEquipment.create(name: 'sPONDE APERTURA LIBRO') if d.nil?
+              #   r['Attrezzatura'] << e
+              # when 'TENUTA A SFUSO'
+              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
+              #   d = VehicleEquipment.find_by_name('Tenuta a sfuso')
+              #   d = VehicleEquipment.create(name: 'Tenuta a sfuso') if d.nil?
+              #   r['Attrezzatura'] << e
+              # when 'TENUTA A LIQUIDO'
+              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
+              #   d = VehicleEquipment.find_by_name('Tenuta a liquido')
+              #   d = VehicleEquipment.create(name: 'Tenuta a liquido') if d.nil?
+              #   r['Attrezzatura'] << e
+              when 'TELO'
+                if cell.value.to_s == 'S'
+                  r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
+                  e = VehicleEquipment.find_by_name('Telo')
+                  e = VehicleEquipment.create(name: 'Telo') if e.nil?
+                  r['Attrezzatura'] << e
+                end
+              when 'KM'
+                byebug if cell.value === true
+                d = cell.value.to_i
+                vehicle.mileage = d
+              when 'EXTARGA'
+                d = VehicleInformation.create(information: cell.value.to_s, vehicle_information_type: VehicleInformationType.find_by_name('Targa'), vehicle: vehicle, date: r['datacambiotarga']) unless r['datacambiotarga'].nil?
               when 'MODELLO'
                 d = VehicleModel.find_by_name(cell.value)
                 d = VehicleModel.create(name: cell.value, manufacturer: r['Marca'], vehicle_type: r['Tipo'].nil?? types[0] : r['Tipo']) if d.nil?
-              when 'MARCA'
-                d = Company.find_by_name(cell.value.to_s.titleize)
-                d = Company.create(name: cell.value.to_s.titleize) if d.nil?
+              when 'ATTREZZATURA'
+                r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
+                cell.value.split(' + ').each do |equipment|
+                  e = VehicleEquipment.find_by_name(equipment.capitalize)
+                  e = VehicleEquipment.create(name: equipment.capitalize) if e.nil?
+                  r['Attrezzatura'] << e
+                end
               else
-                d = cell.value.to_s
+                if cell.value === true
+                  r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
+                  e = VehicleEquipment.find_by_name(@data.row(1)[index].titleize.capitalize)
+                  e = VehicleEquipment.create(name: @data.row(1)[index].titleize.capitalize) if e.nil?
+                  r['Attrezzatura'] << e
+                else
+                  it = VehicleInformationType.find_by_name(@data.row(1)[index].titleize.capitalize)
+                  it = VehicleInformationType.create(name: @data.row(1)[index].titleize.capitalize) if it.nil?
+                  d = VehicleInformation.find_by_information(cell.value.to_s,it,vehicle)
+                  d = VehicleInformation.create(information: cell.value.to_s, vehicle_information_type: it, vehicle: vehicle, date: vehicle.registration_date) if d.nil?
+                end
+                # d = cell.value.to_s
               end
             # rescue
             # #   byebug
@@ -80,10 +160,14 @@ class AdminController < ApplicationController
             # end
             r[@data.row(1)[index].titleize.capitalize] = d
           end
-
+          frow = false
+          unless r['Targa'].nil? or frow
+            r['Veicolo'] = vehicle
+            @results << r
+          end
         end
-        @results << r unless r['Targa'].nil? or frow
-        frow = false
+
+
       end
       # case File.extname(params.require(:file).original_filename)
       # when ".csv" then data = Csv.new(file.path, nil, :ignore)
