@@ -1,11 +1,15 @@
 %h3='Elenco pezzi'
 .container-fluid
   = @selected_items.size.to_s+' di '+Item.count.to_s+' oggetti'
+  .right-aligned
+    %b='Ricerca anche pezzi assegnati'
+    = check_box_tag :checkall, nil, @all
   -# %br
   -# = "Valore totale: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s}€, gomme a parte)"
   %br
   %br
   = form_tag(items_path, method: :get, remote: true, type: :script) do |f|
+    = hidden_field_tag :all, @all
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path, id: 'search'
 .container-fluid
   .row.item-block.tab-header
@@ -60,4 +64,9 @@
 -#         = item.expiringDate.nil?? '' : (l item.expiringDate)
 :javascript
 
+  $('#checkall').off('click');
+  $('#checkall').on('click', function(){
+    $('#all').val($(this).is(':checked'));
+    $('#all').parent('form').submit();
+  })
   domInit();

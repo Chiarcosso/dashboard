@@ -5,16 +5,21 @@ class ItemsController < ApplicationController
   before_action :set_vehicle_for_order, only: [:add_item_to_storage]
   before_action :get_reposition_items, only: [:reposition]
   before_action :get_pricing_items, only: [:pricing]
+  before_action :search_params, only: [:index,:edit,:update]
   before_action :destroy_search_params, only: [:destroy]
 
   autocomplete :article, :manufacturerCode, full: true, :id_element => '#article_id'
   # GET /items
   # GET /items.json
   def index
-    if search_params.nil? or search_params == ''
+    if @search.nil? or @search == ''
       @selected_items = Array.new
     else
-      @selected_items = Item.filter(search_params).distinct.limited
+      unless @all
+        @selected_items = Item.unassigned.filter(@search).distinct
+      else
+        @selected_items = Item.filter(@search).distinct.limited
+      end
     end
     render :partial => 'items/index'
   end
@@ -222,7 +227,7 @@ class ItemsController < ApplicationController
 
   # GET /items/1/edit
   def edit
-    @search = Base64.decode64(search_params)
+    @search = Base64.decode64(@search)
     respond_to do |format|
       # format.js { render :js, :partial => 'items/edit'}
       format.js { render :js, :partial => 'items/form'}
@@ -249,7 +254,7 @@ class ItemsController < ApplicationController
   # PATCH/PUT /items/1
   # PATCH/PUT /items/1.json
   def update
-    @selected_items = Item.filter(search_params).distinct.limited
+    @selected_items = Item.filter(@search).distinct.limited
     # render :partial => 'items/index'
     respond_to do |format|
       if @item.update(item_params)
@@ -437,7 +442,9 @@ class ItemsController < ApplicationController
       unless params[:search].nil? || params[:search] == ''
         @search =  params.require(:search)
       end
-      @search
+      unless params[:all].nil? || params[:all] == ''
+        @all = params.require(:all) == 'true' ? true : false
+      end
     end
 
     def destroy_search_params

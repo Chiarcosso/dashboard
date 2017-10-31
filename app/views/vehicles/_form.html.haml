@@ -14,6 +14,9 @@
       %b='Prima immatricolazione'
       = text_field_tag 'vehicle[registration_date]', @vehicle.registration_date.nil?? '' : (l @vehicle.registration_date), class: 'form-control', 'data-behavior' => 'datepicker'
     .field
+      %b='Codice lavaggio'
+      = number_field_tag 'vehicle[carwash]', @vehicle.carwash_code, class: 'form-control'
+    .field
       %b='Dismesso'
       = check_box_tag 'vehicle[dismissed]', 1, @vehicle.dismissed
   .col-sm-4

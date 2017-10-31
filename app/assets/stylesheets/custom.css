@@ -135,6 +135,9 @@ body{
   z-index: 2000;
 }
 
+.right-aligned{
+  float: right;
+}
 .signal-danger{
   background-color: #f44;
 }
