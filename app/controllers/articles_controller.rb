@@ -117,11 +117,15 @@ class ArticlesController < ApplicationController
     respond_to do |format|
       if @article.save
         # format.html { redirect_to @article, notice: 'Article was successfully created.' }
-        @article = Article.new
-
+        if params[:controller] == 'orders'
+          OrdersController::add_item_to_storage
+        else
+          @article = Article.new
+          format.js { render :partial => 'articles/new', notice: 'Articolo creato.' }
+          format.json { render :show, status: :created, location: @article }
+        end
         # @outputter = Barby::CairoOutputter.new(@article.barcode)
-        format.js { render :partial => 'articles/new', notice: 'Articolo creato.' }
-        format.json { render :show, status: :created, location: @article }
+
       else
         format.js { render :partial => 'articles/new', notice: 'Impossibile creare articolo.' }
         format.json { render json: @article.errors, status: :unprocessable_entity }

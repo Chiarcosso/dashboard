@@ -26,7 +26,7 @@ class ItemsController < ApplicationController
 
   def find_free
     a = Array.new
-    Item.filter(find_params).for_free.each do |i|
+    Item.barcode(find_params).for_free.each do |i|
       a << { id: i.id, name: i.complete_name, complete_price: i.complete_price }
     end
     render json: a
@@ -34,7 +34,7 @@ class ItemsController < ApplicationController
 
   def find
     a = Array.new
-    Item.filter(find_params).unassigned.each do |i|
+    Item.barcode(find_params).unassigned.each do |i|
       a << { id: i.id, name: i.complete_name, position: i.position_code.code }
     end
     render json: a
@@ -427,7 +427,7 @@ class ItemsController < ApplicationController
               break
             end
           end
-          @locals[:items] -= @locals[:goners]
+          @locals[:items] -= @locals[:goners]          
         end
       end
     end
