@@ -138,7 +138,7 @@ class CodesController < ApplicationController
   end
 
   def carwash_check
-    code = CarwashDriverCode.findByCode(params.permit(:code)[:code]).first || CarwashVehicleCode.findByCode(params.permit(:code)[:code]).first
+    code = CarwashDriverCode.findByCode(params.permit(:code)[:code]).first || CarwashVehicleCode.findByCode(params.permit(:code)[:code]).first || CarwashSpecialCode.findByCode(params.permit(:code)[:code]).first
     if(code.nil?)
       render :json => 0
     else
