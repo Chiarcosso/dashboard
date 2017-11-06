@@ -8,8 +8,8 @@
       .col-sm-6
         = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch prevent-cr', 'data-target': add_item_to_order_path
       .col-sm-2
-        = 'Pezzi da: '
-        = select_tag :from, options_for_select([['Magazzino','0'],['Officina mobile 1', Office.where(:name => 'Officina mobile 1').first.id],['Officina mobile 2', Office.where(:name => 'Officina mobile 2').first.id]]), class: 'form-control'
+        = 'Pezzi da: '+(@from.to_i != 0 ? Office.find(@from.to_i).name : 'Magazzino')
+        = select_tag :from, options_for_select([['Magazzino','0'],['Officina mobile 1', Office.where(:name => 'Officina mobile 1').first.id],['Officina mobile 2', Office.where(:name => 'Officina mobile 2').first.id]],@from), class: 'form-control'
   .container-fluid
     .row.item-block.tab-header
       .col-sm-4
@@ -33,7 +33,8 @@
           -# = hidden_field_tag :item, item.id
           = item.article.complete_name.to_s
         .col-sm-1
-          = "#{item.article.availability(@checked_items).size} #{item.article.measure_unit} (min. #{item.article.minimalReserve.to_i})"
+          = "#{@from.to_i == 0 ? item.article.availability(@checked_items).size : Office.find(@from.to_i).items(item.article).size} #{item.article.measure_unit} "
+          = "(min. #{item.article.minimalReserve.to_i})" if @from.to_i == 0
         .col-sm-3
           = item.serial
         .col-sm-1
