@@ -5,6 +5,8 @@ class Vehicle < ApplicationRecord
   belongs_to :vehicle_typology
   belongs_to :vehicle_type
 
+  has_many :vehicle_vehicle_equipments
+  has_many :vehicle_equipments, through: :vehicle_vehicle_equipments
   has_many :vehicle_informations, :dependent => :destroy
   has_many :worksheets
   # has_one :vehicle_type, through: :model

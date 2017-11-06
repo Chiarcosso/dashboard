@@ -1,5 +1,5 @@
 %b= 'Attrezzatura'
 - @equipment.each do |e|
   %div
-    = checkbox_tag "equipment[#{e.name}]", nil
+    = check_box_tag "equipment[#{e.name}]", e.id, e.mounted_on?(@vehicle)
     = e.name

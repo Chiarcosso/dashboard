@@ -41,7 +41,7 @@ class AdminController < ApplicationController
         r = Hash.new
         vehicle = nil
         row.each_with_index do |cell,index|
-          unless cell.value.nil? or cell.value == '' or cell.value == false or @data.row(1)[index].upcase == cell.value.to_s.upcase
+          unless cell.value.nil? or cell.value == '' or cell.value == false or cell.value == 'NO' or @data.row(1)[index].upcase == cell.value.to_s.upcase
             # begin
               puts @data.row(1)[index].upcase+' --> '+cell.value.inspect+' ==> '+vehicle.inspect
               case @data.row(1)[index].upcase
@@ -51,8 +51,16 @@ class AdminController < ApplicationController
                 if vehicle.nil?
                   vehicle = Vehicle.new
                 end
+                it = VehicleInformationType.find_by_name(@data.row(1)[index].titleize.capitalize)
+                it = VehicleInformationType.create(name: @data.row(1)[index].titleize.capitalize) if it.nil?
+                d = VehicleInformation.find_by_information(cell.value.to_s,it,vehicle)
+                d = VehicleInformation.create(information: cell.value.to_s, vehicle_information_type: it, vehicle: vehicle, date: vehicle.registration_date) if d.nil?
               when 'CIRCOLA'
-                vehicle.dismissed = !cell.value
+                if cell.value === 'SI' or cell.velue === true
+                  vehicle.dismissed = true
+                else
+                  vehicle.dismissed = false
+                end
               when 'DITTA'
                 case cell.value
                 when 'A'
@@ -64,7 +72,7 @@ class AdminController < ApplicationController
                 else
                   d = nil
                 end
-              when 'ANNO'
+              when 'ANNO IMMATRICOLAZIONE'
                 vehicle.registration_date = Date.new(cell.value.to_i,1,1)
               when 'MARCA'
                 d = Company.find_by_name(cell.value.to_s.humanize.gsub(/\b('?[a-z])/) { $1.capitalize })
@@ -124,7 +132,6 @@ class AdminController < ApplicationController
                   r['Attrezzatura'] << e
                 end
               when 'KM'
-                byebug if cell.value === true
                 d = cell.value.to_i
                 vehicle.mileage = d
               when 'EXTARGA'
@@ -140,7 +147,7 @@ class AdminController < ApplicationController
                   r['Attrezzatura'] << e
                 end
               else
-                if cell.value === true
+                if cell.value === true or cell.value === 'SI'
                   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
                   e = VehicleEquipment.find_by_name(@data.row(1)[index].titleize.capitalize)
                   e = VehicleEquipment.create(name: @data.row(1)[index].titleize.capitalize) if e.nil?
@@ -160,11 +167,11 @@ class AdminController < ApplicationController
             # end
             r[@data.row(1)[index].titleize.capitalize] = d
           end
-          frow = false
           unless r['Targa'].nil? or frow
             r['Veicolo'] = vehicle
             @results << r
           end
+          frow = false
         end
 
 

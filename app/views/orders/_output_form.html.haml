@@ -33,7 +33,7 @@
           -# = hidden_field_tag :item, item.id
           = item.article.complete_name.to_s
         .col-sm-1
-          = "#{@from.to_i == 0 ? item.article.availability(@checked_items).size : Office.find(@from.to_i).items(item.article).size} #{item.article.measure_unit} "
+          = "#{@from.to_i == 0 ? item.article.availability(@checked_items).size : Office.find(@from.to_i).items(item.article,@checked_items).size} #{item.article.measure_unit} "
           = "(min. #{item.article.minimalReserve.to_i})" if @from.to_i == 0
         .col-sm-3
           = item.serial

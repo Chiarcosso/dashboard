@@ -29,8 +29,8 @@ class VehiclesController < ApplicationController
     @vehicle_types = VehicleType.all
     @vehicle_typologies = VehicleTypology.all
     @information_types = VehicleInformationType.all
-    @gear = Gear.all
-    @equipment = VehicleEquipment.all
+    @gear = Gear.order(:name)
+    @equipment = VehicleEquipment.order(:name)
   end
 
   # GET /vehicles/1/edit
@@ -38,8 +38,8 @@ class VehiclesController < ApplicationController
     @vehicle_types = VehicleType.all
     @vehicle_typologies = VehicleTypology.all
     @information_types = VehicleInformationType.all
-    @gear = Gear.all
-    @equipment = VehicleEquipment.all
+    @gear = Gear.order(:name)
+    @equipment = VehicleEquipment.order(:name)
   end
 
   # POST /vehicles
@@ -52,6 +52,9 @@ class VehiclesController < ApplicationController
     # end
     respond_to do |format|
       if @vehicle.save# && !@property.nil? && !@model.nil?
+        @equipment.each do |e|
+          @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
+        end
         # @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'], date: Date.current, vehicle: @vehicle)
         # @vehicle.vehicle_informations << VehicleInformation.create(information: @serial, information_type: VehicleInformation.types['N. di telaio'], date: Date.current, vehicle: @vehicle)
         @informations.each do |k,i|
@@ -74,6 +77,16 @@ class VehiclesController < ApplicationController
   def update
     respond_to do |format|
       if @vehicle.update(vehicle_params)
+        @vehicle.vehicle_equipments.clear
+        @equipment.each do |e|
+          @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
+        end
+        @informations.each do |k,i|
+          t = VehicleInformationType.find(k.to_i)
+          unless t.nil? or i.to_s.tr(' ','') == '' or !VehicleInformation.find_by_information(i,t,@vehicle).nil?
+            @vehicle.vehicle_informations << VehicleInformation.create(information: i, vehicle_information_type: t, date: Date.current, vehicle: @vehicle)
+          end
+        end
         # unless @vehicle.plate == @informa
         #   @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'])
         # end
@@ -127,9 +140,10 @@ class VehiclesController < ApplicationController
       # @serial = params.require(:initial_serial).permit(:info)[:info]
 
 
-      p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :vehicle_type, :vehicle_typology, :property, :informations, :notes)
+      p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :vehicle_type, :vehicle_typology, :property, :informations, :notes, :carwash_code)
 
       @informations = params.require(:informations).permit!
+      @equipment = params.require(:equipment).permit!
       p[:model] = VehicleModel.find(p[:model].to_i)
       p[:vehicle_type] = VehicleType.find(p[:vehicle_type].to_i)
       p[:vehicle_typology] = VehicleTypology.find(p[:vehicle_typology].to_i)

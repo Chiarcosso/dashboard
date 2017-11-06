@@ -494,7 +494,11 @@ class OrdersController < ApplicationController
       unless params[:item].nil?
         @newItem = Item.find(params.require(:item).to_i)
         if params[:chamount].to_i > 1
-          @newItems = Item.article(@newItem.article).not_this(@newItem).unassigned.limit(params[:chamount].to_i-1)
+          if @from.to_i != 0
+            @newItems = Office.find(@from.to_i).items(@newItem.article,[@newItem],true,params[:chamount].to_i-1)
+          else
+            @newItems = Item.article(@newItem.article).not_this(@newItem).unassigned.limit(params[:chamount].to_i-1)
+          end
           # (params[:chamount].to_i - 1).times do
           #
           # end

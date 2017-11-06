@@ -13,6 +13,10 @@
           .col-sm-2
             = k
           .col-sm-6
-            = v.to_s
+            -if v.class == VehicleInformation
+              = v.vehicle_information_type+': '
+              = v.information
+            -if v.class == VehicleEquipment
+              = 'Attrzzatura: '+v.name
     %br
     %br

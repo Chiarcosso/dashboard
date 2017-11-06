@@ -11,10 +11,19 @@ class Office < ApplicationRecord
   end
 
   def items (*article)
-    unless article.empty?
+    # article[0] -> specifies article
+    # article[1] -> already assigned articles
+    # article[2] -> true = just available items, false = all itmes
+    # article[3] -> limit items amount
+    unless article[0].nil?
       art_check = "and items.article_id = #{article[0].id}"
     end
-    Item.find_by_sql("select * from items inner join output_order_items on items.id = output_order_items.item_id inner join output_orders on output_orders.id = output_order_items.output_order_id where output_orders.id in (select id from output_orders where destination_type = 'Office' and destination_id = #{self.id}) #{art_check.to_s}")
+    if article[2]
+    list = Item.find_by_sql("select * from items inner join output_order_items on items.id = output_order_items.item_id inner join output_orders on output_orders.id = output_order_items.output_order_id where output_orders.id in (select id from output_orders where destination_type = 'Office' and destination_id = #{self.id}) #{art_check.to_s}")
+    unless article[1].nil?
+      res = list - article[1]
+    end
+    res
   end
 
 end
