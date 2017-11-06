@@ -46,14 +46,23 @@ class VehiclesController < ApplicationController
   # POST /vehicles.json
   def create
     @vehicle = Vehicle.new(vehicle_params)
+
     # # unless @model.nil? || @property.nil?
     #   @vehicle.property = @property
     #   @vehicle.model = @model
     # end
     respond_to do |format|
       if @vehicle.save# && !@property.nil? && !@model.nil?
-        @equipment.each do |e|
-          @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
+        unless @equipment.nil?
+          @equipment.each do |e|
+            @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
+          end
+        end
+        @informations.each do |k,i|
+          t = VehicleInformationType.find(k.to_i)
+          unless t.nil? or i.to_s.tr(' ','') == '' or !VehicleInformation.find_by_information(i,t,@vehicle).nil?
+            @vehicle.vehicle_informations << VehicleInformation.create(information: i, vehicle_information_type: t, date: Date.current, vehicle: @vehicle)
+          end
         end
         # @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'], date: Date.current, vehicle: @vehicle)
         # @vehicle.vehicle_informations << VehicleInformation.create(information: @serial, information_type: VehicleInformation.types['N. di telaio'], date: Date.current, vehicle: @vehicle)
@@ -78,8 +87,10 @@ class VehiclesController < ApplicationController
     respond_to do |format|
       if @vehicle.update(vehicle_params)
         @vehicle.vehicle_equipments.clear
-        @equipment.each do |e|
-          @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
+        unless @equipment.nil?
+          @equipment.each do |e|
+            @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
+          end
         end
         @informations.each do |k,i|
           t = VehicleInformationType.find(k.to_i)
@@ -143,7 +154,9 @@ class VehiclesController < ApplicationController
       p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :vehicle_type, :vehicle_typology, :property, :informations, :notes, :carwash_code)
 
       @informations = params.require(:informations).permit!
-      @equipment = params.require(:equipment).permit!
+      unless params[:equipment].nil?
+        @equipment = params.require(:equipment).permit!
+      end
       p[:model] = VehicleModel.find(p[:model].to_i)
       p[:vehicle_type] = VehicleType.find(p[:vehicle_type].to_i)
       p[:vehicle_typology] = VehicleTypology.find(p[:vehicle_typology].to_i)

@@ -49,7 +49,8 @@ class AdminController < ApplicationController
                 d = cell.value.upcase.tr('. *','')
                 vehicle = Vehicle.find_by_plate(d).first
                 if vehicle.nil?
-                  vehicle = Vehicle.new
+                  # vehicle = Vehicle.new
+                  next
                 end
                 it = VehicleInformationType.find_by_name(@data.row(1)[index].titleize.capitalize)
                 it = VehicleInformationType.create(name: @data.row(1)[index].titleize.capitalize) if it.nil?
