@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171030164411) do
+ActiveRecord::Schema.define(version: 20171110104537) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -175,13 +175,14 @@ ActiveRecord::Schema.define(version: 20171030164411) do
     t.integer  "state",                 limit: 3
     t.text     "notes",                 limit: 65535
     t.date     "expiringDate"
-    t.datetime "created_at",                                                  null: false
-    t.datetime "updated_at",                                                  null: false
-    t.integer  "article_id",                                                  null: false
+    t.datetime "created_at",                                                                  null: false
+    t.datetime "updated_at",                                                                  null: false
+    t.integer  "article_id",                                                                  null: false
     t.integer  "transportDocument_id"
     t.integer  "transport_document_id"
     t.string   "barcode"
-    t.integer  "position_code_id",                                            null: false
+    t.integer  "position_code_id",                                                            null: false
+    t.decimal  "remaining_quantity",                  precision: 7, scale: 2, default: "0.0", null: false
     t.index ["article_id"], name: "index_items_on_article_id", using: :btree
     t.index ["position_code_id"], name: "index_items_on_position_code_id", using: :btree
     t.index ["transportDocument_id"], name: "index_items_on_transportDocument_id", using: :btree
@@ -234,8 +235,9 @@ ActiveRecord::Schema.define(version: 20171030164411) do
   create_table "output_order_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "item_id"
     t.integer  "output_order_id"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",                                              null: false
+    t.datetime "updated_at",                                              null: false
+    t.decimal  "quantity",        precision: 7, scale: 2, default: "1.0", null: false
     t.index ["item_id"], name: "index_output_order_items_on_item_id", using: :btree
     t.index ["output_order_id"], name: "index_output_order_items_on_output_order_id", using: :btree
   end
@@ -355,7 +357,7 @@ ActiveRecord::Schema.define(version: 20171030164411) do
   end
 
   create_table "vehicle_informations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "vehicle_id",                              null: false
+    t.integer  "vehicle_id",                              null: false
     t.string   "information"
     t.date     "date"
     t.datetime "created_at",                              null: false

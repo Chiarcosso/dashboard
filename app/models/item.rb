@@ -16,36 +16,37 @@ class Item < ApplicationRecord
   has_many :output_orders, through: :output_order_items
   belongs_to :position_code
 
-  scope :available_items, -> { where('items.id not in (select item_id from output_order_items)')}
+  scope :available_items, -> { where('items.id not in (select item_id from output_order_items) or items.remaining_quantity > 0')}
   scope :barcode, ->(barcode) { joins(:article).where("items.barcode = ? OR articles.barcode = ?", barcode, barcode) }
-  scope :tyres, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').joins('left join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name like \'%gomme%\'') }
+  scope :tyres, -> { joins(:article).joins('inner join article_categorizations on articles.id = article_categorizations.category_id').joins('inner join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name like \'%gomme%\'') }
   scope :notyres, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').joins('left join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name not like \'%gomme%\' or article_categories.name is null') }
   # scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
-  scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL") }
-  scope :assigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NOT NULL") }
+  scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL or items.remaining_quantity > 0") }
+  scope :assigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NOT NULL and items.remaining_quantity = 0") }
   scope :assigned_to, ->(what) { joins('inner join output_order_items i on items.id = i.item_id').joins('inner join output_orders on output_orders.id = i.output_order_id').where('output_orders.destination_type = \'Office\' and output_orders.destination_id = ?',what) }
   scope :limited, -> { limit(100) }
   scope :article, ->(article) { where(:article => article) }
-  scope :not_this, ->(item) { where('items.id != ?',item.id) }
+  scope :not_this, ->(items) { where("items.id not in (?)",items.map { |itm| itm.id }) }
   scope :filter, ->(search) { joins(:position_code).joins(:article).joins(:article => :manufacturer).where("items.serial LIKE '%#{search}%' OR items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR (#{PositionCode.getQueryFromCode(search)})")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
   scope :for_free, -> { where('price <= 0') }
+  scope :opened, -> { joins(:article).where( 'items.remaining_quantity < articles.containedAmount and items.remaining_quantity > 0' )}
   scope :unpositioned, -> { where(:position_code => PositionCode.findByCode('P0 #0 0-@')) }
   scope :newestItem, ->(article) { joins(:article).where(article_id: article.id).order(created_at: :desc).limit(1) }
   scope :oldestItem, ->(article) { joins(:article).where(article_id: article.id).order(created_at: :asc).limit(1) }
-  # scope :unassigned, -> {  }
+
   enum state: [:nuovo,:usato,:rigenerato,:ricoperto,:riscolpito,:preparato,:danneggiato,:smaltimento]
 
   @amount = 1
   @actualItems = Array.new
 
-  def showLabel
-    self.article.complete_name+(self.serial.to_s == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
+  def to_s
+    "Pezzo nr. #{self.id}, #{self.article.complete_name}#{(self.serial.nil? or self.serial == '') ? '' : ', seriale: '+self.serial},  creato il: #{self.created_at}, modificato il: #{self.updated_at}"
   end
 
-  def oldestItem
-    Item.oldestItem(self.article).first
+  def showLabel
+    self.article.complete_name+(self.serial.to_s == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
   end
 
   def price
@@ -54,6 +55,40 @@ class Item < ApplicationRecord
   # def self.available_items
   #   Item.all.map { |i| i.available? }
   # end
+  def real_position
+    dst = self.output_orders.where(:destination_type => 'Office').order(:created_at => :desc).first
+    if dst.nil?
+      0
+    else
+      # if self.remaining_quantity > 0
+        dst.destination
+      # else
+      #   nil
+      # end
+    end
+  end
+
+  def find_next_usable(gonerList)
+    gonerList << self
+    if self.real_position == 0
+      items = Item.article(self.article).not_this(gonerList).available_items.order(:remaining_quantity => :asc, :created_at => :asc)
+    else
+      items = Office.find(@from.to_i).items(self.article,gonerList)
+    end
+
+    # items.to_a.each_with_index do |i,index|
+    #   if i == self
+    #     return items[index+1] unless items[index+1].nil?
+    #   end
+    # end
+
+    i = items.first
+    i
+    # if item.nil?
+    #   item = Items.article(self.article).unassigned.order(:created_at => :asc).first
+    # end
+  end
+
   def actualPrice
     (self.price.to_f * ((100 - self.discount.to_f) / 100)).round 2
   end
@@ -106,9 +141,16 @@ class Item < ApplicationRecord
 
   def self.firstGroupByArticle(search_params,gonerList,validList = nil)
     art = Hash.new
+    # gonerList.map! { |itm| Item.find(itm.id) }
     if validList.nil?
-      list = Item.unassigned.available_items.filter(search_params).lastCreatedOrder
+      if gonerList.nil? or gonerList.empty?
+        list = Item.available_items.filter(search_params).firstCreatedOrder
+      else
+        list = Item.not_this(gonerList).available_items.filter(search_params).firstCreatedOrder
+      end
     else
+      validList.map! { |itm| Item.find(itm) }
+      validList -= gonerList
       list = validList
     end
     list.each do |it|
@@ -120,7 +162,7 @@ class Item < ApplicationRecord
         end
       end
       if flag
-        art[it.article.id.to_s+it.state] = it
+        art[it.article.id.to_s+it.state+it.serial.to_s] = it
       end
     end
     return art
@@ -162,8 +204,10 @@ class Item < ApplicationRecord
     end
     # if self.item_relations.size > 0
     if self.output_orders.size > 0
-      relation = self.last_order
-      return relation.destination.complete_name
+      # relation = self.last_order
+      return self.output_orders.map { |oo| oo.destination.complete_name }.join(', ')
+
+      # return relation.destination.complete_name
       # unless relation.office.nil?
       #   return relation.office.name+@od
       # end

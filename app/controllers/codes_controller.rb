@@ -107,7 +107,7 @@ class CodesController < ApplicationController
       elsif code.is_a? CarwashSpecialCode
         special = code
       elsif code.is_a? CarwashVehicleCode
-        vehicles << code.vehicle unless code.vehicle.vehicle_type.carwash_type == 0
+        vehicles << code.vehicle unless code.vehicle.carwash_code.to_i == 0 # and code.vehicle.vehicle_type.carwash_type == 0
       end
     end
     unless driver.nil? or ((vehicles.size > 2 or vehicles.size < 1) and special.nil?)
@@ -116,8 +116,8 @@ class CodesController < ApplicationController
       unless cwu.carwash_special_code.nil?
         response += ",#{cwu.carwash_special_code.carwash_code}"
       else
-        response += ",#{cwu.vehicle_1.vehicle_type.carwash_type.to_s}" unless cwu.vehicle_1.nil?
-        response += ",#{cwu.vehicle_2.vehicle_type.carwash_type.to_s}" unless cwu.vehicle_2.nil?
+        response += ",#{cwu.vehicle_1.carwash_code.to_s}" unless cwu.vehicle_1.nil?
+        response += ",#{cwu.vehicle_2.carwash_code.to_s}" unless cwu.vehicle_2.nil?
       end
     else
       response = 0

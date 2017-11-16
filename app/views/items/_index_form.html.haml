@@ -42,7 +42,7 @@
       .col-sm-2
         = item.serial
       .col-sm-1
-        = item.state
+        = "#{item.state} (#{item.remaining_quantity} #{item.article.measure_unit} rim.)"
       .col-sm-1
         = item.expiringDate.nil?? '' : (l item.expiringDate)
       .col-sm-2

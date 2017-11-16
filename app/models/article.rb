@@ -109,6 +109,15 @@ class Article < ApplicationRecord
     end
   end
 
+  def availability_label(*checked)
+    availability = self.availability(checked)
+    total = 0
+    availability.each do |i|
+      total += i.remaining_quantity
+    end
+    label = "#{total} #{self.measure_unit} / #{availability.size} conf."
+  end
+
   def setBarcodeImage
     unless self.barcode == ''
       if barcode = checkBarcode(self.barcode)

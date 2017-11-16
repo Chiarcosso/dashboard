@@ -139,7 +139,7 @@ body{
   float: right;
 }
 .signal-danger{
-  background-color: #f44;
+  background-color: #f44 !important;
 }
 
 .signal-danger a:link{

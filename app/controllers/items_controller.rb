@@ -16,9 +16,9 @@ class ItemsController < ApplicationController
       @selected_items = Array.new
     else
       unless @all
-        @selected_items = Item.unassigned.filter(@search).distinct
+        @selected_items = Item.available_items.filter(@search).distinct
       else
-        @selected_items = Item.filter(@search).distinct.limited
+        @selected_items = Item.filter(@search).distinct
       end
     end
     render :partial => 'items/index'
@@ -142,6 +142,7 @@ class ItemsController < ApplicationController
       item.article = Article.find(k[:article].to_i)
       item.position_code = PositionCode.findByCode('P0 #0 0-@')
       item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
+      item.remaining_quantity = item.article.containedAmount
       @items << item
     end
     # if params[:barcode] != ''
@@ -158,6 +159,7 @@ class ItemsController < ApplicationController
       item.setAmount 1
       item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
       item.position_code = PositionCode.findByCode('P0 #0 0-@')
+      item.remaining_quantity = item.article.containedAmount
       @items << item
     end
     if @save
@@ -192,8 +194,6 @@ class ItemsController < ApplicationController
           end
           i.addActualItems item.id
           # item.save
-
-
 
         end
       end
@@ -239,7 +239,7 @@ class ItemsController < ApplicationController
   # POST /items.json
   def create
     @item = Item.new(item_params)
-
+    @item.remaining_quantity = @item.article.containedAmount
     respond_to do |format|
       if @item.save
         format.html { redirect_to @item, notice: 'Item was successfully created.' }
@@ -254,7 +254,12 @@ class ItemsController < ApplicationController
   # PATCH/PUT /items/1
   # PATCH/PUT /items/1.json
   def update
-    @selected_items = Item.filter(@search).distinct.limited
+    # @selected_items = Item.filter(@search).distinct.limited
+    unless @all
+      @selected_items = Item.unassigned.filter(@search).distinct
+    else
+      @selected_items = Item.filter(@search).distinct.limited
+    end
     # render :partial => 'items/index'
     respond_to do |format|
       if @item.update(item_params)
@@ -295,7 +300,7 @@ class ItemsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def item_params
-      p = params.require(:item).permit(:article, :article_id, :purchaseDate, :price, :price, :discount, :discount, :serial, :state, :notes, :expiringDate, :transportDocument_id)
+      p = params.require(:item).permit(:article, :article_id, :purchaseDate, :price, :price, :discount, :discount, :serial, :state, :notes, :expiringDate, :transportDocument_id, :remaining_quantity)
       Article.all.each do |a|
         if a.complete_name == p[:article]
           p[:article] = a
@@ -427,7 +432,7 @@ class ItemsController < ApplicationController
               break
             end
           end
-          @locals[:items] -= @locals[:goners]          
+          @locals[:items] -= @locals[:goners]
         end
       end
     end

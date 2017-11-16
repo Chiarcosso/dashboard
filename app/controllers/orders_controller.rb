@@ -175,43 +175,49 @@ class OrdersController < ApplicationController
     # @destination = output_params
     # @search = search_params.nil?? '' : search_params
     search_params
+
     @checked_items = chk_list_params
     unless @newItem.nil?
       already_in = false
       @checked_items.each do |ci|
-        if ci ==  @newItem
+        if ci.item ==  @newItem
           already_in = true
         end
       end
       if already_in
-        @checked_items -= [@newItem]
+        @checked_items -= @newItems
       else
-        @checked_items << @newItem
+        @checked_items += @newItems
       end
     end
+    chk = @checked_items.map { |ooi| Item.find(ooi.item) }
     unless @search.to_s == ''
       if (@from == '0')
-        @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
+        if chk.empty?
+          @selected_items = Item.available_items.firstCreatedOrder.unassigned.order(:created_at => :asc).firstGroupByArticle(@search,chk)
+        else
+          @selected_items = Item.available_items.not_this(chk).firstCreatedOrder.unassigned.order(:created_at => :asc).firstGroupByArticle(@search,chk)
+        end
       else
         @selected_items = Item.firstGroupByArticle(@search,@checked_items,Item.assigned_to(Office.find(@from.to_i)))
       end
     else
       @selected_items = Array.new
     end
-    unless @newItems.nil?
-      @newItems.each do |ni|
-        @checked_items << ni
-      end
-    end
-    unless @search.to_s == ''
-      if (@from == '0')
-        @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
-      else
-        @selected_items = Item.firstGroupByArticle(@search,@checked_items,Item.assigned_to(Office.find(@from.to_i)))
-      end
-    else
-      @selected_items = Array.new
-    end
+    # unless @newItems.nil?
+    #   @newItems.each do |ni|
+    #     @checked_items << ni
+    #   end
+    # end
+    # unless @search.to_s == ''
+    #   if (@from == '0')
+    #     @selected_items = Item.available_items.unassigned.firstGroupByArticle(@search,@checked_items)
+    #   else
+    #     @selected_items = Item.firstGroupByArticle(@search,@checked_items,Item.assigned_to(Office.find(@from.to_i)))
+    #   end
+    # else
+    #   @selected_items = Array.new
+    # end
     # render :partial => 'items/index'
     # @selected_items -= @checked_items
     if @save
@@ -223,9 +229,12 @@ class OrdersController < ApplicationController
       @order.receiver = @receiver
       @order.output_order_items.clear
       @checked_items.each do |ci|
-        @order.items << ci
+        # @order.items << ci
+        ci.output_order = @order
+        ci.save
+        ci.item.update(remaining_quantity: ci.item.remaining_quantity - ci.quantity)
       end
-      @order.save
+      # @order.save
       # redirect_to storage_output_path
     end
     respond_to do |format|
@@ -374,7 +383,6 @@ class OrdersController < ApplicationController
   def destroy_output_order
 
     if @order.destroy
-
       @msg = 'Ordine eliminato'
     else
       @msg = 'Errore'
@@ -493,16 +501,38 @@ class OrdersController < ApplicationController
       end
       unless params[:item].nil?
         @newItem = Item.find(params.require(:item).to_i)
-        if params[:chamount].to_i > 1
-          if @from.to_i != 0
-            @newItems = Office.find(@from.to_i).items(@newItem.article,[@newItem],true,params[:chamount].to_i-1)
+        @newItems = Array.new
+        amount = params[:chamount].to_f
+        while amount > 0 do
+          if amount <= @newItem.remaining_quantity
+            @newItem.remaining_quantity -= amount
+            @newItems << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: amount)
+            amount = 0
           else
-            @newItems = Item.article(@newItem.article).not_this(@newItem).unassigned.limit(params[:chamount].to_i-1)
+            given_quantity = @newItem.remaining_quantity
+            amount -= @newItem.remaining_quantity
+            @newItem.remaining_quantity = 0
+            @newItems << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: given_quantity)
+            ni = @newItem
+            itms = get_output_items.map! { |oo_itm| oo_itm.item }
+            @newItem = @newItem.find_next_usable(itms)
+            itms << @newItem
+            if @newItem.nil?
+              @error = 'I pezzi disponibili non sono sufficienti.'
+              break
+            end
           end
-          # (params[:chamount].to_i - 1).times do
-          #
-          # end
         end
+        # if params[:chamount].to_i > 1
+        #   if @from.to_i != 0
+        #     @newItems = Office.find(@from.to_i).items(@newItem.article,[@newItem],true,params[:chamount].to_i-1)
+        #   else
+        #     @newItems = Item.article(@newItem.article).not_this(@newItem).unassigned.limit(params[:chamount].to_i-1)
+        #   end
+        #   # (params[:chamount].to_i - 1).times do
+        #   #
+        #   # end
+        # end
       end
     end
 
@@ -557,13 +587,23 @@ class OrdersController < ApplicationController
           @recipient.vehicle = Vehicle.new
         end
       end
+      @order = OutputOrder.new(:destination => @recipient,:destination_type => params.require(:destination))
+      get_output_items
+    end
+
+    def get_output_items
       unless params[:items].nil?
         itms = Array.new
         params.require(:items).tap do |itm|
           itm.each do |i|
             id = i.require(:id)
             unless id.nil?
-              itms << Item.find(id)
+              # itms << OutputOrderItems.find(id)
+              # begin
+              itms << YAML::load(Base64.decode64(id))
+            # rescue
+              # byebug
+            # end
             end
           end
         end

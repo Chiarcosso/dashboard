@@ -12,15 +12,15 @@ class Vehicle < ApplicationRecord
   # has_one :vehicle_type, through: :model
   belongs_to :property, class_name: 'Company'
 
-  scope :order_by_plate, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type_id': VehicleInformationType.where(:name => 'Targa').first.id) }
-  scope :find_by_plate, ->(plate) { joins(:vehicle_informations).order('vehicle_informations.information ASC, vehicle_informations.date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.where(:name => 'Targa').first.id).where('vehicle_informations.information LIKE ?','%'+plate+'%') }
-  scope :order_by_chassis, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type': VehicleInformationType.where(:name => 'N. di telaio').first.id) }
-  scope :find_by_chassis, ->(chassis) { joins(:vehicle_informations).order('vehicle_informations.information ASC, date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.where(:name => 'N. di telaio').first.id).where('vehicle_informations.information LIKE ?','%'+chassis+'%') }
+  scope :order_by_plate, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type_id': VehicleInformationType.plate.id) }
+  scope :find_by_plate, ->(plate) { joins(:vehicle_informations).order('vehicle_informations.information ASC, vehicle_informations.date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.plate.id).where('vehicle_informations.information LIKE ?','%'+plate+'%') }
+  scope :order_by_chassis, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type': VehicleInformationType.chassis.id) }
+  scope :find_by_chassis, ->(chassis) { joins(:vehicle_informations).order('vehicle_informations.information ASC, date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.chassis.id).where('vehicle_informations.information LIKE ?','%'+chassis+'%') }
   scope :find_by_manufacturer, ->(manufacturer) { joins(:model).joins('vehicle_models.manufacturer').where('companies.name LIKE ?', '%'+manufacturer+'%') }
-  scope :find_by_model, ->(search) { joins(:model).where('vehicle_models.name LIKE ?', '%'+search+'%') }
-  scope :find_by_property, ->(property) { joins(:property).where('companies.name LIKE ?', '%'+property+'%') }
+  scope :filter_by_model, ->(search) { joins(:model).where('vehicle_models.name LIKE ?', '%'+search+'%') }
+  scope :filter_by_property, ->(property) { joins(:property).where('companies.name LIKE ?', '%'+property+'%') }
   scope :null_scope, -> { where(id: nil) }
-  scope :filter, ->(search) { joins(:vehicle_informations).joins(:model).joins('inner join companies on vehicle_models.manufacturer_id = companies.id').where("vehicle_informations.information LIKE '%#{search}%' or vehicle_models.name LIKE '%#{search}%' or companies.name LIKE '%#{search}%'").distinct.limit(150) }
+  scope :filter, ->(search) { joins(:vehicle_informations).joins(:model).joins('inner join companies on vehicle_models.manufacturer_id = companies.id').joins('inner join companies prop on vehicles.property_id = prop.id').where("vehicle_informations.information LIKE '%#{search}%' or vehicle_models.name LIKE '%#{search}%' or companies.name LIKE '%#{search}%'or prop.name LIKE '%#{search}%'").distinct.limit(150) }
   # scope :filter, ->(search) { find_by_plate(search).or(find_by_chassis(search)).or(find_by_model(search)).or(find_by_manufacturer(search)) }
 
   self.per_page = 30
@@ -50,7 +50,7 @@ class Vehicle < ApplicationRecord
   end
 
   def plate
-    p = self.vehicle_informations.where(:vehicle_information_type => VehicleInformationType.where(:name => 'Targa').first.id).order(created_at: :desc).limit(1).first
+    p = self.vehicle_informations.where(:vehicle_information_type => VehicleInformationType.plate).order(created_at: :desc).limit(1).first
     if p.nil?
       ''
     else
@@ -59,7 +59,7 @@ class Vehicle < ApplicationRecord
   end
 
   def chassis_number
-    c = self.vehicle_informations.where(:vehicle_information_type => VehicleInformationType.where(:name => 'N. di telaio').first.id).order(created_at: :desc).limit(1).first
+    c = self.vehicle_informations.where(:vehicle_information_type => VehicleInformationType.chassis).order(created_at: :desc).limit(1).first
     if c.nil?
       ''
     else

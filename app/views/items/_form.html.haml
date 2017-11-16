@@ -34,6 +34,10 @@
   .field
     = f.label 'Data scadenza'
     = f.text_field :expiringDate, value: @item.expiringDate.nil? ? '' : (l @item.expiringDate)
+  - unless @item.article.nil?
+    .field
+      = f.label 'Quantità rimanente'
+      = f.number_field :remaining_quantity, value: @item.remaining_quantity
   -# .field
   -#   = f.label 'DDT nr.'
   -#   = f.text_field :transportDocument

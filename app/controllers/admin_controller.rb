@@ -24,6 +24,10 @@ class AdminController < ApplicationController
       semitrailer = VehicleType.create(name: 'Semirimorchio', carwash_type: 6) if semitrailer.nil?
       car = VehicleType.find_by_name('Autovettura')
       car = VehicleType.create(name: 'Autovettura', carwash_type: 13) if car.nil?
+      minitruck = VehicleType.find_by_name('Autovettura autocarro')
+      minitruck = VehicleType.create(name: 'Autovettura autocarro', carwash_type: 13) if minitruck.nil?
+      utility = VehicleType.find_by_name('Autocarro')
+      utility = VehicleType.create(name: 'Autocarro', carwash_type: 3) if utility.nil?
       van = VehicleType.find_by_name('Furgone')
       van = VehicleType.create(name: 'Furgone', carwash_type: 13) if van.nil?
       truck = VehicleType.find_by_name('Motrice')
@@ -31,15 +35,19 @@ class AdminController < ApplicationController
       semitruck = VehicleType.find_by_name('Trattore stradale')
       semitruck = VehicleType.create(name: 'Trattore stradale', carwash_type: 2) if semitruck.nil?
       types = [semitrailer,semitruck,trailer,truck,car,van]
+      cabin = ['Stretta-bassa','Stretta-media','Stretta-alta','Larga-bassa','Larga-media','Larga-alta','Stretta-bassa-corta']
+
 
       at = Company.find_by_name('Autotrasporti Chiarcosso s.r.l.')
       te = Company.find_by_name('Trans Est s.r.l.')
       ed = Company.find_by_name('Edilizia Chiarcosso s.r.l.')
       ed = Company.create(name: 'Edilizia Chiarcosso s.r.l.', vat_number: 'IT00153690300') if ed.nil?
 
+      prev_row = @data.row(1)
       @data.each_row_streaming do |row|
         r = Hash.new
         vehicle = nil
+        actual_plate = nil
         row.each_with_index do |cell,index|
           unless cell.value.nil? or cell.value == '' or cell.value == false or cell.value == 'NO' or @data.row(1)[index].upcase == cell.value.to_s.upcase
             # begin
@@ -48,16 +56,21 @@ class AdminController < ApplicationController
               when 'TARGA'
                 d = cell.value.upcase.tr('. *','')
                 vehicle = Vehicle.find_by_plate(d).first
+
                 if vehicle.nil?
-                  # vehicle = Vehicle.new
-                  next
+                  vehicle = Vehicle.create(model: VehicleModel.not_available, vehicle_type: VehicleType.not_available, vehicle_typology: VehicleTypology.not_available, property: Company.propertyChoice)
+                  # next
                 end
-                it = VehicleInformationType.find_by_name(@data.row(1)[index].titleize.capitalize)
-                it = VehicleInformationType.create(name: @data.row(1)[index].titleize.capitalize) if it.nil?
+                vehicle.registration_date = Date.new(row[4].value.to_i,1,1) if vehicle.registration_date.nil?
+                it = VehicleInformationType.find_by_name('Targa')
+                it = VehicleInformationType.create(name: 'Targa') if it.nil?
                 d = VehicleInformation.find_by_information(cell.value.to_s,it,vehicle)
                 d = VehicleInformation.create(information: cell.value.to_s, vehicle_information_type: it, vehicle: vehicle, date: vehicle.registration_date) if d.nil?
+
+                actual_plate = d
+
               when 'CIRCOLA'
-                if cell.value === 'SI' or cell.velue === true
+                if cell.value === 'SI' or cell.value === true
                   vehicle.dismissed = true
                 else
                   vehicle.dismissed = false
@@ -73,6 +86,7 @@ class AdminController < ApplicationController
                 else
                   d = nil
                 end
+                vehicle.property = d
               when 'ANNO IMMATRICOLAZIONE'
                 vehicle.registration_date = Date.new(cell.value.to_i,1,1)
               when 'MARCA'
@@ -85,7 +99,12 @@ class AdminController < ApplicationController
                 when 'R'
                   d = types[2]
                 else
-                  d = types[cell.value.to_i-1]
+                  if cell.value.to_i != 0
+                    d = types[cell.value.to_i-1]
+                  else
+                    d = VehicleType.find_by_name(cell.value)
+                    d = VehicleType.create(name: cell.value, carwash_type: 0) if d.nil?
+                  end
                 end
                 vehicle.vehicle_type = d
               when 'TIPOLOGIA'
@@ -95,36 +114,9 @@ class AdminController < ApplicationController
               when 'NOTE'
                 d = cell.value
                 vehicle.notes = d
-              # when 'PIANTANE'
-              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
-              #   e = VehicleEquipment.find_by_name('Piantane')
-              #   e = VehicleEquipment.create(name: 'Piantane') if d.nil?
-              #   r['Attrezzatura'] << e
-              # when 'ADR'
-              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
-              #   d = VehicleEquipment.find_by_name('ADR')
-              #   d = VehicleEquipment.create(name: 'ADR') if d.nil?
-              #   r['Attrezzatura'] << e
-              # when 'GANCI CINGHIE'
-              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
-              #   d = VehicleEquipment.find_by_name('Ganci cinghie')
-              #   d = VehicleEquipment.create(name: 'Ganci cinghie') if d.nil?
-              #   r['Attrezzatura'] << e
-              # when 'GANCI CINGHIE'
-              #   r['SPONDE APERTURA LIBRO'] = Array.new if r['Attrezzatura'].nil?
-              #   d = VehicleEquipment.find_by_name('SPONDE APERTURA LIBRO')
-              #   d = VehicleEquipment.create(name: 'sPONDE APERTURA LIBRO') if d.nil?
-              #   r['Attrezzatura'] << e
-              # when 'TENUTA A SFUSO'
-              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
-              #   d = VehicleEquipment.find_by_name('Tenuta a sfuso')
-              #   d = VehicleEquipment.create(name: 'Tenuta a sfuso') if d.nil?
-              #   r['Attrezzatura'] << e
-              # when 'TENUTA A LIQUIDO'
-              #   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
-              #   d = VehicleEquipment.find_by_name('Tenuta a liquido')
-              #   d = VehicleEquipment.create(name: 'Tenuta a liquido') if d.nil?
-              #   r['Attrezzatura'] << e
+              when 'CODICE AUTOLAVAGGIO'
+                d = cell.value.to_i
+                vehicle.carwash_code = d
               when 'TELO'
                 if cell.value.to_s == 'S'
                   r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
@@ -132,14 +124,30 @@ class AdminController < ApplicationController
                   e = VehicleEquipment.create(name: 'Telo') if e.nil?
                   r['Attrezzatura'] << e
                 end
+              when 'DIMENSIONE CABINA'
+                it = VehicleInformationType.find_by_name(@data.row(1)[index].titleize.capitalize)
+                it = VehicleInformationType.create(name: @data.row(1)[index].titleize.capitalize) if it.nil?
+                d = VehicleInformation.find_by_information(cell.value.to_s,it,vehicle)
+                d = VehicleInformation.create(information: cabin[cell.value.to_i], vehicle_information_type: it, vehicle: vehicle, date: vehicle.registration_date) if d.nil?
               when 'KM'
                 d = cell.value.to_i
                 vehicle.mileage = d
+              when 'DATACAMBIOTARGA'
+                r['datacambiotarga'] = cell.value
               when 'EXTARGA'
-                d = VehicleInformation.create(information: cell.value.to_s, vehicle_information_type: VehicleInformationType.find_by_name('Targa'), vehicle: vehicle, date: r['datacambiotarga']) unless r['datacambiotarga'].nil?
+                d = VehicleInformation.find_by_information(cell.value.to_s,VehicleInformationType.plate,vehicle)
+                if d.nil?
+                  d = VehicleInformation.create(information: cell.value.to_s, vehicle_information_type: VehicleInformationType.plate, vehicle: vehicle, date: vehicle.registration_date) unless r['datacambiotarga'].nil?
+                else
+                  d.update(date: vehicle.registration_date)
+                end
+
+                actual_plate.update(date: r['datacambiotarga'])
               when 'MODELLO'
                 d = VehicleModel.find_by_name(cell.value)
                 d = VehicleModel.create(name: cell.value, manufacturer: r['Marca'], vehicle_type: r['Tipo'].nil?? types[0] : r['Tipo']) if d.nil?
+                vehicle.model = d
+
               when 'ATTREZZATURA'
                 r['Attrezzatura'] = Array.new if r['Attrezzatura'].nil?
                 cell.value.split(' + ').each do |equipment|
@@ -161,6 +169,8 @@ class AdminController < ApplicationController
                 end
                 # d = cell.value.to_s
               end
+
+              d.update(date: vehicle.registration_date) if d.class == VehicleInformation and d.date.nil? and !vehicle.registration_date.nil?
             # rescue
             # #   byebug
             #   d = cell.value.to_s+' '+@data.row(1)[index].titleize.capitalize
@@ -168,12 +178,18 @@ class AdminController < ApplicationController
             # end
             r[@data.row(1)[index].titleize.capitalize] = d
           end
-          unless r['Targa'].nil? or frow
-            r['Veicolo'] = vehicle
-            @results << r
-          end
-          frow = false
+
+
+
         end
+
+        unless r['Targa'].nil? or frow
+          r['Veicolo'] = vehicle
+          @results << r
+          vehicle.registration_date = VehicleInformation.oldest(VehicleInformationType.plate, vehicle).date
+          vehicle.save
+        end
+        frow = false
 
 
       end

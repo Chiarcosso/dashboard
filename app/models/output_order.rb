@@ -65,12 +65,12 @@ class OutputOrder < ApplicationRecord
 
   def compacted_items
     compact_list = Hash.new
-    self.items.each do |i|
-      if compact_list[i.article.complete_name].nil?
-        compact_list[i.article.complete_name] = {:name => i.article.complete_name, :amount => 1, :total_price => i.actualPrice}
+    self.output_order_items.each do |i|
+      if compact_list[i.item.article.complete_name].nil?
+        compact_list[i.item.article.complete_name] = {:name => i.item.article.complete_name, :amount => i.quantity, :total_price => i.actualPrice}
       else
-        compact_list[i.article.complete_name][:amount] += 1
-        compact_list[i.article.complete_name][:total_price] += i.actualPrice
+        compact_list[i.item.article.complete_name][:amount] += i.quantity
+        compact_list[i.item.article.complete_name][:total_price] += i.actualPrice
       end
     end
     return compact_list
@@ -112,14 +112,14 @@ class OutputOrder < ApplicationRecord
       pdf.font_size = 12
       table = [['N.','DPI','Data consegna']]
       self.compacted_items.each do |i|
-        table << [i[1][:amount],i[1][:name],Date.today.strftime("%d/%m/%Y")]
+        table << [i[1][:amount] == i[1][:amount].to_i ? i[1][:amount].to_i : i[1][:amount],i[1][:name],Date.today.strftime("%d/%m/%Y")]
       end
       pdf.move_down 20
       pdf.table table,
         # :border_style => :grid,
         # :font_size => 11,
         :position => :center,
-        :column_widths => { 0 => 22, 1 => 290, 2 => 90}
+        :column_widths => { 0 => 30, 1 => 282, 2 => 90}
         # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
         # :row_colors => ["d2e3ed", "FFFFFF"]
 
@@ -189,8 +189,8 @@ class OutputOrder < ApplicationRecord
     end
 
     table = [['Articolo','Seriale/matricola','Posizione','Costo']]
-    self.items.each do |i|
-      table << ["#{i.article.complete_name}","#{i.serial}","#{i.position_code.code}","#{i.complete_price}"]
+    self.output_order_items.each do |i|
+      table << ["#{i.item.article.complete_name} (#{i.quantity}/#{i.item.article.containedAmount})","#{i.item.serial}","#{i.item.position_code.code}","#{i.complete_price}"]
     end
     total = self.total.to_f
     if self.destination.class == Worksheet
@@ -206,7 +206,7 @@ class OutputOrder < ApplicationRecord
       # :border_style => :grid,
       # :font_size => 11,
       :position => :center,
-      :column_widths => { 0 => 170, 1 => 190, 2 => 85, 3 => 95},
+      :column_widths => { 0 => 170, 1 => 190, 2 => 73, 3 => 107},
       # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
       :row_colors => ["d2e3ed", "FFFFFF"]
 

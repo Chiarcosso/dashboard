@@ -3,4 +3,15 @@
 %br
 %h3= "Magazzino:"
 %br
-= "Valore totale pezzi in giacenza: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s} + #{"%.2f" % Item.total_value_tyres.to_s} di gomme)"
+-# = "Valore totale pezzi in giacenza: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s} + #{"%.2f" % Item.total_value_tyres.to_s} di gomme)"
+= "Valore totale pezzi in giacenza: #{number_to_currency(Item.total_value, locale: :it, separator: ",", delimiter: '.', unit: '€')} (#{number_to_currency(Item.total_value_no_tyres, locale: :it, separator: ',', delimiter: '.', unit: '€')} + #{number_to_currency(Item.total_value_tyres, locale: :it, separator: ',', delimiter: '.', unit: '€')} di gomme)"
+
+%br
+%br
+= "#{Item.for_free.size} pezzi non hanno il prezzo."
+%br
+
+- Item.for_free.each do |i|
+  %br
+
+  = i.to_s

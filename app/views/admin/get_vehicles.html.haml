@@ -3,7 +3,6 @@
   = file_field_tag 'file', accept: 'application/xls,application/xlsx,text/csv'
   = submit_tag 'Importa'
 .container-fluid.scrollable-panel#results
-  = @model
   %br
   %br
   = @results.each do |r|
@@ -14,9 +13,12 @@
             = k
           .col-sm-6
             -if v.class == VehicleInformation
-              = v.vehicle_information_type+': '
+              = v.vehicle_information_type.name+': '
               = v.information
-            -if v.class == VehicleEquipment
+            -elsif v.class == VehicleEquipment
               = 'Attrzzatura: '+v.name
+            -else
+              = v.inspect
+
     %br
     %br

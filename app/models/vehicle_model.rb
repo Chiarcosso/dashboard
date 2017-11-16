@@ -12,6 +12,10 @@ class VehicleModel < ApplicationRecord
     VehicleModel.where(:name => 'N/D').first
   end
 
+  def count
+    Vehicle.where(model: self).size
+  end
+
   def complete_name
     m = self.manufacturer.nil?? '' : self.manufacturer.name+' '
     m+self.name
