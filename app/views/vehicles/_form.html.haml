@@ -36,8 +36,9 @@
 .actions
   %br
   %br
-  = submit_tag 'Aggiorna'
-  = link_to 'Indietro', vehicles_path, class: 'form-control'
+  = submit_tag 'Aggiorna', class: 'form-control inline'
+  .inline.form-contol
+    = link_to 'Indietro', vehicles_path, class: 'form-control inline'
 
 :javascript
 

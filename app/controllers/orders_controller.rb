@@ -66,7 +66,7 @@ class OrdersController < ApplicationController
     if @order.nil?
       @checked_items = Array.new
     else
-      @checked_items = @order.items
+      @checked_items = @order.output_order_items
     end
     # unless @newItem.nil?
     #   already_in = false
@@ -81,12 +81,24 @@ class OrdersController < ApplicationController
     #     @checked_items << @newItem
     #   end
     # end
-
     unless @search.to_s == ''
-      @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
+      if (@from == '0')
+        if chk.empty?
+          @selected_items = Item.available_items.firstCreatedOrder.unassigned.order(:created_at => :asc).firstGroupByArticle(@search,chk)
+        else
+          @selected_items = Item.available_items.not_this(chk).firstCreatedOrder.unassigned.order(:created_at => :asc).firstGroupByArticle(@search,chk)
+        end
+      else
+        @selected_items = Item.firstGroupByArticle(@search,@checked_items,Item.assigned_to(Office.find(@from.to_i)))
+      end
     else
       @selected_items = Array.new
     end
+    # unless @search.to_s == ''
+    #   @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
+    # else
+    #   @selected_items = Array.new
+    # end
     # render :partial => 'items/index'
     # @selected_items -= @checked_items
     # if @save
