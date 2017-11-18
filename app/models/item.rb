@@ -16,7 +16,10 @@ class Item < ApplicationRecord
   has_many :output_orders, through: :output_order_items
   belongs_to :position_code
 
-  scope :available_items, -> { where('items.id not in (select item_id from output_order_items) or items.remaining_quantity > 0')}
+  # scope :available_items, -> { where('items.id not in (select item_id from output_order_items) or items.remaining_quantity > 0').order(:remaining_quantity => :asc, :created_at => :asc)}
+  scope :available_items, -> { where('items.remaining_quantity > 0').order(:remaining_quantity => :asc, :created_at => :asc)}
+  scope :in_storage, -> { where('items.id not in (?)',Office.mobile_workshops(1).items.map { |i| i.id }+Office.mobile_workshops(2).items.map { |i| i.id }) }
+  # scope :group_by_article, -> { group(:article_id, :serial) }
   scope :barcode, ->(barcode) { joins(:article).where("items.barcode = ? OR articles.barcode = ?", barcode, barcode) }
   scope :tyres, -> { joins(:article).joins('inner join article_categorizations on articles.id = article_categorizations.category_id').joins('inner join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name like \'%gomme%\'') }
   scope :notyres, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').joins('left join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name not like \'%gomme%\' or article_categories.name is null') }
@@ -45,6 +48,27 @@ class Item < ApplicationRecord
     "Pezzo nr. #{self.id}, #{self.article.complete_name}#{(self.serial.nil? or self.serial == '') ? '' : ', seriale: '+self.serial},  creato il: #{self.created_at}, modificato il: #{self.updated_at}"
   end
 
+  def self.next_available_items(search,excluded = Array.new, from = 0)
+    if (from == 0)
+      if excluded.nil? or excluded.empty?
+        # return Item.available_items.order(:remaining_quantity => :asc, :created_at => :asc).firstGroupByArticle(search,excluded)
+        return Item.group_by_article(Item.filter(search).available_items)
+      else
+        if excluded[0].class == OutputOrderItem
+          exc = excluded.map { |itm| itm.item }.reject { |i| i.remaining_quantity > 0 }
+        else
+          exc = excluded.reject { |i| i.remaining_quantity > 0 }
+        end
+        # return Item.available_items.not_this(exc).order(:remaining_quantity => :asc, :created_at => :asc).firstGroupByArticle(search,exc)
+
+        return Item.group_by_article(Item.filter(search).available_items.not_this(exc))
+      end
+    else
+      # return Item.firstGroupByArticle(search,excluded,Item.assigned_to(Office.find(from)))
+      return Item.group_by_article(Item.filter(search).not_this(excluded.reject { |i| i.item.remaining_quantity > 0 }).order(:remaining_quantity => :asc, :created_at => :asc).assigned_to(Office.find(from)))
+    end
+  end
+
   def showLabel
     self.article.complete_name+(self.serial.to_s == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
   end
@@ -69,11 +93,17 @@ class Item < ApplicationRecord
   end
 
   def find_next_usable(gonerList)
+    return self if self.remaining_quantity > 0
+
     gonerList << self
+
+    gonerList.reverse.each do |i|
+      return i if i.remaining_quantity > 0
+    end
     if self.real_position == 0
-      items = Item.article(self.article).not_this(gonerList).available_items.order(:remaining_quantity => :asc, :created_at => :asc)
+      items = Item.article(self.article).not_this(gonerList.select { |ooi| ooi.item.remaining_quantity == 0 }).available_items
     else
-      items = Office.find(@from.to_i).items(self.article,gonerList)
+      items = Office.find(@from.to_i).items(self.article,gonerList.select { |ooi| ooi.item.remaining_quantity == 0 })
     end
 
     # items.to_a.each_with_index do |i,index|
@@ -139,14 +169,22 @@ class Item < ApplicationRecord
     Item.barcode(barcode)
   end
 
-  def self.firstGroupByArticle(search_params,gonerList,validList = nil)
+  def self.group_by_article(list)
+    art = Hash.new
+    list.reverse.each do |it|
+      art[it.article.id.to_s+it.state+it.serial.to_s] = it
+    end
+    art
+  end
+
+  def self.firstGroupByArticle(search_params,gonerList,validList = Array.new)
     art = Hash.new
     # gonerList.map! { |itm| Item.find(itm.id) }
-    if validList.nil?
+    if validList.empty?
       if gonerList.nil? or gonerList.empty?
-        list = Item.available_items.filter(search_params).firstCreatedOrder
+        list = Item.available_items.filter(search_params).order(:remaining_quantity => :asc, :created_at => :asc)
       else
-        list = Item.not_this(gonerList).available_items.filter(search_params).firstCreatedOrder
+        list = Item.not_this(gonerList).available_items.filter(search_params).order(:remaining_quantity => :asc, :created_at => :asc)
       end
     else
       validList.map! { |itm| Item.find(itm) }

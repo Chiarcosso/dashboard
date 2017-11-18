@@ -300,7 +300,9 @@ function domInit() {
     var itemRow = $(this);
 
     if ($(this).data('popup') == true) {
-      $('body').append('<div class="popup">Quantità <input type="number" value="1" id="amount" name="amount" class="form-control"><div class="close">Chiudi</div></div>');
+      //$('body').append('<div class="popup">Quantità <input type="number" value="1" step="any" pattern="[0-9]+([\\.,][0-9]+)?" formnovalidate="true" id="amount" name="amount" class="form-control"><div class="close">Chiudi</div></div>');
+      $('body').append('<div class="popup">Quantità <input type="text" pattern="[0-9]+([\\.,][0-9]+)?" id="amount" name="amount" class="input-number form-control"><div class="close">Chiudi</div></div>');
+      $('#amount').val('1');
       $('.popup').css({height: '10em'});
       activateClose();
 
@@ -310,7 +312,7 @@ function domInit() {
         if(e.which == '13'){
           $('.popup').remove();
           // itemRow.find('#chamount').val($(this).val());
-          $('#chamount').val($(this).val());
+          $('#chamount').val($(this).val().replace(',','.'));
           var route = itemRow.data('target');
           itemRow.parents('form').first().append('<input type=hidden name="item" value="'+itemRow.data('data')+'">')
 

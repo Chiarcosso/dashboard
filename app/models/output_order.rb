@@ -1,5 +1,8 @@
 class OutputOrder < ApplicationRecord
   resourcify
+
+  before_destroy :recover_items
+
   has_many :output_order_items, :dependent => :destroy
   has_many :items, through: :output_order_items
   belongs_to :createdBy, class_name: User
@@ -20,6 +23,12 @@ class OutputOrder < ApplicationRecord
       total += i.actualPrice
     end
     total
+  end
+
+  def recover_items
+    self.output_order_items.each do |ooi|
+      ooi.recover_item
+    end
   end
 
   def self.findByRecipient(search)

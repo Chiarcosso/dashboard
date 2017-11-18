@@ -1,6 +1,7 @@
 class OutputOrderItem < ApplicationRecord
   resourcify
 
+  before_destroy :recover_item
   belongs_to :item
   belongs_to :output_order
 
@@ -22,6 +23,11 @@ class OutputOrderItem < ApplicationRecord
        price += " \n("+self.price.to_s+' -'+self.discount.to_s+'%'+')'
     end
     price.tr('.',',')+"\n Scatola: #{self.item.complete_price}"
+  end
+
+  def recover_item
+    i = self.item
+    i.update(remaining_quantity: i.remaining_quantity + self.quantity)
   end
 
 end

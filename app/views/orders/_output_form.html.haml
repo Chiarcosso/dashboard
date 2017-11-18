@@ -31,7 +31,7 @@
       .row.colored.hover-hilight{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
         .col-sm-4
           -# = hidden_field_tag :item, item.id
-          = item.article.complete_name.to_s
+          = item.id.to_s+'::'+item.article.complete_name.to_s
         .col-sm-1
           = "#{@from.to_i == 0 ? item.article.availability_label(@checked_items) : Office.find(@from.to_i).items(item.article,@checked_items).size+' '+item.article.measure_unit} "
           = "(min. #{item.article.minimalReserve.to_i} conf.)" if @from.to_i == 0

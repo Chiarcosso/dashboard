@@ -63,7 +63,7 @@ class OrdersController < ApplicationController
   def edit_output
     @order = OutputOrder.findByRecipient(params.require(:code)).last
     @search = search_params.nil?? '' : search_params
-    if @order.nil?
+    if @order.nil? or @order.output_order_items.empty?
       @checked_items = Array.new
     else
       @checked_items = @order.output_order_items
@@ -71,26 +71,18 @@ class OrdersController < ApplicationController
     # unless @newItem.nil?
     #   already_in = false
     #   @checked_items.each do |ci|
-    #     if ci ==  @newItem
+    #     if ci.item ==  @newItem
     #       already_in = true
     #     end
     #   end
     #   if already_in
-    #     @checked_items -= [@newItem]
+    #     ci.remaining_quantity
     #   else
     #     @checked_items << @newItem
     #   end
     # end
     unless @search.to_s == ''
-      if (@from == '0')
-        if chk.empty?
-          @selected_items = Item.available_items.firstCreatedOrder.unassigned.order(:created_at => :asc).firstGroupByArticle(@search,chk)
-        else
-          @selected_items = Item.available_items.not_this(chk).firstCreatedOrder.unassigned.order(:created_at => :asc).firstGroupByArticle(@search,chk)
-        end
-      else
-        @selected_items = Item.firstGroupByArticle(@search,@checked_items,Item.assigned_to(Office.find(@from.to_i)))
-      end
+      @selected_items = Item.next_available_items(@search,@checked_items,@from.to_i)
     else
       @selected_items = Array.new
     end
@@ -173,7 +165,7 @@ class OrdersController < ApplicationController
     @search = search_params.nil?? '' : search_params
     @checked_items = Array.new
     unless @search.to_s == ''
-      @selected_items = Item.available_items.unassigned.firstGroupByArticle(search_params,@checked_items)
+      @selected_items = Item.next_available_items(@search,@checked_items,0)
     else
       @selected_items = Array.new
     end
@@ -189,30 +181,23 @@ class OrdersController < ApplicationController
     search_params
 
     @checked_items = chk_list_params
-    unless @newItem.nil?
-      already_in = false
-      @checked_items.each do |ci|
-        if ci.item ==  @newItem
-          already_in = true
-        end
-      end
-      if already_in
-        @checked_items -= @newItems
-      else
-        @checked_items += @newItems
-      end
-    end
-    chk = @checked_items.map { |ooi| Item.find(ooi.item) }
+    # unless @newItem.nil?
+    #
+    #   already_in = false
+    #   @checked_items.each do |ci|
+    #     if ci.item ==  @newItem
+    #       already_in = true
+    #     end
+    #   end
+    #   if already_in
+    #     @checked_items -= @newItems
+    #   else
+    #     @checked_items += @newItems
+    #   end
+    # end
+    # chk = @checked_items.map { |ooi| Item.find(ooi.item) }
     unless @search.to_s == ''
-      if (@from == '0')
-        if chk.empty?
-          @selected_items = Item.available_items.firstCreatedOrder.unassigned.order(:created_at => :asc).firstGroupByArticle(@search,chk)
-        else
-          @selected_items = Item.available_items.not_this(chk).firstCreatedOrder.unassigned.order(:created_at => :asc).firstGroupByArticle(@search,chk)
-        end
-      else
-        @selected_items = Item.firstGroupByArticle(@search,@checked_items,Item.assigned_to(Office.find(@from.to_i)))
-      end
+      @selected_items = Item.next_available_items(@search,@checked_items,@from.to_i)
     else
       @selected_items = Array.new
     end
@@ -239,14 +224,20 @@ class OrdersController < ApplicationController
         @order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination, receiver: @receiver)
       end
       @order.receiver = @receiver
-      @order.output_order_items.clear
-      @checked_items.each do |ci|
-        # @order.items << ci
-        ci.output_order = @order
-        ci.save
-        ci.item.update(remaining_quantity: ci.item.remaining_quantity - ci.quantity)
+      # @order.output_order_items.clear
+      # @order.recover_items
+      @order.output_order_items.each do |ooi|
+        ooi.destroy unless @checked_items.include? ooi
       end
-      # @order.save
+
+      @checked_items.each do |ci|
+
+        rq = ci.item.remaining_quantity - ci.quantity
+        rq = 0 if rq < 0
+        ci.item.update(remaining_quantity: rq)
+        @order.output_order_items << ci unless @order.output_order_items.include? ci
+      end
+      @order.save
       # redirect_to storage_output_path
     end
     respond_to do |format|
@@ -326,55 +317,55 @@ class OrdersController < ApplicationController
     render :partial => 'transport_documents/scan_document'
   end
 
-  def add_item_to_new_order
-    @order = Order.new
-    @transportDocument = TransportDocument.new
-    @items = Array.new
-    @order.supplier = Company.get(params[:order]['supplier'])
-    @order.date = params[:order][:purchaseDate]
-    @transportDocument.number = params[:order][:transportDocument]
-    @transportDocument.sender = Company.get(params[:order][:supplier])
-    @transportDocument.vector = Company.get(params[:order][:vector])
-    @transportDocument.date = params[:order][:purchaseDate]
-    @newItems.each do |i,k|
-      item = Item.new
-      item.setAmount k[:amount].to_i
-      item.price = k[:price].to_f
-      item.discount = k[:discount].to_f
-      item.serial = k[:serial]
-      item.state = k[:state].to_i
-      item.expiringDate = k[:expiringDate]
-      item.article = Article.find(k[:article].to_i)
-      item.barcode = SecureRandom.base58(10)
-      @items << item
-    end
-
-    if params[:barcode] != ''
-      item = Item.new
-      item.article = @article
-      item.setAmount 1
-      item.barcode = item.serial == '' ? SecureRandom.base58(10) : item.serial
-      @items << item
-    end
-
-    if @save
-      @items.each do |i|
-        # i.transportDocument = @transportDocument
-        OrderArticle.create({order: @order, article: i.article, amount: i.amount})
-        i.amount.times do
-          item = Item.create!(i.attributes)
-          @transportDocument.items << item
-        end
-      end
-      @transportDocument.save
-      @order.transport_documents << @transportDocument
-      @order.save
-    end
-
-    respond_to do |format|
-      format.js { render :js, :partial => 'items/new_order' }
-    end
-  end
+  # def add_item_to_new_order
+  #   @order = Order.new
+  #   @transportDocument = TransportDocument.new
+  #   @items = Array.new
+  #   @order.supplier = Company.get(params[:order]['supplier'])
+  #   @order.date = params[:order][:purchaseDate]
+  #   @transportDocument.number = params[:order][:transportDocument]
+  #   @transportDocument.sender = Company.get(params[:order][:supplier])
+  #   @transportDocument.vector = Company.get(params[:order][:vector])
+  #   @transportDocument.date = params[:order][:purchaseDate]
+  #   @newItems.each do |i,k|
+  #     item = Item.new
+  #     item.setAmount k[:amount].to_i
+  #     item.price = k[:price].to_f
+  #     item.discount = k[:discount].to_f
+  #     item.serial = k[:serial]
+  #     item.state = k[:state].to_i
+  #     item.expiringDate = k[:expiringDate]
+  #     item.article = Article.find(k[:article].to_i)
+  #     item.barcode = SecureRandom.base58(10)
+  #     @items << item
+  #   end
+  #
+  #   if params[:barcode] != ''
+  #     item = Item.new
+  #     item.article = @article
+  #     item.setAmount 1
+  #     item.barcode = item.serial == '' ? SecureRandom.base58(10) : item.serial
+  #     @items << item
+  #   end
+  #
+  #   if @save
+  #     @items.each do |i|
+  #       # i.transportDocument = @transportDocument
+  #       OrderArticle.create({order: @order, article: i.article, amount: i.amount})
+  #       i.amount.times do
+  #         item = Item.create!(i.attributes)
+  #         @transportDocument.items << item
+  #       end
+  #     end
+  #     @transportDocument.save
+  #     @order.transport_documents << @transportDocument
+  #     @order.save
+  #   end
+  #
+  #   respond_to do |format|
+  #     format.js { render :js, :partial => 'items/new_order' }
+  #   end
+  # end
 
   # PATCH/PUT /orders/1
   # PATCH/PUT /orders/1.json
@@ -413,138 +404,6 @@ class OrdersController < ApplicationController
       @vehicle = Vehicle.find_by_plate(params[:vehicle].to_s).first
       if @vehicle.nil?
         @vehicle = Vehicle.new
-      end
-    end
-
-    def set_order
-      @order = Order.find(params[:id])
-    end
-
-    def exit_params
-      @order = OutputOrder.find(params.require(:id))
-    end
-
-    def set_article_for_order
-      if Article.where(barcode: params[:barcode]).count > 0
-        @articles = Article.where(barcode: params[:barcode])
-        @article = @articles.first
-        @newArticle = false
-      else
-        @newArticle = true
-        @article = Article.new({:barcode => params[:barcode]})
-        @articles = Array.new
-        @article.setBarcodeImage
-        @articles << @article
-      end
-    end
-
-    def set_items_for_order
-      if params[:items].nil?
-        @newItems = Array.new
-      else
-        @newItems = items_params
-      end
-    end
-
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def order_params
-      params.require(:order).permit(:date, :supplier, :vector, :transportDocument, :purchaseDate)
-    end
-
-    def items_params
-      if params['commit'].nil? || !params['no-commit'].nil?
-        @save = false
-      else
-        @save = true
-      end
-      params.require(:items).tap do |itm|
-        itm.permit(:article, :price, :discount, :serial, :state, :expiringDate, :amount)
-      end
-    end
-
-    def output_params
-      @destination = params.require(:destination)
-      case params.require(:destination).to_sym
-      when :Person
-        @recipient = params[:recipient].nil?? Person.all.first : Person.find(params.require(:recipient).to_i)
-      when :Office
-        @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
-      when :Vehicle
-        # @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
-        if params[:vrecipient] == '' and params[:vvehicle_id] == ''
-          @recipient = Vehicle.new
-        else
-          @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
-        end
-        if params[:precipient] == '' or params[:precipient].nil?
-          @receiver = Person.new
-        else
-          @receiver = Person.find(params.require(:precipient).to_i)
-        end
-      when :Worksheet
-        unless params[:recipient].nil? || params[:recipient] == ''
-          @recipient = Worksheet.findByCode(params.require(:recipient))
-          if @recipient.nil?
-            unless params[:vehicle_id].to_i == 0
-              vehicle = Vehicle.find(params[:vehicle_id].to_i)
-            end
-            if vehicle.nil?
-              vehicle = Vehicle.find_by_plate(params[:vehicle]).first
-            end
-            if vehicle.nil?
-              vehicle = Vehicle.new
-            end
-            @recipient = Worksheet.create(:code => params.require(:recipient).upcase, :vehicle => vehicle)
-          elsif @recipient.vehicle.nil?
-            vehicle = Vehicle.find_by_plate(params[:vehicle]).first
-            # if vehicle.nil?
-            #   vehicle = Vehicle.find(params.require(:vehicle_id))
-            # end
-            if vehicle.nil?
-              vehicle = Vehicle.new
-            end
-            @recipient.vehicle = vehicle
-            @recipient.save
-          end
-        else
-          @recipient = Worksheet.new
-          @recipient.vehicle = Vehicle.new
-        end
-      end
-      unless params[:item].nil?
-        @newItem = Item.find(params.require(:item).to_i)
-        @newItems = Array.new
-        amount = params[:chamount].to_f
-        while amount > 0 do
-          if amount <= @newItem.remaining_quantity
-            @newItem.remaining_quantity -= amount
-            @newItems << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: amount)
-            amount = 0
-          else
-            given_quantity = @newItem.remaining_quantity
-            amount -= @newItem.remaining_quantity
-            @newItem.remaining_quantity = 0
-            @newItems << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: given_quantity)
-            ni = @newItem
-            itms = get_output_items.map! { |oo_itm| oo_itm.item }
-            @newItem = @newItem.find_next_usable(itms)
-            itms << @newItem
-            if @newItem.nil?
-              @error = 'I pezzi disponibili non sono sufficienti.'
-              break
-            end
-          end
-        end
-        # if params[:chamount].to_i > 1
-        #   if @from.to_i != 0
-        #     @newItems = Office.find(@from.to_i).items(@newItem.article,[@newItem],true,params[:chamount].to_i-1)
-        #   else
-        #     @newItems = Item.article(@newItem.article).not_this(@newItem).unassigned.limit(params[:chamount].to_i-1)
-        #   end
-        #   # (params[:chamount].to_i - 1).times do
-        #   #
-        #   # end
-        # end
       end
     end
 
@@ -601,28 +460,210 @@ class OrdersController < ApplicationController
       end
       @order = OutputOrder.new(:destination => @recipient,:destination_type => params.require(:destination))
       get_output_items
+
+    end
+
+    def exit_params
+      @order = OutputOrder.find(params.require(:id))
+    end
+
+    def get_order
+      case params[:destination]
+      when 'Worksheet'
+        worksheet_params
+      else
+        nil
+      end
     end
 
     def get_output_items
+      unless params[:item].nil?
+        @newItem = Item.find(params.require(:item).to_i)
+      end
+
+      itms = Array.new
       unless params[:items].nil?
-        itms = Array.new
         params.require(:items).tap do |itm|
+          ooi_in = false
           itm.each do |i|
             id = i.require(:id)
             unless id.nil?
-              # itms << OutputOrderItems.find(id)
-              # begin
-              itms << YAML::load(Base64.decode64(id))
-            # rescue
-              # byebug
-            # end
+              ooi = YAML::load(Base64.decode64(id))
+              new_ooi = nil
+              itms.each do |i|
+                if i.item.id == ooi.item.id
+                  i.quantity += ooi.quantity
+                  i.item.remaining_quantity -= ooi.quantity
+                  if i.item.quantity < 0
+                    am = i.item.quantity.abs
+                    i.item.quantity = 0
+                    i.quantity -= am
+                    new_ooi = OutputOrderItem.new(item: @newItem.find_next_usable, output_order: @order, quantity: am)
+                  end
+                  ooi_in = true
+                end
+              end
+              itms << new_ooi unless new_ooi.nil?
+              itms << ooi unless ooi_in
             end
           end
         end
-        itms.reverse
-      else
-        Array.new
       end
+
+      unless @newItem.nil?
+        new_item_in = false
+        itms.each do |i|
+          if i.item.id == @newItem.id
+            i.quantity += params.require(:chamount).to_f
+            if i.item.remaining_quantity < 0
+              am = i.item.remaining_quantity.abs
+              i.item.remaining_quantity = 0
+              i.quantity -= am
+              @newItem = @newItem.find_next_usable
+            else
+              new_item_in = true
+            end
+          end
+        end
+        itms << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: params.require(:chamount).to_f) unless new_item_in
+      end
+      itms.reverse
+    end
+
+    def items_params
+      if params['commit'].nil? || !params['no-commit'].nil?
+        @save = false
+      else
+        @save = true
+      end
+      params.require(:items).tap do |itm|
+        itm.permit(:article, :price, :discount, :serial, :state, :expiringDate, :amount)
+      end
+    end
+
+    def order_params
+      params.require(:order).permit(:date, :supplier, :vector, :transportDocument, :purchaseDate)
+    end
+
+    def output_params
+      @destination = params.require(:destination)
+      case params.require(:destination).to_sym
+      when :Person
+        @recipient = params[:recipient].nil?? Person.all.first : Person.find(params.require(:recipient).to_i)
+      when :Office
+        @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
+      when :Vehicle
+        # @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+        if params[:vrecipient] == '' and params[:vvehicle_id] == ''
+          @recipient = Vehicle.new
+        else
+          @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+        end
+        if params[:precipient] == '' or params[:precipient].nil?
+          @receiver = Person.new
+        else
+          @receiver = Person.find(params.require(:precipient).to_i)
+        end
+      when :Worksheet
+        unless params[:recipient].nil? || params[:recipient] == ''
+          @recipient = Worksheet.findByCode(params.require(:recipient))
+          if @recipient.nil?
+            unless params[:vehicle_id].to_i == 0
+              vehicle = Vehicle.find(params[:vehicle_id].to_i)
+            end
+            if vehicle.nil?
+              vehicle = Vehicle.find_by_plate(params[:vehicle]).first
+            end
+            if vehicle.nil?
+              vehicle = Vehicle.new
+            end
+            @recipient = Worksheet.create(:code => params.require(:recipient).upcase, :vehicle => vehicle)
+          elsif @recipient.vehicle.nil?
+            vehicle = Vehicle.find_by_plate(params[:vehicle]).first
+            # if vehicle.nil?
+            #   vehicle = Vehicle.find(params.require(:vehicle_id))
+            # end
+            if vehicle.nil?
+              vehicle = Vehicle.new
+            end
+            @recipient.vehicle = vehicle
+            @recipient.save
+          end
+        else
+          @recipient = Worksheet.new
+          @recipient.vehicle = Vehicle.new
+        end
+      end
+      unless params[:item].nil?
+        @newItem = Item.find(params.require(:item).to_i)
+        @newItems = Array.new
+        amount = params[:chamount].to_f.abs
+        while amount > 0 do
+          if amount <= @newItem.remaining_quantity
+            @newItem.remaining_quantity -= amount
+            @newItems << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: amount)
+            amount = 0
+          else
+            given_quantity = @newItem.remaining_quantity
+            amount -= @newItem.remaining_quantity
+            @newItem.remaining_quantity = 0
+            @newItems << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: given_quantity)
+
+            itms = get_output_items.map! { |oo_itm| oo_itm.item } if itms.nil?
+            @newItem = @newItem.find_next_usable(itms)
+            itms << @newItem
+            if @newItem.nil?
+              @error = 'I pezzi disponibili non sono sufficienti.'
+              break
+            end
+          end
+        end
+        @newItems
+      end
+    end
+
+    def search_params
+      unless params[:search].nil? or params[:search] == ''
+        if params[:search].size == 0
+          @search = nil
+        end
+        @search = params.require(:search)
+      end
+      if params[:from].nil?
+        @from = '0'
+      else
+        @from = params.require(:from)
+      end
+
+      unless params[:open_worksheets_filter].nil? or params[:open_worksheets_filter] == ''
+        @open_worksheets_filter = params[:open_worksheets_filter] == 'on' ? true : false
+      end
+    end
+
+    def set_article_for_order
+      if Article.where(barcode: params[:barcode]).count > 0
+        @articles = Article.where(barcode: params[:barcode])
+        @article = @articles.first
+        @newArticle = false
+      else
+        @newArticle = true
+        @article = Article.new({:barcode => params[:barcode]})
+        @articles = Array.new
+        @article.setBarcodeImage
+        @articles << @article
+      end
+    end
+
+    def set_items_for_order
+      if params[:items].nil?
+        @newItems = Array.new
+      else
+        @newItems = items_params
+      end
+    end
+
+    def set_order
+      @order = Order.find(params[:id])
     end
 
     def worksheet_params
@@ -645,30 +686,6 @@ class OrdersController < ApplicationController
           @order = OutputOrder.new
           @recipient = Worksheet.new(:code => code, :vehicle => Vehicle.new)
         end
-      end
-    end
-
-    def get_order
-      case params[:destination]
-      when 'Worksheet'
-        worksheet_params
-      else
-        nil
-      end
-    end
-
-    def search_params
-      unless params[:search].nil? or params[:search] == ''
-        if params[:search].size == 0
-          @search = nil
-        end
-        @search = params.require(:search)
-      end
-      unless params[:from].nil?
-        @from = params.require(:from)
-      end
-      unless params[:open_worksheets_filter].nil? or params[:open_worksheets_filter] == ''
-        @open_worksheets_filter = params[:open_worksheets_filter] == 'on' ? true : false
       end
     end
 end
