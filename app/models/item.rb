@@ -60,8 +60,11 @@ class Item < ApplicationRecord
           exc = excluded.reject { |i| i.remaining_quantity > 0 }
         end
         # return Item.available_items.not_this(exc).order(:remaining_quantity => :asc, :created_at => :asc).firstGroupByArticle(search,exc)
-
-        return Item.group_by_article(Item.filter(search).available_items.not_this(exc))
+        if exc.empty?
+          return Item.group_by_article(Item.filter(search).available_items)
+        else
+          return Item.group_by_article(Item.filter(search).available_items.not_this(exc))
+        end
       end
     else
       # return Item.firstGroupByArticle(search,excluded,Item.assigned_to(Office.find(from)))
@@ -81,6 +84,7 @@ class Item < ApplicationRecord
   # end
   def real_position
     dst = self.output_orders.where(:destination_type => 'Office').order(:created_at => :desc).first
+    byebug
     if dst.nil?
       0
     else
@@ -92,18 +96,19 @@ class Item < ApplicationRecord
     end
   end
 
-  def find_next_usable(gonerList)
+  def find_next_usable(gonerList,from = 0)
+
     return self if self.remaining_quantity > 0
 
     gonerList << self
 
     gonerList.reverse.each do |i|
-      return i if i.remaining_quantity > 0
+      return i if i.article_id == self.article_id and i.remaining_quantity > 0
     end
-    if self.real_position == 0
-      items = Item.article(self.article).not_this(gonerList.select { |ooi| ooi.item.remaining_quantity == 0 }).available_items
+    if from == 0
+      items = Item.article(self.article).not_this(gonerList.select { |i| i.remaining_quantity == 0 }).available_items
     else
-      items = Office.find(@from.to_i).items(self.article,gonerList.select { |ooi| ooi.item.remaining_quantity == 0 })
+      items = Office.find(from).items(self.article,gonerList.select { |i| i.remaining_quantity == 0 })
     end
 
     # items.to_a.each_with_index do |i,index|

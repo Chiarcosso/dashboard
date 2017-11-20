@@ -1,5 +1,7 @@
 class OrdersController < ApplicationController
 
+  require 'output_order_item'
+
   before_action :autocomplete_params, only: [:autocomplete_vehicles_plate_order,:add_item,:output,:add_item_to_new_order]
   before_action :set_order, only: [:show, :edit, :update, :destroy]
   before_action :set_article_for_order, only: [:add_item_to_new_order]
@@ -227,6 +229,12 @@ class OrdersController < ApplicationController
       # @order.output_order_items.clear
       # @order.recover_items
       @order.output_order_items.each do |ooi|
+        # if @checked_items.include? ooi
+        #   nooi = @checked_items.find { |oo| oo == ooi }
+        #   ooi.update(quantity: nooi.quantity)
+        # else
+        #   ooi.destroy
+        # end
         ooi.destroy unless @checked_items.include? ooi
       end
 
@@ -235,6 +243,7 @@ class OrdersController < ApplicationController
         rq = ci.item.remaining_quantity - ci.quantity
         rq = 0 if rq < 0
         ci.item.update(remaining_quantity: rq)
+        ci.save
         @order.output_order_items << ci unless @order.output_order_items.include? ci
       end
       @order.save
@@ -490,43 +499,84 @@ class OrdersController < ApplicationController
             unless id.nil?
               ooi = YAML::load(Base64.decode64(id))
               new_ooi = nil
-              itms.each do |i|
-                if i.item.id == ooi.item.id
-                  i.quantity += ooi.quantity
-                  i.item.remaining_quantity -= ooi.quantity
-                  if i.item.quantity < 0
-                    am = i.item.quantity.abs
-                    i.item.quantity = 0
-                    i.quantity -= am
-                    new_ooi = OutputOrderItem.new(item: @newItem.find_next_usable, output_order: @order, quantity: am)
-                  end
-                  ooi_in = true
-                end
-              end
+              # itms.each do |i|
+              #   if i.item.id == ooi.item.id
+              #     i.quantity += ooi.quantity
+              #     i.item.remaining_quantity -= ooi.quantity
+              #     if i.item.remaining_quantity < 0
+              #       am = i.item.remaining_quantity.abs
+              #       i.item.remaining_quantity = 0
+              #       i.quantity -= am
+              #       new_ooi = OutputOrderItem.new(item: @newItem.find_next_usable(itms.map { |ooi| ooi.item }), output_order: @order, quantity: am)
+              #     end
+              #     ooi_in = true
+              #   end
+              # end
               itms << new_ooi unless new_ooi.nil?
               itms << ooi unless ooi_in
             end
           end
         end
       end
-
       unless @newItem.nil?
-        new_item_in = false
-        itms.each do |i|
-          if i.item.id == @newItem.id
-            i.quantity += params.require(:chamount).to_f
-            if i.item.remaining_quantity < 0
-              am = i.item.remaining_quantity.abs
-              i.item.remaining_quantity = 0
-              i.quantity -= am
-              @newItem = @newItem.find_next_usable
-            else
-              new_item_in = true
+        amount = params.require(:chamount).to_f
+        while amount > 0
+          new_itms = Array.new
+          itms.each do |i|
+            if i.item.id == @newItem.id
+              if i.item.remaining_quantity >= amount
+                i.item.remaining_quantity -= amount
+                i.quantity += amount
+                amount = 0
+                break
+              else
+                amount -= i.item.remaining_quantity
+                i.quantity += i.item.remaining_quantity
+                i.item.remaining_quantity = 0
+                @newItem = i.item.find_next_usable ((itms+new_itms).map { |ooi| ooi.item }),@from.to_i
+              end
             end
           end
+          if amount > 0
+            if @newItem.remaining_quantity >= amount
+              ni = @newItem.clone
+              ni.remaining_quantity -= amount
+              new_itms << OutputOrderItem.new(item: ni, output_order: @order, quantity: amount)
+              amount = 0
+            else
+              ni = @newItem.clone
+              q = ni.remaining_quantity
+              amount -= ni.remaining_quantity
+              ni.remaining_quantity = 0
+              new_itms << OutputOrderItem.new(item: ni, output_order: @order, quantity: q)
+              puts " --- #{@newItem.inspect}"
+              @newItem = ni.find_next_usable ((itms+new_itms).map { |ooi| ooi.item }),@from.to_i
+            end
+          end
+          itms += new_itms
+          new_itms = Array.new
         end
-        itms << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: params.require(:chamount).to_f) unless new_item_in
       end
+      #   new_item_in = false
+      #   itms.each do |i|
+      #     if i.item.id == @newItem.id
+      #
+      #       i.quantity += params.require(:chamount).to_f
+      #       if i.item.remaining_quantity < 0
+      #         am = i.item.remaining_quantity.abs
+      #         i.item.remaining_quantity = 0
+      #         i.quantity -= am
+      #         @newItem = @newItem.find_next_usable
+      #       else
+      #         new_item_in = true
+      #       end
+      #     end
+      #   end
+      #   unless new_item_in
+      #     @newItem.remaining_quantity -= params.require(:chamount).to_f
+      #     itms << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: params.require(:chamount).to_f)
+      #   end
+      # end
       itms.reverse
     end
 
