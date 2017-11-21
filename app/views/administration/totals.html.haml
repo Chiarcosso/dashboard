@@ -8,11 +8,11 @@
 
 %br
 %br
-.container-fluid.scrollable-panel
-  = "#{Item.unassigned.for_free.size} pezzi non hanno il prezzo."
-  %br
+= "#{Item.unassigned.for_free.size} pezzi non hanno il prezzo."
+%br
 
-- Item.unassigned.for_free.each do |i|
-  %br
+.container-fluid.scrollable-panel
+  - Item.unassigned.for_free.each do |i|
+    %br
 
   = i.to_s
