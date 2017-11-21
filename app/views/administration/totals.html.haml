@@ -8,10 +8,10 @@
 
 %br
 %br
-= "#{Item.for_free.size} pezzi non hanno il prezzo."
+= "#{Item.unassigned.for_free.size} pezzi non hanno il prezzo."
 %br
 
-- Item.for_free.each do |i|
+- Item.unassigned.for_free.each do |i|
   %br
 
   = i.to_s

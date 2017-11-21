@@ -18,14 +18,15 @@ class Item < ApplicationRecord
 
   # scope :available_items, -> { where('items.id not in (select item_id from output_order_items) or items.remaining_quantity > 0').order(:remaining_quantity => :asc, :created_at => :asc)}
   scope :available_items, -> { where('items.remaining_quantity > 0').order(:remaining_quantity => :asc, :created_at => :asc)}
+  scope :used_items, -> { where('items.remaining_quantity = 0').order(:remaining_quantity => :asc, :created_at => :asc)}
   scope :in_storage, -> { where('items.id not in (?)',Office.mobile_workshops(1).items.map { |i| i.id }+Office.mobile_workshops(2).items.map { |i| i.id }) }
   # scope :group_by_article, -> { group(:article_id, :serial) }
   scope :barcode, ->(barcode) { joins(:article).where("items.barcode = ? OR articles.barcode = ?", barcode, barcode) }
   scope :tyres, -> { joins(:article).joins('inner join article_categorizations on articles.id = article_categorizations.category_id').joins('inner join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name like \'%gomme%\'') }
   scope :notyres, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').joins('left join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name not like \'%gomme%\' or article_categories.name is null') }
   # scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
-  scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL or items.remaining_quantity > 0") }
-  scope :assigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NOT NULL and items.remaining_quantity = 0") }
+  scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL") }
+  scope :assigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NOT NULL") }
   scope :assigned_to, ->(what) { joins('inner join output_order_items i on items.id = i.item_id').joins('inner join output_orders on output_orders.id = i.output_order_id').where('output_orders.destination_type = \'Office\' and output_orders.destination_id = ?',what) }
   scope :limited, -> { limit(100) }
   scope :article, ->(article) { where(:article => article) }
