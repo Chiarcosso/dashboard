@@ -1,34 +1,33 @@
 %h3='Lavaggi aperti'
 .container.half.scrollable-panel
   .row
-    .col-sm-2
+    .col-sm-3
       %b
         Autista
-    .col-sm-2
+    .col-sm-4
       %b
-        Targa 1
-    .col-sm-2
-      %b
-        Targa 2
+        Mezzi
     .col-sm-1
-      %b
-        Carta speciale
-    .col-sm-2
       %b
         Pista
     .col-sm-2
       %b
         Inizio
+    .col-sm-2
+      %b
+        Sessione
   - CarwashUsage.opened.order(:starting_time => :desc).each do |c|
     .row
-      .col-sm-2
+      .col-sm-3
         = c.person.complete_name
-      .col-sm-2
+      .col-sm-4
         = c.vehicle_1.plate unless c.vehicle_1.nil?
-      .col-sm-2
         = c.vehicle_2.plate unless c.vehicle_2.nil?
-      .col-sm-1
         = c.carwash_special_code.label unless c.carwash_special_code.nil?
+      -# .col-sm-2
+      -#   = c.vehicle_2.plate unless c.vehicle_2.nil?
+      -# .col-sm-1
+      -#   = c.carwash_special_code.label unless c.carwash_special_code.nil?
       .col-sm-1
         = c.row
       .col-sm-2
@@ -39,19 +38,13 @@
 %h3='Lavaggi ultimo mese'
 .container.half.scrollable-panel
   .row
-    .col-sm-2
+    .col-sm-3
       %b
         Autista
-    .col-sm-2
+    .col-sm-4
       %b
-        Targa 1
-    .col-sm-2
-      %b
-        Targa 2
+        Mezzi
     .col-sm-1
-      %b
-        Carta speciale
-    .col-sm-2
       %b
         Pista
     .col-sm-2
@@ -62,15 +55,13 @@
         Fine
   - CarwashUsage.lastmonth.order(:ending_time => :desc).each do |c|
     .row
-      .col-sm-2
+      .col-sm-3
         = c.person.complete_name
-      .col-sm-2
+      .col-sm-4
         = c.vehicle_1.plate unless c.vehicle_1.nil?
-      .col-sm-2
         = c.vehicle_2.plate unless c.vehicle_2.nil?
-      .col-sm-1
         = c.carwash_special_code.label unless c.carwash_special_code.nil?
-      .col-sm-2
+      .col-sm-1
         = c.row
       .col-sm-2
         = l(c.starting_time)

@@ -100,16 +100,17 @@ class CodesController < ApplicationController
     types = Array.new
     driver = nil
     special = nil
-    codes.each do |c|
+    codes.uniq.each do |c|
       code = CarwashDriverCode.findByCode(c).first || CarwashVehicleCode.findByCode(c).first || CarwashSpecialCode.findByCode(c).first
       if code.is_a? CarwashDriverCode
         driver = code.person
       elsif code.is_a? CarwashSpecialCode
         special = code
       elsif code.is_a? CarwashVehicleCode
-        vehicles << code.vehicle unless code.vehicle.carwash_code.to_i == 0 # and code.vehicle.vehicle_type.carwash_type == 0
+        vehicles << code.vehicle unless code.vehicle.carwash_code.to_i == 0 or code.vehicle.just_washed? # and code.vehicle.vehicle_type.carwash_type == 0
       end
     end
+
     unless driver.nil? or ((vehicles.size > 2 or vehicles.size < 1) and special.nil?)
       cwu = CarwashUsage.create(session_id: SecureRandom.hex(10), person: driver, vehicle_1: vehicles[0], vehicle_2: vehicles[1], carwash_special_code: special, row: row, starting_time: DateTime.now)
       response = "#{cwu.session_id}"

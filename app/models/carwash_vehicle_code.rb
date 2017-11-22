@@ -5,10 +5,20 @@ class CarwashVehicleCode < ApplicationRecord
 
   belongs_to :vehicle
   has_many :vehicle_informations, :through => :vehicle
+  # has_many :carwash_usages_as_first, :foreign_key => 'vehicle_1_id', :class_name => 'CarwashUsage'
+  # has_many :carwash_usages_as_second, :foreign_key => 'vehicle_2_id', :class_name => 'CarwashUsage'
 
   scope :findByCode, ->(code) { where(:code => code) }
   scope :findByVehicle, ->(vehicle) { where(:vehicle => vehicle) }
   scope :order_plate, -> { joins(:vehicle_informations).where('vehicle_informations.vehicle_information_type_id = ?',VehicleInformationType.where(name: 'Targa').first.id).order('vehicle_informations.information') }
+
+  # def last_usage
+  #   self.carwash_usages.order(:starting_time => :desc).limit(1).first unless self.carwash_usages.empty?
+  # end
+  #
+  # def carwash_usages
+  #   self.carwash_usages_as_first + self.carwash_usages_as_second
+  # end
 
   def self.createUnique vehicle
     if CarwashVehicleCode.findByVehicle(vehicle).first.nil?
