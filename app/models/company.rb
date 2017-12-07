@@ -47,7 +47,10 @@ class Company < ApplicationRecord
     cats << 'trasportatore' if self.transporter
     cats << 'cliente' if self.client
     cats << 'fornitore' if self.supplier
-    cats << 'produttore' if self.manufacturer
+    cats << 'produttore di veicoli' if self.vehicle_manufacturer
+    cats << 'produttore di materiali' if self.item_manufacturer
+    cats << 'istituzione' if self.institution
+    cats << 'istituto di formazione' if self.formation_institution
     cats.join(', ').capitalize
   end
 
