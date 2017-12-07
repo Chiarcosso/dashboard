@@ -24,7 +24,7 @@
         Scadenza
 
   -# = form_tag(add_item_to_order_path, method: :post, remote: true, type: :script) do |f|
-  .container-fluid.scrollable-panel.half.colored
+  .container-fluid.scrollable-panel.colored.half
     -# = hidden_field_tag :search, @search
     = hidden_field_tag :destination, @destination
     - @selected_items.each do |key, item|
@@ -43,7 +43,7 @@
           = item.expiringDate.nil?? '' : (l item.expiringDate)
 
   %b='Articoli assegnati '+((@recipient.nil? || @recipient.id.nil?) ? '' : @recipient.complete_name)
-  .container
+  .container-fluid
     .row
       - case @destination.to_sym
         - when :Person

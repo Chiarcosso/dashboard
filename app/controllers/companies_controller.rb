@@ -113,11 +113,11 @@ class CompaniesController < ApplicationController
 
     def address_params
       @hq = true if params[:CompanyAddress][:headquarter] = '1'
-      p = params.require('CompanyAddress').permit(:street, :number, :internal, :geo_city_id, :zip, :geo_locality_id, :workshop, :loading_facility, :unloading_facility, :closed, :notes, :location_qualification)
+      p = params.require('CompanyAddress').permit(:street, :number, :internal, :geo_city, :zip, :geo_locality, :workshop, :loading_facility, :unloading_facility, :closed, :notes, :location_qualification)
 
       p[:company] = @company
-      p[:geo_city]  = GeoCity.find(p[:geo_city_id].to_i) unless p[:geo_city_id].nil?
-      p[:geo_locality]  = GeoLocality.find(p[:geo_locality_id].to_i) unless p[:geo_locality].nil?
+      p[:geo_city]  = GeoCity.find(p[:geo_city].to_i) unless p[:geo_city].nil?
+      p[:geo_locality]  = GeoLocality.find(p[:geo_locality].to_i) unless p[:geo_locality].nil?
       p
     end
 end

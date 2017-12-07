@@ -8,14 +8,15 @@
         .col-sm-5
           = company_address.show_categories
         .col-sm-2
-          = button_to "Elimina", delete_company_address_path(address_id: company_address.id), data: {:confirm => "Eliminare l'indirizzo della #{company_address.company.name}, in #{company_address.address}?"}, :method => :delete, :remote => true
+          = button_tag 'Modifica', class: 'popup-link edit_address', data: { name: 'Modifica indirizzo', target: edit_address_popup_path(address_id: company_address.id) }
       .row
         .col-sm-4
           = company_address.location_qualification
         .col-sm-6
           = company_address.notes
         .col-sm-2
-          = button_tag 'Modifica', class: 'popup-link edit_address', data: { name: 'Modifica indirizzo', target: edit_address_popup_path(address_id: company_address.id) }
+          = button_to "Elimina", delete_company_address_path(address_id: company_address.id), data: {:confirm => "Eliminare l'indirizzo della #{company_address.company.name}, in #{company_address.address}?"}, :method => :delete, :remote => true
+
 
 :javascript
 

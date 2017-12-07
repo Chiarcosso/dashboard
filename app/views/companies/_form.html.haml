@@ -19,7 +19,7 @@
 -#     = f.submit 'Save'
 .row
   = form_tag(company_path(@company), method: :patch) do |f|
-    .col-sm-10
+    .col-sm-9
       .row
         .col-sm-6
           %b= 'Ragione sociale'
@@ -39,7 +39,7 @@
             = submit_tag 'Salva'
           - else
             = submit_tag 'Aggiorna'
-    .col-sm-2
+    .col-sm-3
       .row
         .col-sm-8
           %b='Cliente'
@@ -62,9 +62,14 @@
           = check_box_tag 'company[transporter]', 1, @company.transporter
       .row
         .col-sm-8
-          %b='Produttore'
+          %b='Produttore di veicoli'
         .col-sm-4
-          = check_box_tag 'company[manufacturer]', 1, @company.manufacturer
+          = check_box_tag 'company[vehicle_manufacturer]', 1, @company.vehicle_manufacturer
+      .row
+        .col-sm-8
+          %b='Produttore di materiali'
+        .col-sm-4
+          = check_box_tag 'company[item_manufacturer]', 1, @company.item_manufacturer
       .row
         .col-sm-8
           %b='Istituzione'
