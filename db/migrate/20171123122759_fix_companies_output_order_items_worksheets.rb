@@ -21,7 +21,7 @@ class FixCompaniesOutputOrderItemsWorksheets < ActiveRecord::Migration[5.0]
     add_column :company_addresses, :workshop, :boolean, null: false, default: false, index: true unless column_exists? :company_addresses, :workshop
     add_column :company_addresses, :loading_facility, :boolean, null: false, default: false, index: true unless column_exists? :company_addresses, :loading_facility
     add_column :company_addresses, :unloading_facility, :boolean, null: false, default: false, index: true unless column_exists? :company_addresses, :unloading_facility
-    add_foreign_key :output_order_items, :items
-    add_foreign_key :output_order_items, :output_orders
+    add_foreign_key :output_order_items, :items unless foreign_key_exists? :output_order_items, :items
+    add_foreign_key :output_order_items, :output_orders unless foreign_key_exists? :output_order_items, :output_orders
   end
 end
