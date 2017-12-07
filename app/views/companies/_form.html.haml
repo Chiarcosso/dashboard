@@ -1,19 +1,116 @@
-= form_for @company do |f|
-  - if @company.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@company.errors.count, "error")} prohibited this company from being saved:"
-      %ul
-        - @company.errors.full_messages.each do |msg|
-          %li= msg
+-# = form_for @company do |f|
+-#   - if @company.errors.any?
+-#     #error_explanation
+-#       %h2= "#{pluralize(@company.errors.count, "error")} prohibited this company from being saved:"
+-#       %ul
+-#         - @company.errors.full_messages.each do |msg|
+-#           %li= msg
+-#
+-#   .field
+-#     = f.label :name
+-#     = f.text_field :name
+-#   .field
+-#     = f.label :vat_number
+-#     = f.text_field :vat_number
+-#   .field
+-#     = f.label :ssn
+-#     = f.text_field :ssn
+-#   .actions
+-#     = f.submit 'Save'
+.row
+  = form_tag(company_path(@company), method: :patch) do |f|
+    .col-sm-10
+      .row
+        .col-sm-6
+          %b= 'Ragione sociale'
+          = text_field_tag 'company[name]', @company.name, class: 'form-control'
+        .col-sm-3
+          %b='Partita IVA'
+          = text_field_tag 'company[vat_number]', @company.vat_number, class: 'form-control'
+        .col-sm-3
+          %b='Codice fiscale'
+          = text_field_tag 'company[ssn]', @company.ssn, class: 'form-control'
+      .row
+        .col-sm-12
+          = text_field_tag 'company[notes]', @company.notes, placeholder: 'Note', class: 'form-control'
+      .row
+        .col-sm-12
+          - if @company.id.nil?
+            = submit_tag 'Salva'
+          - else
+            = submit_tag 'Aggiorna'
+    .col-sm-2
+      .row
+        .col-sm-8
+          %b='Cliente'
+        .col-sm-4
+          = check_box_tag 'company[client]', 1, @company.client
+      .row
+        .col-sm-8
+          %b='Fornitore'
+        .col-sm-4
+          = check_box_tag 'company[supplier]', 1, @company.supplier
+      .row
+        .col-sm-8
+          %b='Officina'
+        .col-sm-4
+          = check_box_tag 'company[workshop]', 1, @company.workshop
+      .row
+        .col-sm-8
+          %b='Trasportatore'
+        .col-sm-4
+          = check_box_tag 'company[transporter]', 1, @company.transporter
+      .row
+        .col-sm-8
+          %b='Produttore'
+        .col-sm-4
+          = check_box_tag 'company[manufacturer]', 1, @company.manufacturer
+      .row
+        .col-sm-8
+          %b='Istituzione'
+        .col-sm-4
+          = check_box_tag 'company[institution]', 1, @company.institution
+      .row
+        .col-sm-8
+          %b='Istituto di formazione'
+        .col-sm-4
+          = check_box_tag 'company[manufacturer]', 1, @company.formation_institute
+- unless @company.id.nil?
+  .row
+    .col-sm-12
+      %hr
+      = render 'companies/new_address_block'
+      %hr
+    -# .col-sm-2
+    -#   %hr
+    -#   -# = render 'companies/new_phone_number_block'
+    -#   %hr
+  .row
+    .col-sm-12
+      .scrollable-panel#addresses
+        = render 'addresses_list'
 
-  .field
-    = f.label :name
-    = f.text_field :name
-  .field
-    = f.label :vat_number
-    = f.text_field :vat_number
-  .field
-    = f.label :ssn
-    = f.text_field :ssn
-  .actions
-    = f.submit 'Save'
+  -# .col-sm-3
+  -#   .field
+  -#     %b= 'Proprietà'
+  -#     = text_field_tag 'vehicle[property]', (@vehicle.property.nil?? Company.propertyChoice.name : @vehicle.property.name), data: { autocomplete: autocomplete_company_name_articles_path }, class: 'form-control autofocus'
+  -#   #vehicle_information.scrollable-panel
+  -#     = render :partial => 'vehicles/vehicle_information'
+  -#   .field
+  -#     %b= 'Note'
+  -#     = text_area_tag 'vehicle[notes]', @vehicle.notes, class: 'form-control'
+  -# .col-sm-4
+  -#   #vehicle_equipment.scrollable-panel
+  -#     = render :partial => 'vehicles/vehicle_equipment'
+  -#   #vehicle_gear.half.scrollable-panel
+  -#     = render :partial => 'vehicles/vehicle_gear'
+.actions
+  %br
+  %br
+  .inline.form-contol
+    = submit_tag 'Aggiorna', class: 'form-control inline'
+
+
+:javascript
+
+  // activateDatePicker();

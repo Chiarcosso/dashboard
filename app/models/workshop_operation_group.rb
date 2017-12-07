@@ -1,0 +1,2 @@
+class WorkshopOperationGroup < ApplicationRecord
+end

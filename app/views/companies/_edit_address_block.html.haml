@@ -1,0 +1,66 @@
+.row
+  .col-sm-12
+    %b='Modifica indirizzo'
+
+= form_tag(update_address_path(format: :js), method: :post, remote: true) do |f|
+  .row
+    .col-sm-9
+      = text_field_tag "CompanyAddress[street]", @address.street, placeholder: 'Via', class: 'form-control'
+    .col-sm-3
+      .inline
+        = text_field_tag "CompanyAddress[number]", @address.number, placeholder: 'Nr.', class: 'form-control', style: "width: 5em"
+      = '/'
+      .inline
+        = text_field_tag "CompanyAddress[internal]", @address.internal, placeholder: 'Int.', class: 'form-control', style: "width: 5em"
+  .row
+    .col-sm-1
+      = button_tag 'N', class: 'popup-link new_geo', data: { name: 'Gestione luoghi', target: geo_popup_path }
+    .col-sm-3
+      = text_field_tag "CompanyAddress[search]", nil, placeholder: 'Cerca luogo..', class: 'form-control custom_autocomplete', data: { route: custom_geo_autocomplete_path, target: 'CompanyAddress' }
+    .col-sm-2
+      = text_field_tag "CompanyAddress[city_name]", @address.geo_city.name, placeholder: 'Città', class: 'form-control', disabled: true
+      = hidden_field_tag "CompanyAddress[geo_city]", @address.geo_city.id
+    .col-sm-1
+      = text_field_tag "CompanyAddress[province_code]", @address.geo_province.name, placeholder: 'Prov.', class: 'form-control', disabled: true
+    .col-sm-1
+      = text_field_tag "CompanyAddress[zip]", @address.zip, placeholder: 'Cap', class: 'form-control'
+    .col-sm-2
+      = text_field_tag "CompanyAddress[locality_name]", @address.geo_locality.nil?? nil : @address.geo_locality.name, placeholder: 'Località/quartiere', class: 'form-control', disabled: true
+      = hidden_field_tag "CompanyAddress[geo_locality]", @address.geo_locality.id unless @address.geo_locality.nil?
+    .col-sm-2
+      = text_field_tag "CompanyAddress[state_name]", @address.geo_state.name, placeholder: 'Stato', class: 'form-control', disabled: true
+  .row
+    .col-sm-12
+      = text_field_tag "CompanyAddress[location_qualification]", @address.location_qualification, placeholder: 'Qualificazione indirizzo (es. Sede distaccata, Officina, Punto vendita etc.)', class: 'form-control'
+  .row
+    .col-sm-12
+      = text_field_tag "CompanyAddress[notes]", @address.notes, placeholder: 'Note', class: 'form-control'
+  .row
+    .col-sm-2
+      = 'Sede principale'
+      = check_box_tag 'CompanyAddress[headquarters]', 1, @address.is_main_address?
+    .col-sm-2
+      = 'Sede chiusa'
+      = check_box_tag 'CompanyAddress[closed]', 1, @address.closed
+    .col-sm-2
+      = 'Officina'
+      = check_box_tag 'CompanyAddress[workshop]', 1, @address.workshop
+      .row.workshop_brands
+        .col-sm-12
+          = text_field_tag "WorkshopBrands[search]", nil, placeholder: 'Cerca marche..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_manufacturers_autocomplete_path, target: 'CompanyAddress' }
+    .col-sm-2
+      = 'Punto di carico'
+      = check_box_tag 'CompanyAddress[loading_facility]', 1, @address.loading_facility
+    .col-sm-2
+      = 'Punto di scarico'
+      = check_box_tag 'CompanyAddress[unloading_facility]', 1, @address.unloading_facility
+    .col-sm-1
+      = submit_tag 'Salva'
+
+:javascript
+
+
+  activatePopUp();
+  activateCustomAutocomplete(function(element){
+    return $(element).data();
+  });

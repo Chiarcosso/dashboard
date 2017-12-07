@@ -71,7 +71,7 @@ class Vehicle < ApplicationRecord
   end
 
   def plate
-    p = self.vehicle_informations.where(:vehicle_information_type => VehicleInformationType.plate).order(created_at: :desc).limit(1).first
+    p = self.vehicle_informations.where(:vehicle_information_type => VehicleInformationType.plate).order(date: :desc).limit(1).first
     if p.nil?
       ''
     else
@@ -80,7 +80,7 @@ class Vehicle < ApplicationRecord
   end
 
   def chassis_number
-    c = self.vehicle_informations.where(:vehicle_information_type => VehicleInformationType.chassis).order(created_at: :desc).limit(1).first
+    c = self.vehicle_informations.where(:vehicle_information_type => VehicleInformationType.chassis).order(date: :desc).limit(1).first
     if c.nil?
       ''
     else

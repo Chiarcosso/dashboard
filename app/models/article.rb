@@ -11,6 +11,15 @@ class Article < ApplicationRecord
                                      foreign_key: :category_id,
                                      association_foreign_key: :article_id
 
+  # has_one :original_article, class_name: :article,
+  #                                   join_table: :article_compatibility,
+  #                                   foreign_key: :origina_article_id
+  #                                   association_foreign_key: :article_id
+  # has_many :compatible_articles, class_name: :article,
+  #                                   join_table: :article_compatibility,
+  #                                   foreign_key: :article_id
+  #                                   association_foreign_key: :original_article_id
+
   has_many :items
   belongs_to :manufacturer, class_name: "Company"
 

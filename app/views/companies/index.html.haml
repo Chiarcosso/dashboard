@@ -1,25 +1,52 @@
-%h1 Listing companies
+%h3 Ditte
+
+= form_tag(companies_path, method: :get) do |f|
+  = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch autofocus', 'data-target': companies_path
+-# = will_paginate @vehicles
+.container
+  .row
+    .col-sm-4
+      %b='Ragione sociale'
+    .col-sm-1
+      %b='Categorie'
+    .col-sm-1
+      %b='Telefono'
+    .col-sm-1
+      %b='Mail'
+    .col-sm-1
+      %b='Pec'
+    .col-sm-2
+      %b='Note'
+    .col-sm-1
+    .col-sm-1
+
+
 .container.scrollable-panel
-  %table
-    %thead
-      %tr
-        %th Name
-        %th Vat number
-        %th Ssn
-        %th
-        %th
-        %th
+  - unless @companies.nil?
+    - @companies.each do |c|
+      .row.colored
+        .col-sm-4
+          =c.id.to_s+'::'+c.name
+        .col-sm-1
+          =c.show_categories
+        .col-sm-1
+          -# =c.main_phone_number unless c.main_phone_number.nil?
+        .col-sm-1
+          -# =c.main_mail_address unless c.main_mail_address.nil?
+        .col-sm-1
+          -# =c.pec_address unless c.pec_mail_address.nil?
+        .col-sm-2
+          =c.notes
+        .col-sm-1
+          =button_to 'Modifica', edit_company_path(c.id), class: 'inline', method: :get
+        .col-sm-1
+          = form_tag(company_path(c.id), method: :delete) do |f|
+            = hidden_field_tag :search, @search
+            = submit_tag 'x', class: 'inline', data: { :confirm => "Eliminare la ditta #{c.name}?"}
 
-    %tbody
-      - @companies.each do |company|
-        %tr
-          %td= company.name
-          %td= company.vat_number
-          %td= company.ssn
-          %td= link_to 'Show', company
-          %td= link_to 'Edit', edit_company_path(company)
-          %td= link_to 'Destroy', company, :method => :delete, :data => { :confirm => 'Are you sure?' }
+.container
+  =button_to 'Crea', new_company_path, method: :get
 
-%br
+:javascript
 
-= link_to 'New Company', new_company_path
+  activateAF();

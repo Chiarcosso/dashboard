@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171110104537) do
+ActiveRecord::Schema.define(version: 20171207103535) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -29,6 +29,15 @@ ActiveRecord::Schema.define(version: 20171110104537) do
   create_table "article_categorizations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "article_id"
     t.integer "category_id"
+  end
+
+  create_table "article_compatibilities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "article_id",          null: false
+    t.integer  "original_article_id", null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["article_id"], name: "index_article_compatibilities_on_article_id", using: :btree
+    t.index ["original_article_id"], name: "index_article_compatibilities_on_original_article_id", using: :btree
   end
 
   create_table "articles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -93,13 +102,84 @@ ActiveRecord::Schema.define(version: 20171110104537) do
   end
 
   create_table "companies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "name",                  null: false
-    t.string   "vat_number", limit: 17
-    t.string   "ssn",        limit: 30
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.string   "name",                                               null: false
+    t.string   "vat_number",              limit: 17
+    t.string   "ssn",                     limit: 30
+    t.datetime "created_at",                                         null: false
+    t.datetime "updated_at",                                         null: false
+    t.integer  "main_company_address_id"
+    t.integer  "main_mail_address_id"
+    t.integer  "main_phone_number_id"
+    t.boolean  "workshop",                           default: false, null: false
+    t.boolean  "client",                             default: false, null: false
+    t.boolean  "supplier",                           default: false, null: false
+    t.boolean  "vehicle_manufacturer",               default: false, null: false
+    t.boolean  "transporter",                        default: false, null: false
+    t.integer  "pec_mail_address_id"
+    t.string   "notes"
+    t.boolean  "institution",                        default: false, null: false
+    t.boolean  "formation_institute",                default: false, null: false
+    t.integer  "company_group_id"
+    t.integer  "parent_company_id"
+    t.boolean  "item_manufacturer",                  default: false, null: false
+    t.index ["client"], name: "index_companies_on_client", using: :btree
+    t.index ["formation_institute"], name: "index_companies_on_formation_institute", using: :btree
+    t.index ["institution"], name: "index_companies_on_institution", using: :btree
+    t.index ["main_company_address_id"], name: "fk_rails_396db41126", using: :btree
+    t.index ["main_mail_address_id"], name: "fk_rails_3cdc7018e8", using: :btree
+    t.index ["main_phone_number_id"], name: "fk_rails_2ff45ceb15", using: :btree
     t.index ["name"], name: "index_companies_on_name", using: :btree
+    t.index ["pec_mail_address_id"], name: "fk_rails_15313248bb", using: :btree
+    t.index ["supplier"], name: "index_companies_on_supplier", using: :btree
+    t.index ["transporter"], name: "index_companies_on_transporter", using: :btree
     t.index ["vat_number"], name: "index_companies_on_vat_number", using: :btree
+    t.index ["vehicle_manufacturer"], name: "index_companies_on_vehicle_manufacturer", using: :btree
+    t.index ["workshop"], name: "index_companies_on_workshop", using: :btree
+  end
+
+  create_table "company_addresses", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "company_id",                                            null: false
+    t.decimal  "geo_position_lat",       precision: 10
+    t.decimal  "geo_position_lng",       precision: 10
+    t.string   "street",                                                null: false
+    t.string   "number",                                                null: false
+    t.string   "internal"
+    t.integer  "geo_city_id",                                           null: false
+    t.string   "zip",                                                   null: false
+    t.integer  "geo_locality_id"
+    t.string   "location_qualification",                                null: false
+    t.boolean  "closed"
+    t.string   "notes"
+    t.datetime "created_at",                                            null: false
+    t.datetime "updated_at",                                            null: false
+    t.boolean  "workshop",                              default: false, null: false
+    t.boolean  "loading_facility",                      default: false, null: false
+    t.boolean  "unloading_facility",                    default: false, null: false
+    t.index ["company_id"], name: "index_company_addresses_on_company_id", using: :btree
+    t.index ["geo_city_id"], name: "index_company_addresses_on_geo_city_id", using: :btree
+    t.index ["geo_locality_id"], name: "index_company_addresses_on_geo_locality_id", using: :btree
+    t.index ["location_qualification"], name: "index_company_addresses_on_location_qualification", using: :btree
+    t.index ["number"], name: "index_company_addresses_on_number", using: :btree
+    t.index ["street", "number", "internal", "zip", "geo_city_id"], name: "company_address_unique", unique: true, using: :btree
+  end
+
+  create_table "company_groups", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "name",                null: false
+    t.text   "notes", limit: 65535
+  end
+
+  create_table "company_mail_addresses", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "company_id",                                        null: false
+    t.string   "address",                                           null: false
+    t.string   "address_qualification", default: "Sede secondaria", null: false
+    t.boolean  "pec"
+    t.string   "notes"
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
+    t.integer  "company_address"
+    t.integer  "company_address_id"
+    t.index ["company_address_id"], name: "index_company_mail_addresses_on_company_address_id", using: :btree
+    t.index ["company_id"], name: "index_company_mail_addresses_on_company_id", using: :btree
   end
 
   create_table "company_people", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -111,6 +191,22 @@ ActiveRecord::Schema.define(version: 20171110104537) do
     t.index ["company_id"], name: "index_company_people_on_company_id", using: :btree
     t.index ["company_relation_id"], name: "index_company_people_on_company_relation_id", using: :btree
     t.index ["person_id"], name: "index_company_people_on_person_id", using: :btree
+  end
+
+  create_table "company_phone_numbers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "company_id",                     null: false
+    t.string   "international_prefix",           null: false
+    t.string   "prefix",                         null: false
+    t.string   "number"
+    t.integer  "number_type",          limit: 1
+    t.string   "number_qualification"
+    t.string   "notes"
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.integer  "company_address"
+    t.integer  "company_address_id"
+    t.index ["company_address_id"], name: "index_company_phone_numbers_on_company_address_id", using: :btree
+    t.index ["company_id"], name: "index_company_phone_numbers_on_company_id", using: :btree
   end
 
   create_table "company_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -150,6 +246,50 @@ ActiveRecord::Schema.define(version: 20171110104537) do
     t.datetime "updated_at",        null: false
   end
 
+  create_table "geo_cities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",            null: false
+    t.integer  "geo_province_id"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.string   "zip"
+    t.index ["geo_province_id"], name: "index_geo_cities_on_geo_province_id", using: :btree
+    t.index ["name", "geo_province_id", "zip"], name: "index_geo_cities_on_name_and_geo_province_id_and_zip", unique: true, using: :btree
+    t.index ["name"], name: "index_geo_cities_on_name", using: :btree
+  end
+
+  create_table "geo_localities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",        null: false
+    t.integer  "geo_city_id", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.string   "zip"
+    t.index ["geo_city_id"], name: "index_geo_localities_on_geo_city_id", using: :btree
+    t.index ["name", "geo_city_id", "zip"], name: "index_geo_localities_on_name_and_geo_city_id_and_zip", unique: true, using: :btree
+    t.index ["name"], name: "index_geo_localities_on_name", using: :btree
+  end
+
+  create_table "geo_provinces", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",         null: false
+    t.string   "code"
+    t.integer  "geo_state_id", null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+    t.index ["geo_state_id"], name: "index_geo_provinces_on_geo_state_id", using: :btree
+    t.index ["name", "geo_state_id", "code"], name: "index_geo_provinces_on_name_and_geo_state_id_and_code", unique: true, using: :btree
+    t.index ["name"], name: "index_geo_provinces_on_name", using: :btree
+  end
+
+  create_table "geo_states", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",        null: false
+    t.string   "code",        null: false
+    t.integer  "language_id", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["code"], name: "index_geo_states_on_code", using: :btree
+    t.index ["language_id"], name: "index_geo_states_on_languages_id", using: :btree
+    t.index ["name"], name: "index_geo_states_on_name", unique: true, using: :btree
+  end
+
   create_table "item_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "office_id"
     t.integer  "vehicle_id"
@@ -187,6 +327,13 @@ ActiveRecord::Schema.define(version: 20171110104537) do
     t.index ["position_code_id"], name: "index_items_on_position_code_id", using: :btree
     t.index ["transportDocument_id"], name: "index_items_on_transportDocument_id", using: :btree
     t.index ["transport_document_id"], name: "index_items_on_transport_document_id", using: :btree
+  end
+
+  create_table "languages", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",       null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_languages_on_name", unique: true, using: :btree
   end
 
   create_table "mdc_users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -422,6 +569,19 @@ ActiveRecord::Schema.define(version: 20171110104537) do
     t.index ["vehicle_typology_id"], name: "index_vehicles_on_vehicle_typology_id", using: :btree
   end
 
+  create_table "worksheet_operations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "worksheet_id"
+    t.integer  "workshop_operation_id"
+    t.datetime "starting_time"
+    t.datetime "ending_time"
+    t.integer  "person_id"
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.index ["person_id"], name: "index_worksheet_operations_on_person_id", using: :btree
+    t.index ["worksheet_id"], name: "index_worksheet_operations_on_worksheet_id", using: :btree
+    t.index ["workshop_operation_id"], name: "index_worksheet_operations_on_workshop_operation_id", using: :btree
+  end
+
   create_table "worksheets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "code",                                                null: false
     t.date     "closingDate"
@@ -432,6 +592,34 @@ ActiveRecord::Schema.define(version: 20171110104537) do
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end
 
+  create_table "workshop_brands", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "workshop_id", null: false
+    t.integer  "brand_id",    null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["brand_id"], name: "index_workshop_brands_on_brand_id", using: :btree
+    t.index ["workshop_id"], name: "index_workshop_brands_on_workshop_id", using: :btree
+  end
+
+  create_table "workshop_operation_groups", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",                   null: false
+    t.integer  "frequency"
+    t.integer  "frequency_mu", limit: 1
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.index ["name"], name: "index_workshop_operation_groups_on_name", using: :btree
+  end
+
+  create_table "workshop_operations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",                   null: false
+    t.integer  "frequency"
+    t.integer  "frequency_mu", limit: 1
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.index ["name"], name: "index_workshop_operations_on_name", using: :btree
+  end
+
+  add_foreign_key "article_compatibilities", "articles"
   add_foreign_key "articles", "companies", column: "manufacturer_id"
   add_foreign_key "articles", "users", column: "created_by_id"
   add_foreign_key "carwash_driver_codes", "people"
@@ -440,11 +628,26 @@ ActiveRecord::Schema.define(version: 20171110104537) do
   add_foreign_key "carwash_usages", "vehicles", column: "vehicle_1_id"
   add_foreign_key "carwash_usages", "vehicles", column: "vehicle_2_id"
   add_foreign_key "carwash_vehicle_codes", "vehicles"
+  add_foreign_key "companies", "company_addresses", column: "main_company_address_id"
+  add_foreign_key "companies", "company_mail_addresses", column: "main_mail_address_id"
+  add_foreign_key "companies", "company_mail_addresses", column: "pec_mail_address_id"
+  add_foreign_key "companies", "company_phone_numbers", column: "main_phone_number_id"
+  add_foreign_key "company_addresses", "companies"
+  add_foreign_key "company_addresses", "geo_cities"
+  add_foreign_key "company_addresses", "geo_localities"
+  add_foreign_key "company_mail_addresses", "companies"
+  add_foreign_key "company_mail_addresses", "company_addresses"
   add_foreign_key "company_people", "companies"
   add_foreign_key "company_people", "company_relations"
   add_foreign_key "company_people", "people"
+  add_foreign_key "company_phone_numbers", "companies"
+  add_foreign_key "company_phone_numbers", "company_addresses"
   add_foreign_key "equipment_articles", "articles"
   add_foreign_key "equipment_articles", "equipment"
+  add_foreign_key "geo_cities", "geo_provinces"
+  add_foreign_key "geo_localities", "geo_cities"
+  add_foreign_key "geo_provinces", "geo_states"
+  add_foreign_key "geo_states", "languages"
   add_foreign_key "item_relations", "items"
   add_foreign_key "item_relations", "offices"
   add_foreign_key "item_relations", "people"
@@ -459,6 +662,8 @@ ActiveRecord::Schema.define(version: 20171110104537) do
   add_foreign_key "order_articles", "orders"
   add_foreign_key "orders", "companies", column: "supplier_id"
   add_foreign_key "orders", "users", column: "created_by_id"
+  add_foreign_key "output_order_items", "items"
+  add_foreign_key "output_order_items", "output_orders"
   add_foreign_key "output_orders", "people", column: "receiver_id"
   add_foreign_key "output_orders", "users", column: "createdBy_id"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
@@ -474,4 +679,7 @@ ActiveRecord::Schema.define(version: 20171110104537) do
   add_foreign_key "vehicles", "vehicle_models", column: "model_id"
   add_foreign_key "vehicles", "vehicle_types"
   add_foreign_key "vehicles", "vehicle_typologies"
+  add_foreign_key "worksheet_operations", "people"
+  add_foreign_key "worksheet_operations", "worksheets"
+  add_foreign_key "worksheet_operations", "workshop_operations"
 end

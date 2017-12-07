@@ -1,7 +1,7 @@
 .row{ :class => (article.under_reserve? ? 'signal-danger' : 'colored'), 'data-name' => article.complete_name }
 
   .col-sm-1
-    = button_to "x", "/articles/#{article.id}/#{Base64.encode64(@search)}", :method => :delete, :remote => true
+    = button_to "x", "/articles/#{article.id}/#{Base64.encode64(@search)}", data: {:confirm => "Eliminare l'articolo nr. #{article.id}, #{article.complete_name}?"}, :method => :delete, :remote => true
   .col-sm-3
     = link_to article.id.to_s+' :: '+article.complete_name, p_edit_article_path(article.id,Base64.encode64(@search)), :remote => true
   .col-sm-2

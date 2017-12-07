@@ -37,7 +37,7 @@
   - unless @item.article.nil?
     .field
       = f.label 'Quantità rimanente'
-      = f.number_field :remaining_quantity, value: @item.remaining_quantity
+      = f.number_field :remaining_quantity, value: @item.remaining_quantity, step: :any, min: 0
   -# .field
   -#   = f.label 'DDT nr.'
   -#   = f.text_field :transportDocument

@@ -34,7 +34,7 @@
   - @orders.each do |order|
     .row.colored
       .col-sm-1
-        = button_to "x", "/output_order/#{order.id}", :method => :delete, :remote => true
+        = button_to "x", "/output_order/#{order.id}", data: {:confirm => "Eliminare l'ordine nr. #{order.id}, #{order.destination.complete_name}?"}, :method => :delete, :remote => true
       .col-sm-1
         = order.id
         -# = order.destination.class

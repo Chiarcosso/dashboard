@@ -77,9 +77,9 @@ class Item < ApplicationRecord
     self.article.complete_name+(self.serial.to_s == '' ? '' : ', Seriale/matricola: '+self.serial)+', posizione: '+self.position_code.code
   end
 
-  def price
-   "%.2f" % self[:price].to_f
-  end
+  # def price
+  #  "%.2f" % self[:price].to_f
+  # end
   # def self.available_items
   #   Item.all.map { |i| i.available? }
   # end

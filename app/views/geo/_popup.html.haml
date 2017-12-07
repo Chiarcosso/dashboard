@@ -1,0 +1,157 @@
+.contaner.scrollable-panel
+  .row.no-margin
+    .col-sm-12
+      %hr
+  .row.no-margin
+    .col-sm-5
+      = text_field_tag :language, nil, id: :new_language, class: 'form-control', placeholder: 'Nuova lingua', data: { target: 'Language' }
+    .col-sm-2
+      = button_tag 'Crea lingua', id: :create_language, data: { route: new_geo_record_path }
+  .row.no-margin
+    .col-sm-12
+      %hr
+  .row.no-margin
+    .col-sm-4
+      = text_field_tag :state, nil, id: :new_state, class: 'form-control', placeholder: 'Nuovo stato', data: { target: 'GeoState' }
+    .col-sm-1
+      = text_field_tag :state_code, nil, id: :new_state_code, class: 'form-control', placeholder: 'Sigla', data: { target: 'GeoState' }
+    .col-sm-4
+      = text_field_tag :language, nil, id: :new_state_language, class: 'form-control custom_autocomplete', data: { route: custom_geo_language_autocomplete_path, target: 'GeoState' }, placeholder: 'Lingua principale'
+    .col-sm-2
+      = button_tag 'Crea stato', id: :create_state, data: { route: new_geo_record_path }
+  .row.no-margin
+    .col-sm-12
+      %hr
+  .row.no-margin
+    .col-sm-4
+      = text_field_tag :state, nil, id: :new_province_state, class: 'form-control custom_autocomplete', data: { route: custom_geo_state_autocomplete_path, target: 'GeoProvince' }, placeholder: 'Stato'
+    .col-sm-4
+      = text_field_tag :province, nil, id: :new_province, placeholder: 'Nuova provincia', class: 'form-control', data: { target: 'GeoProvince' }
+    .col-sm-2
+      = text_field_tag :province_code, nil, placeholder: 'Codice nuova provincia', id: :new_province_code, class: 'form-control', data: { target: 'GeoProvince' }
+    .col-sm-2
+      = button_tag 'Crea provincia', id: :create_province, data: { route: new_geo_record_path }
+  .row.no-margin
+    .col-sm-12
+      %hr
+  .row.no-margin
+    .col-sm-4
+      = text_field_tag :province, nil, id: :new_city_province, class: 'form-control custom_autocomplete', data: { route: custom_geo_province_autocomplete_path, target: 'GeoCity' }, placeholder: 'Provincia'
+    .col-sm-4
+      = text_field_tag :city, nil, id: :new_city, class: 'form-control', placeholder: 'Nuova città', data: { target: 'GeoCity' }
+    .col-sm-2
+      = text_field_tag :zip, nil, id: :new_city_zip, class: 'form-control', placeholder: 'CAP nuova città', data: { target: 'GeoCity' }
+    .col-sm-2
+      = button_tag 'Crea città', id: :create_city, data: { route: new_geo_record_path }
+  .row.no-margin
+    .col-sm-11
+      Se la città ha più CAP, lasciare vuoto il campo relativo ed aggiungere le località o i quartieri.
+  .row.no-margin
+    .col-sm-12
+      %hr
+  .row.no-margin
+    .col-sm-4
+      = text_field_tag :city, nil, id: :new_locality_city, class: 'form-control custom_autocomplete', data: { route: custom_geo_city_autocomplete_path, target: 'GeoLocality' }, placeholder: 'Città'
+    .col-sm-4
+      = text_field_tag :locality, nil, id: :new_locality, class: 'form-control', placeholder: 'Nuova località', data: { target: 'GeoLocality' }
+    .col-sm-2
+      = text_field_tag :zip, nil, id: :new_locality_zip, class: 'form-control', placeholder: 'CAP nuova località', data: { target: 'GeoLocality' }
+    .col-sm-2
+      = button_tag 'Crea località', id: :create_locality, data: { route: new_geo_record_path }
+  .row.no-margin
+    .col-sm-11
+      Se la località ha lo stesso CAP della città, lasciare vuoto il campo relativo.
+  .row.no-margin
+    .col-sm-12
+      %hr
+
+:javascript
+
+  activateCustomAutocomplete(function(element){
+    return $(element).data();
+  });
+
+  $('#create_language').off('click');
+  $('#create_language').on('click',function(){
+    element = this;
+    $.ajax({
+      url: $(this).data('route'),
+      method: 'post',
+      data: {model: 'Language', data: {name: $('#new_language').val()} },
+      success: function(){
+        $(element).parent().parent().removeClass('signal-danger');
+        $('input[data-target=Language]').val('');
+      },
+      error: function(){
+        $(element).parent().parent().addClass('signal-danger');
+      }
+    });
+  });
+
+  $('#create_state').off('click');
+  $('#create_state').on('click',function(){
+    element = this;
+    $.ajax({
+      url: $(this).data('route'),
+      method: 'post',
+      data: {model: 'GeoState', data: {name: $('#new_state').val(), code: $('#new_state_code').val(), language: $('.ac-GeoState-language[name="GeoState[language_id]"]').val()} },
+      success: function(){
+        $(element).parent().parent().removeClass('signal-danger');
+        $('input[data-target=GeoState]').val('');
+      },
+      error: function(){
+        $(element).parent().parent().addClass('signal-danger');
+      }
+    });
+  });
+
+  $('#create_province').off('click');
+  $('#create_province').on('click',function(){
+    element = this;
+    $.ajax({
+      url: $(this).data('route'),
+      method: 'post',
+      data: {model: 'GeoProvince', data: {name: $('#new_province').val(), code: $('#new_province_code').val(), geo_state: $('.ac-GeoProvince-geo_state[name="GeoProvince[geo_state_id]"]').val()} },
+      success: function(){
+        $(element).parent().parent().removeClass('signal-danger');
+        $('input[data-target=GeoProvince]').val('');
+      },
+      error: function(){
+        $(element).parent().parent().addClass('signal-danger');
+      }
+    });
+  });
+
+  $('#create_city').off('click');
+  $('#create_city').on('click',function(){
+    element = this;
+    $.ajax({
+      url: $(this).data('route'),
+      method: 'post',
+      data: {model: 'GeoCity', data: {name: $('#new_city').val(), zip: $('#new_city_zip').val(), geo_province: $('.ac-GeoCity-geo_province[name="GeoCity[geo_province_id]"]').val()} },
+      success: function(){
+        $(element).parent().parent().removeClass('signal-danger');
+        $('input[data-target=GeoCity]').val('');
+      },
+      error: function(){
+        $(element).parent().parent().addClass('signal-danger');
+      }
+    });
+  });
+
+  $('#create_locality').off('click');
+  $('#create_locality').on('click',function(){
+    element = this;
+    $.ajax({
+      url: $(this).data('route'),
+      method: 'post',
+      data: {model: 'GeoLocality', data: {name: $('#new_locality').val(), zip: $('#new_locality_zip').val(), geo_city: $('.ac-GeoLocality-geo_city[name="GeoLocality[geo_city_id]"]').val()} },
+      success: function(){
+        $(element).parent().parent().removeClass('signal-danger');
+        $('input[data-target=GeoLocality]').val('');
+      },
+      error: function(){
+        $(element).parent().parent().addClass('signal-danger');
+      }
+    });
+  });

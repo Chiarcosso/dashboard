@@ -151,4 +151,24 @@ Rails.application.routes.draw do
   get  '/codes/mdc', to: 'codes#mdc_index'
 
   get '/carwash/', to: 'carwash#index', as: :carwash
+
+  post '/geo/geo_city_autocomplete', to: 'geo#geo_city_autocomplete', as: :custom_geo_city_autocomplete
+  post '/geo/geo_province_autocomplete', to: 'geo#geo_province_autocomplete', as: :custom_geo_province_autocomplete
+  post '/geo/geo_state_autocomplete', to: 'geo#geo_state_autocomplete', as: :custom_geo_state_autocomplete
+  post '/geo/geo_language_autocomplete', to: 'geo#geo_language_autocomplete', as: :custom_geo_language_autocomplete
+  post '/geo/geo_locality_autocomplete', to: 'geo#geo_locality_autocomplete', as: :custom_geo_locality_autocomplete
+  post '/geo/geo_autocomplete', to: 'geo#geo_autocomplete', as: :custom_geo_autocomplete
+  get '/geo/geo_popup/', to: 'geo#popup', as: :geo_popup
+  post '/geo/new/', to: 'geo#new_record', as: :new_geo_record
+  # post '/geo/new_language', to: 'geo#new_language', as: :new_language
+  # post '/geo/new_state', to: 'geo#new_state', as: :new_state
+  # post '/geo/new_province', to: 'geo#new_province', as: :new_province
+  # post '/geo/new_city', to: 'geo#new_city', as: :new_city
+  # post '/geo/new_locality', to: 'geo#new_locality', as: :new_locality
+
+  get '/companies/edit_address_popup/:address_id', to: 'companies#edit_address_popup', as: :edit_address_popup
+  post '/companies/update_address/', to: 'companies#update_address_popup', as: :update_address
+  delete '/companies/:id/:address_id/del_address', to: 'companies#del_address', as: :delete_company_address
+  post '/companies/:id/add_address', to: 'companies#add_address', as: :add_company_address
+  post '/companies/:id/add_phone', to: 'companies#add_phone', as: :add_company_phone
 end

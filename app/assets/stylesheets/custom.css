@@ -17,11 +17,24 @@ body{
 .bottom_border{
   border-bottom: 1px solid black;
 }
-.scrollable-panel{
-  position: relative;
-  height: 100%;
-  float:none;
-  overflow-y: auto;
+
+.custom-autocomplete-choice{
+  /*height: 3em;
+  border: 1px solid black;*/
+  border: 0px;
+  border-radius: 0px;
+}
+
+.custom-autocomplete-choice:hover{
+  background-color: #ffa;
+}
+
+.custom-autocomplete-dropdown{
+    position: absolute;
+    z-index: 1500;
+    min-height: 1em;
+    border: 1px solid gray;
+    background-color: #fff;
 }
 
 .loading-screen{
@@ -130,6 +143,10 @@ body{
   margin-bottom: .25em;
 }
 
+.no-margin{
+  margin: 0px;
+}
+
 .ontop{
   position: fixed;
   z-index: 2000;
@@ -138,6 +155,14 @@ body{
 .right-aligned{
   float: right;
 }
+
+.scrollable-panel{
+  position: relative;
+  height: 100%;
+  float:none;
+  overflow-y: auto;
+}
+
 .signal-danger{
   background-color: #f44 !important;
 }

@@ -1,0 +1,34 @@
+.row
+  .col-sm-12
+    %b='Nuovo numero telefonico'
+
+= form_tag(add_company_phone_path(@company), method: :post) do |f|
+  .row
+    .col-sm-9
+      = text_field_tag "new_company_phone[iternational]", nil, placeholder: '+39', class: 'form-control', style: "width: 5em"
+    .col-sm-3
+      = text_field_tag "new_company_phone[prefix]", nil, placeholder: 'Pref.', class: 'form-control', style: "width: 5em"
+    .col-sm-3
+      = text_field_tag "new_company_phone[number]", nil, placeholder: 'Numero', class: 'form-control'
+  .row
+    .col-sm-5
+      = select_tag "new_company_phone[type]", ['Telefono fisso','Cellulare','Fax'], class: 'form-control'
+    .col-sm-1
+      = text_field_tag "new_company_address[province]", nil, placeholder: 'Prov.', class: 'form-control'
+    .col-sm-1
+      = text_field_tag "new_company_address[zip]", nil, placeholder: 'Cap', class: 'form-control'
+    .col-sm-5
+      = text_field_tag "new_company_address[locality]", nil, placeholder: 'Località', class: 'form-control'
+  .row
+    .col-sm-2
+      = 'Sede principale'
+      = check_box_tag 'new_company_address[headquarters]', 1
+    .col-sm-2
+      = 'Officina'
+      = check_box_tag 'new_company_address[workshop]', 1
+    .col-sm-2
+      = 'Punto di carico'
+      = check_box_tag 'new_company_address[loading_facility]', 1
+    .col-sm-2
+      = 'Punto di scarico'
+      = check_box_tag 'new_company_address[unloading_facility]', 1

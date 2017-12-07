@@ -1,0 +1,60 @@
+.row
+  .col-sm-12
+    %b='Nuovo indirizzo'
+
+= form_tag(add_company_address_path(@company, format: :js), method: :post, remote: true) do |f|
+  .row
+    .col-sm-9
+      = text_field_tag "CompanyAddress[street]", nil, placeholder: 'Via', class: 'form-control'
+    .col-sm-3
+      .inline
+        = text_field_tag "CompanyAddress[number]", nil, placeholder: 'Nr.', class: 'form-control', style: "width: 5em"
+      = '/'
+      .inline
+        = text_field_tag "CompanyAddress[internal]", nil, placeholder: 'Int.', class: 'form-control', style: "width: 5em"
+  .row
+    .col-sm-1
+      = button_tag 'N', class: 'popup-link new_geo', data: { name: 'Gestione luoghi', target: geo_popup_path }
+    .col-sm-3
+      = text_field_tag "CompanyAddress[search]", nil, placeholder: 'Cerca luogo..', class: 'form-control custom_autocomplete', data: { route: custom_geo_autocomplete_path, target: 'CompanyAddress' }
+    .col-sm-2
+      = text_field_tag "CompanyAddress[city_name]", nil, placeholder: 'Città', class: 'form-control', disabled: true
+    .col-sm-1
+      = text_field_tag "CompanyAddress[province_code]", nil, placeholder: 'Prov.', class: 'form-control', disabled: true
+    .col-sm-1
+      = text_field_tag "CompanyAddress[zip]", nil, placeholder: 'Cap', class: 'form-control'
+    .col-sm-2
+      = text_field_tag "CompanyAddress[locality_name]", nil, placeholder: 'Località/quartiere', class: 'form-control', disabled: true
+    .col-sm-2
+      = text_field_tag "CompanyAddress[state_name]", nil, placeholder: 'Stato', class: 'form-control', disabled: true
+  .row
+    .col-sm-12
+      = text_field_tag "CompanyAddress[location_qualification]", nil, placeholder: 'Qualificazione indirizzo (es. Sede distaccata, Officina, Punto vendita etc.)', class: 'form-control'
+  .row
+    .col-sm-12
+      = text_field_tag "CompanyAddress[notes]", nil, placeholder: 'Note', class: 'form-control'
+  .row
+    .col-sm-2
+      = 'Sede principale'
+      = check_box_tag 'CompanyAddress[headquarters]', 1
+    .col-sm-2
+      = 'Sede chiusa'
+      = check_box_tag 'CompanyAddress[closed]', 1
+    .col-sm-2
+      = 'Officina'
+      = check_box_tag 'CompanyAddress[workshop]', 1
+    .col-sm-2
+      = 'Punto di carico'
+      = check_box_tag 'CompanyAddress[loading_facility]', 1
+    .col-sm-2
+      = 'Punto di scarico'
+      = check_box_tag 'CompanyAddress[unloading_facility]', 1
+    .col-sm-1
+      = submit_tag 'Salva'
+
+:javascript
+
+  activatePopUp();
+  activateCustomAutocomplete(function(element){
+    return $(element).data();
+  });

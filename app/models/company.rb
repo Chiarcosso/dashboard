@@ -1,6 +1,23 @@
 class Company < ApplicationRecord
   resourcify
 
+  belongs_to :company_group
+  belongs_to :parent_company, foreign_key: :parent_company_id, class_name: :company
+  belongs_to :main_phone_number
+  belongs_to :main_mail_address
+  belongs_to :main_pec_address
+  belongs_to :main_address, foreign_key: :main_company_address_id, class_name: :CompanyAddress
+
+  has_many :owned_vehicles, foreign_key: :property_id, class_name: :vehicle
+  has_many :produced_vehicles, foreign_key: :manufacturer_id, class_name: :vehicle
+  has_many :produced_articles, foreign_key: :manufacturer_id, class_name: :article
+  has_many :items, through: :produced_articles
+
+  has_many :company_addresses
+  has_many :company_mail_addresses
+  has_many :company_pec_addresses
+  has_many :company_phone_numbers
+
   scope :filter, ->(search) { where('name like ?',"%#{search}%").order(:name) }
   # scope :find_by_name,->(name) { where("lower(name) = ?", name) }
 
@@ -22,6 +39,29 @@ class Company < ApplicationRecord
     else
       nil
     end
+  end
+
+  def show_categories
+    cats = Array.new
+    cats << 'officina' if self.workshop
+    cats << 'trasportatore' if self.transporter
+    cats << 'cliente' if self.client
+    cats << 'fornitore' if self.supplier
+    cats << 'produttore' if self.manufacturer
+    cats.join(', ').capitalize
+  end
+
+  def main_phone_number
+    pn = self.main_phone_number
+    pn.international_prefix+' '+pn.prefx+' '+pn.number
+  end
+
+  def main_mail_address
+    self.main_mail_address.address
+  end
+
+  def pec_mail_address
+    self.pec_mail_address.address
   end
 
   def list_name

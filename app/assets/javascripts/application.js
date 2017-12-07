@@ -19,6 +19,78 @@
 //= require autocomplete-rails
 //= require_tree .
 
+function activateCustomAutocomplete(func){
+  $('.custom_autocomplete').off('keyup');
+  $('.custom_autocomplete').on('keyup',function(){
+    var element = this
+    var search = this.value;
+    var route = $(this).data('route');
+    var target = $(this).data('target');
+    $.ajax({
+      url: route,
+      method: 'post',
+      data: { 'search': search },
+      success: function(data){
+        var offset = $(element).offset();
+        offset.top += $(element).outerHeight();
+        $('.custom-autocomplete-dropdown').remove();
+        $('body').append('<div class="custom-autocomplete-dropdown" style="top: '+offset.top+'px; left: '+offset.left+'px; width: '+$(element).outerWidth()+'px;"></div>');
+        $.each(data,function(){
+          var dt = ''
+          $.each(this,function(k,v){
+            dt += 'data-'+k+'="'+v+'" ';
+          })
+          $('.custom-autocomplete-dropdown').first().append('<div class="form-control custom-autocomplete-choice" '+dt+'>'+this.label+'</div>')
+        });
+        $('.custom-autocomplete-choice').off('click');
+        $('.custom-autocomplete-choice').on('click',function (){
+          choice = func(this);
+          console.log(choice);
+          $(element).val(choice['label']);
+          $('.ac-'+target+'-'+choice['field']).remove();
+          $.each(choice,function(key,val){
+            if (key != 'label') {
+              if ($('input[name="'+target+'['+key+']"]').size() > 0) {
+                $('input[name="'+target+'['+key+']"]').val(val);
+              } else {
+                $(element).parent().append('<input type="hidden" data-target="'+target+'" class="autocomplete-field ac-'+target+'-'+choice['field']+'" name="'+target+'['+key+']" value="'+val+'"/>');
+              }
+            }
+          });
+          $('.custom-autocomplete-dropdown').remove();
+        });
+      },
+      error: function(data){
+        console.log('Autocomplete error',data);
+      }
+    });
+  });
+}
+
+
+
+function activatePopUp(){
+  $('.popup-link').off('click');
+  $('.popup-link').on('click', function(e){
+    e.preventDefault();
+    activateLoadingScreen();
+    var target = $(this).data('target');
+    var name = $(this).data('name').replace(' ','-');
+    $.ajax({
+        type: "GET",
+        url: target,
+        complete: function(data){
+           $('body').append('<div class="popup" id="'+name+'"></div>');
+           $('#'+name).html(data.responseText);
+           $('#'+name).append('<div class="close">Chiudi</div>');
+           activateClose();
+           deactivateLoadingScreen();
+        }
+    });
+    return false;
+  });
+}
+
 function activateGallery(){
   $('.gallery-image').off('click');
   $('.gallery-image').on('click',function(){
@@ -134,6 +206,7 @@ function reloadSelectBoxes(){
 function activateClose(){
   $('.close').off('click');
   $('.close').on('click',function(){
+    $('.custom-autocomplete-dropdown').remove();
     specificCloseFunctions();
     $(this).parent().remove();
     deactivateLoadingScreen();

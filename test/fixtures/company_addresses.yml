@@ -1,0 +1,29 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  company: one
+  geo_position_lat: 9.99
+  geo_position_lng: 9.99
+  street: MyString
+  number: 1
+  internal: MyString
+  geo_city: one
+  zip: MyString
+  geo_locality: one
+  location_qualification: MyString
+  closed: false
+  notes: MyString
+
+two:
+  company: two
+  geo_position_lat: 9.99
+  geo_position_lng: 9.99
+  street: MyString
+  number: 1
+  internal: MyString
+  geo_city: two
+  zip: MyString
+  geo_locality: two
+  location_qualification: MyString
+  closed: false
+  notes: MyString

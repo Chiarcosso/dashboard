@@ -1,7 +1,5 @@
-%h1 Editing company
+%h3 Modifica ditta
+.container
+  = render 'form'
 
-= render 'form'
-
-= link_to 'Show', @company
-\|
-= link_to 'Back', companies_path
+= button_to 'Indietro', companies_path, class: 'form-control'

@@ -1,0 +1,21 @@
+.row.colored
+  .col-sm-3
+    %b= 'Via'
+    = text_field_tag "company_addresses[a#{company_address.id}[street]]", company_address.street, class: 'form-control'
+  .col-sm-1
+    %b='nr.'
+    = text_field_tag "company_addresses[a#{company_address.id}[number]]", company_address.number, class: 'form-control'
+    = '/'
+    = text_field_tag "company_addresses[a#{company_address.id}[internal]]", company_address.internal, class: 'form-control'
+  .col-sm-1
+    %b='Città'
+    = text_field_tag "company_addresses[a#{company_address.id}[city]]", company_address.geo_city.nil?? '' : company_address.geo_city.name, class: 'form-control'
+  .col-sm-1
+    %b='Prov.'
+    = text_field_tag "company_addresses[a#{company_address.id}[province]]", company_address.geo_city.nil?? '' : company_address.geo_city.geo_province.code, class: 'form-control'
+  .col-sm-1
+    %b='Cap'
+    = text_field_tag "company_addresses[a#{company_address.id}[zip]]", company_address.zip, class: 'form-control'
+  .col-sm-1
+    %b='Località'
+    = text_field_tag "company_addresses[a#{company_address.id}[zip]]", company_address.geo_locality.name, class: 'form-control'
