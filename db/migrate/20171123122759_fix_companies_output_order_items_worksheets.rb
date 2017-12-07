@@ -7,15 +7,15 @@ class FixCompaniesOutputOrderItemsWorksheets < ActiveRecord::Migration[5.0]
     add_column :companies, :transporter, :boolean, null: false, default: false, index: true unless column_exists? :companies, :transporter
 
     add_column :companies, :main_company_address_id, :integer unless column_exists? :companies, :main_company_address_id
-    add_foreign_key :companies, :company_addresses, column: :main_company_address_id
+    add_foreign_key :companies, :company_addresses, column: :main_company_address_id unless foreign_key_exists? :companies, to_table: :company_addresses, column: :main_company_address_id
 
     add_column :companies, :main_mail_address_id, :integer unless column_exists? :companies, :main_mail_address_id
-    add_foreign_key :companies, :company_mail_addresses, column: :main_mail_address_id
+    add_foreign_key :companies, :company_mail_addresses, column: :main_mail_address_id unless foreign_key_exists? :companies, to_table: :company_mail_addresses, column: :main_mail_address_id
 
     add_column :companies, :main_phone_number_id, :integer unless column_exists? :companies, :main_phone_number_id
-    add_foreign_key :companies, :company_phone_numbers, column: :main_phone_number_id
+    add_foreign_key :companies, :company_phone_numbers, column: :main_phone_number_id unless foreign_key_exists? :companies, to_table: :company_phone_numbers, column: :main_phone_number_id
 
-    add_column :companies, :pec_mail_address_id, :integer unless column_exists? :companies, :pec_mail_address_id
+    add_column :companies, :pec_mail_address_id, :integer unless column_exists? :companies, :pec_mail_address_id unless foreign_key_exists? :companies, to_table: :company_mail_addresses, column: :pec_mail_address_id
     add_foreign_key :companies, :company_mail_addresses, column: :pec_mail_address_id
 
     add_column :company_addresses, :workshop, :boolean, null: false, default: false, index: true unless column_exists? :company_addresses, :workshop
