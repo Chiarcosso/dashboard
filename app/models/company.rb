@@ -50,7 +50,7 @@ class Company < ApplicationRecord
     cats << 'produttore di veicoli' if self.vehicle_manufacturer
     cats << 'produttore di materiali' if self.item_manufacturer
     cats << 'istituzione' if self.institution
-    cats << 'istituto di formazione' if self.formation_institution
+    cats << 'istituto di formazione' if self.formation_institute
     cats.join(', ').capitalize
   end
 
