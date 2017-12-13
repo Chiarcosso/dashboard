@@ -18,6 +18,18 @@ body{
   border-bottom: 1px solid black;
 }
 
+.close{
+  margin: 1em;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 1000;
+}
+
+.colored:nth-child(even){
+  background-color: #eee;
+}
+
 .custom-autocomplete-choice{
   /*height: 3em;
   border: 1px solid black;*/
@@ -29,12 +41,34 @@ body{
   background-color: #ffa;
 }
 
+.custom-autocomplete-choice-selected{
+  background-color: #ffa;
+}
+
 .custom-autocomplete-dropdown{
     position: absolute;
     z-index: 1500;
     min-height: 1em;
     border: 1px solid gray;
     background-color: #fff;
+}
+
+.datepicker-dropdown{
+  z-index: 2001;
+}
+
+.error-item{
+  background-color: #f99;
+  border: 1px solid #d77;
+}
+
+.floor{
+  position: absolute;
+  bottom: 0vh;
+}
+
+.gallery-popup{
+  padding-left: 0px;
 }
 
 .gi-rotate-0{
@@ -80,14 +114,42 @@ body{
                                   supported by Chrome and Opera */
 }
 
+.h40{
+  height: 40% !important;
+}
+
+.h58{
+  height: 58% !important;
+}
+
 .half{
   height:45% !important;
+}
+
+.hover-hilight{
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.hover-hilight:hover{
+  background-color: #ccc;
+  cursor: pointer;
 }
 
 .inline{
   position: relative;
   clear: none;
   display: inline-block;
+}
+
+.input-row{
+  margin-top: .25em;
+  margin-bottom: .25em;
 }
 
 .internal-panel{
@@ -99,22 +161,8 @@ body{
   padding-bottom: 20em;
 }
 
-.h58{
-  height: 58%;
-}
-
-.floor{
-  position: absolute;
-  bottom: 0vh;
-}
-
 .item_box{
   margin: .4em
-}
-
-.input-row{
-  margin-top: .25em;
-  margin-bottom: .25em;
 }
 
 .loading-screen{
@@ -152,6 +200,29 @@ body{
   z-index: 2000;
 }
 
+.popup{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 90vw;
+  height: 75vh;
+  border: .2em solid #f00;
+  border-radius: 1em;
+  background-color: #fff;
+  padding: 2em;
+  overflow: hidden;
+}
+
+.popup-content{
+  overflow: auto;
+}
+
+.positioned-item{
+  background-color: #9fb;
+  border: 1px solid #7d9;
+}
+
 .right-aligned{
   float: right;
 }
@@ -161,6 +232,11 @@ body{
   height: 100%;
   float:none;
   overflow-y: auto;
+}
+
+.selected-item{
+  background-color: #99f;
+  border: 1px solid #77d;
 }
 
 .signal-danger{
@@ -191,88 +267,19 @@ body{
   background-color: #0f0;
 }
 
+.small-button{
+  width: 70px;
+  font-size: smaller;
+}
+
 .store-box{
   margin: .1em;
   border-radius: .5em;
   border: 1px solid #ddd;
 }
 
-.positioned-item{
-  background-color: #9fb;
-  border: 1px solid #7d9;
-}
-
-.selected-item{
-  background-color: #99f;
-  border: 1px solid #77d;
-}
-
-.error-item{
-  background-color: #f99;
-  border: 1px solid #d77;
-}
-
-.datepicker-dropdown{
-  z-index: 2001;
-}
-
-.small-button{
-  width: 70px;
-  font-size: smaller;
-}
-
-.hover-hilight{
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
-}
-
-
-.colored:nth-child(even){
-  background-color: #eee;
-}
-
-.hover-hilight:hover{
-  background-color: #ccc;
-  cursor: pointer;
-}
-
-.popup{
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  width: 90vw;
-  height: 75vh;
-  border: .2em solid #f00;
-  border-radius: 1em;
-  background-color: #fff;
-  padding: 2em;
-  overflow: hidden;
-}
-
-.gallery-popup{
-  padding-left: 0px;
-}
-
-.popup-content{
-  overflow: auto;
-}
-
 .tab-header *{
   margin-top: 1em;
   margin-bottom: .6em;
   font-weight: bolder;
-}
-
-.close{
-  margin: 1em;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  z-index: 1000;
 }

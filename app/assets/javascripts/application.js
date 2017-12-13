@@ -21,7 +21,18 @@
 
 function activateCustomAutocomplete(func){
   $('.custom_autocomplete').off('keyup');
-  $('.custom_autocomplete').on('keyup',function(){
+  $('.custom_autocomplete').on('keyup',function(e){
+    var focusElement;
+    if(e.which == 13) {
+      e.preventDefault();
+      return;
+    }
+    if(e.which == 40) {
+      focusElement = $('.custom-autocomplete-choice').first();
+      focusElement.addClass('custom-autocomplete-choice-selected');
+      $(focusElement).attr('tabindex',-1).focus();
+      return;
+    }
     var element = this
     var search = this.value;
     var route = $(this).data('route');
@@ -33,6 +44,8 @@ function activateCustomAutocomplete(func){
       success: function(data){
         var offset = $(element).offset();
         offset.top += $(element).outerHeight();
+        $('.dropdown_original').removeClass('dropdown_original');
+        $(element).addClass('dropdown_original');
         $('.custom-autocomplete-dropdown').remove();
         $('body').append('<div class="custom-autocomplete-dropdown" style="top: '+offset.top+'px; left: '+offset.left+'px; width: '+$(element).outerWidth()+'px;"></div>');
         $.each(data,function(){
@@ -42,18 +55,63 @@ function activateCustomAutocomplete(func){
           })
           $('.custom-autocomplete-dropdown').first().append('<div class="form-control custom-autocomplete-choice" '+dt+'>'+this.label+'</div>')
         });
+        $('.custom-autocomplete-choice').off('keyup');
+        $('.custom-autocomplete-choice').on('keyup',function (e){
+          var focusElement = $(this);
+          switch(e.which){
+            case 40: if ($(this).next('.custom-autocomplete-choice').length > 0){
+                        $(focusElement).removeClass('custom-autocomplete-choice-selected');
+                        focusElement = $(this).next('.custom-autocomplete-choice');
+                        $(focusElement).addClass('custom-autocomplete-choice-selected');
+                        $(focusElement).attr('tabindex',-1).focus();
+                      }
+                     break;
+            case 38: if ($(this).prev('.custom-autocomplete-choice').length > 0){
+                         $(focusElement).removeClass('custom-autocomplete-choice-selected');
+                         focusElement = $(this).prev('.custom-autocomplete-choice');
+                         $(focusElement).addClass('custom-autocomplete-choice-selected');
+                         $(focusElement).attr('tabindex',-1).focus();
+                      } else {
+                        focusElement = $('.dropdown_original').first();
+                        $(focusElement).focus();
+                        $(focusElement).val($(focusElement).val());
+                        console.log($(focusElement));
+                      }
+                     break;
+            case 13: $(focusElement).trigger('click');
+                     break;
+          }
+
+        });
         $('.custom-autocomplete-choice').off('click');
         $('.custom-autocomplete-choice').on('click',function (){
           choice = func(this);
-          console.log(choice);
           $(element).val(choice['label']);
-          $('.ac-'+target+'-'+choice['field']).remove();
+          $.each($('input.'+target+'-'+choice['field']),function(){
+            $(this).val('');
+          });
+          $.each($('.ac-'+target+'-'+choice['field']),function(){
+            if (!$(this).attr('name').includes('[]')){
+              $(this).remove();
+            } else {
+              alert($(this).attr('name'))
+            }
+          });
           $.each(choice,function(key,val){
-            if (key != 'label') {
-              if ($('input[name="'+target+'['+key+']"]').size() > 0) {
+            if (key != 'label' && key != 'field' && key != 'id') {
+              if ($('input[name="'+target+'['+key+']"]').size() > 0 && !key.includes('[]')) {
                 $('input[name="'+target+'['+key+']"]').val(val);
               } else {
-                $(element).parent().append('<input type="hidden" data-target="'+target+'" class="autocomplete-field ac-'+target+'-'+choice['field']+'" name="'+target+'['+key+']" value="'+val+'"/>');
+                if(key.includes('[]')){
+                  var arrayElement = $('<div data-target="'+target+'" class="autocomplete-field ac-'+target+'-array-'+choice['field']+'"></div>');
+                  arrayElement.append('<div class="row colored"><div class="col-sm-9">'+choice['label']+'</div><div class="col-sm-3"></div>');
+                  arrayElement.children('.row,.col-sm-9').first().append('<input type="hidden" data-target="'+target+'" class="autocomplete-field ac-'+target+'-array-'+choice['field']+'" name="'+target+'['+key+']" value="'+val+'"/>');
+                  arrayElement.children('.row,.col-sm-3').first().append('<button data-target="'+target+'" class="autocomplete-field ac-'+target+'-array-'+choice['field']+'" onclick="$(this).parent().parent().remove()">X</button>');
+                  $(element).parent().append(arrayElement);
+                } else {
+                  $(element).parent().append('<input type="hidden" data-target="'+target+'" class="autocomplete-field ac-'+target+'-'+choice['field']+'" name="'+target+'['+key+']" value="'+val+'"/>');
+                }
+
               }
             }
           });

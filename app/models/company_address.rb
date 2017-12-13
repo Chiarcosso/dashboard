@@ -1,12 +1,13 @@
 class CompanyAddress < ApplicationRecord
   resourcify
 
+
   belongs_to :company
   belongs_to :geo_city
   belongs_to :geo_locality
   has_one :geo_province, through: :geo_city
   has_one :geo_state, through: :geo_province
-  has_many :workshop_brands
+  has_many :workshop_brands, foreign_key: :workshop_id
   has_many :brands, through: :workshop_brands
 
   def address

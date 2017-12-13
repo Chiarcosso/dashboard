@@ -11,6 +11,14 @@ class Article < ApplicationRecord
                                      foreign_key: :category_id,
                                      association_foreign_key: :article_id
 
+   has_and_belongs_to_many :original_articles, class_name: "Article",
+                                      join_table: "article_compatibilities",
+                                      foreign_key: :article_id,
+                                      association_foreign_key: :original_article_id
+  has_and_belongs_to_many :peer_articles, class_name: "Article",
+                                     join_table: "article_compatibilities",
+                                     foreign_key: :original_article_id,
+                                     association_foreign_key: :article_id
   # has_one :original_article, class_name: :article,
   #                                   join_table: :article_compatibility,
   #                                   foreign_key: :origina_article_id
@@ -31,6 +39,11 @@ class Article < ApplicationRecord
   # scope :position_codes, ->(article) { include(:items).include(:position_code).distinct }
 
   enum measure_unit: [:pezzi,:kg,:litri,:metri]
+
+  def equivalent_articles
+    pa = self.peer_articles.to_a
+    self.original_articles.merge pa
+  end
 
   def self.incompleteItems
     Article.all

@@ -25,9 +25,9 @@
   - unless @companies.nil?
     - @companies.each do |c|
       .row.colored
-        .col-sm-4
+        .col-sm-3
           =c.id.to_s+'::'+c.name
-        .col-sm-1
+        .col-sm-2
           =c.show_categories
         .col-sm-1
           -# =c.main_phone_number unless c.main_phone_number.nil?

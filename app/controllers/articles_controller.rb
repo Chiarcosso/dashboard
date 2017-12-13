@@ -5,6 +5,16 @@ class ArticlesController < ApplicationController
   autocomplete :company, :name, full: true
   # GET /articles
   # GET /articles.json
+  def peer_articles_autocomplete
+    field = params.require(:field)
+    unless params[:search].nil? or params[:search] == ''
+      # array = Language.filter(params.require(:search))
+      search = params.require(:search).tr(' ','%')
+      # array = Article.find_by_sql("select 'original_article' as field, 'ArticleCompatibilty' as model, a.id as original_article_id, m.name+' '+a.name+' ('a.manufacturerCode')' as label from articles a inner join companies m on m.id = a.manufacturer_id where a.name like '%#{search}%' or a.barcode like '%#{search}%' or a.manufacturerCode like '%#{search}%' or m.name like '%#{search}%' limit 10")
+      render :json => Article.find_by_sql("select '#{field}' as field, 'Article' as model, a.id as 'original_article_id[]id', m.name+' '+a.name+' ('a.manufacturerCode')' as label from articles a inner join companies m on m.id = a.manufacturer_id where a.name like '%#{search}%' or a.barcode like '%#{search}%' or a.manufacturerCode like '%#{search}%' or m.name like '%#{search}%' limit 10")
+    end
+  end
+
   def index
     if search_params.nil? || search_params == ""
       @filteredArticles = Array.new

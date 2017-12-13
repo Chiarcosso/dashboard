@@ -5,6 +5,7 @@
 = form_tag(update_address_path(format: :js), method: :post, remote: true) do |f|
   .row
     .col-sm-9
+      = hidden_field_tag :id, @address.id
       = text_field_tag "CompanyAddress[street]", @address.street, placeholder: 'Via', class: 'form-control'
     .col-sm-3
       .inline
@@ -19,14 +20,14 @@
       = text_field_tag "CompanyAddress[search]", nil, placeholder: 'Cerca luogo..', class: 'form-control custom_autocomplete', data: { route: custom_geo_autocomplete_path, target: 'CompanyAddress' }
     .col-sm-2
       = text_field_tag "CompanyAddress[city_name]", @address.geo_city.name, placeholder: 'Città', class: 'form-control', disabled: true
-      = hidden_field_tag "CompanyAddress[geo_city]", @address.geo_city.id
+      = hidden_field_tag "CompanyAddress[geo_city_id]", @address.geo_city.id, class: 'ac-CompanyAddress-city'
     .col-sm-1
       = text_field_tag "CompanyAddress[province_code]", @address.geo_province.name, placeholder: 'Prov.', class: 'form-control', disabled: true
     .col-sm-1
       = text_field_tag "CompanyAddress[zip]", @address.zip, placeholder: 'Cap', class: 'form-control'
     .col-sm-2
       = text_field_tag "CompanyAddress[locality_name]", @address.geo_locality.nil?? nil : @address.geo_locality.name, placeholder: 'Località/quartiere', class: 'form-control', disabled: true
-      = hidden_field_tag "CompanyAddress[geo_locality]", @address.geo_locality.id unless @address.geo_locality.nil?
+      = hidden_field_tag "CompanyAddress[geo_locality]", @address.geo_locality.id, class: 'ac-CompanyAddress-city' unless @address.geo_locality.nil?
     .col-sm-2
       = text_field_tag "CompanyAddress[state_name]", @address.geo_state.name, placeholder: 'Stato', class: 'form-control', disabled: true
   .row
@@ -38,7 +39,7 @@
   .row
     .col-sm-2
       = 'Sede principale'
-      = check_box_tag 'CompanyAddress[headquarters]', 1, @address.is_main_address?
+      = check_box_tag 'CompanyAddress[headquarter]', 1, @address.is_main_address?
     .col-sm-2
       = 'Sede chiusa'
       = check_box_tag 'CompanyAddress[closed]', 1, @address.closed
@@ -48,6 +49,14 @@
       .row.workshop_brands
         .col-sm-12
           = text_field_tag "WorkshopBrands[search]", nil, placeholder: 'Cerca marche..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_manufacturers_autocomplete_path, target: 'CompanyAddress' }
+          - @address.brands.each do |b|
+            .autocomplete-field.ac-CompanyAddress-array-manufacturer{data: { target: 'CompanyAddress' }}
+              .row.colored
+                .col-sm-9
+                  = b.name
+                  = hidden_field_tag 'CompanyAddress[manufacturer_id[]id]', b.id, data: { target: 'CompanyAddress' }, class: 'autocomplete-field ac-CompanyAddress-array-manufacturer'
+                .col-sm-3
+                  = button_tag 'X', onclick: "$(this).parent().parent().remove()", data: { target: 'CompanyAddress' }, class: 'autocomplete-field ac-CompanyAddress-array-manufacturer'
     .col-sm-2
       = 'Punto di carico'
       = check_box_tag 'CompanyAddress[loading_facility]', 1, @address.loading_facility

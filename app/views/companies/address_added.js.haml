@@ -1,3 +1,4 @@
 removejtk();
+$('.close').trigger('click');
 $("#addresses").html("#{escape_javascript(render :partial => 'companies/addresses_list', locals: { company: @company }  )} ");
 deactivateLoadingScreen();

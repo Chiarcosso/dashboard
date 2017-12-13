@@ -1,10 +1,11 @@
 - @company.company_addresses.each do |company_address|
-  .row.colored
+  .row.colored.no-margin
     .col-sm-12
       .row
         .col-sm-5
           = company_address.address
-          %b= ' SEDE PRINCIPALE' if company_address.is_main_address?
+          %u
+            %b= ' SEDE PRINCIPALE' if company_address.is_main_address?
         .col-sm-5
           = company_address.show_categories
         .col-sm-2
@@ -15,7 +16,7 @@
         .col-sm-6
           = company_address.notes
         .col-sm-2
-          = button_to "Elimina", delete_company_address_path(address_id: company_address.id), data: {:confirm => "Eliminare l'indirizzo della #{company_address.company.name}, in #{company_address.address}?"}, :method => :delete, :remote => true
+          = button_to "Elimina", delete_company_address_path(id: company_address.company.id, address_id: company_address.id), data: {:confirm => "Eliminare l'indirizzo della #{company_address.company.name}, in #{company_address.address}?"}, :method => :delete, :remote => true
 
 
 :javascript
