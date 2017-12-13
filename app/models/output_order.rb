@@ -20,7 +20,7 @@ class OutputOrder < ApplicationRecord
   def total
     total = 0
     self.items.each do |i|
-      total += i.actualPrice
+      total += i.actualPrice / i.article.containedAmount.to_f
     end
     total
   end

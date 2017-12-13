@@ -51,6 +51,7 @@ class Item < ApplicationRecord
 
   def self.next_available_items(search,excluded = Array.new, from = 0)
     if (from == 0)
+    byebug
       if excluded.nil? or excluded.empty?
         # return Item.available_items.order(:remaining_quantity => :asc, :created_at => :asc).firstGroupByArticle(search,excluded)
         return Item.group_by_article(Item.filter(search).available_items)

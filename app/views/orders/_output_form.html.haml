@@ -72,7 +72,7 @@
   %br
   .container-fluid.scrollable-panel.half
     - @checked_items.reverse.each do |oo_item|
-      .row.colored.hover-hilight.chklist{'data-target': add_item_to_order_path, 'data-data': oo_item.id}
+      .row.colored.hover-hilight.chklist{'data-target': add_item_to_order_path, 'data-data': oo_item.id, 'data-dsc': oo_item.item.complete_name, 'data-serial': oo_item.item.serial}
         .col-sm-4
           -# = hidden_field_tag 'items[][id]', oo_item.id
           = hidden_field_tag 'items[][id]', Base64.encode64(YAML::dump(oo_item))
@@ -104,5 +104,12 @@
 
   $('.chklist').off('click');
   $('.chklist').on('click',function(){
-    $(this).remove();
+    msg = $(this).data('dsc');
+    sr = $(this).data('serial');
+    if(sr != ''){
+      msg += ' ('+sr+')';
+    }
+    if(confirm("Rimouvere "+msg+"?")){
+      $(this).remove();
+    }
   });

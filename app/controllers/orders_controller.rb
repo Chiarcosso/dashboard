@@ -181,7 +181,6 @@ class OrdersController < ApplicationController
     # @destination = output_params
     # @search = search_params.nil?? '' : search_params
     search_params
-
     @checked_items = chk_list_params
     # unless @newItem.nil?
     #

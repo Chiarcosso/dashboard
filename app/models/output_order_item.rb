@@ -3,6 +3,7 @@ class OutputOrderItem < ApplicationRecord
 
   before_destroy :recover_item
   belongs_to :item
+  has_one :article, through: :item
   belongs_to :output_order
 
   def actualPrice
@@ -22,7 +23,7 @@ class OutputOrderItem < ApplicationRecord
     if (self.item.discount.to_f > 0)
        price += " \n("+self.price.to_s+' -'+self.discount.to_s+'%'+')'
     end
-    price.tr('.',',')+"\n Scatola: #{self.item.complete_price}"
+    price.tr('.',',')#+"\n Scatola: #{self.item.complete_price}"
   end
 
   def recover_item

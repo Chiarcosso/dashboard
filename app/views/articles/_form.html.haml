@@ -28,17 +28,17 @@
         .field
           = f.label "Articolo"
           = f.text_field :name, class: 'form-control cr-field'
-        -# .field
-        -#   = f.label "Articoli equivalenti"
-        -#   = text_field_tag "Article[search]", nil, placeholder: 'Cerca originale compatibile', class: 'form-control custom_autocomplete', data: { route: custom_peer_articles_autocomplete_path(field: :original_article), target: 'Article' }
-        -#   - @article.equivalent_articles.each do |ea|
-        -#     .autocomplete-field.ac-ArticleCompatibility-array-original_article{data: { target: 'Article' }}
-        -#       .row.colored
-        -#         .col-sm-9
-        -#           = ea.name
-        -#           = hidden_field_tag 'Article[original_article_id[]id]', ea.id, data: { target: 'Article' }, class: 'autocomplete-field ac-Article-array-original_article'
-        -#         .col-sm-3
-        -#           = button_tag 'X', onclick: "$(this).parent().parent().remove()", data: { target: 'Article' }, class: 'autocomplete-field ac-Article-array-original_article'
+        .field
+          = f.label "Articoli equivalenti"
+          = text_field_tag "Article[search]", nil, placeholder: 'Cerca originale compatibile', class: 'form-control custom_autocomplete', data: { route: custom_peer_articles_autocomplete_path(field: :original_article), target: 'Article' }
+          - @article.equivalent_articles.each do |ea|
+            .autocomplete-field.ac-ArticleCompatibility-array-original_article{data: { target: 'Article' }}
+              .row.colored
+                .col-sm-9
+                  = ea.name
+                  = hidden_field_tag 'Article[original_article_id[]id]', ea.id, data: { target: 'Article' }, class: 'autocomplete-field ac-Article-array-original_article'
+                .col-sm-3
+                  = button_tag 'X', onclick: "$(this).parent().parent().remove()", data: { target: 'Article' }, class: 'autocomplete-field ac-Article-array-original_article'
         .field
           = f.label "Descrizione"
           = f.text_field :description, class: 'form-control cr-field'
