@@ -19,8 +19,8 @@ class OutputOrder < ApplicationRecord
 
   def total
     total = 0
-    self.items.each do |i|
-      total += i.actualPrice / i.article.containedAmount.to_f
+    self.output_order_items.each do |i|
+      total += i.actualPrice
     end
     total
   end
@@ -205,7 +205,8 @@ class OutputOrder < ApplicationRecord
     if self.destination.class == Worksheet
       table << ["Ore di lavoro","","","#{self.destination.hours_complete_price}"]
       table << ["Materiale di consumo","","","#{self.destination.materials_complete_price}"]
-      total += self.destination.hours_price+self.destination.materials_price
+      total += self.destination.hours_price
+      total += self.destination.materials_price
     end
 
     table << ["Totale","","","#{"%.2f" % total} €".tr('.',',')]

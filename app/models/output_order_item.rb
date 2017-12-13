@@ -21,7 +21,7 @@ class OutputOrderItem < ApplicationRecord
   def complete_price
     price = self.actualPrice.round(2).to_s+' €'
     if (self.item.discount.to_f > 0)
-       price += " \n("+self.price.to_s+' -'+self.discount.to_s+'%'+')'
+       price += " \n("+self.price.round(2).to_s+' -'+self.discount.to_s+'%'+')'
     end
     price.tr('.',',')#+"\n Scatola: #{self.item.complete_price}"
   end
