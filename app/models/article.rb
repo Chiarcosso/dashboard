@@ -123,12 +123,21 @@ class Article < ApplicationRecord
     end
   end
 
-  def availability(*checked)
-    unless checked.empty?
-      Item.article(self).available_items - checked[0]
-    else
-      Item.article(self).available_items
+  def actual_availability(*checked)
+    a = 0
+    self.availability(checked).each do |i|
+      a += i.remaining_quantity
     end
+    a
+  end
+
+  def availability(*checked)
+    checked.flatten!
+    itms = Item.article(self).available_items.to_a
+    unless checked.empty?
+      itms -= checked.map { |i| i.class == OutputOrderItem ? i.item : i }
+    end
+    itms
   end
 
   def availability_label(*checked)

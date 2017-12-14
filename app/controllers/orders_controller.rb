@@ -492,12 +492,16 @@ class OrdersController < ApplicationController
       itms = Array.new
       unless params[:items].nil?
         params.require(:items).tap do |itm|
-          ooi_in = false
+          # ooi_in = false
           itm.each do |i|
             id = i.require(:id)
             unless id.nil?
+              foo = OutputOrderItem.new #workaround for YAML.load bug
               ooi = YAML::load(Base64.decode64(id))
-              new_ooi = nil
+              # itms << YAML::load(Base64.decode64(id))
+              ooi.item.remaining_quantity -= ooi.quantity
+              itms << ooi
+              # new_ooi = nil
               # itms.each do |i|
               #   if i.item.id == ooi.item.id
               #     i.quantity += ooi.quantity
@@ -511,14 +515,16 @@ class OrdersController < ApplicationController
               #     ooi_in = true
               #   end
               # end
-              itms << new_ooi unless new_ooi.nil?
-              itms << ooi unless ooi_in
+              # itms << new_ooi unless new_ooi.nil?
+              # itms << ooi unless ooi_in
             end
           end
         end
       end
       unless @newItem.nil?
-        amount = params.require(:chamount).to_f
+        amount = params.require(:chamount).to_f.abs
+        av = @newItem.article.actual_availability(@checked_items)
+        amount = av if amount > av
         while amount > 0
           new_itms = Array.new
           itms.each do |i|
@@ -533,6 +539,7 @@ class OrdersController < ApplicationController
                 i.quantity += i.item.remaining_quantity
                 i.item.remaining_quantity = 0
                 @newItem = i.item.find_next_usable ((itms+new_itms).map { |ooi| ooi.item }),@from.to_i
+                # break if @newItem.nil?
               end
             end
           end
@@ -543,13 +550,15 @@ class OrdersController < ApplicationController
               new_itms << OutputOrderItem.new(item: ni, output_order: @order, quantity: amount)
               amount = 0
             else
-              ni = @newItem.clone
-              q = ni.remaining_quantity
-              amount -= ni.remaining_quantity
-              ni.remaining_quantity = 0
-              new_itms << OutputOrderItem.new(item: ni, output_order: @order, quantity: q)
+              # ni = @newItem.clone
+              q = @newItem.remaining_quantity
+              amount -= @newItem.remaining_quantity
+              @newItem.remaining_quantity = 0
+              new_itms << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: q)
               puts " --- #{@newItem.inspect}"
-              @newItem = ni.find_next_usable ((itms+new_itms).map { |ooi| ooi.item }),@from.to_i
+              @newItem = @newItem.find_next_usable ((itms+new_itms).map { |ooi| ooi.item }),@from.to_i
+              puts " +++ #{@newItem.inspect}"
+              break if @newItem.nil?
             end
           end
           itms += new_itms
@@ -646,7 +655,9 @@ class OrdersController < ApplicationController
       unless params[:item].nil?
         @newItem = Item.find(params.require(:item).to_i)
         @newItems = Array.new
-        amount = params[:chamount].to_f.abs
+        amount = params.require(:chamount).to_f.abs
+          av = @newItem.article.actual_availability(@checked_items)
+        amount = av if amount > av
         while amount > 0 do
           if amount <= @newItem.remaining_quantity
             @newItem.remaining_quantity -= amount
@@ -657,7 +668,7 @@ class OrdersController < ApplicationController
             amount -= @newItem.remaining_quantity
             @newItem.remaining_quantity = 0
             @newItems << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: given_quantity)
-
+            # byebug
             itms = get_output_items.map! { |oo_itm| oo_itm.item } if itms.nil?
             @newItem = @newItem.find_next_usable(itms)
             itms << @newItem
