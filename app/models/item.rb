@@ -31,7 +31,7 @@ class Item < ApplicationRecord
   scope :limited, -> { limit(100) }
   scope :article, ->(article) { where(:article => article) }
   scope :not_this, ->(items) { where("items.id not in (?)",items.map { |itm| itm.id }) }
-  scope :filter, ->(search) { joins(:position_code).joins(:article).joins(:article => :manufacturer).where("items.serial LIKE '%#{search}%' OR items.barcode LIKE '%#{search}%' OR articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%' OR (#{PositionCode.getQueryFromCode(search)})")}
+  scope :filter, ->(search) { joins(:position_code).joins(:article).joins(:article => :manufacturer).where("items.serial LIKE '%#{search.tr(' ','%')}%' OR items.barcode LIKE '%#{search.tr(' ','%')}%' OR articles.barcode LIKE '%#{search.tr(' ','%')}%' OR articles.description LIKE '%#{search.tr(' ','%')}%' OR companies.name LIKE '%#{search.tr(' ','%')}%' OR articles.name LIKE '%#{search.tr(' ','%')}%' OR articles.manufacturerCode LIKE '%#{search.tr(' ','%')}%' OR (#{PositionCode.getQueryFromCode(search.tr(' ','%'))})")}
   scope :lastCreatedOrder, -> { reorder(created_at: :desc) }
   scope :firstCreatedOrder, -> { reorder(created_at: :asc) }
   scope :for_free, -> { where('price <= 0') }

@@ -229,7 +229,7 @@ class ArticlesController < ApplicationController
 
     def search_params
       unless params[:search].nil? || params[:search] == ''
-        @search = params.require(:search).tr(' ','%')
+        @search = params.require(:search)
       end
     end
 

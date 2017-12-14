@@ -445,7 +445,7 @@ class ItemsController < ApplicationController
 
     def search_params
       unless params[:search].nil? || params[:search] == ''
-        @search =  params.require(:search).tr(' ','%')
+        @search =  params.require(:search)
       end
       unless params[:all].nil? || params[:all] == ''
         @all = params.require(:all) == 'true' ? true : false

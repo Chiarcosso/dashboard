@@ -31,7 +31,7 @@ class Article < ApplicationRecord
   has_many :items
   belongs_to :manufacturer, class_name: "Company"
 
-  scope :filter, ->(search) { joins(:manufacturer).where("articles.barcode LIKE '%#{search}%' OR articles.description LIKE '%#{search}%' OR companies.name LIKE '%#{search}%' OR articles.name LIKE '%#{search}%' OR articles.manufacturerCode LIKE '%#{search}%'")}
+  scope :filter, ->(search) { joins(:manufacturer).where("articles.barcode LIKE '%#{search.tr(' ','%')}%' OR articles.description LIKE '%#{search.tr(' ','%')}%' OR companies.name LIKE '%#{search.tr(' ','%')}%' OR articles.name LIKE '%#{search.tr(' ','%')}%' OR articles.manufacturerCode LIKE '%#{search.tr(' ','%')}%'")}
   scope :no_barcode, -> { where(barcode: '') }
   scope :manufacturer, ->(search) { include(:company).where("manufacturer_id = companies.id").where("companies.name LIKE '%#{search}%'")}
   # scope :reserve_check, -> { group(:id).left_outer_joins(:items).having('count(items.id) < minimalReserve or (minimalReserve = 0 and count(items.id) > 0)') }
