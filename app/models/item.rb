@@ -51,7 +51,6 @@ class Item < ApplicationRecord
 
   def self.next_available_items(search,excluded = Array.new, from = 0)
     if (from == 0)
-    byebug
       if excluded.nil? or excluded.empty?
         # return Item.available_items.order(:remaining_quantity => :asc, :created_at => :asc).firstGroupByArticle(search,excluded)
         return Item.group_by_article(Item.filter(search).available_items)
@@ -86,7 +85,6 @@ class Item < ApplicationRecord
   # end
   def real_position
     dst = self.output_orders.where(:destination_type => 'Office').order(:created_at => :desc).first
-    byebug
     if dst.nil?
       0
     else
