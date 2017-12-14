@@ -56,7 +56,8 @@ class Item < ApplicationRecord
         return Item.group_by_article(Item.filter(search).available_items)
       else
         if excluded[0].class == OutputOrderItem
-          exc = excluded.map { |itm| itm.item }.reject { |i| i.remaining_quantity > 0 }
+          exc = excluded.reject { |i| i.quantity < i.item.remaining_quantity }
+          exc.map! { |itm| itm.item }
         else
           exc = excluded.reject { |i| i.remaining_quantity > 0 }
         end
