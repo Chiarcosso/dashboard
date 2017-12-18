@@ -125,7 +125,13 @@ function activateCustomAutocomplete(func){
   });
 }
 
-
+function activateHideBlock(){
+  $('.hide-block').off('click');
+  $('.hide-block').on('click',function(){
+    element = $(this).data('block');
+    $(element).toggle(this.checked);
+  });
+}
 
 function activatePopUp(){
   $('.popup-link').off('click');

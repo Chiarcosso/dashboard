@@ -31,16 +31,17 @@ class Company < ApplicationRecord
 
   def to_worksheet_financial_csv(options = {},year = Date.current.year)
     CSV.generate(options) do |csv|
+      csv << ['Ditta: ',self.name]
       columns = ['Scheda','Targa','Data','Totale ricambi','Totale minuteria','Totale ore','Totale']
       csv << columns
       # csv << column_names
-      list = self.worksheets.year(year).each_with_index.map{ |ws,i| [ws.code,ws.vehicle.plate,ws.created_at.strftime("%d/%m/%Y"),ws.items_price.round(2).to_s.tr('.',','),ws.materials_price.round(2).to_s.tr('.',','),ws.hours_price.round(2).to_s.tr('.',','),"=SOMMA(D#{i+2}:F#{i+2})"]}
+      list = self.worksheets.year(year).each_with_index.map{ |ws,i| [ws.code,ws.vehicle.plate,ws.created_at.strftime("%d/%m/%Y"),ws.items_price.round(2).to_s.tr('.',','),ws.materials_price.round(2).to_s.tr('.',','),ws.hours_price.round(2).to_s.tr('.',','),"=SOMMA(D#{i+3}:F#{i+3})"]}
       list.each do |worksheet|
         # csv << article.values_at(*columns)
         # csv << [article[:name],article[:availability],article[:price],article[:total]].values_at(*columns)
         csv << worksheet
       end
-      csv << ['','','','','','Totale',"=SOMMA(G2:G#{list.size+1})"]
+      csv << ['','','','','','Totale',"=SOMMA(G3:G#{list.size+2})"]
     end
   end
 

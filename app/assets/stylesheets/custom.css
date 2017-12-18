@@ -126,6 +126,10 @@ body{
   height:45% !important;
 }
 
+.hidden-block{
+  display: none;
+}
+
 .hover-hilight{
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */

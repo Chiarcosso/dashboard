@@ -7,28 +7,33 @@
         = "Officina:"
   .row
     .col-12-sm
+      = check_box_tag 'hidden-chiarcosso', '1', false, class: 'hide-block', data: { block: '#workshop-chiarcosso'}
       %b= "Lavori #{Company.chiarcosso.name}:"
-      %br
-      - Company.chiarcosso.owned_vehicles.each do |v|
-        - v.worksheets.year(2017).each do |ws|
-          = ws.total_label+". Inizio lavoro: "+(l ws.created_at)
-          .indent
-            = ws.items_price_label
+  .row.hidden-block#workshop-chiarcosso
+    .col-12-sm
+      .scollable-panel
+        - Company.chiarcosso.owned_vehicles.each do |v|
+          - v.worksheets.year(2017).each do |ws|
+            = ws.total_label+". Inizio lavoro: "+(l ws.created_at)
+            .indent
+              = ws.items_price_label
+              %br
+              = ws.materials_price_label
+              %br
+              = ws.hours_price_label
+              %br
             %br
-            = ws.materials_price_label
-            %br
-            = ws.hours_price_label
-            %br
-          %br
 
-      %b
-        = "Totale: #{Company.chiarcosso.total_workheets_price}€"
-        = button_to 'Distinta xls', print_workshop_financial_path(year: 2017, company_id: Company.chiarcosso.id, format: :xls), class: 'no-loader'
-      %br
+  %b
+    = "Totale: #{Company.chiarcosso.total_workheets_price}€"
+    = button_to 'Distinta xls', print_workshop_financial_path(year: 2017, company_id: Company.chiarcosso.id, format: :xls), class: 'no-loader'
+  %br
   .row
     .col-12-sm
-      %b= "Lavori #{Company.transest.name}:"
-  .row
+      = check_box_tag 'hidden-transest', '1', false, class: 'hide-block', data: { block: '#workshop-transest'}
+      %b= "Lavori #{Company.transest.name}: "
+
+  .row.hidden-block#workshop-transest
     .col-12-sm
       .scollable-panel
         - Company.transest.owned_vehicles.each do |v|
@@ -42,10 +47,11 @@
               = ws.hours_price_label
               %br
             %br
-      %b
-        = "Totale: #{Company.transest.total_workheets_price}€"
-        = button_to 'Distinta xls', print_workshop_financial_path(year: 2017, company_id: Company.transest.id, format: :xls), class: 'no-loader'
-      %br
+
+  %b
+    = "Totale: #{Company.transest.total_workheets_price}€"
+    = button_to 'Distinta xls', print_workshop_financial_path(year: 2017, company_id: Company.transest.id, format: :xls), class: 'no-loader'
+  %br
   .row
     .col-12-sm
       %h3
@@ -69,8 +75,6 @@
 
 -# = "Valore totale pezzi in giacenza: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s} + #{"%.2f" % Item.total_value_tyres.to_s} di gomme)"
 
+:javascript
 
-
-
-
-%br
+  activateHideBlock();

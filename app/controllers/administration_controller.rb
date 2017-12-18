@@ -19,7 +19,7 @@ class AdministrationController < ApplicationController
 
     respond_to do |format|
       # format.html
-      format.csv { send_data @worksheets.to_worksheet_financial_csv({col_sep: ";"},year) }
+      format.csv { send_data company.to_worksheet_financial_csv({col_sep: ";"},year) }
       format.xls { send_data company.to_worksheet_financial_csv({col_sep: "\t"},year) }
     end
   end
