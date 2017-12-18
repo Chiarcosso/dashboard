@@ -8,9 +8,10 @@ class Company < ApplicationRecord
   belongs_to :main_pec_address
   belongs_to :main_address, foreign_key: :main_company_address_id, class_name: :CompanyAddress
 
-  has_many :owned_vehicles, foreign_key: :property_id, class_name: :vehicle
-  has_many :produced_vehicles, foreign_key: :manufacturer_id, class_name: :vehicle
-  has_many :produced_articles, foreign_key: :manufacturer_id, class_name: :article
+  has_many :owned_vehicles, foreign_key: :property_id, class_name: 'Vehicle'
+  has_many :worksheets, through: :owned_vehicles
+  has_many :produced_vehicles, foreign_key: :manufacturer_id, class_name: 'Vehicle'
+  has_many :produced_articles, foreign_key: :manufacturer_id, class_name: 'Article'
   has_many :items, through: :produced_articles
 
   has_many :company_addresses
@@ -20,6 +21,44 @@ class Company < ApplicationRecord
 
   scope :filter, ->(search) { where('name like ?',"%#{search}%").order(:name) }
   # scope :find_by_name,->(name) { where("lower(name) = ?", name) }
+  def self.chiarcosso
+    Company.where("name like 'Autotrasporti Chiarcosso%'").first
+  end
+
+  def self.transest
+    Company.where("name like 'Trans Est%'").first
+  end
+
+  def to_worksheet_financial_csv(options = {},year = Date.current.year)
+    CSV.generate(options) do |csv|
+      columns = ['Scheda','Targa','Data','Totale ricambi','Totale minuteria','Totale ore','Totale']
+      csv << columns
+      # csv << column_names
+      list = self.worksheets.year(year).each_with_index.map{ |ws,i| [ws.code,ws.vehicle.plate,ws.created_at.strftime("%d/%m/%Y"),ws.items_price.round(2).to_s.tr('.',','),ws.materials_price.round(2).to_s.tr('.',','),ws.hours_price.round(2).to_s.tr('.',','),"=SOMMA(D#{i+2}:F#{i+2})"]}
+      list.each do |worksheet|
+        # csv << article.values_at(*columns)
+        # csv << [article[:name],article[:availability],article[:price],article[:total]].values_at(*columns)
+        csv << worksheet
+      end
+      csv << ['','','','','','Totale',"=SOMMA(G2:G#{list.size+1})"]
+    end
+  end
+
+  def self.financial_list
+    worksheets = Array.new
+    Worksheet.year().each do |a|
+      articles << [a.complete_name,a.availability.size,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
+    end
+    articles
+  end
+
+  def total_workheets_price
+    total = 0.0
+    self.owned_vehicles.each do |v|
+      total += v.worksheets.map{ |ws| ws.total_price }.inject(0,:+)
+    end
+    total
+  end
 
   def self.manufacturerChoice
     find_by_sql('select companies.*, vehicle_models.manufacturer_id as id, count(vehicle_models.manufacturer_id) as cnt from vehicle_models inner join companies on companies.id = vehicle_models.manufacturer_id group by manufacturer_id having manufacturer_id is not null order by cnt desc').first

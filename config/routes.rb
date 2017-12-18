@@ -65,6 +65,9 @@ Rails.application.routes.draw do
   put    '/admin/users/:id', to: 'users#update'
   delete '/admin/users/:id', to: 'users#delete', as: :delete_user_admin
 
+  post '/administration/financial_inventory.xls', to: 'administration#financial_inventory', as: :print_financial_inventory
+  post '/administration/:company_id/:year/workshop_financial.xls', to: 'administration#workshop_financial', as: :print_workshop_financial
+
   post   '/sendfare', to: 'ws#update_fares', as: :update_fares
   # get    '/autocomplete/:model/:search', to: 'companies#autocomplete', as: :ac_companies
   post   '/roles/', to: 'roles#create', as: :roles

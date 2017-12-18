@@ -20,7 +20,7 @@ class OutputOrder < ApplicationRecord
   def total
     total = 0
     self.output_order_items.each do |i|
-      total += i.actualPrice
+      total += i.actual_price
     end
     total
   end
@@ -76,10 +76,10 @@ class OutputOrder < ApplicationRecord
     compact_list = Hash.new
     self.output_order_items.each do |i|
       if compact_list[i.item.article.complete_name].nil?
-        compact_list[i.item.article.complete_name] = {:name => i.item.article.complete_name, :amount => i.quantity, :total_price => i.actualPrice}
+        compact_list[i.item.article.complete_name] = {:name => i.item.article.complete_name, :amount => i.quantity, :total_price => i.actual_price}
       else
         compact_list[i.item.article.complete_name][:amount] += i.quantity
-        compact_list[i.item.article.complete_name][:total_price] += i.actualPrice
+        compact_list[i.item.article.complete_name][:total_price] += i.actual_price
       end
     end
     return compact_list
@@ -89,10 +89,10 @@ class OutputOrder < ApplicationRecord
     compact_list = Hash.new
     self.items.each do |i|
       if compact_list[i.article.complete_name+i.serial.to_s].nil?
-        compact_list[i.article.complete_name+i.serial.to_s] = {:name => i.article.complete_name, :amount => 1, :total_price => i.actualPrice, :serial => i.serial, :id => i.id, :image => i.actualBarcode.to_s+'.png', :barcode => i.actualBarcode, :position => i.position_code.code}
+        compact_list[i.article.complete_name+i.serial.to_s] = {:name => i.article.complete_name, :amount => 1, :total_price => i.actual_price, :serial => i.serial, :id => i.id, :image => i.actualBarcode.to_s+'.png', :barcode => i.actualBarcode, :position => i.position_code.code}
       else
         compact_list[i.article.complete_name+i.serial.to_s][:amount] += 1
-        compact_list[i.article.complete_name+i.serial.to_s][:total_price] += i.actualPrice
+        compact_list[i.article.complete_name+i.serial.to_s][:total_price] += i.actual_price
       end
     end
     return compact_list

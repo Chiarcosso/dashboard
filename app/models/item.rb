@@ -125,14 +125,14 @@ class Item < ApplicationRecord
     # end
   end
 
-  def actualPrice
+  def actual_price
     (self.price.to_f * ((100 - self.discount.to_f) / 100)).round 2
   end
 
   def self.total_value
     total = 0.0
     Item.unassigned.each do |i|
-      total += i.actualPrice
+      total += i.actual_price
     end
     total
   end
@@ -140,7 +140,7 @@ class Item < ApplicationRecord
   def self.total_value_no_tyres
     total = 0.0
     Item.unassigned.notyres.each do |i|
-      total += i.actualPrice
+      total += i.actual_price
     end
     total
   end
@@ -148,13 +148,13 @@ class Item < ApplicationRecord
   def self.total_value_tyres
     total = 0.0
     Item.unassigned.tyres.each do |i|
-      total += i.actualPrice
+      total += i.actual_price
     end
     total
   end
 
   def complete_price
-    price = self.actualPrice.to_s+' €'
+    price = self.actual_price.to_s+' €'
     if (self.discount.to_f > 0)
        price += " \n("+self.price.to_s+' -'+self.discount.to_s+'%'+')'
     end

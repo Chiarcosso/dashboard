@@ -2,9 +2,14 @@ class Worksheet < ApplicationRecord
   resourcify
 
   belongs_to :vehicle
+  has_many :output_orders, -> { where("output_orders.destination_type = 'Worksheet'") }, class_name: 'OutputOrder', foreign_key: :destination_id
+  has_many :output_order_items, through: :output_orders
+  has_many :items, through: :output_order_items
+
 
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
   scope :open, -> { where(closingDate: nil) }
+  scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
   def opened?
     if self.closingDate.nil?
@@ -26,8 +31,44 @@ class Worksheet < ApplicationRecord
     end
   end
 
+  def total_label
+    self.complete_name+': '+("%.2f" % self.total_price)+"€"
+  end
+
+  def items_price
+    self.items.map{ |i| i.actual_price }.inject(0,:+)
+  end
+
+  def items_price_label
+    "Valore ricambi: #{"%.2f" % items_price}€"
+  end
+
   def hours_price
     self.hours.to_f * 30
+  end
+
+  def hours_price_label
+    "Ore di lavoro: #{self.hours} (#{"%.2f" % self.hours_price}€)"
+  end
+
+  def hours_complete_price
+    ("%.2f" % self.hours_price.to_s+" € \n("+self.hours.to_s+' ore * 30,00€)').tr('.',',')
+  end
+
+  def materials_price
+    self.hours.to_f * 5
+  end
+
+  def materials_price_label
+    "Materiali di consumo: #{"%.2f" % self.materials_price}€"
+  end
+
+  def materials_complete_price
+    ("%.2f" % self.materials_price.to_s+" € \n("+self.hours.to_s+' ore * 5,00€)').tr('.',',')
+  end
+
+  def total_price
+    self.items_price+self.hours_price+self.materials_price
   end
 
   def toggle_closure
@@ -41,17 +82,6 @@ class Worksheet < ApplicationRecord
     end
   end
 
-  def hours_complete_price
-    ("%.2f" % self.hours_price.to_s+" € \n("+self.hours.to_s+' ore * 30,00€)').tr('.',',')
-  end
-
-  def materials_price
-    self.hours.to_f * 5
-  end
-
-  def materials_complete_price
-    ("%.2f" % self.materials_price.to_s+" € \n("+self.hours.to_s+' ore * 5,00€)').tr('.',',')
-  end
 
   def self.findByCode code
     Worksheet.where(code: code).first

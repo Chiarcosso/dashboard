@@ -6,8 +6,8 @@ class OutputOrderItem < ApplicationRecord
   has_one :article, through: :item
   belongs_to :output_order
 
-  def actualPrice
-    (self.item.actualPrice / self.item.article.containedAmount) * self.quantity
+  def actual_price
+    (self.item.actual_price / self.item.article.containedAmount) * self.quantity
   end
 
   def price
@@ -19,7 +19,7 @@ class OutputOrderItem < ApplicationRecord
   end
 
   def complete_price
-    price = self.actualPrice.round(2).to_s+' €'
+    price = self.actual_price.round(2).to_s+' €'
     if (self.item.discount.to_f > 0)
        price += " \n("+self.price.round(2).to_s+' -'+self.discount.to_s+'%'+')'
     end

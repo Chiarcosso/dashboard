@@ -141,6 +141,10 @@ body{
   cursor: pointer;
 }
 
+.indent{
+  padding-left: 1em;
+}
+
 .inline{
   position: relative;
   clear: none;

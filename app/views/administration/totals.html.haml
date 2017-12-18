@@ -1,18 +1,76 @@
 %h1= 'Totali'
 %br
-%br
-%h3= "Magazzino:"
-%br
+.container.scrollable-panel.no-margin
+  .row
+    .col-12-sm
+      %h3
+        = "Officina:"
+  .row
+    .col-12-sm
+      %b= "Lavori #{Company.chiarcosso.name}:"
+      %br
+      - Company.chiarcosso.owned_vehicles.each do |v|
+        - v.worksheets.year(2017).each do |ws|
+          = ws.total_label+". Inizio lavoro: "+(l ws.created_at)
+          .indent
+            = ws.items_price_label
+            %br
+            = ws.materials_price_label
+            %br
+            = ws.hours_price_label
+            %br
+          %br
+
+      %b
+        = "Totale: #{Company.chiarcosso.total_workheets_price}€"
+        = button_to 'Distinta xls', print_workshop_financial_path(year: 2017, company_id: Company.chiarcosso.id, format: :xls), class: 'no-loader'
+      %br
+  .row
+    .col-12-sm
+      %b= "Lavori #{Company.transest.name}:"
+  .row
+    .col-12-sm
+      .scollable-panel
+        - Company.transest.owned_vehicles.each do |v|
+          - v.worksheets.year(2017).each do |ws|
+            = ws.total_label+". Inizio lavoro: "+(l ws.created_at)
+            .indent
+              = ws.items_price_label
+              %br
+              = ws.materials_price_label
+              %br
+              = ws.hours_price_label
+              %br
+            %br
+      %b
+        = "Totale: #{Company.transest.total_workheets_price}€"
+        = button_to 'Distinta xls', print_workshop_financial_path(year: 2017, company_id: Company.transest.id, format: :xls), class: 'no-loader'
+      %br
+  .row
+    .col-12-sm
+      %h3
+        = "Magazzino:"
+  .row
+    .col-sm-6
+      = "Valore totale pezzi in giacenza: #{number_to_currency(Item.total_value, locale: :it, separator: ",", delimiter: '.', unit: '€')} (#{number_to_currency(Item.total_value_no_tyres, locale: :it, separator: ',', delimiter: '.', unit: '€')} + #{number_to_currency(Item.total_value_tyres, locale: :it, separator: ',', delimiter: '.', unit: '€')} di gomme)"
+    .col-sm-2
+      = button_to 'Distinta csv', print_financial_inventory_path(format: :csv), class: 'no-loader'
+    .col-sm-2
+      = button_to 'Distinta xls', print_financial_inventory_path(format: :xls), class: 'no-loader'
+  .row
+    .col-12-sm
+      = "#{Item.unassigned.for_free.size} pezzi non hanno il prezzo."
+  .row
+    .col-12-sm
+      .scrollable-panel.no-margin
+        - Item.unassigned.for_free.each do |i|
+          %br
+          = i.to_s
+
 -# = "Valore totale pezzi in giacenza: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s} + #{"%.2f" % Item.total_value_tyres.to_s} di gomme)"
-= "Valore totale pezzi in giacenza: #{number_to_currency(Item.total_value, locale: :it, separator: ",", delimiter: '.', unit: '€')} (#{number_to_currency(Item.total_value_no_tyres, locale: :it, separator: ',', delimiter: '.', unit: '€')} + #{number_to_currency(Item.total_value_tyres, locale: :it, separator: ',', delimiter: '.', unit: '€')} di gomme)"
+
+
+
+
 
 %br
-%br
-= "#{Item.unassigned.for_free.size} pezzi non hanno il prezzo."
-%br
-
-.container-fluid.scrollable-panel
-  - Item.unassigned.for_free.each do |i|
-    %br
-
-    = i.to_s

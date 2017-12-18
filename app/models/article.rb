@@ -57,6 +57,42 @@ class Article < ApplicationRecord
     pc
   end
 
+  def self.to_csv(options = {})
+    CSV.generate(options) do |csv|
+      columns = ['Articolo','Giacenza','Prezzi','Totale']
+      csv << columns
+      # csv << column_names
+      list = Article.financial_list
+      list.each do |article|
+        # csv << article.values_at(*columns)
+        # csv << [article[:name],article[:availability],article[:price],article[:total]].values_at(*columns)
+        csv << article
+      end
+      csv << ['','','Totale',"=SOMMA(D2:D#{list.size+1})"]
+    end
+  end
+
+  def self.available
+    Item.available_items.group_by { |i| i.article }.map { |k,i| k }
+  end
+
+  def self.financial_list
+    articles = Array.new
+    Article.available.each do |a|
+      articles << [a.complete_name,a.availability.size,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
+    end
+    articles
+  end
+
+  def actual_prices_label
+    prices = self.availability.group_by { |i| i.actual_price.to_f }.map { |k,i| i.size.to_s+' a '+k.round(2).to_s+' Euro'  }
+    prices.join("\n")
+  end
+
+  def actual_total
+    self.availability.map { |i| i.actual_price.to_f }.inject(:+)
+  end
+
   def self.inventory(search)
     search_text = (search.nil? or search == "") ? 'Inventario completo' : "Ricerca: `#{search}`"
     pdf = Prawn::Document.new
