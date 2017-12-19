@@ -68,8 +68,8 @@
       -# .container-fluid
         -# .row-fluid
         -#   .col-sm-4
-.actions.bottom-box
-  = submit_tag (@transportDocument.nil?? "Conferma" : "Conferma ordine / DDT")
+  .actions.bottom-box
+    = submit_tag (@transportDocument.nil?? "Conferma" : "Conferma ordine / DDT")
 
 - if @newArticle
   .popup
