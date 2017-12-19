@@ -1,15 +1,15 @@
 %b="Ordini aperti"
 %br
-.container-fluid.scrollable-panel#output-list
+.scrollable-panel#output-list
   - OutputOrder.unprocessed.each do |oo|
     .row.colored.hover-hilight.popup-link{'data-target': output_order_exit_path(oo.id), 'data-name': 'ouput-exit'}
       .col-sm-1
         = oo.id
       .col-sm-2
         = oo.destination.complete_name
-      .col-sm-1
+      .col-sm-2
         = l(oo.created_at)
-      .col-sm-8
+      .col-sm-7
         - oo.compacted_items.each do |i|
           = i[1][:amount].to_s+'x '+i[1][:name]
           %br

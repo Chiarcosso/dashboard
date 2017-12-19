@@ -19,27 +19,25 @@
     .field
       %b='Dismesso'
       = check_box_tag 'vehicle[dismissed]', 1, @vehicle.dismissed
+    .field
+      %b= 'Note'
+      = text_area_tag 'vehicle[notes]', @vehicle.notes, class: 'form-control'
   .col-sm-4
     .field
       %b= 'Proprietà'
       = text_field_tag 'vehicle[property]', (@vehicle.property.nil?? Company.propertyChoice.name : @vehicle.property.name), data: { autocomplete: autocomplete_company_name_articles_path }, class: 'form-control autofocus'
     #vehicle_information.scrollable-panel
       = render :partial => 'vehicles/vehicle_information'
-    .field
-      %b= 'Note'
-      = text_area_tag 'vehicle[notes]', @vehicle.notes, class: 'form-control'
   .col-sm-3
     #vehicle_equipment.half.scrollable-panel
       = render :partial => 'vehicles/vehicle_equipment'
     #vehicle_gear.half.scrollable-panel
       = render :partial => 'vehicles/vehicle_gear'
-.actions
-  %br
-  %br
+.actions.bottom-box
   .inline.form-contol
-    = submit_tag 'Aggiorna', class: 'form-control inline'
+    = submit_tag 'Aggiorna', class: 'btn inline'
   .inline.form-contol
-    = link_to 'Indietro', vehicles_path, class: 'form-control inline'
+    = link_to 'Indietro', vehicles_path, class: 'form-control btn inline'
 
 :javascript
 

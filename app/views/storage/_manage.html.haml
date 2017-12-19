@@ -10,5 +10,5 @@
       =link_to "Riposiziona pezzi", items_reposition_path, :remote=> true, :method => :post, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
       =link_to "Prezza pezzi", items_pricing_path, :remote=> true, :method => :post, class: "btn btn-primary", style: "width: 11em; margin: .1em;"
   .col-sm-10
-    #articles_content.container-fluid
+    #articles_content
       =render :partial => 'articles/incomplete_items'

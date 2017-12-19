@@ -25,7 +25,7 @@
             %br
 
   %b
-    = "Totale: #{Company.chiarcosso.total_workheets_price}€"
+    = "Totale: #{"%.2f" % Company.chiarcosso.total_workheets_price.round(2)}€"
     = button_to 'Distinta xls', print_workshop_financial_path(year: 2017, company_id: Company.chiarcosso.id, format: :xls), class: 'no-loader'
   %br
   .row
@@ -49,7 +49,7 @@
             %br
 
   %b
-    = "Totale: #{Company.transest.total_workheets_price}€"
+    = "Totale: #{"%.2f" % Company.transest.total_workheets_price.round(2)}€"
     = button_to 'Distinta xls', print_workshop_financial_path(year: 2017, company_id: Company.transest.id, format: :xls), class: 'no-loader'
   %br
   .row

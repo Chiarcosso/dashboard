@@ -1,38 +1,38 @@
-%h3='Elenco articoli'
-.container-fluid
+%div{ style: 'height: 100vh; padding-bottom: 27em;' }
+  %h3='Elenco articoli'
   = @filteredArticles.size.to_s+' di '+Article.count.to_s+' articoli'
   %br
-.row
-  .col-sm-2
-    = form_tag(print_reserve_path('scorta',format: :pdf), method: :post) do |f|
-      = button_tag 'Stampa scorta', class: 'no-loader'
-  .col-sm-3
-    = form_tag(print_inventory_path('inventario',format: :pdf), method: :post) do |f|
-      = hidden_field_tag :search, Base64.encode64(@search.to_s)
-      = button_tag 'Stampa inventario', class: 'no-loader'
-  %br
-  = form_tag(incomplete_articles_path, method: :post, remote: true, type: :script) do |f|
-    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autofocus', 'data-target': articles_path
--# - if Article.incompleteItems.empty?
-  = "Non ci sono articoli incompleti"
--# - else
-.row
-  .col-sm-1
-    %b= 'Elimina'
-  .col-sm-3
-    %b= 'Articolo'
-  .col-sm-2
-    %b= 'Codice a barre'
-  .col-sm-2
-    %b= 'Disp.'
-  .col-sm-2
-    %b= 'Ultimo prezzo'
-  .col-sm-1
-    %b= 'Categorie'
+  .row
+    .col-sm-2
+      = form_tag(print_reserve_path('scorta',format: :pdf), method: :post) do |f|
+        = button_tag 'Stampa scorta', class: 'no-loader'
+    .col-sm-3
+      = form_tag(print_inventory_path('inventario',format: :pdf), method: :post) do |f|
+        = hidden_field_tag :search, Base64.encode64(@search.to_s)
+        = button_tag 'Stampa inventario', class: 'no-loader'
+    %br
+    = form_tag(incomplete_articles_path, method: :post, remote: true, type: :script) do |f|
+      = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autofocus', 'data-target': articles_path
+  -# - if Article.incompleteItems.empty?
+    = "Non ci sono articoli incompleti"
+  -# - else
+  .row
+    .col-sm-1
+      %b= 'Elimina'
+    .col-sm-3
+      %b= 'Articolo'
+    .col-sm-2
+      %b= 'Codice a barre'
+    .col-sm-2
+      %b= 'Disp.'
+    .col-sm-2
+      %b= 'Ultimo prezzo'
+    .col-sm-1
+      %b= 'Categorie'
 
-.container-fluid.scrollable-panel
-  - @filteredArticles.each do |a|
-    =render :partial => 'articles/incomplete_article_block', :locals => { :article => a }
+  .scrollable-panel
+    - @filteredArticles.each do |a|
+      =render :partial => 'articles/incomplete_article_block', :locals => { :article => a }
 
 :javascript
 

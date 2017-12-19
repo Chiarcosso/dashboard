@@ -1,8 +1,8 @@
-%h3
-  Utenti MDC
-%br
-%br
-.container
+%div{ style: 'height: 100vh; padding-bottom: 14em;' }
+  .row
+    .col-sm-12
+      %h3
+        Utenti MDC
   = form_tag(new_mdc_code_path, method: :post, type: :script, class: 'prevent-cr') do |f|
     .row
       .col-sm-3
@@ -16,7 +16,6 @@
 
   .row
     .col-sm-12
-      %hr
       .scrollable-panel#user_list
         = render :partial => 'mdc/users_list'
 :javascript

@@ -1,13 +1,14 @@
-#output_content
-  .container-fluid
-    .row-fluid
-      .col-sm-3
-        = link_to "Ordine per dotazione personale", output_path(:Person), remote: true, class: 'btn btn-primary'
-      .col-sm-3
-        = link_to "Ordine per ODS", output_path(:Worksheet), remote: true, class: 'btn btn-primary'
-      .col-sm-3
-        = link_to "Ordine per minuteria", output_path(:Office), remote: true, class: 'btn btn-primary'
-      .col-sm-3
-        = link_to "Ordine per dotazione mezzo", output_path(:Vehicle), remote: true, class: 'btn btn-primary'
-    .row
+#output_content{ style: 'height: 100vh; padding-bottom: 22em;' }
+  .row
+    .col-sm-3
+      = link_to "Ordine per dotazione personale", output_path(:Person), remote: true, class: 'btn btn-primary'
+    .col-sm-2
+      = link_to "Ordine per ODS", output_path(:Worksheet), remote: true, class: 'btn btn-primary'
+    .col-sm-2
+      = link_to "Ordine per minuteria", output_path(:Office), remote: true, class: 'btn btn-primary'
+    .col-sm-2
+      = link_to "Ordine per dotazione mezzo", output_path(:Vehicle), remote: true, class: 'btn btn-primary'
+  .row
+    .col-sm-12
+      %br
       = render :partial => 'storage/output_orders_list'

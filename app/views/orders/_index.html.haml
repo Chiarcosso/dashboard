@@ -1,5 +1,5 @@
-%h3= 'Elenco commesse'
-.container-fluid
+%div{ style: 'height: 100vh; padding-bottom: 30em;' }
+  %h3= 'Elenco commesse'
   = form_tag(output_orders_search_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
     = 'Totale: '+OutputOrder.count.to_s+' ordini'
     = '('+OutputOrder.unprocessed.count.to_s+' non evasi)'
@@ -9,9 +9,9 @@
     %br
     %br
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': items_path, id: 'search'
-  -# = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_orders_search_path, id: 'search'
-  -# = will_paginate @orders, :params => {format: :js }
-.container-fluid
+    -# = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_orders_search_path, id: 'search'
+    -# = will_paginate @orders, :params => {format: :js }
+
   .row.item-block.tab-header
     .col-sm-1
       Elimina
@@ -30,54 +30,54 @@
     .col-sm-1
       Stampa
 
-.container-fluid.scrollable-panel
-  - @orders.each do |order|
-    .row.colored
-      .col-sm-1
-        = button_to "x", "/output_order/#{order.id}", data: {:confirm => "Eliminare l'ordine nr. #{order.id}, #{order.destination.complete_name}?"}, :method => :delete, :remote => true
-      .col-sm-1
-        = order.id
-        -# = order.destination.class
-      .col-sm-2
-        = order.destination.complete_name
-      .col-sm-3
-        - order.compacted_items.each do |i|
-          = i[1][:amount].to_s+'x '+i[1][:name]
-          %br
-      .col-sm-1
-        - if order.destination.class == Worksheet
-          = form_tag(worksheet_closure_toggle_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
-            = hidden_field_tag :id, order.destination.id
-            = hidden_field_tag :search, @search
-            = hidden_field_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil
-            = submit_tag order.destination.closingDate.nil?? 'Chiudi' : (l order.destination.closingDate), class: 'small-button'
-        - else
-          = order.processed?
-      .col-sm-1
-        = (l order.created_at)
-      .col-sm-1
-        -# = button_to "Ore", "/output_order/#{order.id}", :method => :post, :remote => true
-        - if order.destination.class == Worksheet
-          = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
-            = hidden_field_tag 'worksheet[id]', order.destination.id
-            = number_field_tag 'worksheet[hours]', order.destination.hours, min: 0, size: 1, step: 0.5
-            = submit_tag :Ok, class: 'no-loader'
-      .col-sm-1
-        = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf), class: 'no-loader'
-        = button_to 'Stampa modulo', output_order_pdf_module_path(order.id,format: :pdf), class: 'no-loader' if order.destination.class == Person or order.destination.class == Vehicle
--# .container-fluid.scrollable-panel
--#   - @selected_items.all.each do |item|
--#     .row
--#       .col-sm-3
--#         = item.article.complete_name.to_s
--#       .col-sm-1
--#         = item.article.availability.size
--#       .col-sm-2
--#         = item.serial
--#       .col-sm-1
--#         = item.state
--#       .col-sm-1
--#         = item.expiringDate.nil?? '' : (l item.expiringDate)
+  .scrollable-panel
+    - @orders.each do |order|
+      .row.colored
+        .col-sm-1
+          = button_to "x", "/output_order/#{order.id}", data: {:confirm => "Eliminare l'ordine nr. #{order.id}, #{order.destination.complete_name}?"}, :method => :delete, :remote => true
+        .col-sm-1
+          = order.id
+          -# = order.destination.class
+        .col-sm-2
+          = order.destination.complete_name
+        .col-sm-3
+          - order.compacted_items.each do |i|
+            = i[1][:amount].to_s+'x '+i[1][:name]
+            %br
+        .col-sm-1
+          - if order.destination.class == Worksheet
+            = form_tag(worksheet_closure_toggle_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+              = hidden_field_tag :id, order.destination.id
+              = hidden_field_tag :search, @search
+              = hidden_field_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil
+              = submit_tag order.destination.closingDate.nil?? 'Chiudi' : (l order.destination.closingDate), class: 'small-button'
+          - else
+            = order.processed?
+        .col-sm-1
+          = (l order.created_at)
+        .col-sm-1
+          -# = button_to "Ore", "/output_order/#{order.id}", :method => :post, :remote => true
+          - if order.destination.class == Worksheet
+            = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+              = hidden_field_tag 'worksheet[id]', order.destination.id
+              = number_field_tag 'worksheet[hours]', order.destination.hours, min: 0, size: 1, step: 0.5
+              = submit_tag :Ok, class: 'no-loader'
+        .col-sm-1
+          = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf), class: 'no-loader'
+          = button_to 'Stampa modulo', output_order_pdf_module_path(order.id,format: :pdf), class: 'no-loader' if order.destination.class == Person or order.destination.class == Vehicle
+  -# .container-fluid.scrollable-panel
+  -#   - @selected_items.all.each do |item|
+  -#     .row
+  -#       .col-sm-3
+  -#         = item.article.complete_name.to_s
+  -#       .col-sm-1
+  -#         = item.article.availability.size
+  -#       .col-sm-2
+  -#         = item.serial
+  -#       .col-sm-1
+  -#         = item.state
+  -#       .col-sm-1
+  -#         = item.expiringDate.nil?? '' : (l item.expiringDate)
 :javascript
 
   domInit();

@@ -2,12 +2,14 @@ body{
   /*padding: 1em;*/
   /*padding-bottom: 1em;*/
   overflow: hidden;
-  margin-bottom: 8em;
-  margin-top: 5em;
+  /* margin-bottom: 8em; */
+  /* margin-top: 5em; */
+  display: inline;
 }
 
 #center{
   height: 80vh;
+  margin-top: 3em;
 }
 
 #articles_content{
@@ -16,6 +18,11 @@ body{
 
 .bottom_border{
   border-bottom: 1px solid black;
+}
+
+.bottom-box{
+  position:absolute;
+  bottom: 1em;
 }
 
 .close{
@@ -166,7 +173,7 @@ body{
   float:none;
   overflow-y: hidden;
   margin-bottom: 1em;
-  padding-bottom: 20em;
+  /* padding-bottom: 20em; */
 }
 
 .item_box{
@@ -197,6 +204,12 @@ body{
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
+}
+
+.map-scroll{
+  overflow:scroll;
+  width: 100%;
+  height: 100%;
 }
 
 .no-margin{
@@ -238,8 +251,8 @@ body{
 .scrollable-panel{
   position: relative;
   height: 100%;
-  float:none;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .selected-item{

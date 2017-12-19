@@ -1,76 +1,75 @@
-.container-fluid
-  - if @transportDocument.nil?
-    %h3= 'Inserimento libero'
-    - path = add_item_to_storage_path(format: :js)
-  -else
-    %h3= 'Ordine / DDT dinamico'
-    - path = add_item_to_order_path(format: :js)
+-# .container-fluid
+- if @transportDocument.nil?
+  %h3= 'Inserimento libero'
+  - path = add_item_to_storage_path(format: :js)
+-else
+  %h3= 'Ordine / DDT dinamico'
+  - path = add_item_to_order_path(format: :js)
 
-  = form_tag(path, method: :post, remote: true, type: :script, id: :dyn_ddt) do |f|
-    = hidden_field_tag :authenticity_token, form_authenticity_token
-    - unless @transportDocument.nil?
-      .row
-        .col-sm-3
-          = label_tag "Numero DDT"
-          = text_field_tag "order[transportDocument]", @transportDocument.number, class: 'form-control'
-        .col-sm-3
-          = label_tag "Fornitore"
-          = select_tag "order[supplier]", options_from_collection_for_select(Company.all, :id, :name, {:selected => @order.supplier.nil?? nil : @order.supplier.id}), class: 'form-control'
-        .col-sm-3
-          = label_tag "Vettore"
-          = select_tag "order[vector]", options_from_collection_for_select(Company.all, :id, :name, {:selected => @transportDocument.vector.nil?? nil : @transportDocument.vector.id}), :include_blank => 'Destinatario', :selected => @transportDocument.vector, class: 'form-control'
-        .col-sm-3
-          = label_tag "Data acquisto"
-          = text_field_tag "order[purchaseDate]", (l @transportDocument.date), placeholder: 'Data acquisto', class: 'form-control', 'data-behavior' => 'datepicker'
-    - unless @vehicle.nil?
-      -# .row
-      -#   .col-sm-4
-      -#     = label_tag "Mezzo"
-      -#     = select_tag :vehicle, options_from_collection_for_select(Vehicle.all, :id, :complete_name), :include_blank => 'Mezzo', class: 'form-control'
+= form_tag(path, method: :post, remote: true, type: :script, id: :dyn_ddt) do |f|
+  = hidden_field_tag :authenticity_token, form_authenticity_token
+  - unless @transportDocument.nil?
     .row
-      .col-sm-4
-        .field
-          = text_field_tag 'barcode', '', placeholder: 'Codice a barre', class: 'form-control input-row', id: 'barcode-items', :options => { autofocus: true }
-      .col-sm-4
-        .field
-          = select_tag "article", options_from_collection_for_select(Article.no_barcode, :id, :complete_name, :include_blank => 'Seleziona articolo'), class: 'form-control input-row'
-      .col-sm-1
-        .field
-          = submit_tag ">", class: 'form-control'
-    .container-fluid.scrollable-panel{id: 'items-container'}
-      - unless @items.empty?
-        - @items.each_with_index do |i,k|
-          .row
-            .col-sm-12
-              .item_box{'id': 'box-'+k.to_s}
-                .container-fluid
-                  .row-fluid
-                    .col-xs-1
-                      .btn{class: 'btn-danger remove_item', id: k}="x"
-                    -# %td
-                    -#   - generateBarcode(i.barcode,'Code39',k.to_s)
-                    -#   = i.barcode
-                    -#   = image_tag(k.to_s+'.png',width: '200',height: '60')
-                    .col-sm-2
-                      = select_tag "items[#{k}][article]", options_from_collection_for_select(Article.where("barcode = '#{i.article.barcode}'"), :id, :complete_name, :selected => i.article.id), class: 'form-control input-row'
-                    .col-sm-1
-                      = text_field_tag "items[#{k}][price]", i.price, placeholder: 'Prezzo', class: 'form-control input-row'
-                    .col-sm-1
-                      = text_field_tag "items[#{k}][discount]", i.discount, placeholder: 'Sconto %', class: 'form-control input-row'
-                    .col-sm-2
-                      = text_field_tag "items[#{k}][serial]", i.serial, placeholder: 'N. seriale / Matricola', class: 'form-control input-row'
-                    .col-sm-2
-                      = select_tag "items[#{k}][state]", options_for_select(Item.states, :selected => Item.states[i.state]), class: 'form-control input-row'
-                    .col-sm-2
-                      = text_field_tag "items[#{k}][expiringDate]", i.expiringDate ? (l i.expiringDate) : nil, placeholder: 'Data scadenza', class: 'form-control input-row', 'data-behavior' => 'datepicker', 'data-nodefault' => 'true'
-                    .col-sm-1
-                      = number_field_tag "items[#{k}][amount]", i.amount, step: :any, class: 'form-control input-row'
+      .col-sm-3
+        = label_tag "Numero DDT"
+        = text_field_tag "order[transportDocument]", @transportDocument.number, class: 'form-control'
+      .col-sm-3
+        = label_tag "Fornitore"
+        = select_tag "order[supplier]", options_from_collection_for_select(Company.all, :id, :name, {:selected => @order.supplier.nil?? nil : @order.supplier.id}), class: 'form-control'
+      .col-sm-3
+        = label_tag "Vettore"
+        = select_tag "order[vector]", options_from_collection_for_select(Company.all, :id, :name, {:selected => @transportDocument.vector.nil?? nil : @transportDocument.vector.id}), :include_blank => 'Destinatario', :selected => @transportDocument.vector, class: 'form-control'
+      .col-sm-3
+        = label_tag "Data acquisto"
+        = text_field_tag "order[purchaseDate]", (l @transportDocument.date), placeholder: 'Data acquisto', class: 'form-control', 'data-behavior' => 'datepicker'
+  - unless @vehicle.nil?
+    -# .row
+    -#   .col-sm-4
+    -#     = label_tag "Mezzo"
+    -#     = select_tag :vehicle, options_from_collection_for_select(Vehicle.all, :id, :complete_name), :include_blank => 'Mezzo', class: 'form-control'
+  .row
+    .col-sm-4
+      .field
+        = text_field_tag 'barcode', '', placeholder: 'Codice a barre', class: 'form-control input-row', id: 'barcode-items', :options => { autofocus: true }
+    .col-sm-4
+      .field
+        = select_tag "article", options_from_collection_for_select(Article.no_barcode, :id, :complete_name, :include_blank => 'Seleziona articolo'), class: 'form-control input-row'
+    .col-sm-1
+      .field
+        = submit_tag ">", class: 'form-control'
+  .scrollable-panel{id: 'items-container'}
+    - unless @items.empty?
+      - @items.each_with_index do |i,k|
+        .row
+          .col-sm-12
+            .item_box{'id': 'box-'+k.to_s}
+              .row-fluid
+                .col-xs-1
+                  .btn{class: 'btn-danger remove_item', id: k}="x"
+                -# %td
+                -#   - generateBarcode(i.barcode,'Code39',k.to_s)
+                -#   = i.barcode
+                -#   = image_tag(k.to_s+'.png',width: '200',height: '60')
+                .col-sm-2
+                  = select_tag "items[#{k}][article]", options_from_collection_for_select(Article.where("barcode = '#{i.article.barcode}'"), :id, :complete_name, :selected => i.article.id), class: 'form-control input-row'
+                .col-sm-1
+                  = text_field_tag "items[#{k}][price]", i.price, placeholder: 'Prezzo', class: 'form-control input-row'
+                .col-sm-1
+                  = text_field_tag "items[#{k}][discount]", i.discount, placeholder: 'Sconto %', class: 'form-control input-row'
+                .col-sm-2
+                  = text_field_tag "items[#{k}][serial]", i.serial, placeholder: 'N. seriale / Matricola', class: 'form-control input-row'
+                .col-sm-2
+                  = select_tag "items[#{k}][state]", options_for_select(Item.states, :selected => Item.states[i.state]), class: 'form-control input-row'
+                .col-sm-2
+                  = text_field_tag "items[#{k}][expiringDate]", i.expiringDate ? (l i.expiringDate) : nil, placeholder: 'Data scadenza', class: 'form-control input-row', 'data-behavior' => 'datepicker', 'data-nodefault' => 'true'
+                .col-sm-1
+                  = number_field_tag "items[#{k}][amount]", i.amount, step: :any, class: 'form-control input-row'
 
-        .container-fluid
-          .row-fluid
-            .col-sm-4
-              .actions
-                = submit_tag (@transportDocument.nil?? "Conferma" : "Conferma ordine / DDT")
+      -# .container-fluid
+        -# .row-fluid
+        -#   .col-sm-4
+.actions.bottom-box
+  = submit_tag (@transportDocument.nil?? "Conferma" : "Conferma ordine / DDT")
 
 - if @newArticle
   .popup

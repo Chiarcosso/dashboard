@@ -1,67 +1,68 @@
-%h3='Elenco pezzi'
-.container-fluid
-  = @selected_items.size.to_s+' di '+Item.count.to_s+' oggetti'
-  .right-aligned
-    %b='Ricerca anche pezzi assegnati'
-    = check_box_tag :checkall, nil, @all
-  -# %br
-  -# = "Valore totale: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s}€, gomme a parte)"
-  %br
-  %br
-  = form_tag(items_path, method: :get, remote: true, type: :script) do |f|
-    = hidden_field_tag :all, @all
-    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path, id: 'search'
-.container-fluid
-  .row.item-block.tab-header
-    .col-sm-1
-      Elimina
-    .col-sm-2
-      Articolo
-    .col-sm-1
-      Codice
-    .col-sm-2
-      Seriale
-    .col-sm-1
-      Stato
-    .col-sm-1
-      Scadenza
-    .col-sm-2
-      Posizione
-    .col-sm-1
-      Stampa
+%div{ style: 'height: 100vh; padding-bottom: 27em;' }
+  %h3='Elenco pezzi'
+  .container-fluid
+    = @selected_items.size.to_s+' di '+Item.count.to_s+' oggetti'
+    .right-aligned
+      %b='Ricerca anche pezzi assegnati'
+      = check_box_tag :checkall, nil, @all
+    -# %br
+    -# = "Valore totale: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s}€, gomme a parte)"
+    %br
+    %br
+    = form_tag(items_path, method: :get, remote: true, type: :script) do |f|
+      = hidden_field_tag :all, @all
+      = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path, id: 'search'
+  .container-fluid
+    .row.item-block.tab-header
+      .col-sm-1
+        Elimina
+      .col-sm-2
+        Articolo
+      .col-sm-1
+        Codice
+      .col-sm-2
+        Seriale
+      .col-sm-1
+        Stato
+      .col-sm-1
+        Scadenza
+      .col-sm-2
+        Posizione
+      .col-sm-1
+        Stampa
 
-.container-fluid.scrollable-panel
-  - @selected_items.each do |item|
-    .row.colored.hover-hilight.popup-link{'data-target': p_edit_item_path(id: item.id, search: Base64.encode64(@search)), 'data-name': 'edit-item'}
-      .col-sm-1
-        = button_to "x", "/items/#{item.id}/#{ Base64.encode64(@search)}", data: {:confirm => "Eliminare il pezzo nr. #{item.id}, #{item.complete_name}?"}, :method => :delete, :remote => true, class: 'on-top getsearch'
-      .col-sm-2
-        = item.id.to_s+' - '+item.article.complete_name.to_s
-      .col-sm-1
-        = item.actualBarcode
-      .col-sm-2
-        = item.serial
-      .col-sm-1
-        = "#{item.state} (#{item.remaining_quantity} #{item.article.measure_unit} rim.)"
-      .col-sm-1
-        = item.expiringDate.nil?? '' : (l item.expiringDate)
-      .col-sm-2
-        = item.actual_position
-      .col-sm-1
-        = button_to "Stampa", "/items/print/#{item.id}", :method => :post, :remote => true, class: 'on-top no-loader'
--# .container-fluid.scrollable-panel
--#   - @selected_items.all.each do |item|
--#     .row
--#       .col-sm-3
--#         = item.article.complete_name.to_s
--#       .col-sm-1
--#         = item.article.availability.size
--#       .col-sm-2
--#         = item.serial
--#       .col-sm-1
--#         = item.state
--#       .col-sm-1
--#         = item.expiringDate.nil?? '' : (l item.expiringDate)
+  .container-fluid.scrollable-panel
+    - @selected_items.each do |item|
+      .row.colored.hover-hilight.popup-link{'data-target': p_edit_item_path(id: item.id, search: Base64.encode64(@search)), 'data-name': 'edit-item'}
+        .col-sm-1
+          = button_to "x", "/items/#{item.id}/#{ Base64.encode64(@search)}", data: {:confirm => "Eliminare il pezzo nr. #{item.id}, #{item.complete_name}?"}, :method => :delete, :remote => true, class: 'on-top getsearch'
+        .col-sm-2
+          = item.id.to_s+' - '+item.article.complete_name.to_s
+        .col-sm-1
+          = item.actualBarcode
+        .col-sm-2
+          = item.serial
+        .col-sm-1
+          = "#{item.state} (#{item.remaining_quantity} #{item.article.measure_unit} rim.)"
+        .col-sm-1
+          = item.expiringDate.nil?? '' : (l item.expiringDate)
+        .col-sm-2
+          = item.actual_position
+        .col-sm-1
+          = button_to "Stampa", "/items/print/#{item.id}", :method => :post, :remote => true, class: 'on-top no-loader'
+  -# .container-fluid.scrollable-panel
+  -#   - @selected_items.all.each do |item|
+  -#     .row
+  -#       .col-sm-3
+  -#         = item.article.complete_name.to_s
+  -#       .col-sm-1
+  -#         = item.article.availability.size
+  -#       .col-sm-2
+  -#         = item.serial
+  -#       .col-sm-1
+  -#         = item.state
+  -#       .col-sm-1
+  -#         = item.expiringDate.nil?? '' : (l item.expiringDate)
 :javascript
 
   $('#checkall').off('click');

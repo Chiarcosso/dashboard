@@ -1,7 +1,7 @@
 = stylesheet_link_tag "jsPlumbToolkit-defaults.css"
 %h3= 'Categorie'
 
-#category-container
+#category-container.map-scroll
   - lastLevel = 1
   - ArticleCategory.tree.each do |ac|
     -if ac.depth > lastLevel
@@ -107,3 +107,8 @@
             //  jsPlumb.repaintEverything();
           });
           deactivateLoadingScreen();
+
+:javascript
+  $('.map_scroll').on('scroll',function(){
+    
+  });

@@ -1,7 +1,7 @@
-= form_tag(add_item_to_order_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
+%div{ style: 'height: 100vh; padding-bottom: 24em;' }
+  = form_tag(add_item_to_order_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
 
-  = hidden_field_tag :chamount, 1
-  .container-fluid
+    = hidden_field_tag :chamount, 1
     - @selected_items
     -# = form_tag(output_path(@destination), method: :get, remote: true, type: :script) do |f|
     .row
@@ -10,7 +10,7 @@
       .col-sm-2
         = 'Pezzi da: '+(@from.to_i != 0 ? Office.find(@from.to_i).name : 'Magazzino')
         = select_tag :from, options_for_select([['Magazzino','0'],['Officina mobile 1', Office.where(:name => 'Officina mobile 1').first.id],['Officina mobile 2', Office.where(:name => 'Officina mobile 2').first.id]],@from), class: 'form-control'
-  .container-fluid
+
     .row.item-block.tab-header
       .col-sm-4
         Articolo
@@ -23,27 +23,26 @@
       .col-sm-1
         Scadenza
 
-  -# = form_tag(add_item_to_order_path, method: :post, remote: true, type: :script) do |f|
-  .container-fluid.scrollable-panel.colored.half
-    -# = hidden_field_tag :search, @search
-    = hidden_field_tag :destination, @destination
-    - @selected_items.each do |key, item|
-      .row.colored.hover-hilight{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-max': item.article.actual_availability(@checked_items), 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
-        .col-sm-4
-          -# = hidden_field_tag :item, item.id
-          = item.id.to_s+'::'+item.article.complete_name.to_s
-        .col-sm-1
-          = "#{@from.to_i == 0 ? item.article.availability_label(@checked_items) : Office.find(@from.to_i).items(item.article,@checked_items).size+' '+item.article.measure_unit} "
-          = "(min. #{item.article.minimalReserve.to_i} conf.)" if @from.to_i == 0
-        .col-sm-3
-          = item.serial
-        .col-sm-1
-          = item.state
-        .col-sm-1
-          = item.expiringDate.nil?? '' : (l item.expiringDate)
+    -# = form_tag(add_item_to_order_path, method: :post, remote: true, type: :script) do |f|
+    .scrollable-panel.colored.half
+      -# = hidden_field_tag :search, @search
+      = hidden_field_tag :destination, @destination
+      - @selected_items.each do |key, item|
+        .row.colored.hover-hilight{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-max': item.article.actual_availability(@checked_items), 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
+          .col-sm-4
+            -# = hidden_field_tag :item, item.id
+            = item.id.to_s+'::'+item.article.complete_name.to_s
+          .col-sm-1
+            = "#{@from.to_i == 0 ? item.article.availability_label(@checked_items) : Office.find(@from.to_i).items(item.article,@checked_items).size+' '+item.article.measure_unit} "
+            = "(min. #{item.article.minimalReserve.to_i} conf.)" if @from.to_i == 0
+          .col-sm-3
+            = item.serial
+          .col-sm-1
+            = item.state
+          .col-sm-1
+            = item.expiringDate.nil?? '' : (l item.expiringDate)
 
-  %b='Articoli assegnati '+((@recipient.nil? || @recipient.id.nil?) ? '' : @recipient.complete_name)
-  .container-fluid
+    %b='Articoli assegnati '+((@recipient.nil? || @recipient.id.nil?) ? '' : @recipient.complete_name)
     .row
       - case @destination.to_sym
         - when :Person
@@ -69,29 +68,29 @@
             -# = select_tag :vehicle, options_from_collection_for_select(Vehicle.order_by_plate, "id", "plate", @recipient.nil? ? nil : @recipient.vehicle), class: 'form-control'
             = hidden_field_tag :vehicle_id, @recipient.nil? ? '' : @recipient.vehicle.id, id: 'vehicle_id'
             = text_field_tag :vehicle, @recipient.nil? ? '' : @recipient.vehicle.plate, data: { autocomplete: autocomplete_vehicle_information_information_orders_path }, class: 'form-control autofocus', id: 'vehicle'
-  %br
-  .container-fluid.scrollable-panel.half
-    - @checked_items.reverse.each do |oo_item|
-      .row.colored.hover-hilight.chklist{'data-target': add_item_to_order_path, 'data-data': oo_item.id, 'data-dsc': oo_item.item.complete_name, 'data-serial': oo_item.item.serial}
-        .col-sm-4
-          -# = hidden_field_tag 'items[][id]', oo_item.id
-          = hidden_field_tag 'items[][id]', Base64.encode64(YAML::dump(oo_item))
-          = "#{oo_item.item.id}::#{oo_item.item.article.complete_name.to_s}"
-        .col-sm-1
-          = oo_item.item.actualBarcode
-        .col-sm-1
-          = 'x'+oo_item.quantity.to_s
-        .col-sm-2
-          = oo_item.item.serial
-        .col-sm-1
-          = oo_item.item.state+" #{oo_item.item.remaining_quantity}"
-        .col-sm-1
-          = oo_item.item.expiringDate.nil?? '' : (l oo_item.item.expiringDate)
-          -# = oo_item.item.to_s
+    %br
+    .scrollable-panel.half
+      - @checked_items.reverse.each do |oo_item|
+        .row.colored.hover-hilight.chklist{'data-target': add_item_to_order_path, 'data-data': oo_item.id, 'data-dsc': oo_item.item.complete_name, 'data-serial': oo_item.item.serial}
+          .col-sm-4
+            -# = hidden_field_tag 'items[][id]', oo_item.id
+            = hidden_field_tag 'items[][id]', Base64.encode64(YAML::dump(oo_item))
+            = "#{oo_item.item.id}::#{oo_item.item.article.complete_name.to_s}"
+          .col-sm-1
+            = oo_item.item.actualBarcode
+          .col-sm-1
+            = 'x'+oo_item.quantity.to_s
+          .col-sm-2
+            = oo_item.item.serial
+          .col-sm-1
+            = oo_item.item.state+" #{oo_item.item.remaining_quantity}"
+          .col-sm-1
+            = oo_item.item.expiringDate.nil?? '' : (l oo_item.item.expiringDate)
+            -# = oo_item.item.to_s
 
 
-  .container-fluid.floor
-    = submit_tag 'Conferma', class:'prevent-cr'
+    .bottom-box
+      = submit_tag 'Conferma', class:'prevent-cr'
 :javascript
 
   domInit();
