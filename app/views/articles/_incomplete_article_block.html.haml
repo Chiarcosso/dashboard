@@ -7,7 +7,8 @@
   .col-sm-2
     =  article.barcode.to_s#, p_edit_article_path(article.id,Base64.encode64(@search)), :remote => true
   .col-sm-2
-    =  article.availability.size.to_s+" (min. #{article.minimalReserve.to_i})"#, p_edit_article_path(article.id,Base64.encode64(@search)), :remote => true
+    = article.availability.size.to_s+" (min. #{article.minimalReserve.to_i})"#, p_edit_article_path(article.id,Base64.encode64(@search)), :remote => true
+    = ", #{article.actual_availability} #{article.measure_unit}"
   .col-sm-2
     =  article.lastPrice#, p_edit_article_path(article.id,Base64.encode64(@search)), :remote => true
   .col-sm-1

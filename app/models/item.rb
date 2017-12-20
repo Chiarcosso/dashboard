@@ -134,6 +134,10 @@ class Item < ApplicationRecord
   end
 
   def actual_price
+    (self.remaining_quantity * (self.price.to_f * ((100 - self.discount.to_f) / 100)) / self.article.containedAmount).round 2
+  end
+
+  def actual_box_price
     (self.price.to_f * ((100 - self.discount.to_f) / 100)).round 2
   end
 
@@ -143,7 +147,7 @@ class Item < ApplicationRecord
     #   total += i.actual_price
     # end
     # total
-    Item.unassigned.map { |i| i.actual_price }.inject(0.0,:+)
+    Item.available_items.map { |i| i.actual_price }.inject(0.0,:+)
   end
 
   def self.total_value_other
@@ -152,7 +156,7 @@ class Item < ApplicationRecord
     #   total += i.actual_price
     # end
     # total
-    Item.unassigned.other.map { |i| i.actual_price }.inject(0.0,:+)
+    Item.available_items.other.map { |i| i.actual_price }.inject(0.0,:+)
   end
 
   def self.total_value_tyres
@@ -161,7 +165,7 @@ class Item < ApplicationRecord
     #   total += i.actual_price
     # end
     # total
-    Item.unassigned.tyres.map { |i| i.actual_price }.inject(0.0,:+)
+    Item.available_items.tyres.map { |i| i.actual_price }.inject(0.0,:+)
   end
 
   def self.total_value_lubricants
@@ -171,7 +175,7 @@ class Item < ApplicationRecord
     #   total += i.actual_price
     # end
     # total
-    Item.unassigned.lubricants.map { |i| i.actual_price }.inject(0.0,:+)
+    Item.available_items.lubricants.map { |i| i.actual_price }.inject(0.0,:+)
   end
 
   def complete_price

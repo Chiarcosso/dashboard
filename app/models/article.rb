@@ -35,6 +35,7 @@ class Article < ApplicationRecord
   scope :no_barcode, -> { where(barcode: '') }
   scope :manufacturer, ->(search) { include(:company).where("manufacturer_id = companies.id").where("companies.name LIKE '%#{search}%'")}
   scope :unassigned, -> { where("articles.id in (select distinct article_id from items where items.id not in (select item_id from output_order_items))") }
+  scope :availability, -> { where("articles.id in (select distinct article_id from items where remaining_quantity > 0)")}
   scope :tyres, -> { where("articles.id in (select category_id from article_categorizations where article_id = #{ArticleCategory.tyres.id})")}
   scope :lubricants, -> { where("articles.id in (select category_id from article_categorizations where article_id = #{ArticleCategory.lubricants.id})")}
   scope :other, -> { where("articles.id not in (select category_id from article_categorizations where article_id = #{ArticleCategory.lubricants.id} or article_id = #{ArticleCategory.tyres.id})")}
@@ -100,25 +101,25 @@ class Article < ApplicationRecord
     articles['Coperture'] = Array.new
     articles['Lubrificanti'] = Array.new
     articles['Ricambi'] = Array.new
-    Article.unassigned.tyres.each do |a|
-      articles['Coperture'] << [a.complete_name,a.unassigned.size,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
+    Article.availability.tyres.each do |a|
+      articles['Coperture'] << [a.complete_name,a.actual_availability,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
     end
-    Article.unassigned.lubricants.each do |a|
-      articles['Lubrificanti'] << [a.complete_name,a.unassigned.size,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
+    Article.availability.lubricants.each do |a|
+      articles['Lubrificanti'] << [a.complete_name,a.actual_availability,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
     end
-    Article.unassigned.other.each do |a|
-      articles['Ricambi'] << [a.complete_name,a.unassigned.size,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
+    Article.availability.other.each do |a|
+      articles['Ricambi'] << [a.complete_name,a.actual_availability,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
     end
     articles
   end
 
   def actual_prices_label
-    prices = self.unassigned.group_by { |i| i.actual_price.to_f }.map { |k,i| i.size.to_s+' a '+k.round(2).to_s+' Euro'  }
+    prices = self.availability.group_by { |i| i.actual_box_price.to_f }.map { |k,i| i.map { |p| p.remaining_quantity}.inject(0.0,:+).to_s+' a '+k.round(2).to_s+' Euro'  }
     prices.join("\n")
   end
 
   def actual_total
-    self.unassigned.map { |i| i.actual_price.to_f }.inject(0.0,:+)
+    self.availability.map { |i| i.actual_price }.inject(0.0,:+)
   end
 
   def self.inventory(search)
