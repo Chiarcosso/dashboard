@@ -114,7 +114,7 @@ class Article < ApplicationRecord
   end
 
   def actual_prices_label
-    prices = self.availability.group_by { |i| i.actual_box_price.to_f }.map { |k,i| i.map { |p| p.remaining_quantity}.inject(0.0,:+).to_s+' a '+k.round(2).to_s+' Euro'  }
+    prices = self.availability.group_by { |i| i.actual_box_price.to_f }.map { |k,i| i.map { |p| p.remaining_quantity}.inject(0.0,:+).to_s+' a '+(k/p.article.containedAmount).to_s+' Euro/'+p.article.measure_unit  }
     prices.join("\n")
   end
 
