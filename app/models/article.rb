@@ -34,6 +34,10 @@ class Article < ApplicationRecord
   scope :filter, ->(search) { joins(:manufacturer).where("articles.barcode LIKE '%#{search.tr(' ','%')}%' OR articles.description LIKE '%#{search.tr(' ','%')}%' OR companies.name LIKE '%#{search.tr(' ','%')}%' OR articles.name LIKE '%#{search.tr(' ','%')}%' OR articles.manufacturerCode LIKE '%#{search.tr(' ','%')}%'")}
   scope :no_barcode, -> { where(barcode: '') }
   scope :manufacturer, ->(search) { include(:company).where("manufacturer_id = companies.id").where("companies.name LIKE '%#{search}%'")}
+  scope :unassigned, -> { where("articles.id in (select distinct article_id from items where items.id not in (select item_id from output_order_items))") }
+  scope :tyres, -> { where("articles.id in (select category_id from article_categorizations where article_id = #{ArticleCategory.tyres.id})")}
+  scope :lubricants, -> { where("articles.id in (select category_id from article_categorizations where article_id = #{ArticleCategory.lubricants.id})")}
+  scope :other, -> { where("articles.id not in (select category_id from article_categorizations where article_id = #{ArticleCategory.lubricants.id} or article_id = #{ArticleCategory.tyres.id})")}
   # scope :reserve_check, -> { group(:id).left_outer_joins(:items).having('count(items.id) < minimalReserve or (minimalReserve = 0 and count(items.id) > 0)') }
   scope :reserve_check, -> { where("id in (select article_id from items inner join articles a on items.article_id = a.id left join output_order_items o on o.item_id = items.id where o.output_order_id is null group by article_id having (count(items.id) < articles.minimalReserve or ((articles.minimalReserve = 0 or articles.minimalReserve is null) and count(items.id) > 0))) or ((articles.minimalReserve != 0 and articles.minimalReserve is not null) and id not in (select article_id from items group by article_id))") }
   # scope :position_codes, ->(article) { include(:items).include(:position_code).distinct }
@@ -63,12 +67,23 @@ class Article < ApplicationRecord
       csv << columns
       # csv << column_names
       list = Article.financial_list
-      list.each do |article|
+      row = 2
+      tot = Array.new
+      list.each do |k,articles|
         # csv << article.values_at(*columns)
         # csv << [article[:name],article[:availability],article[:price],article[:total]].values_at(*columns)
-        csv << article
+        csv << [k]
+        row += 1
+        start_row = row
+        articles.each do |article|
+          row += 1
+          csv << article
+        end
+        csv << ['','','Totale',"=SOMMA(D#{start_row}:D#{row-1})"]
+        tot <<  "D#{row}"
+        row += 1
       end
-      csv << ['','','Totale',"=SOMMA(D2:D#{list.size+1})"]
+      csv << ['','','Totale','='+tot.join('+')]
     end
   end
 
@@ -76,21 +91,34 @@ class Article < ApplicationRecord
     Item.available_items.group_by { |i| i.article }.map { |k,i| k }
   end
 
+  def unassigned
+    self.items.unassigned
+  end
+
   def self.financial_list
-    articles = Array.new
-    Article.available.each do |a|
-      articles << [a.complete_name,a.availability.size,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
+    articles = Hash.new
+    articles['Coperture'] = Array.new
+    articles['Lubrificanti'] = Array.new
+    articles['Ricambi'] = Array.new
+    Article.unassigned.tyres.each do |a|
+      articles['Coperture'] << [a.complete_name,a.unassigned.size,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
+    end
+    Article.unassigned.lubricants.each do |a|
+      articles['Lubrificanti'] << [a.complete_name,a.unassigned.size,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
+    end
+    Article.unassigned.other.each do |a|
+      articles['Ricambi'] << [a.complete_name,a.unassigned.size,a.actual_prices_label,a.actual_total.round(2).to_s.tr('.',',')]
     end
     articles
   end
 
   def actual_prices_label
-    prices = self.availability.group_by { |i| i.actual_price.to_f }.map { |k,i| i.size.to_s+' a '+k.round(2).to_s+' Euro'  }
+    prices = self.unassigned.group_by { |i| i.actual_price.to_f }.map { |k,i| i.size.to_s+' a '+k.round(2).to_s+' Euro'  }
     prices.join("\n")
   end
 
   def actual_total
-    self.availability.map { |i| i.actual_price.to_f }.inject(:+)
+    self.unassigned.map { |i| i.actual_price.to_f }.inject(0.0,:+)
   end
 
   def self.inventory(search)

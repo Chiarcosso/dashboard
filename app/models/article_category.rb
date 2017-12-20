@@ -18,6 +18,13 @@ class ArticleCategory < ApplicationRecord
   #     :class_name => "Friendship"
   # has_many :parents, through: => :relation
   # has_many :children, through: => :relation
+  def self.tyres
+    ArticleCategory.find_by(:name => 'gomme')
+  end
+
+  def self.lubricants
+    ArticleCategory.find_by(:name => 'lubrificanti')
+  end
 
   def relativeDepthSet(depth)
     @relativeDepth = depth

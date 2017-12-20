@@ -1,8 +1,13 @@
-.panel
-  .container-fluid
-    = link_to "Aggiungi", new_user_admin_path, :class => "btn btn-primary"
-.panel
-  .container-fluid.scrollable-panel
-    - @users.each do |usr|
-      .container-fluid
-        =render :partial => 'user/partials/user_block', :locals => { :usr => usr }
+%div{ style: 'height: 100vh, padding-bottom: 7em'}
+  .row
+    .col-sm-2
+      %h3= 'Utenti'
+    .col-sm-10{ style: 'padding-top: 1.1em;'}
+      = link_to "Nuovo utente", new_user_admin_path, :class => "btn btn-primary"
+  %br
+  .row
+    .col-sm-12
+      %div{ style: 'height: 100vh; padding-bottom: 27em;' }
+        .scrollable-panel
+          - @users.each do |usr|
+            =render :partial => 'user/partials/user_block', :locals => { :usr => usr }

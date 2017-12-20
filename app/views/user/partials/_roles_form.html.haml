@@ -1,12 +1,24 @@
-- if current_user.has_role? 'admin'
-  = form_for @role do |f|
-    = f.text_field :name, remote: true, placeholder: 'Nuovo permesso', class: 'form-control'
-    = f.submit 'Agg.'
+.row
+  .col-sm-12
+    %h3
+      Ruoli
 
-- Role.admin(current_user.has_role? 'admin').order('name ASC').each do |r|
-  - if @user.has_role? r.name.to_sym
-    = form_tag '/users/'+@user.id.to_s+'/roles/'+r.id.to_s, method: :delete do
-      = submit_tag r.name, class: "btn btn-primary"
-  - else
-    = form_tag '/users/'+@user.id.to_s+'/roles/'+r.id.to_s, method: :post do
-      = submit_tag r.name, class: "btn"
+- if current_user.has_role? 'admin'
+  .row
+    .col-sm-12
+      = form_tag(roles_path, method: :post) do |f|
+        = text_field_tag 'role[name]', '', placeholder: 'Nuovo permesso', class: 'form-control'
+        = hidden_field_tag 'user', @user.id
+        = submit_tag 'Aggiungi'
+
+.row
+  .col-sm-12
+    - Role.admin(current_user.has_role? 'admin').order('name ASC').each do |r|
+      - if @user.has_role? r.name.to_sym
+        .floating-block
+          = form_tag '/users/'+@user.id.to_s+'/roles/'+r.id.to_s, method: :delete do
+            = submit_tag r.name, class: "btn btn-primary"
+      - else
+        .floating-block
+          = form_tag '/users/'+@user.id.to_s+'/roles/'+r.id.to_s, method: :post do
+            = submit_tag r.name, class: "btn"

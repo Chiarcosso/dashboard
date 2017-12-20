@@ -58,7 +58,8 @@
         = "Magazzino:"
   .row
     .col-sm-6
-      = "Valore totale pezzi in giacenza: #{number_to_currency(Item.total_value, locale: :it, separator: ",", delimiter: '.', unit: '€')} (#{number_to_currency(Item.total_value_no_tyres, locale: :it, separator: ',', delimiter: '.', unit: '€')} + #{number_to_currency(Item.total_value_tyres, locale: :it, separator: ',', delimiter: '.', unit: '€')} di gomme)"
+      = "Valore totale pezzi in giacenza: #{number_to_currency(Item.total_value, locale: :it, separator: ",", delimiter: '.', unit: '€')}"
+      = "(#{number_to_currency(Item.total_value_other, locale: :it, separator: ',', delimiter: '.', unit: '€')} + #{number_to_currency(Item.total_value_tyres, locale: :it, separator: ',', delimiter: '.', unit: '€')} di gomme + #{number_to_currency(Item.total_value_lubricants, locale: :it, separator: ',', delimiter: '.', unit: '€')} di lubrificanti)"
     .col-sm-2
       = button_to 'Distinta csv', print_financial_inventory_path(format: :csv), class: 'no-loader'
     .col-sm-2

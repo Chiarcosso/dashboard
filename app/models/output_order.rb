@@ -31,12 +31,16 @@ class OutputOrder < ApplicationRecord
     end
   end
 
-  def self.findByRecipient(search)
-    recipients = Array.new
-    recipients += Worksheet.filter(search).to_a
-    recipients += Office.filter(search).to_a
-    recipients += Person.filter(search).to_a
-    recipients += Vehicle.filter(search).to_a
+  def self.findByRecipient(search,model = nil)
+    if model.nil?
+      recipients = Array.new
+      recipients += Worksheet.filter(search).to_a
+      recipients += Office.filter(search).to_a
+      recipients += Person.filter(search).to_a
+      recipients += Vehicle.filter(search).to_a
+    else
+      recipients = model.filter(search).to_a
+    end
     receivers = Person.filter(search).to_a
     items = Item.assigned.filter(search).to_a
     # byebug

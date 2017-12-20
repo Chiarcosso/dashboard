@@ -32,4 +32,8 @@
       = f.label 'Conferma password'
       = f.password_field :password_confirmation, class: 'form-control', placeholder: 'Lasciare in bianco per non modificare'
 
-  = f.submit 'Aggiorna', :class => 'button right'
+  .actions.bottom-box
+    .inline.form-contol
+      = f.submit 'Aggiorna', :class => 'button right'
+    .inline.form-contol
+      = link_to 'Indietro', users_admin_path, class: 'form-control btn inline'

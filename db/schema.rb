@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171207103535) do
+ActiveRecord::Schema.define(version: 20171220105559) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 20171207103535) do
   create_table "article_categorizations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "article_id"
     t.integer "category_id"
+    t.index ["article_id"], name: "fk_rails_02ba750baf", using: :btree
   end
 
   create_table "article_compatibilities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -619,6 +620,7 @@ ActiveRecord::Schema.define(version: 20171207103535) do
     t.index ["name"], name: "index_workshop_operations_on_name", using: :btree
   end
 
+  add_foreign_key "article_categorizations", "article_categories", column: "article_id"
   add_foreign_key "article_compatibilities", "articles"
   add_foreign_key "articles", "companies", column: "manufacturer_id"
   add_foreign_key "articles", "users", column: "created_by_id"

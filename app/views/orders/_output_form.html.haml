@@ -42,7 +42,9 @@
           .col-sm-1
             = item.expiringDate.nil?? '' : (l item.expiringDate)
 
-    %b='Articoli assegnati '+((@recipient.nil? || @recipient.id.nil?) ? '' : @recipient.complete_name)
+    %b
+      ='Articoli assegnati '+((@recipient.nil? || @recipient.id.nil?) ? '' : @recipient.complete_name)
+      = ' - Ordine nr.: '+@order.id.to_s unless @order.nil?
     .row
       - case @destination.to_sym
         - when :Person

@@ -741,11 +741,11 @@ class OrdersController < ApplicationController
         end
         @destination = 'Worksheet'
         unless @recipient.nil?
-          @order = OutputOrder.findByRecipient(@recipient.code).last
+          @order = OutputOrder.findByRecipient(@recipient.code,Worksheet).last
         else
-          @order = OutputOrder.new
           @recipient = Worksheet.new(:code => code, :vehicle => Vehicle.new)
         end
+          @order = OutputOrder.new if @order.nil?
       end
     end
 end

@@ -69,6 +69,11 @@ body{
   border: 1px solid #d77;
 }
 
+.floating-block{
+  float: left;
+  margin: .5em;
+}
+
 .floor{
   position: absolute;
   bottom: 0vh;

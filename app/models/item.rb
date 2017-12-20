@@ -22,11 +22,19 @@ class Item < ApplicationRecord
   scope :in_storage, -> { where('items.id not in (?)',Office.mobile_workshops(1).items.map { |i| i.id }+Office.mobile_workshops(2).items.map { |i| i.id }) }
   # scope :group_by_article, -> { group(:article_id, :serial) }
   scope :barcode, ->(barcode) { joins(:article).where("items.barcode = ? OR articles.barcode = ?", barcode, barcode) }
-  scope :tyres, -> { joins(:article).joins('inner join article_categorizations on articles.id = article_categorizations.category_id').joins('inner join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name like \'%gomme%\'') }
-  scope :notyres, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').joins('left join article_categories on article_categorizations.article_id = article_categories.id').where('article_categories.name not like \'%gomme%\' or article_categories.name is null') }
+  # scope :tyres, -> { joins(:article).joins('inner join article_categorizations on articles.id = article_categorizations.category_id').joins('inner join article_Category on article_categorizations.article_id = article_Category.id').where('article_Category.name like \'%gomme%\'') }
+  # scope :tyres, -> { joins(:article).joins('inner join article_categorizations on articles.id = article_categorizations.category_id').where("article_categorizations.article_id = #{ArticleCategory.tyres.id}") }
+  scope :tyres, -> { joins(:article).where("articles.id in (select category_id from article_categorizations where article_id = #{ArticleCategory.tyres.id})") }
+  # scope :lubricants, -> { joins(:article).joins('inner join article_categorizations on articles.id = article_categorizations.category_id').where("article_categorizations.article_id = #{ArticleCategory.lubricants.id}") }
+  scope :lubricants, -> { joins(:article).where("articles.id in (select category_id from article_categorizations where article_id = #{ArticleCategory.lubricants.id})") }
+  # scope :notyres, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').joins('left join article_Category on article_categorizations.article_id = article_Category.id').where('article_Category.name not like \'%gomme%\' or article_Category.name is null') }
+  # scope :other, -> { joins(:article).joins('left join article_categorizations on articles.id = article_categorizations.category_id').where("(article_categorizations.article_id != #{ArticleCategory.tyres.id} and article_categorizations.article_id != #{ArticleCategory.lubricants.id}) or article_categorizations.id is null") }
+  scope :other, -> { where("article_id not in (select category_id from article_categorizations where article_id = #{ArticleCategory.tyres.id} or article_id = #{ArticleCategory.lubricants.id})") }
   # scope :available_items, -> { joins(:item_relations).where('item_relations.office_id' => nil).where('item_relations.vehicle_id' => nil).where('item_relations.person_id' => nil).where('item_relations.worksheet_id' => nil)}
-  scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL") }
-  scope :assigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NOT NULL") }
+  # scope :unassigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NULL") }
+  scope :unassigned, -> { where("items.id not in (select item_id from output_order_items)") }
+  # scope :assigned, -> { left_outer_joins(:output_order_items).where("output_order_items.output_order_id IS NOT NULL") }
+  scope :assigned, -> { where("items.id in (select item_id from output_order_items)") }
   scope :assigned_to, ->(what) { joins('inner join output_order_items i on items.id = i.item_id').joins('inner join output_orders on output_orders.id = i.output_order_id').where('output_orders.destination_type = \'Office\' and output_orders.destination_id = ?',what) }
   scope :limited, -> { limit(100) }
   scope :article, ->(article) { where(:article => article) }
@@ -130,27 +138,40 @@ class Item < ApplicationRecord
   end
 
   def self.total_value
-    total = 0.0
-    Item.unassigned.each do |i|
-      total += i.actual_price
-    end
-    total
+    # total = 0.0
+    # Item.unassigned.each do |i|
+    #   total += i.actual_price
+    # end
+    # total
+    Item.unassigned.map { |i| i.actual_price }.inject(0.0,:+)
   end
 
-  def self.total_value_no_tyres
-    total = 0.0
-    Item.unassigned.notyres.each do |i|
-      total += i.actual_price
-    end
-    total
+  def self.total_value_other
+    # total = 0.0
+    # Item.unassigned.other.each do |i|
+    #   total += i.actual_price
+    # end
+    # total
+    Item.unassigned.other.map { |i| i.actual_price }.inject(0.0,:+)
   end
 
   def self.total_value_tyres
-    total = 0.0
-    Item.unassigned.tyres.each do |i|
-      total += i.actual_price
-    end
-    total
+    # total = 0.0
+    # Item.unassigned.tyres.each do |i|
+    #   total += i.actual_price
+    # end
+    # total
+    Item.unassigned.tyres.map { |i| i.actual_price }.inject(0.0,:+)
+  end
+
+  def self.total_value_lubricants
+    # total = 0.0
+    # byebug
+    # Item.unassigned.tyres.each do |i|
+    #   total += i.actual_price
+    # end
+    # total
+    Item.unassigned.lubricants.map { |i| i.actual_price }.inject(0.0,:+)
   end
 
   def complete_price

@@ -14,7 +14,7 @@ class UsersController < ApplicationController
 
   def index
 
-    @users = User.all
+    @users = User.all.sort_by { |u| u.person.nil?? u.email : u.person.surname }
     render 'user/index'
 
   end
