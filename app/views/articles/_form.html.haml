@@ -46,7 +46,7 @@
           = f.label "Quantità contenuta"
           = f.number_field :containedAmount, class: 'form-control cr-field', step: :any
         .field
-          = f.select :measure_unit, options_for_select(Article.measure_units,selected: @article.measure_unit), class: 'form-control input-row'
+          = f.select :measure_unit, options_for_select(Article.measure_units,selected: Article.measure_units[@article.measure_unit]), class: 'form-control input-row'
         .field
           = f.label "Riserva minima"
           = f.number_field :minimalReserve, class: 'form-control cr-field', step: :any
