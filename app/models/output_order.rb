@@ -17,6 +17,11 @@ class OutputOrder < ApplicationRecord
   # scope :worksheet, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
   scope :open_worksheets_filter, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('worksheets.closingDate is null') }
 
+
+  def to_mobile_workshop?
+    self.destination_type == 'Office' and Office.mobile_workshops.include? self.destination
+  end
+
   def total
     total = 0
     self.output_order_items.each do |i|

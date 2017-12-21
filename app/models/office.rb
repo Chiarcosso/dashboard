@@ -5,8 +5,12 @@ class Office < ApplicationRecord
 
   scope :filter, ->(search) { where('name like ?',"%#{search}%") }
 
-  def mobile_workshops(number)
-    Office.where(name: 'Officina mobile '+number.to_s)
+  def self.mobile_workshops(number = nil)
+    if number.nil?
+      Office.where("offices.name like 'Officina mobile%'")
+    else
+      Office.find_by_name('Officina mobile '+number.to_s)
+    end
   end
 
   def complete_name

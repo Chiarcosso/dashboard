@@ -11,6 +11,7 @@ class Item < ApplicationRecord
 
   belongs_to :article
   belongs_to :transportDocument
+  has_many :mobile_workshop_items
   has_many :item_relations
   has_many :output_order_items
   has_many :output_orders, through: :output_order_items
@@ -78,7 +79,7 @@ class Item < ApplicationRecord
       end
     else
       # return Item.firstGroupByArticle(search,excluded,Item.assigned_to(Office.find(from)))
-      return Item.group_by_article(Item.filter(search).not_this(excluded.reject { |i| i.item.remaining_quantity > 0 }).order(:remaining_quantity => :asc, :created_at => :asc).assigned_to(Office.find(from)))
+      return MobileWorkshopItem.group_by_article(MobileWorkshopItem.filter(search).not_this(excluded.reject { |i| i.item.remaining_quantity > 0 }).workshop(from).order(:remaining_quantity => :asc, :created_at => :asc))
     end
   end
 

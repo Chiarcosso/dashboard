@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171220105559) do
+ActiveRecord::Schema.define(version: 20171221121246) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -348,6 +348,16 @@ ActiveRecord::Schema.define(version: 20171220105559) do
     t.index ["assigned_to_person_id"], name: "index_mdc_users_on_assigned_to_person_id", using: :btree
   end
 
+  create_table "mobile_workshop_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "storage_item_id",                   null: false
+    t.decimal  "remaining_quantity", precision: 10, null: false
+    t.integer  "mobile_workshop_id",                null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.index ["mobile_workshop_id"], name: "fk_rails_0662c38a37", using: :btree
+    t.index ["storage_item_id"], name: "fk_rails_077a2def56", using: :btree
+  end
+
   create_table "offices", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
     t.datetime "created_at", null: false
@@ -383,9 +393,10 @@ ActiveRecord::Schema.define(version: 20171220105559) do
   create_table "output_order_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "item_id"
     t.integer  "output_order_id"
-    t.datetime "created_at",                                              null: false
-    t.datetime "updated_at",                                              null: false
-    t.decimal  "quantity",        precision: 7, scale: 2, default: "1.0", null: false
+    t.datetime "created_at",                                                   null: false
+    t.datetime "updated_at",                                                   null: false
+    t.decimal  "quantity",             precision: 7, scale: 2, default: "1.0", null: false
+    t.boolean  "from_mobile_workshop",                         default: false, null: false
     t.index ["item_id"], name: "index_output_order_items_on_item_id", using: :btree
     t.index ["output_order_id"], name: "index_output_order_items_on_output_order_id", using: :btree
   end
@@ -660,6 +671,8 @@ ActiveRecord::Schema.define(version: 20171220105559) do
   add_foreign_key "items", "transport_documents"
   add_foreign_key "mdc_users", "companies", column: "assigned_to_company_id"
   add_foreign_key "mdc_users", "people", column: "assigned_to_person_id"
+  add_foreign_key "mobile_workshop_items", "items", column: "storage_item_id"
+  add_foreign_key "mobile_workshop_items", "offices", column: "mobile_workshop_id"
   add_foreign_key "order_articles", "articles"
   add_foreign_key "order_articles", "orders"
   add_foreign_key "orders", "companies", column: "supplier_id"

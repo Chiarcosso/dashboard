@@ -1,0 +1,27 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  article: 
+  price: 
+  discount: 9.99
+  remaining_quantity: 9.99
+  serial: MyString
+  state: 1
+  notes: MyText
+  expiring_date: 2017-12-21
+  transport_document: one
+  barcode: MyString
+  mobile_workshop: MyString
+
+two:
+  article: 
+  price: 
+  discount: 9.99
+  remaining_quantity: 9.99
+  serial: MyString
+  state: 1
+  notes: MyText
+  expiring_date: 2017-12-21
+  transport_document: two
+  barcode: MyString
+  mobile_workshop: MyString

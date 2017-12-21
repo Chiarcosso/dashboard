@@ -238,12 +238,15 @@ class OrdersController < ApplicationController
       end
 
       @checked_items.each do |ci|
-
+        if @order.to_mobile_workshop?
+          MobileWorkshopItem.create(storage_item: Item.find(ci.item.id), mobile_workshop: @recipient, remaining_quantity: ci.quantity)
+        end
         rq = ci.item.remaining_quantity - ci.quantity
         rq = 0 if rq < 0
         ci.item.update(remaining_quantity: rq)
         ci.save
         @order.output_order_items << ci unless @order.output_order_items.include? ci
+
       end
       @order.save
       # redirect_to storage_output_path
@@ -728,7 +731,7 @@ class OrdersController < ApplicationController
 
     def worksheet_params
       code = (params[:code].nil? or params[:code] == '') ? params.require(:recipient) : params.require(:code)
-
+      @destination = 'Worksheet'
       unless code.nil? or code == ''
         if code.index('EWC*').nil?
           code.gsub!(/[^\d]/, '')
@@ -739,7 +742,7 @@ class OrdersController < ApplicationController
           @recipient.vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
           @recipient.save
         end
-        @destination = 'Worksheet'
+
         unless @recipient.nil?
           @order = OutputOrder.findByRecipient(@recipient.code,Worksheet).last
         else
