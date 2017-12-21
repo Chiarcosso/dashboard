@@ -63,7 +63,7 @@ class OrdersController < ApplicationController
   end
 
   def edit_output
-    @order = OutputOrder.findByRecipient(params.require(:code)).last
+    @order = OutputOrder.find_by_recipient(params.require(:code))
     @search = search_params.nil?? '' : search_params
     if @order.nil? or @order.output_order_items.empty?
       @checked_items = Array.new
@@ -481,7 +481,7 @@ class OrdersController < ApplicationController
     def get_order
       case params[:destination]
       when 'Worksheet'
-        worksheet_params
+        worksheet_params unless params[:recipient] == '' or params[:recipient].nil?
       else
         nil
       end
@@ -502,7 +502,7 @@ class OrdersController < ApplicationController
               foo = OutputOrderItem.new #workaround for YAML.load bug
               ooi = YAML::load(Base64.decode64(id))
               # itms << YAML::load(Base64.decode64(id))
-              ooi.item.remaining_quantity -= ooi.quantity
+              # ooi.item.remaining_quantity -= ooi.quantity
               itms << ooi
               # new_ooi = nil
               # itms.each do |i|

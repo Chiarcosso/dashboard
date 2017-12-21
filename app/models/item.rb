@@ -184,7 +184,7 @@ class Item < ApplicationRecord
   end
 
   def complete_price
-    price = self.actual_price.to_s+' €'
+    price = self.actual_box_price.to_s+' €'
     if (self.discount.to_f > 0)
        price += " \n("+self.price.to_s+' -'+self.discount.to_s+'%'+')'
     end

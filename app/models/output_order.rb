@@ -36,6 +36,11 @@ class OutputOrder < ApplicationRecord
     end
   end
 
+  def self.find_by_recipient(search)
+    recipient = Worksheet.find_by_code(search)
+    OutputOrder.where("destination_type = 'Worksheet' and destination_id = #{recipient.id}").last unless recipient.nil?
+  end
+
   def self.findByRecipient(search,model = nil)
     if model.nil?
       recipients = Array.new
