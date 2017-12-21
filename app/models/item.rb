@@ -133,6 +133,10 @@ class Item < ApplicationRecord
     # end
   end
 
+  def actual_unity_price
+    (self.actual_box_price / self.article.containedAmount).round 2
+  end
+
   def actual_price
     (self.remaining_quantity * (self.price.to_f * ((100 - self.discount.to_f) / 100)) / self.article.containedAmount).round 2
   end

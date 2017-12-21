@@ -7,7 +7,7 @@ class OutputOrderItem < ApplicationRecord
   belongs_to :output_order
 
   def actual_price
-    (self.item.actual_price / self.item.article.containedAmount) * self.quantity
+    (self.item.actual_box_price / self.item.article.containedAmount) * self.quantity
   end
 
   def price
