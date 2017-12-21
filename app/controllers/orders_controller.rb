@@ -221,7 +221,7 @@ class OrdersController < ApplicationController
     if @save
       get_order
       # @order = OutputOrder.findByCode(params.require(:code))
-      if @order.nil?
+      if @order.id.nil?
         @order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination, receiver: @receiver)
       end
       @order.receiver = @receiver
@@ -748,7 +748,9 @@ class OrdersController < ApplicationController
         else
           @recipient = Worksheet.new(:code => code, :vehicle => Vehicle.new)
         end
-          @order = OutputOrder.new if @order.nil?
+          if @order.nil?
+            @order = OutputOrder.new
+          end
       end
     end
 end
