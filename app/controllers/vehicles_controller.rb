@@ -7,7 +7,7 @@ class VehiclesController < ApplicationController
   # GET /vehicles.json
   def index
 
-    @vehicles = Vehicle.filter(@search) unless @search.nil?#.paginate(:page => params[:page], :per_page => 30)
+    @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?#.paginate(:page => params[:page], :per_page => 30)
 
     respond_to do |format|
       format.html { render 'vehicles/index', notice: @notice}
@@ -139,7 +139,7 @@ class VehiclesController < ApplicationController
     end
 
     def search_params
-      unless params[:search].nil? || params[:search] == ''
+      unless params[:search].nil? || params[:search] == '' || params[:search] == ' '
         @search = params.require(:search)
       end
     end

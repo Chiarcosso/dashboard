@@ -2,7 +2,9 @@
 .row
   .col-sm-2
     %h3= 'Mezzi'
-  .col-sm-10{ style: 'padding-top: 1.1em;'}
+  .col-sm-2{ style: 'padding-top: 2.1em;'}
+    ="Selezionati: #{@vehicles.size}" unless @vehicles.nil?
+  .col-sm-8{ style: 'padding-top: 1.1em;'}
     -# =button_to 'Crea nuovo mezzo', new_vehicle_path, method: :get, style: "padding-top: 1.5em"
     =link_to "Crea nuovo mezzo", new_vehicle_path, class: "btn btn-primary"
 
@@ -15,9 +17,9 @@
     %b='Visualizza'
   .col-sm-1
     %b='Targa'
-  .col-sm-2
-    %b='Data immatricolazione'
-  .col-sm-2
+  .col-sm-1
+    %b='Data imm.'
+  .col-sm-3
     %b='Tipo'
   .col-sm-3
     %b='Proprietà'
@@ -35,18 +37,19 @@
           =button_tag 'c', class: 'no-loader'
         .col-sm-1
           =v.plate
-        .col-sm-2
-          =(l v.registration_date)
-        .col-sm-2
+        .col-sm-1
+          =(l v.registration_date) unless v.registration_date.nil?
+        .col-sm-3
           =v.model.complete_name
         .col-sm-3
           =v.property.name
-        .col-sm-1
-          =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
-        .col-sm-1
-          = form_tag(vehicle_path(v.id), method: :delete) do |f|
-            = hidden_field_tag :search, @search
-            = submit_tag 'x', class: 'inline', data: {:confirm => "Eliminare il mezzo targato nr. #{v.id}, #{v.plate}?"}
+        -  if current_user.has_role?("amministratore manutenzioni")
+          .col-sm-1
+            =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
+          .col-sm-1
+            = form_tag(vehicle_path(v.id), method: :delete) do |f|
+              = hidden_field_tag :search, @search
+              = submit_tag 'x', class: 'inline', data: {:confirm => "Eliminare il mezzo targato nr. #{v.id}, #{v.plate}?"}
 
 
 

@@ -17,7 +17,7 @@ class Vehicle < ApplicationRecord
   # has_one :vehicle_type, through: :model
   belongs_to :property, class_name: 'Company'
 
-  scope :order_by_plate, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type_id': VehicleInformationType.plate.id) }
+  # scope :order_by_plate, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type_id': VehicleInformationType.plate.id) }
   scope :find_by_plate, ->(plate) { joins(:vehicle_informations).order('vehicle_informations.information ASC, vehicle_informations.date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.plate.id).where('vehicle_informations.information LIKE ?','%'+plate+'%') }
   scope :order_by_chassis, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type': VehicleInformationType.chassis.id) }
   scope :find_by_chassis, ->(chassis) { joins(:vehicle_informations).order('vehicle_informations.information ASC, date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.chassis.id).where('vehicle_informations.information LIKE ?','%'+chassis+'%') }
@@ -25,7 +25,7 @@ class Vehicle < ApplicationRecord
   scope :filter_by_model, ->(search) { joins(:model).where('vehicle_models.name LIKE ?', '%'+search+'%') }
   scope :filter_by_property, ->(property) { joins(:property).where('companies.name LIKE ?', '%'+property+'%') }
   scope :null_scope, -> { where(id: nil) }
-  scope :filter, ->(search) { joins(:vehicle_informations).joins(:model).joins('inner join companies on vehicle_models.manufacturer_id = companies.id').joins('inner join companies prop on vehicles.property_id = prop.id').where("vehicle_informations.information LIKE '%#{search}%' or vehicle_models.name LIKE '%#{search}%' or companies.name LIKE '%#{search}%'or prop.name LIKE '%#{search}%'").distinct.limit(150) }
+  scope :filter, ->(search) { joins(:vehicle_informations).joins(:model).joins('inner join companies on vehicle_models.manufacturer_id = companies.id').joins('inner join companies prop on vehicles.property_id = prop.id').where("vehicle_informations.information LIKE '%#{search.tr('*','%')}%' or vehicle_models.name LIKE '%#{search.tr('*','%')}%' or companies.name LIKE '%#{search.tr('*','%')}%'or prop.name LIKE '%#{search.tr('*','%')}%'").distinct }
   # scope :filter, ->(search) { find_by_plate(search).or(find_by_chassis(search)).or(find_by_model(search)).or(find_by_manufacturer(search)) }
 
   self.per_page = 30
@@ -45,6 +45,7 @@ class Vehicle < ApplicationRecord
   # def self.find_by_chassis_method search
   #   Vehicle.find_by_chassis(search)
   # end
+
   def last_washing
     self.carwash_usages.sort_by { |cwu| cwu.starting_time }.reverse.first unless self.carwash_usages.empty?
   end
