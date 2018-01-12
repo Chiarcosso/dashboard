@@ -174,7 +174,7 @@ class ItemsController < ApplicationController
           item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
 
           unpositionedItems.each do |unpItem|
-            if unpItem.article == item.article && unpItem.price == item.price && unpItem.discount == item.discount && unpItem.serial == item.serial && unpItem.state == item.state && unpItem.expiringDate == item.expiringDate
+            if unpItem.article == item.article && unpItem.price.to_f == item.price.to_f && unpItem.discount.to_f == item.discount.to_f && unpItem.serial == item.serial && unpItem.state == item.state && unpItem.expiringDate == item.expiringDate
               item = unpItem
               unpositionedItems -= [unpItem]
               break

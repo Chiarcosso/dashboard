@@ -43,7 +43,7 @@
           =v.model.complete_name
         .col-sm-3
           =v.property.name
-        -  if current_user.has_role?("amministratore manutenzioni")
+        -  if current_user.has_role?("amministratore manutenzioni") || current_user.has_role?(:admin)
           .col-sm-1
             =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
           .col-sm-1
