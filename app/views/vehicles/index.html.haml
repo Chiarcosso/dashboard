@@ -30,7 +30,7 @@
 .scrollable-panel
   - unless @vehicles.nil?
     - @vehicles.each do |v|
-      .row
+      .row.colored
         .col-sm-2
           =button_tag 'a', class: 'no-loader'
           =button_tag 'b', class: 'no-loader'
@@ -41,15 +41,18 @@
           =(l v.registration_date) unless v.registration_date.nil?
         .col-sm-3
           =v.model.complete_name
+          %br
+          =v.vehicle_type.name
+          =v.vehicle_typology.name unless v.vehicle_typology == VehicleTypology.not_available
         .col-sm-3
-          =v.property.name
+          =v.property.name unless v.property.nil?
         -  if current_user.has_role?("amministratore manutenzioni") || current_user.has_role?(:admin)
           .col-sm-1
             =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
           .col-sm-1
             = form_tag(vehicle_path(v.id), method: :delete) do |f|
               = hidden_field_tag :search, @search
-              = submit_tag 'x', class: 'inline', data: {:confirm => "Eliminare il mezzo targato nr. #{v.id}, #{v.plate}?"}
+              = submit_tag 'x', class: 'inline', data: {:confirm => "Eliminare il mezzo nr. #{v.id}, targato #{v.plate}?"}
 
 
 
