@@ -37,25 +37,25 @@
             .col-sm-8
               = text_field_tag 'vehicle_typology[name]', '', placeholder: 'Nuova tipologia di mezzo', class: 'form-control'
             .col-sm-4
-              = submit_tag 'Crea', class: 'form-control'
+              = submit_tag 'Crea', class: 'form-control popup-link'
       %br
       .scrollable-panel.container-fluid#vehicle_typologies
         = render :partial => 'vehicle_typologies/list'
 
-.popup#legend-popup
-  .close
-    = 'Chiudi'
-  = render :partial => 'vehicle_types/legend'
+-# .popup#legend-popup
+-#   .close
+-#     = 'Chiudi'
+-#   = render :partial => 'vehicle_types/legend'
 :javascript
 
-  $('#legend-popup').hide();
-
-  $('#legend').off('click');
-  $('#legend').on('click',function(){
-    $('#legend-popup').toggle();
-  })
-
-  $('.close').off('click');
-  $('.close').on('click', function(){
-    $('#legend-popup').toggle();
-  })
+  // $('#legend-popup').hide();
+  //
+  // $('#legend').off('click');
+  // $('#legend').on('click',function(){
+  //   $('#legend-popup').toggle();
+  // })
+  //
+  // $('.close').off('click');
+  // $('.close').on('click', function(){
+  //   $('#legend-popup').toggle();
+  // })

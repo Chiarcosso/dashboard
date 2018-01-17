@@ -1,0 +1,6 @@
+-VehicleEquipment.all.order(:name).each do |vehicle_equipment|
+  .row
+    .col-sm-1
+      =check_box_tag 'vehicle_typology_equipments[]', vehicle_equipment.id, @vehicle_typology.vehicle_equipments.include?(vehicle_equipment)
+    .col-sm-8#name
+      =vehicle_equipment.name

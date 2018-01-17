@@ -1,13 +1,59 @@
-= form_for @vehicle_typology do |f|
-  - if @vehicle_typology.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@vehicle_typology.errors.count, "error")} prohibited this vehicle_typology from being saved:"
-      %ul
-        - @vehicle_typology.errors.full_messages.each do |message|
-          %li= message
+%center
+  %b='Modifica tipo veicolo: '+@vehicle_typology.name
+  %br
+  %br
 
-  .field
-    = f.label :name
-    = f.text_field :name
-  .actions
-    = f.submit 'Save'
+= form_tag(update_vehicle_typology_path, method: :post) do |f|
+  .contaner
+    .row.no-margin
+      .col-sm-6
+        %b='Tipologia'
+        = hidden_field_tag :id, @vehicle_typology.id
+        = text_field_tag 'vehicle_typology[name]', @vehicle_typology.name, class: 'form-control'
+      .col-sm-6
+        -# %b='Codice lavaggio standard'
+        -# = select_tag 'vehicle_typology[carwash_type]', options_for_select(Vehicle.carwash_codes,@vehicle_typology.carwash_type), class: 'form-control'
+    .row.no-margin
+      .col-sm-12
+        %br
+
+    .row.no-margin
+      .col-sm-4
+        %b='Informazioni possibili:'
+        .scrollable-panel.container-fluid
+          = render :partial => 'vehicle_typologies/informations_list'
+      .col-sm-4
+        %b='Tipi possibili:'
+        .scrollable-panel.container-fluid
+          = render :partial => 'vehicle_typologies/types_list'
+      .col-sm-4
+        %b='Attrezzature possibili:'
+        .scrollable-panel.container-fluid
+          = render :partial => 'vehicle_typologies/equipment_list'
+    .row.no-margins
+      .col-sm-3
+        %br
+        %br
+        %br
+        = submit_tag 'Aggiorna', class: 'btn inline'
+-# = form_for @vehicle_type do |f|
+-#   - if @vehicle_type.errors.any?
+-#     #error_explanation
+-#       %h2= "#{pluralize(@vehicle_type.errors.count, "error")} prohibited this vehicle_model from being saved:"
+-#       %ul
+-#         - @vehicle_type.errors.full_messages.each do |msg|
+-#           %li= msg
+-#
+-#   .row
+-#     .col-sm-5
+-#       .field
+-#         = f.label 'Tipo'
+-#         = f.text_field :name, class: 'form-control'
+-#     .col-sm-4
+-#       .field
+-#         = f.label 'Codice lavaggio'
+-#         = f.number_field :carwash_type, class: 'form-control', max: 13, min: 1
+-#     .col-sm-1
+-#       .actions
+-#         = f.label ' '
+-#         = f.submit 'Salva'

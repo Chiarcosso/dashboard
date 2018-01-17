@@ -174,4 +174,5 @@ Rails.application.routes.draw do
 
   post '/vehicles/edit', to: 'vehicles#edit', as: :edit_vehicle_search
   post '/vehicle_type/update', to: 'vehicle_types#update', as: :update_vehicle_type
+  post '/vehicle_typology/update', to: 'vehicle_typologies#update', as: :update_vehicle_typology
 end
