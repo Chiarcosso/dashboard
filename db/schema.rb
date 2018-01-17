@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180112131343) do
+ActiveRecord::Schema.define(version: 20180117091805) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -538,6 +538,33 @@ ActiveRecord::Schema.define(version: 20180112131343) do
     t.index ["vehicle_type_id"], name: "index_vehicle_models_on_vehicle_type_id", using: :btree
   end
 
+  create_table "vehicle_type_equipments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "vehicle_type_id",      null: false
+    t.integer  "vehicle_equipment_id", null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["vehicle_equipment_id"], name: "index_vehicle_type_equipments_on_vehicle_equipment_id", using: :btree
+    t.index ["vehicle_type_id"], name: "index_vehicle_type_equipments_on_vehicle_type_id", using: :btree
+  end
+
+  create_table "vehicle_type_information_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "vehicle_type_id",             null: false
+    t.integer  "vehicle_information_type_id", null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["vehicle_information_type_id"], name: "vehicle_type_information_type_index", using: :btree
+    t.index ["vehicle_type_id"], name: "vehicle_type_vehicle_type_index", using: :btree
+  end
+
+  create_table "vehicle_type_typologies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "vehicle_type_id",     null: false
+    t.integer  "vehicle_typology_id", null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["vehicle_type_id"], name: "index_vehicle_type_typologies_on_vehicle_type_id", using: :btree
+    t.index ["vehicle_typology_id"], name: "index_vehicle_type_typologies_on_vehicle_typology_id", using: :btree
+  end
+
   create_table "vehicle_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name",                     null: false
     t.datetime "created_at",               null: false
@@ -688,6 +715,12 @@ ActiveRecord::Schema.define(version: 20180112131343) do
   add_foreign_key "vehicle_informations", "vehicle_information_types"
   add_foreign_key "vehicle_models", "companies", column: "manufacturer_id"
   add_foreign_key "vehicle_models", "vehicle_types"
+  add_foreign_key "vehicle_type_equipments", "vehicle_equipments"
+  add_foreign_key "vehicle_type_equipments", "vehicle_types"
+  add_foreign_key "vehicle_type_information_types", "vehicle_information_types"
+  add_foreign_key "vehicle_type_information_types", "vehicle_types"
+  add_foreign_key "vehicle_type_typologies", "vehicle_types"
+  add_foreign_key "vehicle_type_typologies", "vehicle_typologies"
   add_foreign_key "vehicle_vehicle_equipments", "vehicle_equipments"
   add_foreign_key "vehicle_vehicle_equipments", "vehicles"
   add_foreign_key "vehicles", "companies", column: "property_id"

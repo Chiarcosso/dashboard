@@ -5,6 +5,8 @@ class Person < ApplicationRecord
   has_many :companies, through: :relations
   has_many :company_relations, through: :relations
 
+  has_one :carwash_driver_code, :dependent => :destroy
+
   scope :order_alpha, -> { order(:name).order(:surname) }
   scope :order_alpha_surname, -> { order(:surname).order(:name) }
   # scope :find_by_complete_name,->(name) { where("lower(concat_ws(' ',surname,name)) = ?", name) }

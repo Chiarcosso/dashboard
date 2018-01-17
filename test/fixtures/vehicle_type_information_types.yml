@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  vehicle_type: one
+  vehicle_information_type: one
+
+two:
+  vehicle_type: two
+  vehicle_information_type: two

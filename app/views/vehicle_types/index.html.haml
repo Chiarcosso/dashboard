@@ -5,20 +5,21 @@
       %h3 Tipi di veicoli
       .container-fluid
         .row
-          .col-sm-5
-            %b='Nome'
-          .col-sm-3
-            %b='Cod. lavaggio'
-            = button_tag '?', class: 'no-loader', id: 'legend'
           .col-sm-4
+            %b='Nome'
+          .col-sm-5
+            %b='Cod. lavaggio'
+            -# = button_tag '?', class: 'no-loader', id: 'legend'
+          .col-sm-3
         .row
           = form_tag(:vehicle_types, method: :post, format: :js, remote: true) do |f|
-            .col-sm-5
-              = text_field_tag 'vehicle_type[name]', '', placeholder: 'Nuovo tipo di mezzo', class: 'form-control'
-            .col-sm-3
-              = number_field_tag 'vehicle_type[carwash_type]', 0, class: 'form-control'
             .col-sm-4
-              = submit_tag 'Crea', class: 'form-control'
+              = text_field_tag 'vehicle_type[name]', '', placeholder: 'Nuovo tipo di mezzo', class: 'form-control'
+            .col-sm-5
+              -# = number_field_tag 'vehicle_type[carwash_type]', 0, class: 'form-control'
+              = select_tag 'vehicle_type[carwash_type]', options_for_select(Vehicle.carwash_codes), class: 'form-control'
+            .col-sm-3
+              = submit_tag 'Crea', class: 'form-control popup-link'
       %br
       .scrollable-panel.container-fluid#vehicle_types
         %br

@@ -48,7 +48,11 @@
           =v.property.name unless v.property.nil?
         -  if current_user.has_role?("amministratore manutenzioni") || current_user.has_role?(:admin)
           .col-sm-1
-            =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
+            -# =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
+            = form_tag(edit_vehicle_search_path, method: :post) do |f|
+              = hidden_field_tag :search, @search
+              = hidden_field_tag :id, v.id
+              = submit_tag 'Modifica', class: 'inline'
           .col-sm-1
             = form_tag(vehicle_path(v.id), method: :delete) do |f|
               = hidden_field_tag :search, @search

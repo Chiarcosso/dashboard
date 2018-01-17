@@ -171,4 +171,7 @@ Rails.application.routes.draw do
   delete '/companies/:id/:address_id/del_address', to: 'companies#del_address', as: :delete_company_address
   post '/companies/:id/add_address', to: 'companies#add_address', as: :add_company_address
   post '/companies/:id/add_phone', to: 'companies#add_phone', as: :add_company_phone
+
+  post '/vehicles/edit', to: 'vehicles#edit', as: :edit_vehicle_search
+  post '/vehicle_type/update', to: 'vehicle_types#update', as: :update_vehicle_type
 end

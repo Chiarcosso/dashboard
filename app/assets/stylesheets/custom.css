@@ -240,6 +240,10 @@ body{
   overflow: hidden;
 }
 
+.popup .scrollable-panel {
+  max-height: 25em;
+}
+
 .popup-content{
   overflow: auto;
 }

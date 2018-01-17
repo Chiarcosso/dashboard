@@ -1,23 +1,25 @@
 %br
 -VehicleType.all.order(:name).each do |v|
   - unless v.name == 'N/D'
-    .row
-      .col-sm-5#name
+    .row.colored
+      .col-sm-4#name
         =v.name
-      .col-sm-3#carwash
+      .col-sm-5#carwash
         =v.carwash_type
-      .col-sm-4#buttons
+        =Vehicle.carwash_codes.key(v.carwash_type)
+      .col-sm-3#buttons
         .inline
-          =button_tag 'Modifica', class: 'edit', data: {id: v.id}
+          =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica tipo veicolo', name: 'edit_vehicle_type', target: edit_vehicle_type_path(v.id) }
         .inline
-          =button_to 'x', vehicle_type_path(v.id, format: :js), remote: true, method: :delete
+          =button_to 'x', vehicle_type_path(v.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare il tipo #{v.name}?"}
 
 :javascript
 
-  $('.edit').off('click');
-  $('.edit').on('click', function(){
-    var id = $(this).data('id');
-    $('#name'+id).html('<input type="text" class="form-control" name="name" value="'+$('#name'+id).html()+'"/>');
-    $('#carwash'+id).html('<input type="number" class="form-control" name="carwash_type" value="'+$('#carwash'+id).html()+'"/>');
-    $('#name'+id).append('<input type="hidden" class="form-control" name="id" value="'+id+'"/>');
-  })
+  activatePopUp();
+  // $('.edit').off('click');
+  // $('.edit').on('click', function(){
+  //   var id = $(this).data('id');
+  //   $('#name'+id).html('<input type="text" class="form-control" name="name" value="'+$('#name'+id).html()+'"/>');
+  //   $('#carwash'+id).html('<input type="number" class="form-control" name="carwash_type" value="'+$('#carwash'+id).html()+'"/>');
+  //   $('#name'+id).append('<input type="hidden" class="form-control" name="id" value="'+id+'"/>');
+  // })

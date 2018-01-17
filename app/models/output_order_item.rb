@@ -29,6 +29,7 @@ class OutputOrderItem < ApplicationRecord
   def recover_item
     i = self.item
     i.update(remaining_quantity: i.remaining_quantity + self.quantity)
+    i.item_relations.clear
   end
 
 end

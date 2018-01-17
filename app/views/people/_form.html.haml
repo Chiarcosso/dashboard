@@ -19,6 +19,7 @@
         .form-group
           = f.label 'Nome'
           = f.text_field :name, class: 'form-control'
+          = hidden_field_tag :search, @search
         .form-group
           = f.label 'Cognome'
           = f.text_field :surname, class: 'form-control'

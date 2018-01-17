@@ -1,27 +1,28 @@
 
 .row
   .col-sm-3
-    #vehicle_type
-      = render :partial => 'vehicles/vehicle_types'
-    #vehicle_typology
-      = render :partial => 'vehicles/vehicle_typologies'
-    #vehicle_model
-      = render :partial => 'vehicles/vehicle_models'
-    .field
-      %b= 'Serie'
-      = text_field_tag 'vehicle[serie]', @vehicle.serie, class: 'form-control'
-    .field
-      %b='Prima immatricolazione'
-      = text_field_tag 'vehicle[registration_date]', @vehicle.registration_date.nil?? '' : (l @vehicle.registration_date), class: 'form-control', 'data-behavior' => 'datepicker'
-    .field
-      %b='Codice lavaggio'
-      = number_field_tag 'vehicle[carwash_code]', @vehicle.carwash_code, class: 'form-control'
-    .field
-      %b='Dismesso'
-      = check_box_tag 'vehicle[dismissed]', 1, @vehicle.dismissed
-    .field
-      %b= 'Note'
-      = text_area_tag 'vehicle[notes]', @vehicle.notes, class: 'form-control'
+    .scrollable-panel
+      #vehicle_type
+        = render :partial => 'vehicles/vehicle_types'
+      #vehicle_typology
+        = render :partial => 'vehicles/vehicle_typologies'
+      #vehicle_model
+        = render :partial => 'vehicles/vehicle_models'
+      .field
+        %b= 'Serie'
+        = text_field_tag 'vehicle[serie]', @vehicle.serie, class: 'form-control'
+      .field
+        %b='Prima immatricolazione'
+        = text_field_tag 'vehicle[registration_date]', @vehicle.registration_date.nil?? '' : (l @vehicle.registration_date), class: 'form-control', 'data-behavior' => 'datepicker'
+      .field
+        %b='Codice lavaggio'
+        = select_tag 'vehicle[carwash_code]', options_for_select(Vehicle.carwash_codes, Vehicle.carwash_codes[@vehicle.carwash_code]), class: 'form-control'
+      .field
+        %b='Dismesso'
+        = check_box_tag 'vehicle[dismissed]', 1, @vehicle.dismissed
+      .field
+        %b= 'Note'
+        = text_area_tag 'vehicle[notes]', @vehicle.notes, class: 'form-control'
   .col-sm-4
     .field
       %b= 'Proprietà'
@@ -35,9 +36,10 @@
       = render :partial => 'vehicles/vehicle_gear'
 .actions.bottom-box
   .inline.form-contol
+    = hidden_field_tag :search, @search
     = submit_tag 'Aggiorna', class: 'btn inline'
   .inline.form-contol
-    = link_to 'Indietro', vehicles_path, class: 'form-control btn inline'
+    = link_to 'Indietro', vehicles_path(search: @search), class: 'form-control btn inline'
 
 :javascript
 

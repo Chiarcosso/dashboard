@@ -1,6 +1,6 @@
 class PeopleController < ApplicationController
   before_action :set_person, only: [:show, :edit, :update, :destroy, :add_role]
-  before_action :search_params, only: [:index]
+  before_action :search_params
 
   autocomplete :company, :name, full: true
 
@@ -12,6 +12,7 @@ class PeopleController < ApplicationController
     else
       @filteredPeople = Person.filter(@search)
     end
+    render 'people/index'
   end
 
   # GET /people/1
@@ -36,52 +37,57 @@ class PeopleController < ApplicationController
       @person = Person.new(person_params)
     else
       @person.update(params.require(:person).permit(:name,:surname,:notes,:mdc_user))
+      index
     end
-    respond_to do |format|
-      if @person.save
-        Person.where(mdc_user: @person.mdc_user).where("id != #{@person.id}").update(mdc_user: nil)
-        mdc = MdcWebservice.new
-        mdc.begin_transaction
-        Person.mdc.each do |p|
-          mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: p.mdc_user.upcase, key: p.mdc_user, order: 1, tabname: 'USERS', values: [p.mdc_user.upcase,p.mdc_user,p.name,p.surname,p.id]}))
-        end
-        mdc.commit_transaction
-        mdc.end_transaction
-        mdc.close_session
-        # relation_params
-        # CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
-        format.html { redirect_to edit_person_path(@person.id), notice: 'Persona creata con successo.' }
-        format.json { render :show, status: :created, location: @person }
-      else
-        format.html { render :new }
-        format.json { render json: @person.errors, status: :unprocessable_entity }
-      end
-    end
+    # respond_to do |format|
+    #   if @person.save
+    #     # Person.where(mdc_user: @person.mdc_user).where("id != #{@person.id}").update(mdc_user: nil)
+    #     # mdc = MdcWebservice.new
+    #     # mdc.begin_transaction
+    #     # Person.mdc.each do |p|
+    #     #   mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: p.mdc_user.upcase, key: p.mdc_user, order: 1, tabname: 'USERS', values: [p.mdc_user.upcase,p.mdc_user,p.name,p.surname,p.id]}))
+    #     # end
+    #     # mdc.commit_transaction
+    #     # mdc.end_transaction
+    #     # mdc.close_session
+    #     # relation_params
+    #     # CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
+    #     # format.html { redirect_to edit_person_path(@person.id), notice: 'Persona creata con successo.' }
+    #     # format.json { render :show, status: :created, location: @person }
+    #     index
+    #   else
+    #     format.html { render :new }
+    #     format.json { render json: @person.errors, status: :unprocessable_entity }
+    #   end
+    # end
   end
 
   # PATCH/PUT /people/1
   # PATCH/PUT /people/1.json
   def update
-    respond_to do |format|
-      if @person.update(person_params)
-        Person.where(mdc_user: @person.mdc_user).where("id != #{@person.id}").update(mdc_user: nil)
-        mdc = MdcWebservice.new
-        mdc.begin_transaction
-        Person.mdc.each do |p|
-          mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{ p.mdc_user.upcase}|", key: p.mdc_user, order: 1, tabname: 'USERS', values: [p.mdc_user.upcase,p.mdc_user,p.name,p.surname,p.id]}))
-        end
-        mdc.commit_transaction
-        mdc.end_transaction
-        mdc.close_session
-        # relation_params
-        # CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
-        format.html { redirect_to people_path, notice: 'Aggiornato con successo.' }
-        format.json { render :show, status: :ok, location: @person }
-      else
-        format.html { render :edit }
-        format.json { render json: @person.errors, status: :unprocessable_entity }
-      end
-    end
+    @person.update(person_params)
+    index
+    # respond_to do |format|
+    #   if @person.update(person_params)
+    #     # Person.where(mdc_user: @person.mdc_user).where("id != #{@person.id}").update(mdc_user: nil)
+    #     # mdc = MdcWebservice.new
+    #     # mdc.begin_transaction
+    #     # Person.mdc.each do |p|
+    #     #   mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{ p.mdc_user.upcase}|", key: p.mdc_user, order: 1, tabname: 'USERS', values: [p.mdc_user.upcase,p.mdc_user,p.name,p.surname,p.id]}))
+    #     # end
+    #     # mdc.commit_transaction
+    #     # mdc.end_transaction
+    #     # mdc.close_session
+    #     # relation_params
+    #     # CompanyPerson.create(company: @company, person: @person, company_relation: @relation)
+    #     # format.html { redirect_to people_path, notice: 'Aggiornato con successo.' }
+    #     # format.json { render :show, status: :ok, location: @person }
+    #     index
+    #   else
+    #     format.html { render :edit }
+    #     format.json { render json: @person.errors, status: :unprocessable_entity }
+    #   end
+    # end
   end
 
   def add_role
@@ -101,7 +107,7 @@ class PeopleController < ApplicationController
       cp = CompanyPerson.find(params.require(:id))
       @person = cp.person
       cp.destroy
-      render :js, :partial => 'people/relations_list_js'
+      # render :js, :partial => 'people/relations_list_js'
     end
   end
 
@@ -109,10 +115,11 @@ class PeopleController < ApplicationController
   # DELETE /people/1.json
   def destroy
     @person.destroy
-    respond_to do |format|
-      format.html { redirect_to people_path, notice: 'Person was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    index
+    # respond_to do |format|
+    #   format.html { redirect_to people_path, notice: 'Person was successfully destroyed.' }
+    #   format.json { head :no_content }
+    # end
   end
 
   private
@@ -129,12 +136,12 @@ class PeopleController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
-      params.require(:person).permit(:name, :surname, :notes, :mdc_user)
+      params.require(:person).permit(:name, :surname, :notes, :mdc_user, :search)
     end
 
     def relation_params
       # params[:relation][:person] = @person.id
-      rel = params.require(:relation).permit(:company, :relation, :person)
+      rel = params.require(:relation).permit(:company, :relation, :person, :search)
       @company = Company.find(rel[:company])
       @relation = CompanyRelation.find(rel[:relation])
     end

@@ -12,7 +12,7 @@ class Item < ApplicationRecord
   belongs_to :article
   belongs_to :transportDocument
   has_many :mobile_workshop_items
-  has_many :item_relations
+  has_many :item_relations, :dependent => :destroy
   has_many :output_order_items
   has_many :output_orders, through: :output_order_items
   belongs_to :position_code

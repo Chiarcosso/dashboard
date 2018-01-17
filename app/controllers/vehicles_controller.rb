@@ -1,6 +1,6 @@
 class VehiclesController < ApplicationController
   before_action :set_vehicle, only: [:show, :edit, :update, :destroy]
-  before_action :search_params, only: [:index,:destroy]
+  before_action :search_params
   autocomplete :vehicle, :plate, full: true
 
   # GET /vehicles
@@ -33,7 +33,7 @@ class VehiclesController < ApplicationController
     @equipment = VehicleEquipment.order(:name)
   end
 
-  # GET /vehicles/1/edit
+  # POST /vehicles/edit
   def edit
     @vehicle_types = VehicleType.all
     @vehicle_typologies = VehicleTypology.all
@@ -111,7 +111,7 @@ class VehiclesController < ApplicationController
         #   @vehicle.property = @property
         # end
         # @vehicle.save
-        format.html { redirect_to vehicles_path, notice: 'Vehicle was successfully updated.' }
+        format.html { redirect_to vehicles_path(search: @search), notice: 'Vehicle was successfully updated.' }
         format.json { render :show, status: :ok, location: @vehicle }
       else
         format.html { render :edit }
@@ -162,6 +162,7 @@ class VehiclesController < ApplicationController
       p[:vehicle_typology] = VehicleTypology.find(p[:vehicle_typology].to_i)
       p[:property] = Company.where(name: p[:property]).first
       p[:dismissed] = p[:dismissed].nil? ? false : true
+      p[:carwash_code] = p[:carwash_code].to_i
       p
       # params.require(:vehicle)[:model] = VehicleModel.find(params.require(:vehicle)[:model].to_i)
       # params

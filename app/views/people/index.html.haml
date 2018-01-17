@@ -1,5 +1,12 @@
 -# %p#notice= notice
-%h3 Persone
+.row
+  .col-sm-2
+    %h3= 'Persone'
+  .col-sm-2{ style: 'padding-top: 2.1em;'}
+    ="Selezionati: #{@filteredPeople.size}" unless @filteredPeople.nil?
+  .col-sm-8{ style: 'padding-top: 1.1em;'}
+    =link_to "Inserisci nuova persona", new_person_path, class: "btn btn-primary"
+
 .container
   = form_tag(people_path, method: :get, type: :script, class: 'prevent-cr') do |f|
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': people_path
@@ -33,11 +40,16 @@
       .col-sm-3
         = 'MDC: '+p.mdc_user.to_s+' - ' unless p.mdc_user.nil?
         = p.notes.to_s
-      .col-sm-2
-        .inline-input
-          =button_to 'Modifica', edit_person_path(p.id), class: 'inline-input', method: :get
-        .inline-input
-          =button_to 'x', person_path(p.id), method: :delete, class: 'inline-input'
+      -  if current_user.has_role?("amministratore manutenzioni") || current_user.has_role?(:admin)
+        .col-sm-1
+          =button_to 'Modifica', edit_person_path(p.id), class: 'inline', method: :get
+        .col-sm-1
+          = form_tag(person_path(p.id), method: :delete) do |f|
+            = hidden_field_tag :search, @search
+            = submit_tag 'x', class: 'inline', data: {:confirm => "Eliminare #{p.list_name}?"}
 
-.container
-  =button_to 'Crea', new_person_path, class: 'form-control', method: :get
+      -# .col-sm-2
+      -#   .inline-input
+      -#     =button_to 'Modifica', edit_person_path(p.id), class: 'inline-input', method: :get
+      -#   .inline-input
+      -#     =button_to 'x', person_path(p.id), method: :delete, class: 'inline-input'
