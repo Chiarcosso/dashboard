@@ -1,0 +1,39 @@
+%center
+  %b='Modifica tipo dettaglio mezzi: '+@vehicle_information_type.name
+  %br
+  %br
+
+= form_tag(update_vehicle_information_type_path, method: :post, remote: true) do |f|
+  .contaner
+    .row.no-margin
+      .col-sm-6
+        %b='Dettaglio'
+        = hidden_field_tag :id, @vehicle_information_type.id
+        = text_field_tag 'vehicle_information_type[name]', @vehicle_information_type.name, class: 'form-control'
+      .col-sm-6
+        %b='Tipo di dato'
+        = select_tag 'vehicle_information_type[data_type]', options_for_select(VehicleInformationType.data_types,@vehicle_information_type.data_type), class: 'form-control'
+    .row.no-margin
+      .col-sm-12
+        %br
+
+    .row.no-margin
+      .col-sm-6
+        %b='Tipi di mezzo possibili:'
+        .scrollable-panel.container-fluid
+          = render :partial => 'vehicle_information_types/types_list'
+      .col-sm-6
+        %b='Tipologie di mezzo possibili:'
+        .scrollable-panel.container-fluid
+          = render :partial => 'vehicle_information_types/typologies_list'
+      -# .col-sm-4
+      -#   %b='Informazioni possibili:'
+      -#   .scrollable-panel.container-fluid
+      -#     = render :partial => 'vehicle_information_types/informations_list'
+
+    .row.no-margins
+      .col-sm-3
+        %br
+        %br
+        %br
+        = submit_tag 'Aggiorna', class: 'btn inline'

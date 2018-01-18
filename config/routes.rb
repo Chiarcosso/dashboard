@@ -1,11 +1,13 @@
 Rails.application.routes.draw do
   resources :vehicle_typologies
+  resources :vehicle_equipments
   # resources :equipment do
   #
   # end
   resources :equipment_groups
   resources :company_relations
   resources :vehicle_informations
+  resources :vehicle_information_types
   resources :position_codes
   resources :vehicles
   resources :vehicle_models
@@ -175,4 +177,6 @@ Rails.application.routes.draw do
   post '/vehicles/edit', to: 'vehicles#edit', as: :edit_vehicle_search
   post '/vehicle_type/update', to: 'vehicle_types#update', as: :update_vehicle_type
   post '/vehicle_typology/update', to: 'vehicle_typologies#update', as: :update_vehicle_typology
+  post '/vehicle_equipment/update', to: 'vehicle_equipments#update', as: :update_vehicle_equipment
+  post '/vehicle_infromation_types/update', to: 'vehicle_information_types#update', as: :update_vehicle_information_type
 end

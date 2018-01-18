@@ -1,0 +1,4 @@
+removejtk();
+$("#vehicle_information_types").html("#{escape_javascript(render :partial => 'vehicle_information_types/list'  )} ");
+$(".popup#edit_vehicle_information_type").remove();
+deactivateLoadingScreen();

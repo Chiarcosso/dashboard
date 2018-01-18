@@ -15,9 +15,9 @@ class VehicleTypesController < ApplicationController
   end
 
   def create
-    @vehicle_type = VehicleType.create(params.require(:vehicle_type).permit(:name, :carwash_type))
+    p = vehicle_type_params
+    @vehicle_type = VehicleType.create(p) if @vehicle_type.nil?
     respond_to do |format|
-      # format.js { render :partial => 'vehicle_types/list_js' }
       format.js { render :partial => 'vehicle_types/form' }
     end
   end
@@ -45,11 +45,18 @@ class VehicleTypesController < ApplicationController
     # respond_to do |format|
     #   format.html { redirect_to  'vehicle_types/index' }
     # end
-    redirect_to '/vehicle_types'
+    # redirect_to '/vehicle_types'
+    respond_to do |format|
+      format.js { render :partial => 'vehicle_types/list_js' }
+    end
   end
 
   def destroy
-    @vehicle_type.destroy
+    begin
+      @vehicle_type.destroy
+    rescue Exception => e
+      @error = "Impossibile eliminare tipo di mezzo: #{@vehicle_type.name}.\n\n#{e.message}"
+    end
     respond_to do |format|
       format.js { render :partial => 'vehicle_types/list_js' }
     end
@@ -59,5 +66,12 @@ class VehicleTypesController < ApplicationController
 
   def get_vehicle_type
     @vehicle_type = VehicleType.find(params.require(:id)) unless params[:id] == 0
+  end
+
+  def vehicle_type_params
+    p = params.require(:vehicle_type).permit(:name,:carwash_type)
+    p[:name].capitalize!
+    @vehicle_type = VehicleType.find_by_name(p[:name])
+    p
   end
 end

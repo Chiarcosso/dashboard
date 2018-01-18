@@ -1,0 +1,24 @@
+%br
+-VehicleEquipment.all.order(:name).each do |v|
+  - unless v.name == 'N/D'
+    .row.colored
+      .col-sm-5
+        =v.name
+      .col-sm-5
+        ="Montato su #{v.vehicles.size} mezzi"
+      .col-sm-2#buttons
+        .inline
+          =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica attrezzatura', name: 'edit_vehicle_equipment', target: edit_vehicle_equipment_path(v.id) }
+        .inline
+          =button_to 'x', vehicle_equipment_path(v.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare l'attrezzatura #{v.name}?"}
+
+- unless @error.nil?
+  .error
+    .close
+      Chiudi
+    =@error
+:javascript
+
+  activatePopUp();
+  activateClose();
+  // activateErrors();

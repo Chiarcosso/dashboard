@@ -4,19 +4,21 @@
     .row.colored
       .col-sm-8#name
         =v.name
-      .col-sm-4#buttons
+      .col-sm-2
+        ="#{v.vehicles.size} mezzi"
+      .col-sm-2#buttons
         .inline
           =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica tipologia veicolo', name: 'edit_vehicle_typology', target: edit_vehicle_typology_path(v.id) }
         .inline
           =button_to 'x', vehicle_typology_path(v.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare la tipologia #{v.name}?"}
 
+- unless @error.nil?
+  .error
+    .close
+      Chiudi
+    =@error
 :javascript
 
   activatePopUp();
-  // $('.edit').off('click');
-  // $('.edit').on('click', function(){
-  //   var id = $(this).data('id');
-  //   $('#name'+id).html('<input type="text" class="form-control" name="name" value="'+$('#name'+id).html()+'"/>');
-  //   $('#carwash'+id).html('<input type="number" class="form-control" name="carwash_type" value="'+$('#carwash'+id).html()+'"/>');
-  //   $('#name'+id).append('<input type="hidden" class="form-control" name="id" value="'+id+'"/>');
-  // })
+  activateClose();
+  // activateErrors();

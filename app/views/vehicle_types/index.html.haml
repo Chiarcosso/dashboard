@@ -1,46 +1,110 @@
 -# %p#notice= notice
-.container-fluid
-  .row
-    .col-sm-7
-      %h3 Tipi di veicoli
-      .container-fluid
-        .row
+%br
+%ul.nav.nav-tabs
+  -# %style
+  -#   a:visited,a:link,a:hover,a:active{ color: black; font-style: normal; font-size: +2; }
+  %li.active
+    =link_to 'Tipi di veicolo', '#tab-type', data: { toggle: 'tab'}, class: 'no-loader'
+  %li
+    =link_to 'Tipologie di veicolo', '#tab-typology', data: { toggle: 'tab'}, class: 'no-loader'
+  %li
+    =link_to 'Attrezzature', '#tab-equipment', data: { toggle: 'tab'}, class: 'no-loader'
+  %li
+    =link_to 'Dettagli veicolo', '#tab-information_type', data: { toggle: 'tab'}, class: 'no-loader'
+
+.tab-content
+  .tab-pane.active#tab-type
+    .container-fluid
+      .row
+        .col-sm-4
+          %b='Nome'
+        .col-sm-5
+          %b='Cod. lavaggio'
+          -# = button_tag '?', class: 'no-loader', id: 'legend'
+        .col-sm-3
+      .row
+        = form_tag(:vehicle_types, method: :post, format: :js, remote: true) do |f|
           .col-sm-4
-            %b='Nome'
+            = text_field_tag 'vehicle_type[name]', '', placeholder: 'Nuovo tipo di mezzo', class: 'form-control'
           .col-sm-5
-            %b='Cod. lavaggio'
-            -# = button_tag '?', class: 'no-loader', id: 'legend'
+            -# = number_field_tag 'vehicle_type[carwash_type]', 0, class: 'form-control'
+            = select_tag 'vehicle_type[carwash_type]', options_for_select(Vehicle.carwash_codes), class: 'form-control'
           .col-sm-3
-        .row
-          = form_tag(:vehicle_types, method: :post, format: :js, remote: true) do |f|
-            .col-sm-4
-              = text_field_tag 'vehicle_type[name]', '', placeholder: 'Nuovo tipo di mezzo', class: 'form-control'
-            .col-sm-5
-              -# = number_field_tag 'vehicle_type[carwash_type]', 0, class: 'form-control'
-              = select_tag 'vehicle_type[carwash_type]', options_for_select(Vehicle.carwash_codes), class: 'form-control'
-            .col-sm-3
-              = submit_tag 'Crea', class: 'form-control popup-link'
-      %br
-      .scrollable-panel.container-fluid#vehicle_types
-        %br
-        = render :partial => 'vehicle_types/list'
+            = submit_tag 'Crea', class: 'form-control popup-link', data: { name: 'edit_vehicle_typology' }
+    %br
+    .scrollable-panel.container-fluid#vehicle_types
+      = render :partial => 'vehicle_types/list'
+
+  .tab-pane#tab-typology
+    .container-fluid
+      .row
+        .col-sm-8
+          %b='Nome'
+        .col-sm-4
+      .row
+        = form_tag(:vehicle_typologies, method: :post, format: :js, remote: true) do |f|
+          .col-sm-8
+            = text_field_tag 'vehicle_typology[name]', '', placeholder: 'Nuova tipologia di mezzo', class: 'form-control'
+          .col-sm-4
+            = submit_tag 'Crea', class: 'form-control popup-link', data: { name: 'edit_vehicle_typology' }
+    %br
+    .scrollable-panel.container-fluid#vehicle_typologies
+      = render :partial => 'vehicle_typologies/list'
+
+  .tab-pane#tab-equipment
+    .container-fluid
+      .row
+        .col-sm-4
+          %b='Nome'
+        .col-sm-5
+          -# = button_tag '?', class: 'no-loader', id: 'legend'
+        .col-sm-3
+      .row
+        = form_tag(:vehicle_equipments, method: :post, format: :js, remote: true) do |f|
+          .col-sm-8
+            = text_field_tag 'vehicle_equipment[name]', '', placeholder: 'Nuova attrezzatura', class: 'form-control'
+          -# .col-sm-5
+          -#   = select_tag 'vehicle_type[carwash_type]', options_for_select(Vehicle.carwash_codes), class: 'form-control'
+          .col-sm-4
+            = submit_tag 'Crea', class: 'form-control popup-link', data: { name: 'edit_vehicle_equipment' }
+    %br
+    .scrollable-panel.container-fluid#vehicle_equipments
+      = render :partial => 'vehicle_equipments/list'
+
+  .tab-pane#tab-information_type
+    .container-fluid
+      .row
+        .col-sm-5
+          %b='Nome'
+        .col-sm-4
+          %b='Tipo di dato'
+        .col-sm-3
+      .row
+        = form_tag(:vehicle_information_types, method: :post, format: :js, remote: true) do |f|
+          .col-sm-5
+            = text_field_tag 'vehicle_information_type[name]', '', placeholder: 'Nuovo dettaglio', class: 'form-control'
+          .col-sm-4
+            = select_tag 'vehicle_information_type[data_type]', options_for_select(VehicleInformationType.data_types), class: 'form-control'
+          .col-sm-3
+            = submit_tag 'Crea', class: 'form-control popup-link', data: { name: 'edit_vehicle_information_type' }
+    %br
+    .scrollable-panel.container-fluid#vehicle_information_types
+      = render :partial => 'vehicle_information_types/list'
+
+- unless @error.nil?
+  .error
+    .close
+      Chiudi
+    =@error
+-# .container-fluid
+-#   .row
+-#     .col-sm-7
+      %h3 Tipi di veicoli
+
 
     .col-sm-5
       %h3 Tipologie veicoli
-      .container-fluid
-        .row
-          .col-sm-8
-            %b='Nome'
-          .col-sm-4
-        .row
-          = form_tag(:vehicle_typologies, method: :post, format: :js, remote: true) do |f|
-            .col-sm-8
-              = text_field_tag 'vehicle_typology[name]', '', placeholder: 'Nuova tipologia di mezzo', class: 'form-control'
-            .col-sm-4
-              = submit_tag 'Crea', class: 'form-control popup-link'
-      %br
-      .scrollable-panel.container-fluid#vehicle_typologies
-        = render :partial => 'vehicle_typologies/list'
+
 
 -# .popup#legend-popup
 -#   .close
@@ -48,6 +112,11 @@
 -#   = render :partial => 'vehicle_types/legend'
 :javascript
 
+
+  tab = document.location.hash;
+  $('a[href=\''+tab+'\']').trigger('click');
+  console.log($('a[href=\''+tab+'\']'));
+  // activateErrors();
   // $('#legend-popup').hide();
   //
   // $('#legend').off('click');

@@ -60,7 +60,10 @@ class VehicleTypologiesController < ApplicationController
     # respond_to do |format|
     #   format.html { redirect_to  'vehicle_types/index' }
     # end
-    redirect_to '/vehicle_types'
+    # redirect_to '/vehicle_types#tab-typology'
+    respond_to do |format|
+      format.js { render :partial => 'vehicle_typologies/list_js' }
+    end
     # @vehicle_typology.update(vehicle_typology_params)
     # respond_to do |format|
     #   format.js { render :partial => 'vehicle_typologies/list_js' }
@@ -70,9 +73,13 @@ class VehicleTypologiesController < ApplicationController
   # DELETE /vehicle_typologies/1
   # DELETE /vehicle_typologies/1.json
   def destroy
-    @vehicle_typology.destroy
+    begin
+      @vehicle_typology.destroy
+    rescue Exception => e
+      @error = "Impossibile eliminare tipologia di mezzo: #{@vehicle_typology.name}.\n\n#{e.message}"
+    end
     respond_to do |format|
-      format.js { render :partial => 'vehicle_typologies/list_js' }
+      format.js { render :partial => 'vehicle_typologies/list_js', notice: @error }
     end
   end
 
@@ -85,6 +92,7 @@ class VehicleTypologiesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def vehicle_typology_params
       p = params.require(:vehicle_typology).permit(:name)
+      p[:name].capitalize!
       @vehicle_typology = VehicleTypology.find_by_name(p[:name])
       p
     end

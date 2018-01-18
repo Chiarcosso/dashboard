@@ -1,0 +1,37 @@
+%center
+  %b='Modifica attrezzatura: '+@vehicle_equipment.name
+  %br
+  %br
+
+= form_tag(update_vehicle_equipment_path, method: :post, remote: true) do |f|
+  .contaner
+    .row.no-margin
+      .col-sm-6
+        %b='Attrezzatura'
+        = hidden_field_tag :id, @vehicle_equipment.id
+        = text_field_tag 'vehicle_equipment[name]', @vehicle_equipment.name, class: 'form-control'
+      .col-sm-6
+    .row.no-margin
+      .col-sm-12
+        %br
+
+    .row.no-margin
+      .col-sm-6
+        %b='Tipi di mezzo possibili:'
+        .scrollable-panel.container-fluid
+          = render :partial => 'vehicle_equipments/types_list'
+      .col-sm-6
+        %b='Tipologie di mezzo possibili:'
+        .scrollable-panel.container-fluid
+          = render :partial => 'vehicle_equipments/typologies_list'
+      -# .col-sm-4
+      -#   %b='Informazioni possibili:'
+      -#   .scrollable-panel.container-fluid
+      -#     = render :partial => 'vehicle_equipments/informations_list'
+
+    .row.no-margins
+      .col-sm-3
+        %br
+        %br
+        %br
+        = submit_tag 'Aggiorna', class: 'btn inline'

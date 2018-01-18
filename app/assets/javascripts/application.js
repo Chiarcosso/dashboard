@@ -18,6 +18,9 @@
 //= require jquery-ui
 //= require autocomplete-rails
 //= require_tree .
+function activateErrors(){
+  $('.error').delay(3000).fadeOut();
+}
 
 function activateCustomAutocomplete(func){
   $('.custom_autocomplete').off('keyup');
@@ -141,12 +144,13 @@ function activatePopUp(){
       action = $(this).form().attr('action');
       method = $(this).form().attr('method');
       data = $(this).form().serializeArray();
-      console.log(action,method,data);
+      name = $(this).data('name').replace(' ','_');
       $.ajax({
           type: method,
           url: action,
           data: data,
           complete: function(data){
+             $('.popup#'+name).remove();
              $('body').append('<div class="popup" id="'+name+'"></div>');
              $('#'+name).html(data.responseText);
              $('#'+name).append('<div class="close">Chiudi</div>');
@@ -158,11 +162,12 @@ function activatePopUp(){
       e.preventDefault();
       activateLoadingScreen();
       var target = $(this).data('target');
-      var name = $(this).data('name').replace(' ','-');
+      var name = $(this).data('name').replace(' ','_');
       $.ajax({
           type: "GET",
           url: target,
           complete: function(data){
+             $('.popup#'+name).remove();
              $('body').append('<div class="popup" id="'+name+'"></div>');
              $('#'+name).html(data.responseText);
              $('#'+name).append('<div class="close">Chiudi</div>');

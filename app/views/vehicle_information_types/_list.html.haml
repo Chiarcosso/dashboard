@@ -1,0 +1,26 @@
+%br
+-VehicleInformationType.all.order(:name).each do |v|
+  - unless v.name == 'N/D'
+    .row.colored
+      .col-sm-5#name
+        =v.name
+      .col-sm-4#name
+        =v.data_type
+      .col-sm-1
+        ="#{v.vehicles.size} mezzi"
+      .col-sm-2#buttons
+        .inline
+          =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica dettaglio veicoli', name: 'edit_vehicle_information_type', target: edit_vehicle_information_type_path(v.id) }
+        .inline
+          =button_to 'x', vehicle_information_type_path(v.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare il tip di dettaglio #{v.name}?"}
+
+- unless @error.nil?
+  .error
+    .close
+      Chiudi
+    =@error
+:javascript
+
+  activatePopUp();
+  activateClose();
+  // activateErrors();
