@@ -34,7 +34,7 @@ class PeopleController < ApplicationController
   def create
     @person = Person.where(:name => person_params.require(:name)).where(:surname => person_params.require(:surname)).first
     if @person.nil?
-    #   @person = Person.create(person_params)
+      @person = Person.create(person_params)
     # else
     #   @person.update(params.require(:person).permit(:name,:surname,:notes,:mdc_user))
     #   index
