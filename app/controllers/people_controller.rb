@@ -32,7 +32,7 @@ class PeopleController < ApplicationController
   # POST /people
   # POST /people.json
   def create
-    @person = Person.where(:name => person_params.require(:name)).where(:surname => person_params.require(:surname)).first
+    @person = Person.where(:name => person_params[:name]).where(:surname => person_params[:surname]).first
     if @person.nil?
       @person = Person.create(person_params)
     # else
@@ -138,7 +138,10 @@ class PeopleController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
-      params.require(:person).permit(:name, :surname, :notes, :mdc_user, :search)
+      p = params.require(:person).permit(:name, :surname, :notes, :search)
+      p[:name] = p[:name].titleize
+      p[:surname] = p[:surname].titleize
+      p
     end
 
     def relation_params
