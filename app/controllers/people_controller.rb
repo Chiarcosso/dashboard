@@ -109,7 +109,7 @@ class PeopleController < ApplicationController
       cp = CompanyPerson.find(params.require(:id))
       @person = cp.person
       cp.destroy
-      # render :js, :partial => 'people/relations_list_js'
+      render :js, :partial => 'people/relations_list_js'
     end
   end
 
