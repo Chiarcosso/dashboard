@@ -34,11 +34,13 @@ class PeopleController < ApplicationController
   def create
     @person = Person.where(:name => person_params.require(:name)).where(:surname => person_params.require(:surname)).first
     if @person.nil?
-      @person = Person.new(person_params)
-    else
-      @person.update(params.require(:person).permit(:name,:surname,:notes,:mdc_user))
-      index
+    #   @person = Person.create(person_params)
+    # else
+    #   @person.update(params.require(:person).permit(:name,:surname,:notes,:mdc_user))
+    #   index
     end
+
+    redirect_to edit_person_path(@person.id)
     # respond_to do |format|
     #   if @person.save
     #     # Person.where(mdc_user: @person.mdc_user).where("id != #{@person.id}").update(mdc_user: nil)
