@@ -1,0 +1,5 @@
+removejtk();
+$("#vehicles").html("#{escape_javascript(render :partial => 'vehicles/list'  )} ");
+$(".popup#edit_vehicle").remove();
+$(".infobox").remove();
+deactivateLoadingScreen();

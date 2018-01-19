@@ -40,6 +40,9 @@ class VehiclesController < ApplicationController
     @information_types = VehicleInformationType.all
     @gear = Gear.order(:name)
     @equipment = VehicleEquipment.order(:name)
+    respond_to do |format|
+      format.js { render :partial => 'vehicles/form' }
+    end
   end
 
   # POST /vehicles
@@ -123,19 +126,29 @@ class VehiclesController < ApplicationController
   # DELETE /vehicles/1
   # DELETE /vehicles/1.json
   def destroy
-    if @vehicle.nil?
-      @notice = 'Mezzo non trovato'
-    else
+    begin
       @vehicle.destroy
-      @notice = 'Mezzo eliminato'
+    rescue Exception => e
+      @error += "Impossibile eliminare mezzo.\n\n#{e.message}"
     end
-    index
+    @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?
+    respond_to do |format|
+      if @error.nil?
+        format.js { render :partial => 'vehicles/list_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_vehicle
-      @vehicle = Vehicle.find(params.require(:id)) rescue @vehicle = nil
+      begin
+        @vehicle = Vehicle.find(params.require(:id))
+      rescue Exception => e
+        @error = "Impossibile trovare mezzo.\n\n#{e.message}\n\n"
+      end
     end
 
     def search_params

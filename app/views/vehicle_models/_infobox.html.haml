@@ -1,0 +1,14 @@
+
+%h3=@vehicle_model.complete_name
+.scrollable-panel
+  %b="Tipi: "
+  =@vehicle_model.vehicle_types.pluck(:name).join(', ')
+  %br
+  %b="Tipologie: "
+  =@vehicle_model.vehicle_typologies.pluck(:name).join(', ')
+  %br
+  %b="Attrezzatura: "
+  =@vehicle_model.vehicle_equipments.pluck(:name).join(', ')
+  %br
+  %b="Dettagli: "
+  =@vehicle_model.vehicle_information_types.pluck(:name).join(', ')

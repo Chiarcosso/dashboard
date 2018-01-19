@@ -12,7 +12,7 @@
         .inline
           =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica dettaglio veicoli', name: 'edit_vehicle_information_type', target: edit_vehicle_information_type_path(v.id) }
         .inline
-          =button_to 'x', vehicle_information_type_path(v.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare il tip di dettaglio #{v.name}?"}
+          =button_to 'x', vehicle_information_type_path(v.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare il tip di dettaglio #{v.name}?"}, class: 'no-loader'
 
 - unless @error.nil?
   .error

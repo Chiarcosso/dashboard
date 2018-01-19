@@ -1,34 +1,25 @@
--# %p#notice= notice
-%h3 Modelli
-.container
-  .row
-    .col-sm-2
-      %b='Marca'
-    .col-sm-3
-      %b='Modello'
-    .col-sm-2
-      %b='Esemplari presenti'
-    .col-sm-3
-      %b='Descrizione'
-    .col-sm-2
+.row
+  .col-sm-2
+    %h3= 'Modelli mezzi'
+  .col-sm-2{ style: 'padding-top: 2.1em;'}
+    ="Selezionati: #{@vehicle_models.size}" unless @vehicle_models.nil?
+  .col-sm-3{ style: 'padding-top: 1.1em;'}
+    -# =button_to 'Crea nuovo mezzo', new_vehicle_path, method: :get, style: "padding-top: 1.5em"
+    = form_tag(:new_vehicle_model_search, method: :post, format: :js, remote: true) do |f|
+      = hidden_field_tag :search, @search
+      = submit_tag 'Crea nuovo modello', class: 'form-control popup-link', data: { name: 'edit_vehicle_model' }
+      -# =submit_tag "Crea nuovo modello", new_vehicle_model_path, class: "btn btn-primary popup-link", remote: true
 
-.container.scrollable-panel
-  -VehicleModel.all.order_by_model.each do |v|
-    .row
-      .col-sm-2
-        - unless v.manufacturer.nil?
-          =v.manufacturer.name
-      .col-sm-3
-        =v.name
-      .col-sm-2
-        =v.count
-      .col-sm-3
-        =v.description
-      .col-sm-2
-        .inline
-          =button_to 'Modifica', edit_vehicle_model_path(v.id), method: :get
-        .inline
-          =button_to 'x', vehicle_model_path(v.id), remote: true, method: :delete
+= form_tag(vehicle_models_path, method: :get) do |f|
+  = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch autofocus', 'data-target': vehicle_models_path
 
-.container
-  =button_to 'Crea', new_vehicle_model_path, method: :get
+#vehicle_models
+  =render :partial => 'vehicle_models/list'
+
+-# - unless @error.nil?
+-#   .error
+-#     =@error
+-# :javascript
+
+  // activatePopUp();
+  // activateClose();

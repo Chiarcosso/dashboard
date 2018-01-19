@@ -1,0 +1,35 @@
+.row.no-margin
+  .col-sm-1
+    %b='Info'
+  .col-sm-1
+    %b='Targa'
+  .col-sm-3
+    %b='Modello'
+  .col-sm-2
+    %b='Tipo'
+  .col-sm-3
+    %b='Proprietà'
+  .col-sm-2
+
+-unless @vehicles.nil?
+  .scrollable-panel
+    -@vehicles.each do |v|
+      .row.colored.no-margin
+        .col-sm-1
+          =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(v.id), name: "infobox_vehicle_#{v.id}" }
+          =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(v.id), name: "infobox_vehicle_workshop_#{v.id}" }
+        .col-sm-1
+          =v.plate
+        .col-sm-3
+          =v.model.complete_name
+        .col-sm-2
+          =v.vehicle_type.name
+          =v.vehicle_typology.name unless v.vehicle_typology == VehicleTypology.not_available
+        .col-sm-3
+          =v.property.name
+        -  if current_user.has_role?("amministratore manutenzioni") || current_user.has_role?(:admin)
+          .col-sm-2#buttons
+            .inline
+              =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica veicolo', name: 'edit_vehicle', target: edit_vehicle_search_path, data: {id: v.id, search: @search}.to_json, method: 'post' }
+            .inline
+              =button_to 'x', vehicle_path(v.id, search: @search, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare il mezzo nr. #{v.id}, targato #{v.plate}?"}, class: 'no-loader'

@@ -58,7 +58,11 @@ class VehicleTypesController < ApplicationController
       @error = "Impossibile eliminare tipo di mezzo: #{@vehicle_type.name}.\n\n#{e.message}"
     end
     respond_to do |format|
-      format.js { render :partial => 'vehicle_types/list_js' }
+      if @error.nil?
+        format.js { render :partial => 'vehicle_types/list_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
     end
   end
 

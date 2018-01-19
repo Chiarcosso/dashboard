@@ -5,13 +5,30 @@ class CompaniesController < ApplicationController
 
   autocomplete :company, :name, full: true
   autocomplete :geo_city, :name, full: true
-  # GET /vehicles
-  # GET /vehicles.json
-  def vehicle_manufacturer_autocomplete
+
+  def vehicle_manufacturer_multi_autocomplete
     unless params[:search].nil? or params[:search] == ''
       # array = Language.filter(params.require(:search))
       search = params.require(:search).tr(' ','%')
       array = Company.find_by_sql("select 'manufacturer' as field, 'Company' as model, c.id as 'manufacturer_id[]id', c.name as label from companies c where c.name like '%#{search}%' and c.vehicle_manufacturer limit 10")
+      render :json => array #GeoCity.find_by_sql("select geo_cities.id as id, geo_cities.name as name, geo_province.name as province, geo_province.code as province_code, geo_state.name as state, geo_state.code as state_code from geo_cities inner join geo_provinces on geo_cities.geo_province_id = geo_province.id inner join geo_states on geo_province.geo_state_id = geo_state.id")
+    end
+  end
+
+  def vehicle_manufacturer_autocomplete
+    unless params[:search].nil? or params[:search] == ''
+      # array = Language.filter(params.require(:search))
+      search = params.require(:search).tr(' ','%')
+      array = Company.find_by_sql("select 'manufacturer' as field, 'Company' as model, c.id as 'manufacturer_id', c.name as label from companies c where c.name like '%#{search}%' and c.vehicle_manufacturer limit 10")
+      render :json => array #GeoCity.find_by_sql("select geo_cities.id as id, geo_cities.name as name, geo_province.name as province, geo_province.code as province_code, geo_state.name as state, geo_state.code as state_code from geo_cities inner join geo_provinces on geo_cities.geo_province_id = geo_province.id inner join geo_states on geo_province.geo_state_id = geo_state.id")
+    end
+  end
+
+  def vehicle_property_autocomplete
+    unless params[:search].nil? or params[:search] == ''
+      # array = Language.filter(params.require(:search))
+      search = params.require(:search).tr(' ','%')
+      array = Company.find_by_sql("select 'property' as field, 'Company' as model, c.id as 'property_id', c.name as label from companies c where c.name like '%#{search}%' and c.vehicle_transporter limit 10")
       render :json => array #GeoCity.find_by_sql("select geo_cities.id as id, geo_cities.name as name, geo_province.name as province, geo_province.code as province_code, geo_state.name as state, geo_state.code as state_code from geo_cities inner join geo_provinces on geo_cities.geo_province_id = geo_province.id inner join geo_states on geo_province.geo_state_id = geo_state.id")
     end
   end

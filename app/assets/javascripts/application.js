@@ -18,8 +18,91 @@
 //= require jquery-ui
 //= require autocomplete-rails
 //= require_tree .
+
+function activateJS(){
+
+  $('body').on("click",".error,.infobox", function(event){
+    $(this).fadeOut(400,function(){$(this).remove()});
+    deactivateLoadingScreen();
+  });
+
+  $('body').on('click', '.infobox-button', function(){
+    name = $(this).data('name');
+    target = $(this).data('target');
+    if($('#'+name).length == 0 ){
+      $('.infobox').remove();
+      $('body').append('<div class="infobox" id="'+name+'"></div>');
+      $.ajax({
+        method: 'GET',
+        url: target,
+        complete: function(data){
+          $('#'+name).html(data.responseText);
+        }
+      });
+    } else {
+      $('#'+name).remove();
+    }
+  });
+
+  $('body').on('click', '.close', function(){
+    $('.custom-autocomplete-dropdown').remove();
+    specificCloseFunctions();
+    $(this).parent().fadeOut(400,function(){$(this).remove()});
+    deactivateLoadingScreen();
+  });
+
+  $('body').on('click', '.popup-link', function(e){
+    if(this.nodeName == 'INPUT' && $(this).attr('type') == 'submit'){
+      action = $(this).form().attr('action');
+      method = $(this).form().attr('method');
+      data = $(this).form().serializeArray();
+      name = $(this).data('name').replace(' ','_');
+      // $.ajax({
+      //     type: method,
+      //     url: action,
+      //     data: data,
+      //     complete: function(data){
+      //        $('.popup#'+name).remove();
+      //        $('body').append('<div class="popup" id="'+name+'"></div>');
+      //        $('#'+name).html(data.responseText);
+      //        $('#'+name).append('<div class="close">Chiudi</div>');
+      //        // activateClose();
+      //        // deactivateLoadingScreen();
+      //     }
+      // });
+    } else {
+      e.preventDefault();
+      // activateLoadingScreen();
+      if (typeof $(this).data('method') != undefined){
+        method = $(this).data('method');
+      } else {
+        method = 'GET';
+      }
+      action = $(this).data('target');
+      name = $(this).data('name').replace(' ','_');
+      if (typeof $(this).data('data') != undefined){
+        data = $(this).data('data');
+      }
+    }
+    $.ajax({
+        type: method,
+        url: action,
+        data: data,
+        complete: function(data){
+           $('.popup#'+name).remove();
+           $('body').append('<div class="popup" id="'+name+'"></div>');
+           $('#'+name).html(data.responseText);
+           $('#'+name).append('<div class="close">Chiudi</div>');
+           // activateClose();
+           // deactivateLoadingScreen();
+        }
+    });
+    return false;
+  });
+}
+
 function activateErrors(){
-  $('.error').delay(3000).fadeOut();
+  // $('.error').delay(3000).fadeOut();
 }
 
 function activateCustomAutocomplete(func){
@@ -297,7 +380,7 @@ function activateClose(){
   $('.close').on('click',function(){
     $('.custom-autocomplete-dropdown').remove();
     specificCloseFunctions();
-    $(this).parent().remove();
+    $(this).parent().fadeOut().remove();
     deactivateLoadingScreen();
   });
 };

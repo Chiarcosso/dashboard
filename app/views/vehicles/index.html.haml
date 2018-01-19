@@ -4,59 +4,32 @@
     %h3= 'Mezzi'
   .col-sm-2{ style: 'padding-top: 2.1em;'}
     ="Selezionati: #{@vehicles.size}" unless @vehicles.nil?
-  .col-sm-8{ style: 'padding-top: 1.1em;'}
+  .col-sm-3{ style: 'padding-top: 1.1em;'}
     -# =button_to 'Crea nuovo mezzo', new_vehicle_path, method: :get, style: "padding-top: 1.5em"
-    =link_to "Crea nuovo mezzo", new_vehicle_path, class: "btn btn-primary"
+    = form_tag(:new_vehicle_search, method: :post, format: :js, remote: true) do |f|
+      = hidden_field_tag :search, @search
+      = submit_tag 'Crea nuovo mezzo', class: 'form-control popup-link', data: { name: 'edit_vehicle' }
+      -# =submit_tag "Crea nuovo modello", new_vehicle_model_path, class: "btn btn-primary popup-link", remote: true
 
 = form_tag(vehicles_path, method: :get) do |f|
   = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch autofocus', 'data-target': vehicles_path
--# = will_paginate @vehicles
 
-.row
-  .col-sm-2
-    %b='Visualizza'
-  .col-sm-1
-    %b='Targa'
-  .col-sm-1
-    %b='Data imm.'
-  .col-sm-3
-    %b='Tipo'
-  .col-sm-3
-    %b='Proprietà'
-  .col-sm-1
-  .col-sm-1
+#vehicles
+  =render :partial => 'vehicles/list'
 
+-#   .col-sm-2
+-#     %h3= 'Mezzi'
+-#   .col-sm-2{ style: 'padding-top: 2.1em;'}
+-#     ="Selezionati: #{@vehicles.size}" unless @vehicles.nil?
+-#   .col-sm-8{ style: 'padding-top: 1.1em;'}
+-#     -# =button_to 'Crea nuovo mezzo', new_vehicle_path, method: :get, style: "padding-top: 1.5em"
+-#     =link_to "Crea nuovo mezzo", new_vehicle_path, class: "btn btn-primary"
+-#
+-# = form_tag(vehicles_path, method: :get) do |f|
+-#   = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch autofocus', 'data-target': vehicles_path
+-#   .row
+-# -# = will_paginate @vehicles
 
-.scrollable-panel
-  - unless @vehicles.nil?
-    - @vehicles.each do |v|
-      .row.colored
-        .col-sm-2
-          =button_tag 'a', class: 'no-loader'
-          =button_tag 'b', class: 'no-loader'
-          =button_tag 'c', class: 'no-loader'
-        .col-sm-1
-          =v.plate
-        .col-sm-1
-          =(l v.registration_date) unless v.registration_date.nil?
-        .col-sm-3
-          =v.model.complete_name
-          %br
-          =v.vehicle_type.name
-          =v.vehicle_typology.name unless v.vehicle_typology == VehicleTypology.not_available
-        .col-sm-3
-          =v.property.name unless v.property.nil?
-        -  if current_user.has_role?("amministratore manutenzioni") || current_user.has_role?(:admin)
-          .col-sm-1
-            -# =button_to 'Modifica', edit_vehicle_path(v.id), class: 'inline', method: :get
-            = form_tag(edit_vehicle_search_path, method: :post) do |f|
-              = hidden_field_tag :search, @search
-              = hidden_field_tag :id, v.id
-              = submit_tag 'Modifica', class: 'inline'
-          .col-sm-1
-            = form_tag(vehicle_path(v.id), method: :delete) do |f|
-              = hidden_field_tag :search, @search
-              = submit_tag 'x', class: 'inline', data: {:confirm => "Eliminare il mezzo nr. #{v.id}, targato #{v.plate}?"}
 
 
 

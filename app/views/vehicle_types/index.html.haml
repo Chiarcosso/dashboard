@@ -30,7 +30,7 @@
             -# = number_field_tag 'vehicle_type[carwash_type]', 0, class: 'form-control'
             = select_tag 'vehicle_type[carwash_type]', options_for_select(Vehicle.carwash_codes), class: 'form-control'
           .col-sm-3
-            = submit_tag 'Crea', class: 'form-control popup-link', data: { name: 'edit_vehicle_typology' }
+            = submit_tag 'Crea', class: 'form-control popup-link', data: { name: 'edit_vehicle_type' }
     %br
     .scrollable-panel.container-fluid#vehicle_types
       = render :partial => 'vehicle_types/list'
@@ -113,9 +113,9 @@
 :javascript
 
 
-  tab = document.location.hash;
-  $('a[href=\''+tab+'\']').trigger('click');
-  console.log($('a[href=\''+tab+'\']'));
+  // tab = document.location.hash;
+  // $('a[href=\''+tab+'\']').trigger('click');
+  // console.log($('a[href=\''+tab+'\']'));
   // activateErrors();
   // $('#legend-popup').hide();
   //

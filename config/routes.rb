@@ -168,13 +168,25 @@ Rails.application.routes.draw do
   post '/geo/new/', to: 'geo#new_record', as: :new_geo_record
 
   post '/companies/vehicle_manufacturers_autocomplete', to: 'companies#vehicle_manufacturer_autocomplete', as: :custom_vehicle_manufacturers_autocomplete
+  post '/companies/vehicle_manufacturers_multi_autocomplete', to: 'companies#vehicle_manufacturer_multi_autocomplete', as: :custom_vehicle_manufacturers_multi_autocomplete
+  post '/companies/vehicle_property_autocomplete', to: 'companies#vehicle_property_autocomplete', as: :custom_vehicle_property_autocomplete
   get '/companies/edit_address_popup/:address_id', to: 'companies#edit_address_popup', as: :edit_address_popup
   post '/companies/update_address/', to: 'companies#update_address', as: :update_address
   delete '/companies/:id/:address_id/del_address', to: 'companies#del_address', as: :delete_company_address
   post '/companies/:id/add_address', to: 'companies#add_address', as: :add_company_address
   post '/companies/:id/add_phone', to: 'companies#add_phone', as: :add_company_phone
 
+  post '/vehicles/new', to: 'vehicles#new', as: :new_vehicle_search
   post '/vehicles/edit', to: 'vehicles#edit', as: :edit_vehicle_search
+  post '/vehicle/update', to: 'vehicles#update', as: :update_vehicle
+  get  '/vehicle/info/:id', to: 'vehicles#get_info', as: :info_vehicle
+  get  '/vehicle/info/workshop/:id', to: 'vehicles#get_workshop_info', as: :info_vehicle_workshop
+
+  post '/vehicle_models/new', to: 'vehicle_models#new', as: :new_vehicle_model_search
+  post '/vehicle_models/edit', to: 'vehicle_models#edit', as: :edit_vehicle_model_search
+  post '/vehicle_model/update', to: 'vehicle_models#update', as: :update_vehicle_model
+  get  '/vehicle_model/info/:id', to: 'vehicle_models#get_info', as: :info_vehicle_model
+
   post '/vehicle_type/update', to: 'vehicle_types#update', as: :update_vehicle_type
   post '/vehicle_typology/update', to: 'vehicle_typologies#update', as: :update_vehicle_typology
   post '/vehicle_equipment/update', to: 'vehicle_equipments#update', as: :update_vehicle_equipment

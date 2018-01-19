@@ -33,6 +33,10 @@ body{
   z-index: 1000;
 }
 
+.error > .close{
+  margin: .5em;
+}
+
 .colored:nth-child(odd){
   background-color: #eee;
 }
@@ -177,6 +181,21 @@ body{
 
 .indent{
   padding-left: 1em;
+}
+
+.infobox{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  max-width: 90vw;
+  max-height: 75vh;
+  border: .2em solid #00f;
+  border-radius: 1em;
+  background-color: #fff;
+  padding: 2em;
+  overflow: hidden;
+  white-space: pre;
 }
 
 .inline{

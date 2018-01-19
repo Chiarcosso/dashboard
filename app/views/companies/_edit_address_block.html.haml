@@ -48,7 +48,7 @@
       = check_box_tag 'CompanyAddress[workshop]', 1, @address.workshop
       .row.workshop_brands
         .col-sm-12
-          = text_field_tag "WorkshopBrands[search]", nil, placeholder: 'Cerca marche..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_manufacturers_autocomplete_path, target: 'CompanyAddress' }
+          = text_field_tag "WorkshopBrands[search]", nil, placeholder: 'Cerca marche..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_manufacturers_multi_autocomplete_path, target: 'CompanyAddress' }
           - @address.brands.each do |b|
             .autocomplete-field.ac-CompanyAddress-array-manufacturer{data: { target: 'CompanyAddress' }}
               .row.colored

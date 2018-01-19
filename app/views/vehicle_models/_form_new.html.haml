@@ -1,23 +1,22 @@
 %center
-  %b='Modifica modello mezzi: '+@vehicle_model.name
+  %b='Nuovo modello mezzi: '
   %br
   %br
 
-= form_tag(update_vehicle_model_path, method: :post, remote: true) do |f|
+= form_tag(:vehicle_models, method: :post, remote: true) do |f|
   = hidden_field_tag :search, @search
   .contaner
     .row.no-margin
       .col-sm-6
         %b='Nome modello'
-        = hidden_field_tag :id, @vehicle_model.id
-        = text_field_tag 'vehicle_model[name]', @vehicle_model.name, class: 'form-control'
+        = text_field_tag 'vehicle_model[name]', nil, class: 'form-control'
       .col-sm-6
         %b='Produttore'
-        = text_field_tag 'vehicle_model[manufacturer]', @vehicle_model.manufacturer.name, placeholder: 'Cerca produttore..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_manufacturers_autocomplete_path, target: 'VehicleModel' }
-        = hidden_field_tag 'vehicle_model[manufacturer_id]', @vehicle_model.manufacturer.id, data: { target: 'VehicleModel' }, class: 'autocomplete-field ac-VehicleModel-manufacturer'
+        = text_field_tag 'vehicle_model[manufacturer]', nil, placeholder: 'Cerca produttore..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_manufacturers_autocomplete_path, target: 'VehicleModel' }
+        = hidden_field_tag 'vehicle_model[manufacturer_id]', nil, data: { target: 'VehicleModel' }, class: 'autocomplete-field ac-VehicleModel-manufacturer'
     .row-no-margin
       .col-sm-12
-        = text_field_tag 'vehicle_model[description]', @vehicle_model.description, class: 'form-control', placeholder: 'Descrizione..'
+        = text_field_tag 'vehicle_model[description]', nil, class: 'form-control', placeholder: 'Descrizione..'
     .row.no-margin
       .col-sm-12
         %br
@@ -48,7 +47,6 @@
 
 :javascript
 
-  // activateClose();
   activateCustomAutocomplete(function(element){
     return $(element).data();
   });
