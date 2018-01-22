@@ -1,10 +1,31 @@
 class VehiclesController < ApplicationController
-  before_action :set_vehicle, only: [:show, :edit, :update, :destroy]
+  before_action :set_vehicle, only: [:show, :edit, :update, :destroy, :vehicle_information_type_autocomplete, :get_info, :get_workshop_info]
   before_action :search_params
   autocomplete :vehicle, :plate, full: true
 
-  # GET /vehicles
-  # GET /vehicles.json
+
+  def vehicle_information_type_autocomplete
+    unless params[:search].nil? or params[:search] == ''
+      # array = Language.filter(params.require(:search))
+      search = params.require(:search).tr(' ','%')
+      # array = VehicleInformationType.find_by_sql("select 'vehicle_information_type' as field, 'Vehicle' as model, c.id as 'vehicle_information_type_id', c.name as label from vehicle_information_types c where c.name like '%#{search}%' and c.vehicle_information_type limit 10")
+      array = @vehicle.possible_information_types.map { |it| {field: 'vehicle_information_type', model: 'Vehicle', vehicle_information_type_id: it.id, label: it.name}}
+      render :json => array
+    end
+  end
+
+  def get_info
+    respond_to do |format|
+      format.js { render :partial => 'vehicles/infobox' }
+    end
+  end
+
+  def get_workshop_info
+    respond_to do |format|
+      format.js { render :partial => 'vehicles/infobox_workshop' }
+    end
+  end
+
   def index
 
     @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?#.paginate(:page => params[:page], :per_page => 30)
@@ -37,7 +58,10 @@ class VehiclesController < ApplicationController
   def edit
     @vehicle_types = VehicleType.all
     @vehicle_typologies = VehicleTypology.all
-    @information_types = VehicleInformationType.all
+    # @information_types = VehicleInformationType.all
+    @informations = @vehicle.vehicle_informations - [@vehicle.last_information(VehicleInformationType.plate),@vehicle.last_information(VehicleInformationType.chassis)]
+    @informations.sort_by! { |i| i.vehicle_information_type.name }
+    # @informations = info + @vehicle.possible_informations.map { |i| VehicleInformation.new(vehicle: @vehicle, information_type: i, date: Date.current) unless info.map { |vi| vi.information_type }.include?(i)  }
     @gear = Gear.order(:name)
     @equipment = VehicleEquipment.order(:name)
     respond_to do |format|
@@ -84,8 +108,14 @@ class VehiclesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /vehicles/1
-  # PATCH/PUT /vehicles/1.json
+  def new_plate
+
+  end
+
+  def new_chassis
+
+  end
+
   def update
     respond_to do |format|
       if @vehicle.update(vehicle_params)
@@ -95,12 +125,12 @@ class VehiclesController < ApplicationController
             @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
           end
         end
-        @informations.each do |k,i|
-          t = VehicleInformationType.find(k.to_i)
-          unless t.nil? or i.to_s.tr(' ','') == '' or !VehicleInformation.find_by_information(i,t,@vehicle).nil?
-            @vehicle.vehicle_informations << VehicleInformation.create(information: i, vehicle_information_type: t, date: Date.current, vehicle: @vehicle)
-          end
-        end
+        # @informations.each do |k,i|
+          # t = VehicleInformationType.find(k.to_i)
+          # unless t.nil? or i.to_s.tr(' ','') == '' or !VehicleInformation.find_by_information(i,t,@vehicle).nil?
+          #   @vehicle.vehicle_informations << VehicleInformation.create(information: i, vehicle_information_type: t, date: Date.current, vehicle: @vehicle)
+          # end
+        # end
         # unless @vehicle.plate == @informa
         #   @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'])
         # end
@@ -166,7 +196,7 @@ class VehiclesController < ApplicationController
 
       p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :vehicle_type, :vehicle_typology, :property, :informations, :notes, :carwash_code)
 
-      @informations = params.require(:informations).permit!
+      # @informations = params.require(:informations).permit!
       unless params[:equipment].nil?
         @equipment = params.require(:equipment).permit!
       end

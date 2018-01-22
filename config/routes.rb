@@ -179,8 +179,12 @@ Rails.application.routes.draw do
   post '/vehicles/new', to: 'vehicles#new', as: :new_vehicle_search
   post '/vehicles/edit', to: 'vehicles#edit', as: :edit_vehicle_search
   post '/vehicle/update', to: 'vehicles#update', as: :update_vehicle
+  post  '/vehicle/new_plate', to: 'vehicles#new_plate', as: :vehicle_new_plate
+  post  '/vehicle/new_chassis', to: 'vehicles#new_chassis', as: :vehicle_new_chassis
+  post  '/vehicle/new_information', to: 'vehicles#new_information', as: :vehicle_new_information
   get  '/vehicle/info/:id', to: 'vehicles#get_info', as: :info_vehicle
   get  '/vehicle/info/workshop/:id', to: 'vehicles#get_workshop_info', as: :info_vehicle_workshop
+  post '/vehicle/vehicle_information_type_autocomplete/:id', to: 'vehicles#vehicle_information_type_autocomplete', as: :custom_vehicle_information_type_autocomplete
 
   post '/vehicle_models/new', to: 'vehicle_models#new', as: :new_vehicle_model_search
   post '/vehicle_models/edit', to: 'vehicle_models#edit', as: :edit_vehicle_model_search

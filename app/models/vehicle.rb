@@ -23,6 +23,7 @@ class Vehicle < ApplicationRecord
   belongs_to :property, class_name: 'Company'
 
   # scope :order_by_plate, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type_id': VehicleInformationType.plate.id) }
+
   scope :find_by_plate, ->(plate) { joins(:vehicle_informations).order('vehicle_informations.information ASC, vehicle_informations.date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.plate.id).where('vehicle_informations.information LIKE ?','%'+plate+'%') }
   scope :order_by_chassis, -> { joins(:vehicle_informations).order('vehicle_informations.information ASC').where('vehicle_informations.vehicle_information_type': VehicleInformationType.chassis.id) }
   scope :find_by_chassis, ->(chassis) { joins(:vehicle_informations).order('vehicle_informations.information ASC, date desc').where('vehicle_informations.vehicle_information_type': VehicleInformationType.chassis.id).where('vehicle_informations.information LIKE ?','%'+chassis+'%') }
@@ -51,6 +52,10 @@ class Vehicle < ApplicationRecord
   # def self.find_by_chassis_method search
   #   Vehicle.find_by_chassis(search)
   # end
+
+  def possible_information_types
+    self.vehicle_typology.vehicle_information_types + self.vehicle_type.vehicle_information_types
+  end
 
   def last_washing
     self.carwash_usages.sort_by { |cwu| cwu.starting_time }.reverse.first unless self.carwash_usages.empty?
@@ -84,6 +89,10 @@ class Vehicle < ApplicationRecord
     else
       p.information.upcase
     end
+  end
+
+  def last_information(information_type)
+    VehicleInformation.where(vehicle: self).where(vehicle_information_type: information_type).order(:date).last
   end
 
   def chassis_number

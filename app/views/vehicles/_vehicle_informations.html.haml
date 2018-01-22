@@ -1,4 +1,14 @@
-- @information_types.each do |i|
-  %div
-    %b= i.name
-    = text_field_tag "informations[#{i.id}]", @vehicle.find_information(i), class: 'form-control'
+- @informations.each do |i|
+  .row.no-margins.colored
+    .col-sm-7
+      %b= i.vehicle_information_type.name+': '
+      -# = text_field_tag "informations[#{i.id}][id]", i.information, class: 'form-control'
+      = i.information
+    .col-sm-4
+      %b= 'dal: '
+      -# = date_field_tag "informations[#{i.id}][date]", i.date, class: 'form-control'
+      = l(i.date) unless i.date.nil?
+    .col-sm-1
+      -# = date_field_tag "informations[#{i.id}][date]", i.date, class: 'form-control'
+      =button_to 'x', vehicle_information_path(i.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare l'informazione: #{i.vehicle_information_type.name}, #{i.information}?"}
+      -# =button_tag 'x'

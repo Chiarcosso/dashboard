@@ -1,0 +1,10 @@
+
+%h3="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
+%b= "#{@vehicle.vehicle_type.name}, #{@vehicle.vehicle_typology.name}"
+%br
+.scrollable-panel
+  %b="Lavaggi: "
+  -# -@vehicle.vehicle_information_types.pluck(:name).join(', ')
+  %br
+  %b="Schede officina: "
+  -# =@vehicle.vehicle_equipments.pluck(:name).join(', ')
