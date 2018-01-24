@@ -18,66 +18,66 @@
 -#   .actions
 -#     = f.submit 'Save'
 .row
-  = form_tag(company_path(@company), method: :patch) do |f|
-    = hidden_field_tag :search, @search
-    .col-sm-9
-      .row
-        .col-sm-6
-          %b= 'Ragione sociale'
-          = text_field_tag 'company[name]', @company.name, class: 'form-control'
-        .col-sm-3
-          %b='Partita IVA'
-          = text_field_tag 'company[vat_number]', @company.vat_number, class: 'form-control'
-        .col-sm-3
-          %b='Codice fiscale'
-          = text_field_tag 'company[ssn]', @company.ssn, class: 'form-control'
-      .row
-        .col-sm-12
-          = text_field_tag 'company[notes]', @company.notes, placeholder: 'Note', class: 'form-control'
-      .row
-        .col-sm-12
-          = submit_tag 'Salva'
-    .col-sm-3
-      .row
-        .col-sm-8
-          %b='Cliente'
-        .col-sm-4
-          = check_box_tag 'company[client]', 1, @company.client
-      .row
-        .col-sm-8
-          %b='Fornitore'
-        .col-sm-4
-          = check_box_tag 'company[supplier]', 1, @company.supplier
-      .row
-        .col-sm-8
-          %b='Officina'
-        .col-sm-4
-          = check_box_tag 'company[workshop]', 1, @company.workshop
-      .row
-        .col-sm-8
-          %b='Trasportatore'
-        .col-sm-4
-          = check_box_tag 'company[transporter]', 1, @company.transporter
-      .row
-        .col-sm-8
-          %b='Produttore di veicoli'
-        .col-sm-4
-          = check_box_tag 'company[vehicle_manufacturer]', 1, @company.vehicle_manufacturer
-      .row
-        .col-sm-8
-          %b='Produttore di materiali'
-        .col-sm-4
-          = check_box_tag 'company[item_manufacturer]', 1, @company.item_manufacturer
-      .row
-        .col-sm-8
-          %b='Istituzione'
-        .col-sm-4
-          = check_box_tag 'company[institution]', 1, @company.institution
-      .row
-        .col-sm-8
-          %b='Istituto di formazione'
-        .col-sm-4
-          = check_box_tag 'company[formation_institute]', 1, @company.formation_institute
+
+  = hidden_field_tag :search, @search
+  .col-sm-9
+    .row
+      .col-sm-6
+        %b= 'Ragione sociale'
+        = text_field_tag 'company[name]', @company.name, class: 'form-control'
+      .col-sm-3
+        %b='Partita IVA'
+        = text_field_tag 'company[vat_number]', @company.vat_number, class: 'form-control'
+      .col-sm-3
+        %b='Codice fiscale'
+        = text_field_tag 'company[ssn]', @company.ssn, class: 'form-control'
+    .row
+      .col-sm-12
+        = text_field_tag 'company[notes]', @company.notes, placeholder: 'Note', class: 'form-control'
+    .row
+      .col-sm-12
+        = submit_tag 'Salva'
+  .col-sm-3
+    .row
+      .col-sm-8
+        %b='Cliente'
+      .col-sm-4
+        = check_box_tag 'company[client]', 1, @company.client
+    .row
+      .col-sm-8
+        %b='Fornitore'
+      .col-sm-4
+        = check_box_tag 'company[supplier]', 1, @company.supplier
+    .row
+      .col-sm-8
+        %b='Officina'
+      .col-sm-4
+        = check_box_tag 'company[workshop]', 1, @company.workshop
+    .row
+      .col-sm-8
+        %b='Trasportatore'
+      .col-sm-4
+        = check_box_tag 'company[transporter]', 1, @company.transporter
+    .row
+      .col-sm-8
+        %b='Produttore di veicoli'
+      .col-sm-4
+        = check_box_tag 'company[vehicle_manufacturer]', 1, @company.vehicle_manufacturer
+    .row
+      .col-sm-8
+        %b='Produttore di materiali'
+      .col-sm-4
+        = check_box_tag 'company[item_manufacturer]', 1, @company.item_manufacturer
+    .row
+      .col-sm-8
+        %b='Istituzione'
+      .col-sm-4
+        = check_box_tag 'company[institution]', 1, @company.institution
+    .row
+      .col-sm-8
+        %b='Istituto di formazione'
+      .col-sm-4
+        = check_box_tag 'company[formation_institute]', 1, @company.formation_institute
 - unless @company.id.nil?
   .row
     .col-sm-12

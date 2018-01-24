@@ -150,8 +150,8 @@ class VehicleModelsController < ApplicationController
 
       begin
         p = params.require(:vehicle_model).permit(:name, :description, :manufacturer,:manufacturer_id)
-        # @manufacturer = Company.find(params.require('VehicleModel').permit(:manufacturer_id)[:manufacturer_id].to_i)
-        @manufacturer = Company.find(p[:manufacturer_id].to_i)
+        @manufacturer = Company.find(params.require('VehicleModel').permit(:manufacturer_id)[:manufacturer_id].to_i)
+        @manufacturer = Company.find(p[:manufacturer_id].to_i) if @manufacturer.nil?
         if @manufacturer.nil?
           # @manufacturer = Company.create(name: params.require(:model).permit(:manufacturer)[:manufacturer])
           @error = "Produttore non esistente: #{p[:manufacturer]} (#{p[:manufacturer_id]}).\n\n"

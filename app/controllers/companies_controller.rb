@@ -151,12 +151,6 @@ class CompaniesController < ApplicationController
       params.require(:company).permit(:name, :vat_number, :ssn, :client, :supplier, :workshop, :transporter, :vehicle_manufacturer, :item_manufacturer, :notes, :formation_institute, :institution, :search)
     end
 
-    def search_params
-      unless params[:search].nil? || params[:search] == ''
-        @search = params.require(:search)
-      end
-    end
-
     def address_params
       @hq = true if params[:CompanyAddress][:headquarter] == '1'
       p = params.require('CompanyAddress').permit(:street, :number, :internal, :geo_city_id, :zip, :geo_locality, :workshop, :loading_facility, :unloading_facility, :closed, :notes, :location_qualification, :manufacturer_id => [:id])

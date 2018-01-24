@@ -1,5 +1,6 @@
 %h3 Nuova ditta
 .container
-  = render 'form'
+  = form_tag(companies_path(), method: :post) do |f|
+    = render 'form'
 
-= button_to 'Indietro', companies_path, class: 'form-control'
+= link_to 'Indietro', companies_path(search: @search), class: 'form-control'

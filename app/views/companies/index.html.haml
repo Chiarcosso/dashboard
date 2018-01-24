@@ -20,32 +20,32 @@
     .col-sm-1
     .col-sm-1
 
-
-.container.scrollable-panel
-  - unless @companies.nil?
-    - @companies.each do |c|
-      .row.colored
-        .col-sm-3
-          =c.id.to_s+'::'+c.name
-        .col-sm-2
-          =c.show_categories
-        .col-sm-1
-          -# =c.main_phone_number unless c.main_phone_number.nil?
-        .col-sm-1
-          -# =c.main_mail_address unless c.main_mail_address.nil?
-        .col-sm-1
-          -# =c.pec_address unless c.pec_mail_address.nil?
-        .col-sm-2
-          =c.notes
-        .col-sm-1
-          =button_to 'Modifica', edit_company_search_path(c.id, search: @search), class: 'inline', method: :post
-        .col-sm-1
-          = form_tag(company_path(c.id), method: :delete) do |f|
-            = hidden_field_tag :search, @search
-            = submit_tag 'x', class: 'inline', data: { :confirm => "Eliminare la ditta #{c.name}?"}
+.row
+  .scrollable-panel
+    - unless @companies.nil?
+      - @companies.each do |c|
+        .row.colored
+          .col-sm-3
+            =c.id.to_s+'::'+c.name
+          .col-sm-2
+            =c.show_categories
+          .col-sm-1
+            -# =c.main_phone_number unless c.main_phone_number.nil?
+          .col-sm-1
+            -# =c.main_mail_address unless c.main_mail_address.nil?
+          .col-sm-1
+            -# =c.pec_address unless c.pec_mail_address.nil?
+          .col-sm-2
+            =c.notes
+          .col-sm-1
+            = button_to 'Modifica', edit_company_search_path(nil,id: c.id, search: @search, method: :post)
+          .col-sm-1
+            = form_tag(company_path(c.id), method: :delete) do |f|
+              = hidden_field_tag :search, @search
+              = submit_tag 'x', class: 'inline', data: { :confirm => "Eliminare la ditta #{c.name}?"}
 
 .container
-  =button_to 'Crea', new_company_path, method: :get
+  =button_to 'Crea', new_company_search_path(search: @search), method: :post
 
 :javascript
 
