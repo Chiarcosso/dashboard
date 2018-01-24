@@ -412,7 +412,7 @@ class OrdersController < ApplicationController
 
     def autocomplete_params
       # vi = VehicleInformation.where(id: params[:vehicle_id].to_i)
-      @vehicle = Vehicle.find_by_plate(params[:vehicle].to_s).first
+      @vehicle = Vehicle.find_by_plate(params[:vehicle].to_s)#.first
       if @vehicle.nil?
         @vehicle = Vehicle.new
       end
@@ -434,7 +434,7 @@ class OrdersController < ApplicationController
         if params[:vrecipient] == '' and params[:vvehicle_id] == ''
           @recipient = Vehicle.new
         else
-          @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+          @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)) : Vehicle.find_by_plate(params.require(:vrecipient))#.first
         end
         if params[:precipient] == '' or params[:precipient].nil?
           @receiver = Person.new
@@ -447,14 +447,14 @@ class OrdersController < ApplicationController
           if @recipient.nil?
             vehicle = Vehicle.find(params.require(:vehicle_id).to_i)
             if vehicle.nil?
-              vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
+              vehicle = Vehicle.find_by_plate(params.require(:vehicle))#.first
             end
             if vehicle.nil?
               vehicle = Vehicle.new
             end
             @recipient = Worksheet.create(:code => params.require(:recipient).upcase, :vehicle => vehicle)
           elsif @recipient.vehicle.nil?
-            vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
+            vehicle = Vehicle.find_by_plate(params.require(:vehicle))#.first
             # if vehicle.nil?
             #   vehicle = Vehicle.find(params.require(:vehicle_id))
             # end
@@ -618,7 +618,7 @@ class OrdersController < ApplicationController
         if params[:vrecipient] == '' and params[:vvehicle_id] == ''
           @recipient = Vehicle.new
         else
-          @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+          @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)) : Vehicle.find_by_plate(params.require(:vrecipient))#.first
         end
         if params[:precipient] == '' or params[:precipient].nil?
           @receiver = Person.new
@@ -633,14 +633,14 @@ class OrdersController < ApplicationController
               vehicle = Vehicle.find(params[:vehicle_id].to_i)
             end
             if vehicle.nil?
-              vehicle = Vehicle.find_by_plate(params[:vehicle]).first
+              vehicle = Vehicle.find_by_plate(params[:vehicle])#.first
             end
             if vehicle.nil?
               vehicle = Vehicle.new
             end
             @recipient = Worksheet.create(:code => params.require(:recipient).upcase, :vehicle => vehicle)
           elsif @recipient.vehicle.nil?
-            vehicle = Vehicle.find_by_plate(params[:vehicle]).first
+            vehicle = Vehicle.find_by_plate(params[:vehicle])#.first
             # if vehicle.nil?
             #   vehicle = Vehicle.find(params.require(:vehicle_id))
             # end
@@ -739,7 +739,7 @@ class OrdersController < ApplicationController
         end
         @recipient = Worksheet.findByCode(code)
         unless params[:vehicle].nil? or params[:vehicle] == ''
-          @recipient.vehicle = Vehicle.find_by_plate(params.require(:vehicle)).first
+          @recipient.vehicle = Vehicle.find_by_plate(params.require(:vehicle))#.first
           @recipient.save
         end
 

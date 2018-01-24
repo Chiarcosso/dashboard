@@ -1,5 +1,6 @@
 class CompaniesController < ApplicationController
   before_action :set_company, only: [:show, :edit, :update, :destroy, :add_address, :del_address]
+  before_action :search_params
   before_action :set_address, only: [:update_address]
   before_action :search_params, only: [:index,:destroy]
 
@@ -131,6 +132,12 @@ class CompaniesController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
+    def search_params
+      unless params[:search].nil? || params[:search] == '' || params[:search] == ' '
+        @search = params.require(:search)
+      end
+    end
+
     def set_company
       @company = Company.find(params[:id])
     end
@@ -141,7 +148,7 @@ class CompaniesController < ApplicationController
     end
     # Never trust parameters from the scary internet, only allow the white list through.
     def company_params
-      params.require(:company).permit(:name, :vat_number, :ssn, :client, :supplier, :workshop, :transporter, :manufacturer, :notes)
+      params.require(:company).permit(:name, :vat_number, :ssn, :client, :supplier, :workshop, :transporter, :vehicle_manufacturer, :item_manufacturer, :notes, :formation_institute, :institution, :search)
     end
 
     def search_params

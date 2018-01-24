@@ -19,6 +19,7 @@
 -#     = f.submit 'Save'
 .row
   = form_tag(company_path(@company), method: :patch) do |f|
+    = hidden_field_tag :search, @search
     .col-sm-9
       .row
         .col-sm-6
@@ -35,10 +36,7 @@
           = text_field_tag 'company[notes]', @company.notes, placeholder: 'Note', class: 'form-control'
       .row
         .col-sm-12
-          - if @company.id.nil?
-            = submit_tag 'Salva'
-          - else
-            = submit_tag 'Aggiorna'
+          = submit_tag 'Salva'
     .col-sm-3
       .row
         .col-sm-8
@@ -79,7 +77,7 @@
         .col-sm-8
           %b='Istituto di formazione'
         .col-sm-4
-          = check_box_tag 'company[manufacturer]', 1, @company.formation_institute
+          = check_box_tag 'company[formation_institute]', 1, @company.formation_institute
 - unless @company.id.nil?
   .row
     .col-sm-12

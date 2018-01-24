@@ -34,12 +34,18 @@
     - @orders.each do |order|
       .row.colored
         .col-sm-1
-          = button_to "x", "/output_order/#{order.id}", data: {:confirm => "Eliminare l'ordine nr. #{order.id}, #{order.destination.complete_name}?"}, :method => :delete, :remote => true
+          -begin
+            = button_to "x", "/output_order/#{order.id}", data: {:confirm => "Eliminare l'ordine nr. #{order.id}, #{order.destination.complete_name}?"}, :method => :delete, :remote => true
+          -rescue
+            ="error"
         .col-sm-1
           = order.id
           -# = order.destination.class
         .col-sm-2
-          = order.destination.complete_name
+          -begin
+            = order.destination.complete_name
+          -rescue
+            = "error"
         .col-sm-3
           - order.compacted_items.each do |i|
             = i[1][:amount].to_s+'x '+i[1][:name]

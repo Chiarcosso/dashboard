@@ -167,6 +167,8 @@ Rails.application.routes.draw do
   get '/geo/geo_popup/', to: 'geo#popup', as: :geo_popup
   post '/geo/new/', to: 'geo#new_record', as: :new_geo_record
 
+  post '/companies/new', to: 'companies#new', as: :new_company_search
+  post '/companies/edit', to: 'companies#edit', as: :edit_company_search
   post '/companies/vehicle_manufacturers_autocomplete', to: 'companies#vehicle_manufacturer_autocomplete', as: :custom_vehicle_manufacturers_autocomplete
   post '/companies/vehicle_manufacturers_multi_autocomplete', to: 'companies#vehicle_manufacturer_multi_autocomplete', as: :custom_vehicle_manufacturers_multi_autocomplete
   post '/companies/vehicle_property_autocomplete', to: 'companies#vehicle_property_autocomplete', as: :custom_vehicle_property_autocomplete

@@ -38,7 +38,7 @@
         .col-sm-2
           =c.notes
         .col-sm-1
-          =button_to 'Modifica', edit_company_path(c.id), class: 'inline', method: :get
+          =button_to 'Modifica', edit_company_search_path(c.id, search: @search), class: 'inline', method: :post
         .col-sm-1
           = form_tag(company_path(c.id), method: :delete) do |f|
             = hidden_field_tag :search, @search

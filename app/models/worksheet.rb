@@ -24,7 +24,7 @@ class Worksheet < ApplicationRecord
   end
 
   def complete_name
-    unless self.code.nil?
+    unless self.code.nil? or self.vehicle.nil?
       self.code+' (Targa: '+self.vehicle.plate+')'
     else
       'Nuova scheda di lavoro'
