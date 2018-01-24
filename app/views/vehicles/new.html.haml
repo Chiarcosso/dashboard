@@ -1,7 +1,2 @@
-%h1 Nuovo mezzo
-
-.container
-  = form_tag(vehicles_path, method: :post) do |f|
-    = render 'form'
-
--# = link_to 'Indietro', vehicles_path
+%div
+  = render 'new_form'

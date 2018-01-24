@@ -1,2 +1,2 @@
 %b= 'Modello'
-= select_tag 'vehicle[model]', options_from_collection_for_select(VehicleModel.manufacturer_model_order,'id','complete_name', selected: @vehicle.model.id), class: 'form-control'
+= select_tag 'vehicle[model]', options_from_collection_for_select(@vehicle.get_models,'id','complete_name', selected: @vehicle.model.id), class: 'form-control'

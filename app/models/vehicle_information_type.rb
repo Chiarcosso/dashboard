@@ -1,7 +1,7 @@
 class VehicleInformationType < ApplicationRecord
   resourcify
 
-  enum data_type: ['Stringa (max 255 caratteri)', 'Numero intero', 'Numero decimale', 'Data', 'Testo']
+  enum data_type: ['Testo breve (max 255 caratteri)', 'Numero intero', 'Numero decimale', 'Data', 'Testo']
 
   has_many :vehicle_informations
   has_many :vehicles, through: :vehicle_informations

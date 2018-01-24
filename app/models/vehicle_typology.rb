@@ -2,7 +2,7 @@ class VehicleTypology < ApplicationRecord
   resourcify
 
   has_many :vehicles
-  
+
   has_many :vehicle_type_typologies, dependent: :destroy
   has_many :vehicle_types, through: :vehicle_type_typologies
 
@@ -11,6 +11,9 @@ class VehicleTypology < ApplicationRecord
 
   has_many :vehicle_typology_information_types, dependent: :destroy
   has_many :vehicle_information_types, through: :vehicle_typology_information_types
+
+  has_many :vehicle_model_typologies, dependent: :destroy
+  has_many :vehicle_models, through: :vehicle_model_typologies
 
   def self.not_available
     VehicleTypology.where(:name => 'N/D').first

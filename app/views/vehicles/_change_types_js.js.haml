@@ -1,0 +1,7 @@
+removejtk();
+$("#vehicle_type").html("#{escape_javascript(render :partial => 'vehicles/vehicle_types'  )} ");
+$("#vehicle_typology").html("#{escape_javascript(render :partial => 'vehicles/vehicle_typologies'  )} ");
+$("#vehicle_model").html("#{escape_javascript(render :partial => 'vehicles/vehicle_models'  )} ");
+$("#vehicle_carwash_code").html("#{escape_javascript(render :partial => 'vehicles/vehicle_carwash_codes'  )} ");
+$("#vehicle_informations").html("#{escape_javascript(render :partial => 'vehicles/vehicle_informations'  )} ");
+deactivateLoadingScreen();

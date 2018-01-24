@@ -21,12 +21,14 @@
 
 function activateJS(){
 
-  $('body').on("click",".error,.infobox", function(event){
+  function error_click_func(event){
     $(this).fadeOut(400,function(){$(this).remove()});
     deactivateLoadingScreen();
-  });
+  }
 
-  $('body').on('click', '.infobox-button', function(){
+  $('body').on("click",".error,.infobox", error_click_func);
+
+  function infobox_button_click_func(){
     name = $(this).data('name');
     target = $(this).data('target');
     if($('#'+name).length == 0 ){
@@ -42,34 +44,38 @@ function activateJS(){
     } else {
       $('#'+name).remove();
     }
-  });
+  }
 
-  $('body').on('click', '.close', function(){
+  $('body').on('click', '.infobox-button', infobox_button_click_func);
+
+  function changing_select_change_func(){
+      url = $(this).data('target');
+      data = $(this).data('data');
+      data[this.id] = $(this).val();
+      $.ajax({
+        url: url,
+        method: 'post',
+        data: data
+      });
+  }
+
+  $('body').on('change','.changing-select',changing_select_change_func);
+
+  function close_click_func(){
     $('.custom-autocomplete-dropdown').remove();
     specificCloseFunctions();
     $(this).parent().fadeOut(400,function(){$(this).remove()});
     deactivateLoadingScreen();
-  });
+  }
 
-  $('body').on('click', '.popup-link', function(e){
+  $('body').on('click', '.close', close_click_func);
+
+  function popup_link_func(e){
     if(this.nodeName == 'INPUT' && $(this).attr('type') == 'submit'){
       action = $(this).form().attr('action');
       method = $(this).form().attr('method');
       data = $(this).form().serializeArray();
       name = $(this).data('name').replace(' ','_');
-      // $.ajax({
-      //     type: method,
-      //     url: action,
-      //     data: data,
-      //     complete: function(data){
-      //        $('.popup#'+name).remove();
-      //        $('body').append('<div class="popup" id="'+name+'"></div>');
-      //        $('#'+name).html(data.responseText);
-      //        $('#'+name).append('<div class="close">Chiudi</div>');
-      //        // activateClose();
-      //        // deactivateLoadingScreen();
-      //     }
-      // });
     } else {
       e.preventDefault();
       // activateLoadingScreen();
@@ -98,7 +104,9 @@ function activateJS(){
         }
     });
     return false;
-  });
+  }
+
+  $('body').on('click', '.popup-link', popup_link_func);
 }
 
 function activateErrors(){

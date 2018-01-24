@@ -5,8 +5,10 @@ class VehicleType < ApplicationRecord
     # vehicle_type.clear_dependents
   end
 
-  has_many :vehicle_models
   has_many :vehicles
+
+  has_many :vehicle_model_types, dependent: :destroy
+  has_many :vehicle_models, through: :vehicle_model_types
 
   has_many :vehicle_type_typologies, dependent: :destroy
   has_many :vehicle_typologies, through: :vehicle_type_typologies

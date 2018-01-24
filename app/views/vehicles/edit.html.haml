@@ -1,7 +1,4 @@
-%h1 Modifica mezzo - #{@vehicle.plate}
-
-.container
-  = form_tag(vehicle_path(@vehicle), method: :patch) do |f|
-    = render 'form'
+%div
+  = render 'form'
 
 -# = button_to 'Indietro', vehicles_path

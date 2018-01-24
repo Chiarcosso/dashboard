@@ -1,5 +1,6 @@
 class VehiclesController < ApplicationController
-  before_action :set_vehicle, only: [:show, :edit, :update, :destroy, :vehicle_information_type_autocomplete, :get_info, :get_workshop_info]
+  before_action :set_vehicle#, only: [:show, :edit, :update, :destroy, :vehicle_information_type_autocomplete, :get_info, :get_workshop_info, :new_information, :create_information]
+  before_action :set_vehicle_information, only: [:delete_information]
   before_action :search_params
   autocomplete :vehicle, :plate, full: true
 
@@ -47,11 +48,15 @@ class VehiclesController < ApplicationController
     @vehicle.vehicle_type = VehicleType.not_available
     @vehicle.vehicle_typology = VehicleTypology.not_available
     @vehicle.registration_date = Date.today
+    @vehicle.carwash_code = Vehicle.carwash_codes['N/D']
     @vehicle_types = VehicleType.all
     @vehicle_typologies = VehicleTypology.all
-    @information_types = VehicleInformationType.all
+    @informations = get_vehicle_informations
     @gear = Gear.order(:name)
     @equipment = VehicleEquipment.order(:name)
+    respond_to do |format|
+      format.html { render 'vehicles/new' }
+    end
   end
 
   # POST /vehicles/edit
@@ -59,53 +64,149 @@ class VehiclesController < ApplicationController
     @vehicle_types = VehicleType.all
     @vehicle_typologies = VehicleTypology.all
     # @information_types = VehicleInformationType.all
-    @informations = @vehicle.vehicle_informations - [@vehicle.last_information(VehicleInformationType.plate),@vehicle.last_information(VehicleInformationType.chassis)]
-    @informations.sort_by! { |i| i.vehicle_information_type.name }
+
     # @informations = info + @vehicle.possible_informations.map { |i| VehicleInformation.new(vehicle: @vehicle, information_type: i, date: Date.current) unless info.map { |vi| vi.information_type }.include?(i)  }
     @gear = Gear.order(:name)
     @equipment = VehicleEquipment.order(:name)
+    @informations = get_vehicle_informations
     respond_to do |format|
-      format.js { render :partial => 'vehicles/form' }
+      format.html { render 'vehicles/edit' }
     end
   end
 
-  # POST /vehicles
-  # POST /vehicles.json
-  def create
-    @vehicle = Vehicle.new(vehicle_params)
-
-    # # unless @model.nil? || @property.nil?
-    #   @vehicle.property = @property
-    #   @vehicle.model = @model
-    # end
+  def change_type
+    @vehicle = Vehicle.new if @vehicle.nil?
+    @vehicle.vehicle_type = VehicleType.find(params.require(:vehicle_type_id).to_i)
+    @vehicle.vehicle_typology = VehicleTypology.find(params.require(:vehicle_typology_id).to_i)
+    @vehicle.model = VehicleModel.find(params.require(:vehicle_model_id).to_i)
+    # @vehicle.carwash_code = params.require(:carwash_code).to_i
+    @vehicle.carwash_code = @vehicle.vehicle_type.carwash_type if @vehicle.id.nil?
+    # @vehicle_types = @vehicle.get_types
+    # @vehicle_typologies = @vehicle.vehicle_type.vehicle_typologies
+    # @vehicle_models = VehicleModel.manufacturer_model_order
+    # @informations = get_vehicle_informations
     respond_to do |format|
-      if @vehicle.save# && !@property.nil? && !@model.nil?
-        unless @equipment.nil?
-          @equipment.each do |e|
-            @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
-          end
+      format.js { render partial: 'vehicles/change_types_js' }
+    end
+  end
+
+  def new_information
+    @information_type = VehicleInformationType.find(params.require(:information_type))
+    @vehicle_information = VehicleInformation.new(vehicle_information_type: @information_type, vehicle: @vehicle)
+    respond_to do |format|
+      format.js { render partial: 'vehicles/information_form'}
+    end
+  end
+
+  def create_information
+    begin
+      @vehicle_information = VehicleInformation.create(vehicle_information_params)
+      @informations = get_vehicle_informations
+    rescue Exception => e
+      @error = "#{e.message}"
+    end
+
+    respond_to do |format|
+      if @error.nil?
+        if @vehicle_information.vehicle_information_type == VehicleInformationType.plate or @vehicle_information.vehicle_information_type == VehicleInformationType.chassis
+          format.js { render partial: 'vehicles/all_vehicle_informations_js'}
+        else
+          format.js { render partial: 'vehicles/vehicle_informations_js'}
         end
-        @informations.each do |k,i|
-          t = VehicleInformationType.find(k.to_i)
-          unless t.nil? or i.to_s.tr(' ','') == '' or !VehicleInformation.find_by_information(i,t,@vehicle).nil?
-            @vehicle.vehicle_informations << VehicleInformation.create(information: i, vehicle_information_type: t, date: Date.current, vehicle: @vehicle)
-          end
-        end
-        # @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'], date: Date.current, vehicle: @vehicle)
-        # @vehicle.vehicle_informations << VehicleInformation.create(information: @serial, information_type: VehicleInformation.types['N. di telaio'], date: Date.current, vehicle: @vehicle)
-        @informations.each do |k,i|
-          t = VehicleInformationType.find(k.to_i)
-          unless t.nil? or i.to_s == ''
-            @vehicle.vehicle_informations << VehicleInformation.create(information: i, vehicle_information_type: t, date: Date.current, vehicle: @vehicle)
-          end
-        end
-        format.html { redirect_to vehicles_path, notice: 'Vehicle was successfully created.' }
-        format.json { render :show, status: :created, location: @vehicle }
       else
-        format.html { render :new }
-        format.json { render json: @vehicle.errors, status: :unprocessable_entity }
+        format.js { render partial: 'layouts/error'}
       end
     end
+  end
+
+  def delete_information
+    begin
+      @vehicle_information.destroy
+      @informations = get_vehicle_informations
+    rescue Exception => e
+      @error = "Impossibile eliminare l'informazione.\n\n#{e.message}"
+    end
+    respond_to do |format|
+      if @error.nil?
+        format.js { render :partial => 'vehicles/vehicle_informations_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def create
+    begin
+      @error = "Targa già esistente." unless Vehicle.find_by_plate(params[:vehicle_plate][:information]).nil?
+      @vehicle = Vehicle.new(vehicle_params) if @error.nil?
+    rescue Exception => e
+      @error = "#{e.message}"
+    end
+    begin
+      params.require(:vehicle_plate).permit('information','date')
+      if params[:vehicle_plate][:information] == '' or params[:vehicle_plate][:date] == ''
+        @error = "Inserire la targa con data."
+      end
+    rescue Exception => e
+      @error = "Inserire la targa con data. #{e.message}"
+    end
+    begin
+      params.require(:vehicle_chassis).permit('information','date')
+      if params[:vehicle_chassis][:information] == '' or params[:vehicle_chassis][:date] == ''
+        @error = "Inserire il numero di telaio con data."
+      end
+    rescue Exception => e
+      @error = "Inserire il numero di telaio con data. #{e.message}"
+    end
+    if @error.nil?
+      begin
+        @vehicle.save
+      rescue Exception => e
+        @error = "#{e.message}"
+      end
+    end
+    if @error.nil?
+      begin
+        if @vehicle.last_information(VehicleInformationType.plate).nil?
+          params[:vehicle_plate][:vehicle_id] = @vehicle.id
+          params[:vehicle_plate][:vehicle_information_type_id] = VehicleInformationType.plate.id
+          params[:vehicle_plate][:information] = params[:vehicle_plate][:information].upcase
+          plate = params.require(:vehicle_plate).permit(:plate,:date,:vehicle_information_type_id,:vehicle_id, :information)
+          params[:vehicle_chassis][:vehicle_id] = @vehicle.id
+          params[:vehicle_chassis][:vehicle_information_type_id] = VehicleInformationType.chassis.id
+          params[:vehicle_chassis][:information] = params[:vehicle_chassis][:information].upcase
+          chassis = params.require(:vehicle_chassis).permit(:plate,:date,:vehicle_information_type_id,:vehicle_id, :information)
+          VehicleInformation.create(plate)
+          VehicleInformation.create(chassis)
+        end
+
+        params[:informations].each do |info|
+          info[:vehicle_id] = @vehicle.id
+          info[:date] = params.require(:vehicle_plate).permit(:date)
+
+          info = info.permit(:vehicle_id,:vehicle_information_type_id,:date,:information)
+          VehicleInformation.create(info) unless info[:information] == ''
+        end
+
+        unless params[:equipment].nil?
+          params[:equipment].permit!.each do |equip|
+            @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(equip)
+          end
+        end
+      rescue Exception => e
+        @error = "#{e.message}"
+      end
+    end
+    respond_to do |format|
+      if @error.nil?
+        # format.js { render :partial => 'vehicles/list_js' }
+        @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?
+        format.js { render 'vehicles/index_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+
   end
 
   def new_plate
@@ -117,38 +218,25 @@ class VehiclesController < ApplicationController
   end
 
   def update
-    respond_to do |format|
-      if @vehicle.update(vehicle_params)
-        @vehicle.vehicle_equipments.clear
-        unless @equipment.nil?
-          @equipment.each do |e|
-            @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
-          end
+    begin
+      @vehicle.update(vehicle_params)
+      @vehicle.vehicle_equipments.clear
+      unless @equipment.nil?
+        @equipment.each do |e|
+          @vehicle.vehicle_equipments << VehicleEquipment.find_by_name(e)
         end
-        # @informations.each do |k,i|
-          # t = VehicleInformationType.find(k.to_i)
-          # unless t.nil? or i.to_s.tr(' ','') == '' or !VehicleInformation.find_by_information(i,t,@vehicle).nil?
-          #   @vehicle.vehicle_informations << VehicleInformation.create(information: i, vehicle_information_type: t, date: Date.current, vehicle: @vehicle)
-          # end
-        # end
-        # unless @vehicle.plate == @informa
-        #   @vehicle.vehicle_informations << VehicleInformation.create(information: @plate, information_type: VehicleInformation.types['Targa'])
-        # end
-        # unless @vehicle.chassis_number == @serial
-        #   @vehicle.vehicle_informations << VehicleInformation.create(information: @serial, information_type: VehicleInformation.types['N. di telaio'])
-        # end
-        # unless @model.nil?
-        #   @vehicle.model = @model
-        # end
-        # unless @property.nil?
-        #   @vehicle.property = @property
-        # end
-        # @vehicle.save
-        format.html { redirect_to vehicles_path(search: @search), notice: 'Vehicle was successfully updated.' }
-        format.json { render :show, status: :ok, location: @vehicle }
+      end
+    rescue Exception => e
+      @error = "#{e.message}"
+    end
+
+    respond_to do |format|
+      if @error.nil?
+        # format.js { render :partial => 'vehicles/list_js' }
+        @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?
+        format.js { render 'vehicles/index_js' }
       else
-        format.html { render :edit }
-        format.json { render json: @vehicle.errors, status: :unprocessable_entity }
+        format.js { render :partial => 'layouts/error' }
       end
     end
   end
@@ -159,7 +247,7 @@ class VehiclesController < ApplicationController
     begin
       @vehicle.destroy
     rescue Exception => e
-      @error += "Impossibile eliminare mezzo.\n\n#{e.message}"
+      @error = "Impossibile eliminare mezzo.\n\n#{e.message}"
     end
     @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?
     respond_to do |format|
@@ -173,11 +261,26 @@ class VehiclesController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
+    def get_vehicle_informations
+      @informations = @vehicle.vehicle_informations
+      info = (@vehicle.vehicle_type.vehicle_information_types + @vehicle.vehicle_type.vehicle_information_types).uniq
+      missing_informations = Array.new
+      info.each { |i| missing_informations << VehicleInformation.new(vehicle_information_type: i, vehicle: @vehicle) unless @informations.map { |vi| vi.vehicle_information_type }.include? i}
+      # missing_informations.reject! { |i| @informations.map { |vi| vi.vehicle_information_type }.include? i }
+      @informations += missing_informations
+      @informations -= [@vehicle.last_information(VehicleInformationType.plate),@vehicle.last_information(VehicleInformationType.chassis)]
+      # byebug
+      @informations.sort_by! { |i| i.vehicle_information_type.name }
+    end
+
     def set_vehicle
-      begin
-        @vehicle = Vehicle.find(params.require(:id))
-      rescue Exception => e
-        @error = "Impossibile trovare mezzo.\n\n#{e.message}\n\n"
+      unless params[:id].nil?
+        begin
+          @vehicle = Vehicle.find(params.require(:id))
+
+        rescue Exception, ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound  => e
+          @error = "Impossibile trovare mezzo.\n\n#{e.message}\n\n"
+        end
       end
     end
 
@@ -194,20 +297,36 @@ class VehiclesController < ApplicationController
       # @serial = params.require(:initial_serial).permit(:info)[:info]
 
 
-      p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :vehicle_type, :vehicle_typology, :property, :informations, :notes, :carwash_code)
+      p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :vehicle_type_id, :vehicle_typology_id, :property, :notes, :carwash_code, :search, :equipment)
 
       # @informations = params.require(:informations).permit!
       unless params[:equipment].nil?
         @equipment = params.require(:equipment).permit!
       end
       p[:model] = VehicleModel.find(p[:model].to_i)
-      p[:vehicle_type] = VehicleType.find(p[:vehicle_type].to_i)
-      p[:vehicle_typology] = VehicleTypology.find(p[:vehicle_typology].to_i)
+      # p[:vehicle_type] = VehicleType.find(p[:vehicle_type].to_i)
+      # p[:vehicle_typology] = VehicleTypology.find(p[:vehicle_typology].to_i)
       p[:property] = Company.where(name: p[:property]).first
       p[:dismissed] = p[:dismissed].nil? ? false : true
       p[:carwash_code] = p[:carwash_code].to_i
       p
       # params.require(:vehicle)[:model] = VehicleModel.find(params.require(:vehicle)[:model].to_i)
       # params
+    end
+
+    def set_vehicle_information
+      begin
+        @vehicle_information = VehicleInformation.find(params.require(:vehicle_information).permit(:id)[:id])
+      rescue Exception, ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
+        @error = "Impossibile trovare l'informazione (id: #{params[:id]}).\n\n#{e.message}"
+      end
+    end
+
+    def vehicle_information_params
+      p = params.require(:vehicle_information).permit(:vehicle_id, :vehicle_information_type_id, :information, :date)
+      if p[:vehicle_information_type_id].to_i == VehicleInformationType.plate.id or p[:vehicle_information_type_id].to_i == VehicleInformationType.chassis.id
+        p[:information] = p[:information].upcase
+      end
+      p
     end
 end

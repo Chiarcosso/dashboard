@@ -30,6 +30,7 @@
         -  if current_user.has_role?("amministratore manutenzioni") || current_user.has_role?(:admin)
           .col-sm-2#buttons
             .inline
-              =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica veicolo', name: 'edit_vehicle', target: edit_vehicle_search_path, data: {id: v.id, search: @search}.to_json, method: 'post' }
+              -# =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica veicolo', name: 'edit_vehicle', target: edit_vehicle_search_path, data: {id: v.id, search: @search}.to_json, method: 'post' }
+              = button_to 'Modifica', edit_vehicle_search_path(nil,id: v.id, search: @search, method: :post)
             .inline
               =button_to 'x', vehicle_path(v.id, search: @search, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare il mezzo nr. #{v.id}, targato #{v.plate}?"}, class: 'no-loader'

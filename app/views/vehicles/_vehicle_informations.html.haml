@@ -1,14 +1,31 @@
-- @informations.each do |i|
+- @vehicle.get_vehicle_informations.each do |i|
   .row.no-margins.colored
-    .col-sm-7
+    .col-sm-5
       %b= i.vehicle_information_type.name+': '
-      -# = text_field_tag "informations[#{i.id}][id]", i.information, class: 'form-control'
-      = i.information
-    .col-sm-4
-      %b= 'dal: '
+      -if @vehicle.id.nil?
+        = text_field_tag "informations[][information]", nil, class: 'form-control'
+        = hidden_field_tag "informations[][vehicle_information_type_id]", i.vehicle_information_type.id, class: 'form-control'
+      -else
+        = i.information
+
+      -# = text_field_tag "informations[#{i.id}][information]", i.information, class: 'form-control'
+      -# = hidden_field_tag "informations[#{i.id}][id]", i.id
+      -# = hidden_field_tag "informations[#{i.id}][type]", i.vehicle_information_type.id
+
+
+    -if @vehicle.id.nil?
+      -# = date_field_tag "informations[][date]", nil, class: 'form-control'
+    -else
+      .col-sm-4
+        %b= 'dal: '
+        = l(i.date) unless i.date.nil?
       -# = date_field_tag "informations[#{i.id}][date]", i.date, class: 'form-control'
-      = l(i.date) unless i.date.nil?
-    .col-sm-1
-      -# = date_field_tag "informations[#{i.id}][date]", i.date, class: 'form-control'
-      =button_to 'x', vehicle_information_path(i.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare l'informazione: #{i.vehicle_information_type.name}, #{i.information}?"}
-      -# =button_tag 'x'
+
+    .col-sm-3
+      -unless @vehicle.id.nil?
+        .inline
+          =button_tag '+', class: 'popup-link', data: { title: 'Nuovo dettaglio veicolo', name: 'new_vehicle_vehicle_information', target: new_vehicle_vehicle_information_path, data: {information_type: i.vehicle_information_type.id, id: @vehicle.id}.to_json, method: 'post' }
+        .inline
+          -# =button_to 'x', delete_vehicle_information_path(id: i.id, format: :js), method: :delete, remote: true, data: {:confirm => "Eliminare l'informazione: #{i.vehicle_information_type.name}, #{i.information}?"}
+          =button_to 'x', delete_vehicle_information_path(@vehicle.id, 'vehicle_information[id]': i.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare l'informazione: #{i.vehicle_information_type.name}: #{i.information}?"}, class: 'no-loader' unless i.id.nil?
+          -# =button_tag 'x'

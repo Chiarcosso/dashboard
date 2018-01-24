@@ -24,17 +24,7 @@ class VehicleInformationsController < ApplicationController
   # POST /vehicle_informations
   # POST /vehicle_informations.json
   def create
-    @vehicle_information = VehicleInformation.new(vehicle_information_params)
-
-    respond_to do |format|
-      if @vehicle_information.save
-        format.html { redirect_to @vehicle_information, notice: 'Vehicle information was successfully created.' }
-        format.json { render :show, status: :created, location: @vehicle_information }
-      else
-        format.html { render :new }
-        format.json { render json: @vehicle_information.errors, status: :unprocessable_entity }
-      end
-    end
+    
   end
 
   # PATCH/PUT /vehicle_informations/1
@@ -54,17 +44,28 @@ class VehicleInformationsController < ApplicationController
   # DELETE /vehicle_informations/1
   # DELETE /vehicle_informations/1.json
   def destroy
-    @vehicle_information.destroy
+    begin
+      @vehicle_information.destroy
+    rescue Exception => e
+      @error += "Impossibile eliminare l'informazione.\n\n#{e.message}"
+    end
     respond_to do |format|
-      format.html { redirect_to vehicle_informations_url, notice: 'Vehicle information was successfully destroyed.' }
-      format.json { head :no_content }
+      if @error.nil?
+        format.js { render :partial => 'vehicles/vehicle_informations_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
     end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_vehicle_information
-      @vehicle_information = VehicleInformation.find(params[:id])
+      begin
+        @vehicle_information = VehicleInformation.find(params[:id])
+      rescue Exception => e
+        @error += "Impossibile trovare l'informazione (id: #{params[:id]}).\n\n#{e.message}"
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

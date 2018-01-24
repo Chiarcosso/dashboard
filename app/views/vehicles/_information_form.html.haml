@@ -1,0 +1,15 @@
+%b="Nuovo dettaglio: #{@vehicle_information.vehicle_information_type.name}"
+
+.row.no-margins
+
+  = form_tag(vehicle_create_information_path, name: :new_information_form, method: :post, remote: true) do |f|
+    = hidden_field_tag 'id', @vehicle_information.vehicle.id
+    = hidden_field_tag 'vehicle_information[vehicle_id]', @vehicle_information.vehicle.id
+    = hidden_field_tag 'vehicle_information[vehicle_information_type_id]', @vehicle_information.vehicle_information_type.id
+    .col-sm-5
+      = text_field_tag "vehicle_information[information]", nil, class: 'form-control', placeholder: 'Informazione..'
+    .col-sm-3
+      %b= 'dal: '
+      = date_field_tag "vehicle_information[date]", Date.current, class: 'form-control'
+    .col-sm-4
+      =submit_tag 'Salva'

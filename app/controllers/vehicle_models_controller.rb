@@ -72,30 +72,34 @@ class VehicleModelsController < ApplicationController
   # PATCH/PUT /vehicle_models/1.json
   def update
     # p = vehicle_model_params
-    @vehicle_model.update(vehicle_model_params)
-    @vehicle_model.vehicle_types.clear
-    unless params[:vehicle_model_types].nil?
-      params.require(:vehicle_model_types).each do |vtt|
-        @vehicle_model.vehicle_types << VehicleType.find(vtt.to_i)
+    begin
+      @vehicle_model.update(vehicle_model_params)
+      @vehicle_model.vehicle_types.clear
+      unless params[:vehicle_model_types].nil?
+        params.require(:vehicle_model_types).each do |vtt|
+          @vehicle_model.vehicle_types << VehicleType.find(vtt.to_i)
+        end
       end
-    end
-    @vehicle_model.vehicle_typologies.clear
-    unless params[:vehicle_model_typologies].nil?
-      params.require(:vehicle_model_typologies).each do |vtt|
-        @vehicle_model.vehicle_typologies << VehicleTypology.find(vtt.to_i)
+      @vehicle_model.vehicle_typologies.clear
+      unless params[:vehicle_model_typologies].nil?
+        params.require(:vehicle_model_typologies).each do |vtt|
+          @vehicle_model.vehicle_typologies << VehicleTypology.find(vtt.to_i)
+        end
       end
-    end
-    @vehicle_model.vehicle_equipments.clear
-    unless params[:vehicle_model_equipments].nil?
-      params.require(:vehicle_model_equipments).each do |ve|
-        @vehicle_model.vehicle_equipments << VehicleEquipment.find(ve.to_i)
+      @vehicle_model.vehicle_equipments.clear
+      unless params[:vehicle_model_equipments].nil?
+        params.require(:vehicle_model_equipments).each do |ve|
+          @vehicle_model.vehicle_equipments << VehicleEquipment.find(ve.to_i)
+        end
       end
-    end
-    @vehicle_model.vehicle_information_types.clear
-    unless params[:vehicle_model_information_types].nil?
-      params.require(:vehicle_model_information_types).each do |vi|
-        @vehicle_model.vehicle_information_types << VehicleInformationType.find(vi.to_i)
+      @vehicle_model.vehicle_information_types.clear
+      unless params[:vehicle_model_information_types].nil?
+        params.require(:vehicle_model_information_types).each do |vi|
+          @vehicle_model.vehicle_information_types << VehicleInformationType.find(vi.to_i)
+        end
       end
+    rescue Exception => e
+      @error = "#{e.message}"
     end
     # respond_to do |format|
     #   format.html { redirect_to  'vehicle_types/index' }
@@ -146,7 +150,8 @@ class VehicleModelsController < ApplicationController
 
       begin
         p = params.require(:vehicle_model).permit(:name, :description, :manufacturer,:manufacturer_id)
-        @manufacturer = Company.find(params.require('VehicleModel').permit(:manufacturer_id)[:manufacturer_id])
+        # @manufacturer = Company.find(params.require('VehicleModel').permit(:manufacturer_id)[:manufacturer_id].to_i)
+        @manufacturer = Company.find(p[:manufacturer_id].to_i)
         if @manufacturer.nil?
           # @manufacturer = Company.create(name: params.require(:model).permit(:manufacturer)[:manufacturer])
           @error = "Produttore non esistente: #{p[:manufacturer]} (#{p[:manufacturer_id]}).\n\n"

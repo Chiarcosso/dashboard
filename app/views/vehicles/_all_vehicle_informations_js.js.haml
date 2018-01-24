@@ -1,0 +1,5 @@
+removejtk();
+$("#all_vehicle_informations").html("#{escape_javascript(render :partial => 'vehicles/all_vehicle_informations'  )} ");
+$(".popup#new_vehicle_vehicle_information").remove();
+$(".infobox").remove();
+deactivateLoadingScreen();
