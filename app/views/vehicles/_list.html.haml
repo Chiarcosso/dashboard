@@ -24,7 +24,7 @@
           =v.model.complete_name unless v.model.nil?
         .col-sm-2
           =v.vehicle_type.name unless v.vehicle_type.nil?
-          =v.vehicle_typology.name unless v.vehicle_typology == VehicleTypology.not_available
+          =v.vehicle_typology.name unless v.vehicle_typology == VehicleTypology.not_available or v.vehicle_typology.nil?
         .col-sm-3
           =v.property.name
         -  if current_user.has_role?("amministratore manutenzioni") || current_user.has_role?(:admin)
