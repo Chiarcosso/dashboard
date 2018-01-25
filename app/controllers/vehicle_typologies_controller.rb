@@ -51,7 +51,6 @@ class VehicleTypologiesController < ApplicationController
         @vehicle_typology.vehicle_models << VehicleModel.find(ve.to_i)
       end
     end
-    byebug
     @vehicle_typology.vehicle_equipments.clear
     unless params[:vehicle_typology_equipments].nil?
       params.require(:vehicle_typology_equipments).each do |ve|
