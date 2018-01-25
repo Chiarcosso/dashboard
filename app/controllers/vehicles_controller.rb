@@ -171,19 +171,18 @@ class VehiclesController < ApplicationController
           params[:vehicle_plate][:vehicle_id] = @vehicle.id
           params[:vehicle_plate][:vehicle_information_type_id] = VehicleInformationType.plate.id
           params[:vehicle_plate][:information] = params[:vehicle_plate][:information].upcase
-          plate = params.require(:vehicle_plate).permit(:plate,:date,:vehicle_information_type_id,:vehicle_id, :information)
+          plate = params.require(:vehicle_plate).permit(:date,:vehicle_information_type_id,:vehicle_id, :information)
           params[:vehicle_chassis][:vehicle_id] = @vehicle.id
           params[:vehicle_chassis][:vehicle_information_type_id] = VehicleInformationType.chassis.id
           params[:vehicle_chassis][:information] = params[:vehicle_chassis][:information].upcase
-          chassis = params.require(:vehicle_chassis).permit(:plate,:date,:vehicle_information_type_id,:vehicle_id, :information)
+          chassis = params.require(:vehicle_chassis).permit(:date,:vehicle_information_type_id,:vehicle_id, :information)
           VehicleInformation.create(plate)
           VehicleInformation.create(chassis)
         end
 
         params[:informations].each do |info|
           info[:vehicle_id] = @vehicle.id
-          info[:date] = params.require(:vehicle_plate).permit(:date)
-
+          info[:date] = params[:vehicle_plate][:date]
           info = info.permit(:vehicle_id,:vehicle_information_type_id,:date,:information)
           VehicleInformation.create(info) unless info[:information] == ''
         end
@@ -296,19 +295,23 @@ class VehiclesController < ApplicationController
       # @plate = p[:information]['Targa']
       # @serial = params.require(:initial_serial).permit(:info)[:info]
 
+      begin
+        p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :vehicle_type_id, :vehicle_typology_id, :property, :notes, :carwash_code, :search, :equipment, :mileage)
 
-      p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :vehicle_type_id, :vehicle_typology_id, :property, :notes, :carwash_code, :search, :equipment)
-
-      # @informations = params.require(:informations).permit!
-      unless params[:equipment].nil?
-        @equipment = params.require(:equipment).permit!
+        # @informations = params.require(:informations).permit!
+        unless params[:equipment].nil?
+          @equipment = params.require(:equipment).permit!
+        end
+        p[:model] = VehicleModel.find(p[:model].to_i)
+        # p[:vehicle_type] = VehicleType.find(p[:vehicle_type].to_i)
+        # p[:vehicle_typology] = VehicleTypology.find(p[:vehicle_typology].to_i)
+        p[:property] = Company.where(name: p[:property]).first
+        @error = "Inserire la proprietà." if p[:property].nil?
+        p[:dismissed] = p[:dismissed].nil? ? false : true
+        p[:carwash_code] = p[:carwash_code].to_i
+      rescue Exception => e
+        @error = e.message
       end
-      p[:model] = VehicleModel.find(p[:model].to_i)
-      # p[:vehicle_type] = VehicleType.find(p[:vehicle_type].to_i)
-      # p[:vehicle_typology] = VehicleTypology.find(p[:vehicle_typology].to_i)
-      p[:property] = Company.where(name: p[:property]).first
-      p[:dismissed] = p[:dismissed].nil? ? false : true
-      p[:carwash_code] = p[:carwash_code].to_i
       p
       # params.require(:vehicle)[:model] = VehicleModel.find(params.require(:vehicle)[:model].to_i)
       # params
