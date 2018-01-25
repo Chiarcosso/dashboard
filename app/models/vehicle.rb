@@ -65,7 +65,7 @@ class Vehicle < ApplicationRecord
 
   def get_vehicle_informations
     @informations = self.vehicle_informations
-    info = (self.vehicle_type.vehicle_information_types + self.vehicle_type.vehicle_information_types).uniq
+    info = (self.vehicle_type.vehicle_information_types + self.vehicle_typology.vehicle_information_types).uniq
     missing_informations = Array.new
     info.each { |i| missing_informations << VehicleInformation.new(vehicle_information_type: i, vehicle: self) unless @informations.map { |vi| vi.vehicle_information_type }.include? i}
     # missing_informations.reject! { |i| @informations.map { |vi| vi.vehicle_information_type }.include? i }
@@ -76,7 +76,7 @@ class Vehicle < ApplicationRecord
 
   def get_types
     # if self.vehicle_type == VehicleType.not_available or self.vehicle_typology == VehicleTypology.not_available
-      VehicleType.all
+      VehicleType.all.order(:name)
     # else
     #   self.vehicle_typology.vehicle_types && self.model.vehicle_types
     # end
@@ -86,12 +86,12 @@ class Vehicle < ApplicationRecord
     # if self.vehicle_typology == VehicleTypology.not_available or self.vehicle_model.nil?
     #   VehicleTypology.all
     # else
-      self.vehicle_type.vehicle_typologies
+      self.vehicle_type.vehicle_typologies.sort_by { |i| i.name }
     # end
   end
 
   def get_models
-    self.vehicle_typology.vehicle_models & self.vehicle_typology.vehicle_models
+    (self.vehicle_typology.vehicle_models & self.vehicle_typology.vehicle_models).sort_by { |m| m.complete_name}
   end
 
   def last_washing

@@ -14,7 +14,7 @@
       .col-sm-6
         %b='Produttore'
         = text_field_tag 'vehicle_model[manufacturer]', @vehicle_model.manufacturer.name, placeholder: 'Cerca produttore..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_manufacturers_autocomplete_path, target: 'VehicleModel' }
-        = hidden_field_tag 'vehicle_model[manufacturer_id]', @vehicle_model.manufacturer.id, data: { target: 'VehicleModel' }, class: 'autocomplete-field ac-VehicleModel-manufacturer'
+        = hidden_field_tag 'VehicleModel[manufacturer_id]', @vehicle_model.manufacturer.id, data: { target: 'VehicleModel' }, class: 'autocomplete-field ac-VehicleModel-manufacturer'
     .row-no-margin
       .col-sm-12
         = text_field_tag 'vehicle_model[description]', @vehicle_model.description, class: 'form-control', placeholder: 'Descrizione..'
@@ -23,22 +23,22 @@
         %br
 
     .row.no-margin
-      .col-sm-3
+      .col-sm-6
         %b='Tipi possibili:'
         .scrollable-panel.container-fluid
           = render :partial => 'vehicle_models/types_list'
-      .col-sm-3
+      .col-sm-6
         %b='Tipologie possibili:'
         .scrollable-panel.container-fluid
           = render :partial => 'vehicle_models/typologies_list'
-      .col-sm-3
-        %b='Informazioni possibili:'
-        .scrollable-panel.container-fluid
-          = render :partial => 'vehicle_models/informations_list'
-      .col-sm-3
-        %b='Attrezzature possibili:'
-        .scrollable-panel.container-fluid
-          = render :partial => 'vehicle_models/equipment_list'
+      -# .col-sm-3
+      -#   %b='Informazioni possibili:'
+      -#   .scrollable-panel.container-fluid
+      -#     = render :partial => 'vehicle_models/informations_list'
+      -# .col-sm-3
+      -#   %b='Attrezzature possibili:'
+      -#   .scrollable-panel.container-fluid
+      -#     = render :partial => 'vehicle_models/equipment_list'
     .row.no-margins
       .col-sm-3
         %br
