@@ -1,4 +1,3 @@
-%b= 'Attrezzatura'
 - @equipment.each do |e|
   %div
     = check_box_tag "equipment[#{e.name}]", e.id, e.mounted_on?(@vehicle)

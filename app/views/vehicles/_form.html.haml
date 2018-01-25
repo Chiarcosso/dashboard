@@ -49,16 +49,17 @@
 
 
 
-    .col-sm-3
+    .col-sm-2
       .row
         .col-sm-12
-          #vehicle_equipment.half.scrollable-panel
+          %b= 'Attrezzatura'
+          #vehicle_equipment.scrollable-panel
             = render :partial => 'vehicles/vehicle_equipment'
-      .row
-        .col-sm-12
-          #vehicle_equipment.half.scrollable-panel
-            = render :partial => 'vehicles/vehicle_gear'
-  .col-sm-6#all_vehicle_informations
+      -# .row
+      -#   .col-sm-12
+      -#     #vehicle_equipment.half.scrollable-panel
+      -#       = render :partial => 'vehicles/vehicle_gear'
+  .col-sm-7#all_vehicle_informations
     =render partial: 'vehicles/all_vehicle_informations'
 -# .row.no-margins
 -#   .col-sm-12

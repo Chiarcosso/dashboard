@@ -16,12 +16,15 @@
     -if @vehicle.id.nil?
       -# = date_field_tag "informations[][date]", nil, class: 'form-control'
     -else
-      .col-sm-4
+      .col-sm-5
         %b= 'dal: '
         = l(i.date) unless i.date.nil?
+        -unless i.next.nil?
+          %b= 'al: '
+          = l(i.date_to)
       -# = date_field_tag "informations[#{i.id}][date]", i.date, class: 'form-control'
 
-    .col-sm-3
+    .col-sm-2
       -unless @vehicle.id.nil?
         .inline
           =button_tag '+', class: 'popup-link', data: { title: 'Nuovo dettaglio veicolo', name: 'new_vehicle_vehicle_information', target: new_vehicle_vehicle_information_path, data: {information_type: i.vehicle_information_type.id, id: @vehicle.id}.to_json, method: 'post' }
