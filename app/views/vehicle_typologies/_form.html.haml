@@ -18,15 +18,19 @@
         %br
 
     .row.no-margin
-      .col-sm-4
+      .col-sm-3
+        %b='Modelli possibili:'
+        .scrollable-panel.container-fluid
+          = render :partial => 'vehicle_typologies/models_list'
+      .col-sm-3
         %b='Informazioni possibili:'
         .scrollable-panel.container-fluid
           = render :partial => 'vehicle_typologies/informations_list'
-      .col-sm-4
+      .col-sm-3
         %b='Tipi possibili:'
         .scrollable-panel.container-fluid
           = render :partial => 'vehicle_typologies/types_list'
-      .col-sm-4
+      .col-sm-3
         %b='Attrezzature possibili:'
         .scrollable-panel.container-fluid
           = render :partial => 'vehicle_typologies/equipment_list'

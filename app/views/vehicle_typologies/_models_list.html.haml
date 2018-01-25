@@ -1,0 +1,6 @@
+-VehicleModel.all.manufacturer_model_order.each do |vehicle_model|
+  .row
+    .col-sm-1
+      =check_box_tag 'vehicle_typology_models[]', vehicle_model.id, @vehicle_typology.vehicle_models.include?(vehicle_model)
+    .col-sm-8#name
+      =vehicle_model.complete_name

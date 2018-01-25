@@ -24,6 +24,12 @@ class VehicleTypesController < ApplicationController
 
   def update
     @vehicle_type.update(params.require(:vehicle_type).permit(:name, :carwash_type))
+    @vehicle_type.vehicle_models.clear
+    unless params[:vehicle_type_models].nil?
+      params.require(:vehicle_type_models).each do |ve|
+        @vehicle_type.vehicle_models << VehicleModel.find(ve.to_i)
+      end
+    end
     @vehicle_type.vehicle_typologies.clear
     unless params[:vehicle_type_typologies].nil?
       params.require(:vehicle_type_typologies).each do |vtt|
