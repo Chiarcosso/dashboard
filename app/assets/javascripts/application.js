@@ -18,33 +18,39 @@
 //= require jquery-ui
 //= require autocomplete-rails
 //= require_tree .
+function autofocus_ready_func(){
+  $('.autofocus').first().val($('.autofocus').first().val());
+  $('.autofocus').first().select().focus();
+}
+
+function error_click_func(event){
+  $(this).fadeOut(400,function(){$(this).remove()});
+  deactivateLoadingScreen();
+}
+
+function infobox_button_click_func(){
+  name = $(this).data('name');
+  target = $(this).data('target');
+  if($('#'+name).length == 0 ){
+    $('.infobox').remove();
+    $('body').append('<div class="infobox" id="'+name+'"></div>');
+    $.ajax({
+      method: 'GET',
+      url: target,
+      complete: function(data){
+        $('#'+name).html(data.responseText);
+      }
+    });
+  } else {
+    $('#'+name).remove();
+  }
+}
 
 function activateJS(){
 
-  function error_click_func(event){
-    $(this).fadeOut(400,function(){$(this).remove()});
-    deactivateLoadingScreen();
-  }
+  $('body').bind('DOMSubtreeModified',autofocus_ready_func);
 
   $('body').on("click",".error,.infobox", error_click_func);
-
-  function infobox_button_click_func(){
-    name = $(this).data('name');
-    target = $(this).data('target');
-    if($('#'+name).length == 0 ){
-      $('.infobox').remove();
-      $('body').append('<div class="infobox" id="'+name+'"></div>');
-      $.ajax({
-        method: 'GET',
-        url: target,
-        complete: function(data){
-          $('#'+name).html(data.responseText);
-        }
-      });
-    } else {
-      $('#'+name).remove();
-    }
-  }
 
   $('body').on('click', '.infobox-button', infobox_button_click_func);
 
@@ -439,9 +445,9 @@ function activateDelete(){
 };
 
 function activateAF(){
-  $('.autofocus').first().focus();
-  // $('.autofocus').val('');
-  $('.autofocus').first().select();
+  // $('.autofocus').first().focus();
+  // // $('.autofocus').val('');
+  // $('.autofocus').first().select();
 };
 
 function activateDatePicker(date){

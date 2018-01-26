@@ -7,7 +7,20 @@
     = hidden_field_tag 'vehicle_information[vehicle_id]', @vehicle_information.vehicle.id
     = hidden_field_tag 'vehicle_information[vehicle_information_type_id]', @vehicle_information.vehicle_information_type.id
     .col-sm-5
-      = text_field_tag "vehicle_information[information]", nil, class: 'form-control', placeholder: 'Informazione..'
+      -case @vehicle_information.vehicle_information_type.data_type
+        -when 'Testo breve (max 255 caratteri)'
+          = text_field_tag "vehicle_information[information]", nil, class: 'form-control', placeholder: 'Informazione..'
+        -when 'Numero intero'
+          = number_field_tag "vehicle_information[information]", 0, class: 'form-control', placeholder: 'Informazione..'
+        -when 'Numero decimale'
+          = number_field_tag "vehicle_information[information]", 0, step: :any, class: 'form-control', placeholder: 'Informazione..'
+        -when 'Data'
+          = date_field_tag "vehicle_information[information]", Date.current, class: 'form-control', placeholder: 'Informazione..'
+        -when 'Testo'
+          = text_area_tag "vehicle_information[information]", nil, class: 'form-control', placeholder: 'Informazione..'
+        -else
+          = @vehicle_information.vehicle_information_type.data_type.inspect
+
     .col-sm-3
       %b= 'dal: '
       = date_field_tag "vehicle_information[date]", Date.current, class: 'form-control'
