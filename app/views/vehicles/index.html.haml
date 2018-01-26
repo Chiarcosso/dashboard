@@ -17,22 +17,6 @@
 #vehicles
   =render :partial => 'vehicles/list'
 
--#   .col-sm-2
--#     %h3= 'Mezzi'
--#   .col-sm-2{ style: 'padding-top: 2.1em;'}
--#     ="Selezionati: #{@vehicles.size}" unless @vehicles.nil?
--#   .col-sm-8{ style: 'padding-top: 1.1em;'}
--#     -# =button_to 'Crea nuovo mezzo', new_vehicle_path, method: :get, style: "padding-top: 1.5em"
--#     =link_to "Crea nuovo mezzo", new_vehicle_path, class: "btn btn-primary"
--#
--# = form_tag(vehicles_path, method: :get) do |f|
--#   = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch autofocus', 'data-target': vehicles_path
--#   .row
--# -# = will_paginate @vehicles
-
-
-
-
 :javascript
 
-  activateAF();
+  autofocus_ready_func()

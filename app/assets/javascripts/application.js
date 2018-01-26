@@ -19,6 +19,7 @@
 //= require autocomplete-rails
 //= require_tree .
 function autofocus_ready_func(){
+  alert();
   $('.autofocus').first().val($('.autofocus').first().val());
   $('.autofocus').first().select().focus();
 }
@@ -81,10 +82,10 @@ function complete_popup_link_func(data){
    });
    return false;
  }
- 
+
 function activateJS(){
 
-  $('body').bind('DOMSubtreeModified',autofocus_ready_func);
+  $('#center').on('load', '.autofocus',autofocus_ready_func);
 
   $('body').on("click",".error,.infobox", error_click_func);
 
