@@ -6,6 +6,8 @@
   %li.active
     =link_to 'Tipi di veicolo', '#tab-type', data: { toggle: 'tab'}, class: 'no-loader'
   %li
+    =link_to 'Categorie', '#tab-category', data: { toggle: 'tab'}, class: 'no-loader'
+  %li
     =link_to 'Tipologie di veicolo', '#tab-typology', data: { toggle: 'tab'}, class: 'no-loader'
   %li
     =link_to 'Attrezzature', '#tab-equipment', data: { toggle: 'tab'}, class: 'no-loader'
@@ -18,15 +20,15 @@
       .row
         .col-sm-4
           %b='Nome'
-        .col-sm-5
-          %b='Cod. lavaggio'
+        -# .col-sm-5
+        -#   %b='Cod. lavaggio'
           -# = button_tag '?', class: 'no-loader', id: 'legend'
         .col-sm-3
       .row
         = form_tag(:vehicle_types, method: :post, format: :js, remote: true) do |f|
           .col-sm-4
             = text_field_tag 'vehicle_type[name]', '', placeholder: 'Nuovo tipo di mezzo', class: 'form-control'
-          .col-sm-5
+          -# .col-sm-5
             -# = number_field_tag 'vehicle_type[carwash_type]', 0, class: 'form-control'
             = select_tag 'vehicle_type[carwash_type]', options_for_select(Vehicle.carwash_codes), class: 'form-control'
           .col-sm-3
@@ -34,6 +36,26 @@
     %br
     .scrollable-panel.container-fluid#vehicle_types
       = render :partial => 'vehicle_types/list'
+
+  .tab-pane#tab-category
+    .container-fluid
+      .row
+        .col-sm-2
+          %b='Nome'
+        .col-sm-8
+          %b='Descrizione'
+        .col-sm-2
+      .row
+        = form_tag(:vehicle_categories, method: :post, format: :js, remote: true) do |f|
+          .col-sm-2
+            = text_field_tag 'vehicle_category[name]', '', placeholder: 'Nuova categoria', class: 'form-control'
+          .col-sm-8
+            = text_field_tag 'vehicle_category[description]', '', placeholder: 'Descrizione', class: 'form-control'
+          .col-sm-2
+            = submit_tag 'Crea', class: 'form-control popup-link', data: { name: 'edit_vehicle_category' }
+    %br
+    .scrollable-panel.container-fluid#vehicle_categories
+      = render :partial => 'vehicle_categories/list'
 
   .tab-pane#tab-typology
     .container-fluid

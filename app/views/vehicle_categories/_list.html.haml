@@ -1,0 +1,15 @@
+%br
+-VehicleCategory.all.order(:name).each do |v|
+  - unless v.name == 'N/D'
+    .row.colored
+      .col-sm-2#name
+        =v.name
+      .col-sm-6
+        =v.description
+      .col-sm-2
+        ="#{v.vehicles.size} mezzi"
+      .col-sm-2#buttons
+        .inline
+          =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica categoria veicolo', name: 'edit_vehicle_category', target: edit_vehicle_category_path(v.id) }
+        .inline
+          =button_to 'x', vehicle_category_path(v.id, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare la categoria #{v.name}?"}

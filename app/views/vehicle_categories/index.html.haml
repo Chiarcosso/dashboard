@@ -1,0 +1,21 @@
+%h1 Listing vehicle_typologies
+
+%table
+  %thead
+    %tr
+      %th Name
+      %th
+      %th
+      %th
+
+  %tbody
+    - @vehicle_typologies.each do |vehicle_typology|
+      %tr
+        %td= vehicle_typology.name
+        %td= link_to 'Show', vehicle_typology
+        %td= link_to 'Edit', edit_vehicle_typology_path(vehicle_typology)
+        %td= link_to 'Destroy', vehicle_typology, method: :delete, data: { confirm: 'Are you sure?' }
+
+%br
+
+= link_to 'New Vehicle typology', new_vehicle_typology_path

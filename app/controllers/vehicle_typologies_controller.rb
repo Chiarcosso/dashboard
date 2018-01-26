@@ -45,6 +45,12 @@ class VehicleTypologiesController < ApplicationController
         @vehicle_typology.vehicle_types << VehicleType.find(vt.to_i)
       end
     end
+    @vehicle_typology.vehicle_categories.clear
+    unless params[:vehicle_typology_categories].nil?
+      params.require(:vehicle_typology_categories).each do |vtt|
+        @vehicle_typology.vehicle_categories << VehicleCategory.find(vtt.to_i)
+      end
+    end
     @vehicle_typology.vehicle_models.clear
     unless params[:vehicle_typology_models].nil?
       params.require(:vehicle_typology_models).each do |ve|
@@ -85,7 +91,11 @@ class VehicleTypologiesController < ApplicationController
       @error = "Impossibile eliminare tipologia di mezzo: #{@vehicle_typology.name}.\n\n#{e.message}"
     end
     respond_to do |format|
-      format.js { render :partial => 'vehicle_typologies/list_js', notice: @error }
+      if @error.nil?
+        format.js { render :partial => 'vehicle_typologies/list_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
     end
   end
 

@@ -30,6 +30,12 @@ class VehicleTypesController < ApplicationController
         @vehicle_type.vehicle_models << VehicleModel.find(ve.to_i)
       end
     end
+    @vehicle_type.vehicle_categories.clear
+    unless params[:vehicle_type_categories].nil?
+      params.require(:vehicle_type_categories).each do |vtt|
+        @vehicle_type.vehicle_categories << VehicleCategory.find(vtt.to_i)
+      end
+    end
     @vehicle_type.vehicle_typologies.clear
     unless params[:vehicle_type_typologies].nil?
       params.require(:vehicle_type_typologies).each do |vtt|

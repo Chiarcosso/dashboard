@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   resources :vehicle_typologies
+  resources :vehicle_categories
   resources :vehicle_equipments
   # resources :equipment do
   #
@@ -200,6 +201,7 @@ Rails.application.routes.draw do
   get  '/vehicle_model/info/:id', to: 'vehicle_models#get_info', as: :info_vehicle_model
 
   post '/vehicle_type/update', to: 'vehicle_types#update', as: :update_vehicle_type
+  post '/vehicle_category/update', to: 'vehicle_categories#update', as: :update_vehicle_category
   post '/vehicle_typology/update', to: 'vehicle_typologies#update', as: :update_vehicle_typology
   post '/vehicle_equipment/update', to: 'vehicle_equipments#update', as: :update_vehicle_equipment
   post '/vehicle_information_types/update', to: 'vehicle_information_types#update', as: :update_vehicle_information_type

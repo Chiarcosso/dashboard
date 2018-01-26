@@ -22,6 +22,9 @@
           .col-sm-12#vehicle_type
             = render :partial => 'vehicles/vehicle_types'
         .row.no-margins
+          .col-sm-12#vehicle_category
+            = render :partial => 'vehicles/vehicle_categories'
+        .row.no-margins
           .col-sm-12#vehicle_typology
             = render :partial => 'vehicles/vehicle_typologies'
         .row.no-margins
@@ -38,7 +41,7 @@
         .row.no-margins
           .col-sm-12
             %b='Prima immatricolazione'
-            = date_field_tag 'vehicle[registration_date]', @vehicle.registration_date.nil?? '' : (l @vehicle.registration_date), class: 'form-control', 'data-behavior' => 'datepicker'
+            = date_field_tag 'vehicle[registration_date]', @vehicle.registration_date, class: 'form-control', 'data-behavior' => 'datepicker'
         .row.no-margins
           .col-sm-12#vehicle_carwash_code
             = render :partial => 'vehicles/vehicle_carwash_codes'

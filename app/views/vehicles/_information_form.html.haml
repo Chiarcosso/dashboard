@@ -1,4 +1,11 @@
-%b="Nuovo dettaglio: #{@vehicle_information.vehicle_information_type.name}"
+%h3="Mezzo: #{@vehicle.plate}"
+="prima immatricolazione: "
+=l(@vehicle.registration_date) unless @vehicle.registration_date.nil?
+%br
+%br
+
+
+
 
 .row.no-margins
 
@@ -7,6 +14,7 @@
     = hidden_field_tag 'vehicle_information[vehicle_id]', @vehicle_information.vehicle.id
     = hidden_field_tag 'vehicle_information[vehicle_information_type_id]', @vehicle_information.vehicle_information_type.id
     .col-sm-5
+      %b="Nuovo dettaglio: #{@vehicle_information.vehicle_information_type.name}"
       -case @vehicle_information.vehicle_information_type.data_type
         -when 'Testo breve (max 255 caratteri)'
           = text_field_tag "vehicle_information[information]", nil, class: 'form-control', placeholder: 'Informazione..'
@@ -23,6 +31,8 @@
 
     .col-sm-3
       %b= 'dal: '
-      = date_field_tag "vehicle_information[date]", Date.current, class: 'form-control'
+      = date_field_tag "vehicle_information[date]", @vehicle.registration_date, class: 'form-control'
     .col-sm-4
+      %br
+
       =submit_tag 'Salva'

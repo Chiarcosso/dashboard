@@ -1,4 +1,4 @@
-%center
+%center{style: 'width: 87em'}
   %b='Modifica tipo veicolo: '+@vehicle_type.name
   %br
   %br
@@ -18,11 +18,15 @@
         %br
 
     .row.no-margin
+      .col-sm-1
+        %b='Categorie possibili:'
+        .scrollable-panel.container-fluid
+          = render :partial => 'vehicle_types/categories_list'
       .col-sm-3
         %b='Modelli possibili:'
         .scrollable-panel.container-fluid
           = render :partial => 'vehicle_types/models_list'
-      .col-sm-3
+      .col-sm-2
         %b='Informazioni possibili:'
         .scrollable-panel.container-fluid
           = render :partial => 'vehicle_types/informations_list'
@@ -40,24 +44,3 @@
         %br
         %br
         = submit_tag 'Aggiorna', class: 'btn inline'
--# = form_for @vehicle_type do |f|
--#   - if @vehicle_type.errors.any?
--#     #error_explanation
--#       %h2= "#{pluralize(@vehicle_type.errors.count, "error")} prohibited this vehicle_model from being saved:"
--#       %ul
--#         - @vehicle_type.errors.full_messages.each do |msg|
--#           %li= msg
--#
--#   .row
--#     .col-sm-5
--#       .field
--#         = f.label 'Tipo'
--#         = f.text_field :name, class: 'form-control'
--#     .col-sm-4
--#       .field
--#         = f.label 'Codice lavaggio'
--#         = f.number_field :carwash_type, class: 'form-control', max: 13, min: 1
--#     .col-sm-1
--#       .actions
--#         = f.label ' '
--#         = f.submit 'Salva'

@@ -6,6 +6,9 @@ class VehicleTypology < ApplicationRecord
   has_many :vehicle_type_typologies, dependent: :destroy
   has_many :vehicle_types, through: :vehicle_type_typologies
 
+  has_many :vehicle_typology_categories, dependent: :destroy
+  has_many :vehicle_categories, through: :vehicle_typology_categories
+
   has_many :vehicle_typology_equipments, dependent: :destroy
   has_many :vehicle_equipments, through: :vehicle_typology_equipments
 

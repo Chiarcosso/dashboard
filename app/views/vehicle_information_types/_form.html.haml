@@ -12,7 +12,7 @@
         = text_field_tag 'vehicle_information_type[name]', @vehicle_information_type.name, class: 'form-control'
       .col-sm-6
         %b='Tipo di dato'
-        = select_tag 'vehicle_information_type[data_type]', options_for_select(VehicleInformationType.data_types,@vehicle_information_type.data_type), class: 'form-control'
+        = select_tag 'vehicle_information_type[data_type]', options_for_select(VehicleInformationType.data_types,VehicleInformationType.data_types[@vehicle_information_type.data_type]), class: 'form-control'
     .row.no-margin
       .col-sm-12
         %br

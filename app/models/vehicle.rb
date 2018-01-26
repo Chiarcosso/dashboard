@@ -9,6 +9,7 @@ class Vehicle < ApplicationRecord
   belongs_to :model, class_name: 'VehicleModel'
   belongs_to :vehicle_typology
   belongs_to :vehicle_type
+  belongs_to :vehicle_category
 
   has_many :carwash_usages_as_first, :foreign_key => 'vehicle_1_id', :class_name => 'CarwashUsage'
   has_many :carwash_usages_as_second, :foreign_key => 'vehicle_2_id', :class_name => 'CarwashUsage'
@@ -82,13 +83,19 @@ class Vehicle < ApplicationRecord
     # end
   end
 
+  def get_categories
+    self.vehicle_type.vehicle_categories
+  end
+
   def get_typologies
     # if self.vehicle_typology == VehicleTypology.not_available or self.vehicle_model.nil?
     #   VehicleTypology.all
     # else
-      self.vehicle_type.vehicle_typologies.sort_by { |i| i.name }
+      (self.vehicle_type.vehicle_typologies & self.vehicle_category.vehicle_typologies).sort_by { |i| i.name }
     # end
   end
+
+
 
   def get_models
     (self.vehicle_typology.vehicle_models & self.vehicle_typology.vehicle_models).sort_by { |m| m.complete_name}

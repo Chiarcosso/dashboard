@@ -46,6 +46,42 @@ function infobox_button_click_func(){
   }
 }
 
+function complete_popup_link_func(data){
+   $('.popup#'+name).remove();
+   $('body').append('<div class="popup" id="'+name+'"></div>');
+   $('#'+name).html(data.responseText);
+   $('#'+name).append('<div class="close">Chiudi</div>');
+ }
+
+ function popup_link_func(e){
+   if(this.nodeName == 'INPUT' && $(this).attr('type') == 'submit'){
+     action = $(this).form().attr('action');
+     method = $(this).form().attr('method');
+     data = $(this).form().serializeArray();
+     name = $(this).data('name').replace(' ','_');
+   } else {
+     e.preventDefault();
+     // activateLoadingScreen();
+     if (typeof $(this).data('method') != undefined){
+       method = $(this).data('method');
+     } else {
+       method = 'GET';
+     }
+     action = $(this).data('target');
+     name = $(this).data('name').replace(' ','_');
+     if (typeof $(this).data('data') != undefined){
+       data = $(this).data('data');
+     }
+   }
+   $.ajax({
+       type: method,
+       url: action,
+       data: data,
+       complete: complete_popup_link_func
+   });
+   return false;
+ }
+ 
 function activateJS(){
 
   $('body').bind('DOMSubtreeModified',autofocus_ready_func);
@@ -75,42 +111,6 @@ function activateJS(){
   }
 
   $('body').on('click', '.close', close_click_func);
-
-  function popup_link_func(e){
-    if(this.nodeName == 'INPUT' && $(this).attr('type') == 'submit'){
-      action = $(this).form().attr('action');
-      method = $(this).form().attr('method');
-      data = $(this).form().serializeArray();
-      name = $(this).data('name').replace(' ','_');
-    } else {
-      e.preventDefault();
-      // activateLoadingScreen();
-      if (typeof $(this).data('method') != undefined){
-        method = $(this).data('method');
-      } else {
-        method = 'GET';
-      }
-      action = $(this).data('target');
-      name = $(this).data('name').replace(' ','_');
-      if (typeof $(this).data('data') != undefined){
-        data = $(this).data('data');
-      }
-    }
-    $.ajax({
-        type: method,
-        url: action,
-        data: data,
-        complete: function(data){
-           $('.popup#'+name).remove();
-           $('body').append('<div class="popup" id="'+name+'"></div>');
-           $('#'+name).html(data.responseText);
-           $('#'+name).append('<div class="close">Chiudi</div>');
-           // activateClose();
-           // deactivateLoadingScreen();
-        }
-    });
-    return false;
-  }
 
   $('body').on('click', '.popup-link', popup_link_func);
 }

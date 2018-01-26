@@ -1,0 +1,2 @@
+%b= 'Categoria'
+= select_tag 'vehicle[vehicle_category_id]', options_from_collection_for_select(@vehicle.get_categories, "id", "name", @vehicle.vehicle_category.id), id: 'vehicle_category_id', class: 'changing-select form-control', data: {target: change_vehicle_type_path, data: {vehicle_type_id: @vehicle.vehicle_type.id, vehicle_category_id: @vehicle.vehicle_category.id, vehicle_typology_id: @vehicle.vehicle_typology.id, vehicle_model_id: @vehicle.model.id, carwash_code: @vehicle.carwash_code, id: @vehicle.id}}

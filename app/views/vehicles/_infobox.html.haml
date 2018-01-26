@@ -1,6 +1,7 @@
 %div{style: 'width: 90vh; padding: 0px'}
   %h3="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
-  %b= "#{@vehicle.vehicle_type.name}, #{@vehicle.vehicle_typology.name}"
+  %b
+    = "#{@vehicle.vehicle_type.name}#{@vehicle.vehicle_category == VehicleCategory.not_available ? '' : " ("+@vehicle.vehicle_category.name+")"}, #{@vehicle.vehicle_typology.name}"
   .row.no-margins
     .col-sm-6
       %b="Dettagli: "

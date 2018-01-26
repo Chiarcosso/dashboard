@@ -8,6 +8,9 @@ class VehicleModel < ApplicationRecord
   has_many :vehicle_model_typologies, dependent: :destroy
   has_many :vehicle_typologies, through: :vehicle_model_typologies
 
+  has_many :vehicle_model_categories, dependent: :destroy
+  has_many :vehicle_categories, through: :vehicle_model_categories
+
   has_many :vehicle_model_equipments, dependent: :destroy
   has_many :vehicle_equipments, through: :vehicle_model_equipments
 

@@ -21,6 +21,9 @@
           .col-sm-12#vehicle_type
             = render :partial => 'vehicles/vehicle_types'
         .row.no-margins
+          .col-sm-12#vehicle_category
+            = render :partial => 'vehicles/vehicle_categories'
+        .row.no-margins
           .col-sm-12#vehicle_typology
             = render :partial => 'vehicles/vehicle_typologies'
         .row.no-margins
@@ -55,99 +58,18 @@
     .col-sm-3
       .row
         .col-sm-12
-          #vehicle_equipment.half.scrollable-panel
+          #vehicle_equipment.scrollable-panel
             = render :partial => 'vehicles/vehicle_equipment'
-      .row
-        .col-sm-12
-          #vehicle_equipment.half.scrollable-panel
-            = render :partial => 'vehicles/vehicle_gear'
+      -# .row
+      -#   .col-sm-12
+      -#     #vehicle_equipment.half.scrollable-panel
+      -#       = render :partial => 'vehicles/vehicle_gear'
     .col-sm-6#all_vehicle_informations
       .row.no-margins
         =render :partial => 'vehicles/all_vehicle_informations'
-        -# = form_tag(vehicle_new_plate_path, method: :post, remote: true) do |f|
-      -#   .col-sm-6.no-margins
-      -#     %b= 'Targa attuale: '
-      -#     -if @vehicle.id.nil?
-      -#       = text_field_tag "vehicle_plate[plate]", nil, class: 'form-control'
-      -#     -else
-      -#       =@vehicle.plate
-      -#
-      -#   .col-sm-3.no-margins
-      -#     %b= 'dal: '
-      -#     -if @vehicle.id.nil?
-      -#       = date_field_tag "vehicle_plate[date]", nil, class: 'form-control'
-      -#     -else
-      -#       =l(@vehicle.last_information(VehicleInformationType.plate).date) unless @vehicle.last_information(VehicleInformationType.plate).nil?
-      -#   .col-sm-3.no-margins
-      -#     -# = submit_tag 'Cambia', data: {confirm: "Ritargare il mezzo #{@vehicle.plate}?" }, style: 'margin-top: 2.1em;'
-      -#     -unless @vehicle.id.nil?
-      -#       =button_tag 'Nuova targa', class: 'popup-link', data: { title: 'Nuovo dettaglio veicolo', name: 'new_vehicle_vehicle_information', target: new_vehicle_vehicle_information_path, data: {information_type: VehicleInformationType.plate.id, id: @vehicle.id}.to_json, method: 'post' }
-      -# .row.no-margins
-      -#   -# = form_tag(vehicle_new_chassis_path, method: :post, remote: true) do |f|
-      -#   .col-sm-6.no-margins
-      -#     %b= 'Nr. telaio attuale: '
-      -#     -if @vehicle.id.nil?
-      -#       = text_field_tag "vehicle_chassis[chassis]", nil, class: 'form-control'
-      -#     -else
-      -#       =@vehicle.last_information(VehicleInformationType.chassis).information unless @vehicle.last_information(VehicleInformationType.chassis).nil?
-      -#   .col-sm-3.no-margins
-      -#     %b= 'dal: '
-      -#     -if @vehicle.id.nil?
-      -#       = date_field_tag "vehicle_chassis[chassis]", nil, class: 'form-control'
-      -#     -else
-      -#       =l(@vehicle.last_information(VehicleInformationType.chassis).date) unless @vehicle.last_information(VehicleInformationType.chassis).nil?
-      -#   .col-sm-3.no-margins
-      -#     -# = submit_tag 'Cambia', class: 'form-contol'
-      -#     -unless @vehicle.id.nil?
-      -#       =button_tag 'Nuovo nr. telaio', class: 'popup-link', data: { title: 'Nuovo dettaglio veicolo', name: 'new_vehicle_vehicle_information', target: new_vehicle_vehicle_information_path, data: {information_type: VehicleInformationType.chassis.id, id: @vehicle.id}.to_json, method: 'post' }
-      -# -# .row.no-margins
-      -# -#   = form_tag(vehicle_new_information_path, method: :post, remote: true) do |f|
-      -# -#     .col-sm-3.no-margins
-      -# -#       %b= 'Agg. dettaglio'
-      -# -#       = text_field_tag 'new_information[vehicle_information_type]', nil, placeholder: 'Tipo dettaglio..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_information_type_autocomplete_path(@vehicle.id), target: 'Vehicle' }
-      -# -#       -# = hidden_field_tag 'new_information[vehice_information_type_id]', @vehicle.property.id, data: { target: 'Vehicle' }, class: 'autocomplete-field ac-Vehicle-property'
-      -# -#     .col-sm-4.no-margins
-      -# -#       %b= 'Valore'
-      -# -#       = text_field_tag "new_information[information]", nil, class: 'form-control'
-      -# -#     .col-sm-4.no-margins
-      -# -#       %b= 'dal'
-      -# -#       = date_field_tag "new_information[date]", Date.current, class: 'form-control'
-      -# -#     .col-sm-1.no-margins
-      -# -#       = submit_tag 'Agg.', class: 'form-contol'
-      -# -#       %br
-      -# .row.no-margins
-      -#   .col-sm-12#vehicle_informations.scrollable-panel{ style: 'padding-right: 2em;' }
-      -#     = render :partial => 'vehicles/vehicle_informations'
-
--# .row.no-margins
--#   .col-sm-12
--#     = submit_tag 'Aggiorna', class: 'btn inline bottom'
 
 :javascript
 
-  // activateClose();
   activateCustomAutocomplete(function(element){
     return $(element).data();
   });
-
-
--# .row
--#   .col-sm-3
--#
--#   .col-sm-4
--#
--#   .col-sm-3
--#     #vehicle_equipment.half.scrollable-panel
--#       = render :partial => 'vehicles/vehicle_equipment'
--#     #vehicle_gear.half.scrollable-panel
--#       = render :partial => 'vehicles/vehicle_gear'
--# .actions.bottom-box
--#   .inline.form-contol
--#     = hidden_field_tag :search, @search
--#     = submit_tag 'Aggiorna', class: 'btn inline'
--#   .inline.form-contol
--#     = link_to 'Indietro', vehicles_path(search: @search), class: 'form-control btn inline'
--#
--# :javascript
--#
--#   activateDatePicker();

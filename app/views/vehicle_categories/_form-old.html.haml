@@ -1,0 +1,13 @@
+= form_for @vehicle_typology do |f|
+  - if @vehicle_typology.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@vehicle_typology.errors.count, "error")} prohibited this vehicle_typology from being saved:"
+      %ul
+        - @vehicle_typology.errors.full_messages.each do |message|
+          %li= message
+
+  .field
+    = f.label :name
+    = f.text_field :name
+  .actions
+    = f.submit 'Save'

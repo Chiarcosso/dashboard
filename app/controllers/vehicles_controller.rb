@@ -77,10 +77,11 @@ class VehiclesController < ApplicationController
   def change_type
     @vehicle = Vehicle.new if @vehicle.nil?
     @vehicle.vehicle_type = VehicleType.find(params.require(:vehicle_type_id).to_i)
+    @vehicle.vehicle_category = VehicleCategory.find(params.require(:vehicle_category_id).to_i)
     @vehicle.vehicle_typology = VehicleTypology.find(params.require(:vehicle_typology_id).to_i)
     @vehicle.model = VehicleModel.find(params.require(:vehicle_model_id).to_i)
     # @vehicle.carwash_code = params.require(:carwash_code).to_i
-    @vehicle.carwash_code = @vehicle.vehicle_type.carwash_type if @vehicle.id.nil?
+    @vehicle.carwash_code = @vehicle.get_carwash_cade if @vehicle.id.nil?
     # @vehicle_types = @vehicle.get_types
     # @vehicle_typologies = @vehicle.vehicle_type.vehicle_typologies
     # @vehicle_models = VehicleModel.manufacturer_model_order
@@ -88,6 +89,10 @@ class VehiclesController < ApplicationController
     respond_to do |format|
       format.js { render partial: 'vehicles/change_types_js' }
     end
+  end
+
+  def get_carwash_code
+    self.vehicle_type.carwash_code
   end
 
   def new_information
@@ -182,7 +187,7 @@ class VehiclesController < ApplicationController
 
         params[:informations].each do |info|
           info[:vehicle_id] = @vehicle.id
-          info[:date] = params[:vehicle_plate][:date]
+          info[:date] = @vehicle.registration_date
           info = info.permit(:vehicle_id,:vehicle_information_type_id,:date,:information)
           VehicleInformation.create(info) unless info[:information] == ''
         end

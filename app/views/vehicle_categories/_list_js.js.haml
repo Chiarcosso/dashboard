@@ -1,0 +1,4 @@
+removejtk();
+$("#vehicle_categories").html("#{escape_javascript(render :partial => 'vehicle_categories/list'  )} ");
+$(".popup#edit_vehicle_category").remove();
+deactivateLoadingScreen();
