@@ -91,14 +91,16 @@ class Vehicle < ApplicationRecord
     # if self.vehicle_typology == VehicleTypology.not_available or self.vehicle_model.nil?
     #   VehicleTypology.all
     # else
-      (self.vehicle_type.vehicle_typologies & self.vehicle_category.vehicle_typologies).sort_by { |i| i.name }
+    VehicleTypology.all.order(:name)
+      # (self.vehicle_type.vehicle_typologies & self.vehicle_category.vehicle_typologies).sort_by { |i| i.name }
     # end
   end
 
 
 
   def get_models
-    (self.vehicle_typology.vehicle_models & self.vehicle_typology.vehicle_models).sort_by { |m| m.complete_name}
+    # (self.vehicle_typology.vehicle_models & self.vehicle_typology.vehicle_models).sort_by { |m| m.complete_name}
+    VehicleModel.all.manufacturer_model_order
   end
 
   def last_washing
