@@ -19,7 +19,6 @@
 //= require autocomplete-rails
 //= require_tree .
 function autofocus_ready_func(){
-  alert();
   $('.autofocus').first().val($('.autofocus').first().val());
   $('.autofocus').first().select().focus();
 }
