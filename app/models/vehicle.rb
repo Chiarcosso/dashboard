@@ -41,21 +41,7 @@ class Vehicle < ApplicationRecord
 
   self.per_page = 30
 
-  # def self.find_by_manufacturer_method search
-  #   Vehicle.find_by_manufacturer(search)
-  # end
-  #
-  # def self.find_by_property_method search
-  #   Vehicle.find_by_property(search)
-  # end
-  #
-  # def self.find_by_plate_method search
-  #   Vehicle.find_by_plate(search)
-  # end
-  #
-  # def self.find_by_chassis_method search
-  #   Vehicle.find_by_chassis(search)
-  # end
+
   def self.find_by_plate(plate)
     Vehicle.where("id in (select vehicle_id from vehicle_informations where vehicle_information_type_id = #{VehicleInformationType.plate.id} and information = '#{plate.upcase}')").last
   end
@@ -72,7 +58,11 @@ class Vehicle < ApplicationRecord
     # missing_informations.reject! { |i| @informations.map { |vi| vi.vehicle_information_type }.include? i }
     @informations += missing_informations
     @informations -= [self.last_information(VehicleInformationType.plate),self.last_information(VehicleInformationType.chassis)]
-    @informations.sort_by! { |i| i.vehicle_information_type.name }
+    @informations = @informations.sort_by { |i| [i.vehicle_information_type.name,i.date] }.reverse.sort_by { |i| [i.vehicle_information_type.name] }
+  end
+
+  def last_vehicle_informations
+    self.get_vehicle_informations.select { |i| i == self.last_information(i.vehicle_information_type) }.sort_by{ |i| i.vehicle_information_type.name }
   end
 
   def get_types

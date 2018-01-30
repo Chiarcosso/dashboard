@@ -6,7 +6,7 @@
         = text_field_tag "informations[][information]", nil, class: 'form-control'
         = hidden_field_tag "informations[][vehicle_information_type_id]", i.vehicle_information_type.id, class: 'form-control'
       -else
-        = i.information
+        = i.information_label
 
       -# = text_field_tag "informations[#{i.id}][information]", i.information, class: 'form-control'
       -# = hidden_field_tag "informations[#{i.id}][id]", i.id

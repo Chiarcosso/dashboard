@@ -165,6 +165,25 @@ body{
   display: none;
 }
 
+.infobox-block{
+  max-height: 2em;
+  overflow-x: hidden;
+  padding: .2em;
+  background-color: white;
+  white-space: nowrap;
+}
+
+.infobox-block-expanded{
+  max-height: 8em;
+  z-index: 3500;
+  position: absolute;
+  border: 1px solid #44f;
+  border-radius: .2em;
+  overflow-x: hidden;
+  padding: .2em;
+  background-color: white;
+}
+
 .hover-hilight{
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -196,7 +215,7 @@ body{
   background-color: #fff;
   padding: 2em;
   overflow: hidden;
-  white-space: pre;
+  /* white-space: pre-line; */
 }
 
 .inline{
@@ -339,6 +358,10 @@ body{
   border: 1px solid #77d;
 }
 
+.selected-row{
+  background-color: #99f !important;
+}
+
 .signal-danger{
   background-color: #f44 !important;
 }
@@ -370,6 +393,11 @@ body{
 .small-button{
   width: 70px;
   font-size: smaller;
+}
+
+.small-title{
+  font-weight: bold;
+  font-size: 15pt;
 }
 
 .store-box{

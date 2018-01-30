@@ -1,17 +1,27 @@
-%div{style: 'width: 90vh; padding: 0px'}
-  %h3="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
-  %b
-    = "#{@vehicle.vehicle_type.name}#{@vehicle.vehicle_category == VehicleCategory.not_available ? '' : " ("+@vehicle.vehicle_category.name+")"}, #{@vehicle.vehicle_typology.name}"
-  .row.no-margins
-    .col-sm-6
-      %b="Dettagli: "
-      .scrollable-panel
-        - @vehicle.vehicle_informations.each do |i|
-          %div{style: 'white-space: nowrap'}
+-# %div{style: 'width: 90vh; padding: 0px'}
+.small-title="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
+%b= "#{@vehicle.vehicle_type.name}#{@vehicle.vehicle_category == VehicleCategory.not_available ? '' : " ("+@vehicle.vehicle_category.name+")"} (cat. #{@vehicle.vehicle_category.name}), #{@vehicle.vehicle_typology.name}"
+%br
+%br
+.row.no-margins
+  .col-sm-12
+    %div
+      %b="Attrezzature: "
+      =@vehicle.vehicle_equipments.pluck(:name).join(', ')
+.row.no-margins
+  .col-sm-12
+    %b="Dettagli: "
+    .scrollable-panel
+      - @vehicle.last_vehicle_informations.each do |i|
+        .floating-block
+          .infobox-block
             %b= "#{i.vehicle_information_type.name}: "
-            = i.information
-    .col-sm-6
-      %b="Attrezzatura: "
-      .scrollable-panel
-        - @vehicle.vehicle_equipments.each do |e|
-          = e.name
+            - history = i.history
+            = i.information_label
+            - if history.size > 0
+              %span{style: 'color: #44f'}
+                (Storico)
+              - history.each do |h|
+                %br
+                = h.information_label
+                = "dal: #{I18n.l h.date}, al: #{I18n.l h.date_to}"

@@ -1,0 +1,10 @@
+.infobox_block
+  %b= "#{i.vehicle_information_type.name}: "
+  = i.information
+  %br
+  - i.history.each do |h|
+    = h.information_label
+    = "dal: #{h.date}, al: #{h.next.date -1}"
+
+-# -if i.history.size > 0
+  =button_tag 'i', class: 'history-button no-loader', data: { target: info_vehicle_path(v.id), name: "infobox_vehicle_#{v.id}" }
