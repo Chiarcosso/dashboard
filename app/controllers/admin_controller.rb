@@ -1,6 +1,6 @@
 class AdminController < ApplicationController
   require 'roo'
-  require 'tiny_tds'
+  # require 'tiny_tds'
 
   before_action :authenticate_user!
   before_action :authorize_admin
