@@ -81,10 +81,12 @@ class VehiclesController < ApplicationController
     @vehicle.vehicle_typology = VehicleTypology.find(params.require(:vehicle_typology_id).to_i)
     @vehicle.model = VehicleModel.find(params.require(:vehicle_model_id).to_i)
     # @vehicle.carwash_code = params.require(:carwash_code).to_i
-    @vehicle.carwash_code = @vehicle.get_carwash_cade if @vehicle.id.nil?
+    @vehicle.carwash_code = @vehicle.get_carwash_code if @vehicle.id.nil?
     @vehicle.vehicle_equipments.clear
-    params.require(:vehicle_equipments).each do |e|
-      @vehicle.vehicle_equipments << VehicleEquipment.find(e.to_i)
+    unless params[:vehicle_equipment].nil?
+      params.require(:vehicle_equipments).each do |e|
+        @vehicle.vehicle_equipments << VehicleEquipment.find(e.to_i)
+      end
     end
     # @vehicle_types = @vehicle.get_types
     # @vehicle_typologies = @vehicle.vehicle_type.vehicle_typologies

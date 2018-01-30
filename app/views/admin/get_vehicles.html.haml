@@ -1,7 +1,7 @@
-%h3= 'Importazione veicoli'
-= form_tag(:admin_import_vehicles, method: :post, multipart: true) do |f|
-  = file_field_tag 'file', accept: 'application/xls,application/xlsx,text/csv'
-  = submit_tag 'Importa'
+%h3= 'Importazione veicoli'+" (#{@results.to_a.size} trovati)"
+-# = form_tag(:admin_import_vehicles, method: :post, multipart: true) do |f|
+-#   = file_field_tag 'file', accept: 'application/xls,application/xlsx,text/csv'
+-#   = submit_tag 'Importa'
 .container-fluid.scrollable-panel#results
   %br
   %br

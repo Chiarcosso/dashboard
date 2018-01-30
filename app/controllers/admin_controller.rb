@@ -1,5 +1,6 @@
 class AdminController < ApplicationController
   require 'roo'
+  require 'tiny_tds'
 
   before_action :authenticate_user!
   before_action :authorize_admin
@@ -8,6 +9,13 @@ class AdminController < ApplicationController
   include AdminHelper
 
   def import_vehicles
+    client = TinyTds::Client.new username: 'chiarcosso', password: 'chiarcosso2011!', host: '10.0.0.101', port: 1433, database: 'chiarcosso'
+    @results = client.execute("select idveicolo, targa, marca, modello from veicoli "\
+                "where marca is not null and marca <> '' and modello is not null and modello <> ''")
+    render 'admin/get_vehicles'
+  end
+
+  def import_vehicles2
     @results = Array.new
     unless params[:file].nil?
       @data = Roo::Spreadsheet.open(params.require(:file).tempfile)

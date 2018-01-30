@@ -6,8 +6,8 @@ gem 'rails', '~> 5.0.0'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 gem 'mysql2'
-# gem 'tiny_tds'
-# gem 'activerecord-sqlserver-adapter', '2.3.8'
+gem 'tiny_tds'
+# gem 'activerecord-sqlserver-adapter', '~>5'
 # Use Puma as the app server
 gem 'puma', '~> 3.0'
 # Use Uglifier as compressor for JavaScript assets

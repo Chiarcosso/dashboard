@@ -78,6 +78,10 @@ class Vehicle < ApplicationRecord
     # end
   end
 
+  def get_carwash_code
+    self.vehicle_type.carwash_type
+  end
+
   def get_categories
     self.vehicle_type.vehicle_categories
   end
