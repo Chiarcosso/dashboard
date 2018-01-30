@@ -1,4 +1,4 @@
-- @equipment.each do |e|
-  %div
-    = check_box_tag "equipment[#{e.name}]", e.id, e.mounted_on?(@vehicle)
+- @vehicle.get_equipment.each do |e|
+  %div{ style: "#{e.mounted_on?(@vehicle)? 'font-weight: bold' : ''}"}
+    = check_box_tag "equipment[#{e.name}]", e.id, e.mounted_on?(@vehicle), class: 'changing-checkbox vehicle_equipments', data: {class: 'vehicle_equipments', target: change_vehicle_type_path, data: {vehicle_type_id: @vehicle.vehicle_type.id, vehicle_category_id: @vehicle.vehicle_category.id, vehicle_typology_id: @vehicle.vehicle_typology.id, vehicle_model_id: @vehicle.model.id, vehicle_equipments: @vehicle.vehicle_equipments.pluck(:id), carwash_code: @vehicle.carwash_code, id: @vehicle.id}}
     = e.name

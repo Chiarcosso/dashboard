@@ -14,9 +14,10 @@
     .scrollable-panel
       - @vehicle.last_vehicle_informations.each do |i|
         .floating-block
-          .infobox-block
+          - history = i.history
+          .infobox-block{data: {expand: (history.size > 0).to_json}}
             %b= "#{i.vehicle_information_type.name}: "
-            - history = i.history
+
             = i.information_label
             - if history.size > 0
               %span{style: 'color: #44f'}

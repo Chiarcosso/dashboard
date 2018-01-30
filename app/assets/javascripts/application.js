@@ -31,11 +31,16 @@ function error_click_func(event){
 
 function infobox_block_mouseenter_func(){
   el = $(this).clone();
-  $(el).removeClass('infobox-block');
-  $(el).addClass('infobox-block-expanded');
-  $(this).parent().append(el);
-  $(el).css('top',$(this).position().top+'px');
-  $(el).css('left',$(this).position().left+'px');
+  $('.infobox-block-expanded').remove();
+  if($(this).data('expand')){
+    $(el).removeClass('infobox-block');
+    $(el).addClass('infobox-block-expanded');
+    $('body').append(el);
+    var top = $(this).offset().top +2;
+    var left = $(this).offset().left + 2;
+    $(el).css('top',top+'px');
+    $(el).css('left',left+'px');
+  }
 }
 
 function infobox_block_expanded_mouseleave_func(){
@@ -49,7 +54,6 @@ function complete_infobox_link_func(data){
 function infobox_button_click_func(){
   $('.selected-row').removeClass('selected-row');
   $(this).parents('.row').first().addClass('selected-row');
-  console.log($(this),$(this).parents('.row').first());
   name = $(this).data('name');
   target = $(this).data('target');
   if($('#'+name).length == 0 ){
@@ -101,6 +105,35 @@ function complete_popup_link_func(data){
    return false;
  }
 
+ function changing_checkbox_change_func(){
+   var eqs = [];
+   var class_name = $(this).data('class');
+   $.each($('.'+class_name+':checked'),function(){
+     eqs.push($(this).val());
+   });
+   data = $('.changing-checkbox').data('data');
+   data[class_name] = eqs;
+   $('.changing-select').data('data',data);
+   $('.changing-checkbox').data('data',data);
+ }
+
+ function changing_select_change_func(){
+     url = $(this).data('target');
+     data = $(this).data('data');
+     data[this.id] = $(this).val();
+     $.ajax({
+       url: url,
+       method: 'post',
+       data: data
+     });
+ }
+
+ function close_click_func(){
+   $('.custom-autocomplete-dropdown').remove();
+   specificCloseFunctions();
+   $(this).parent().fadeOut(400,function(){$(this).remove()});
+   deactivateLoadingScreen();
+ }
 
 
 function activateJS(){
@@ -115,25 +148,9 @@ function activateJS(){
 
   $('body').on('click', '.infobox-button', infobox_button_click_func);
 
-  function changing_select_change_func(){
-      url = $(this).data('target');
-      data = $(this).data('data');
-      data[this.id] = $(this).val();
-      $.ajax({
-        url: url,
-        method: 'post',
-        data: data
-      });
-  }
+  $('body').on('change','.changing-checkbox',changing_checkbox_change_func);
 
-  $('body').on('change','.changing-select',changing_select_change_func);
-
-  function close_click_func(){
-    $('.custom-autocomplete-dropdown').remove();
-    specificCloseFunctions();
-    $(this).parent().fadeOut(400,function(){$(this).remove()});
-    deactivateLoadingScreen();
-  }
+  $('body').on('change','.changing-select,.changing-checkbox',changing_select_change_func);
 
   $('body').on('click', '.close', close_click_func);
 

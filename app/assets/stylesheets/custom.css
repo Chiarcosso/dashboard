@@ -165,25 +165,6 @@ body{
   display: none;
 }
 
-.infobox-block{
-  max-height: 2em;
-  overflow-x: hidden;
-  padding: .2em;
-  background-color: white;
-  white-space: nowrap;
-}
-
-.infobox-block-expanded{
-  max-height: 8em;
-  z-index: 3500;
-  position: absolute;
-  border: 1px solid #44f;
-  border-radius: .2em;
-  overflow-x: hidden;
-  padding: .2em;
-  background-color: white;
-}
-
 .hover-hilight{
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -216,6 +197,25 @@ body{
   padding: 2em;
   overflow: hidden;
   /* white-space: pre-line; */
+}
+
+.infobox-block{
+  max-height: 2em;
+  overflow-x: hidden;
+  padding: .2em;
+  background-color: white;
+  border: 1px solid #fff;
+  white-space: nowrap;
+}
+
+.infobox-block-expanded{
+  max-height: 8em;
+  z-index: 4000;
+  position: absolute;
+  border: 1px solid #44f;
+  border-radius: .2em;
+  overflow-x: hidden;
+  background-color: white;
 }
 
 .inline{

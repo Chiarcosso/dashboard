@@ -1,4 +1,4 @@
-%h3="Mezzo: #{@vehicle.plate}"
+%h3{style: 'width: 35em'}="Mezzo: #{@vehicle.plate}"
 ="prima immatricolazione: "
 =l(@vehicle.registration_date) unless @vehicle.registration_date.nil?
 %br

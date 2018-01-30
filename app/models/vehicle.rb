@@ -61,8 +61,13 @@ class Vehicle < ApplicationRecord
     @informations = @informations.sort_by { |i| [i.vehicle_information_type.name,i.date] }.reverse.sort_by { |i| [i.vehicle_information_type.name] }
   end
 
+  def get_equipment
+    e = self.vehicle_equipments.sort_by { |e| e.name }
+    e + ((self.vehicle_type.vehicle_equipments + self.vehicle_typology.vehicle_equipments).uniq.sort_by{ |e| e.name } - e)
+  end
+
   def last_vehicle_informations
-    self.get_vehicle_informations.select { |i| i == self.last_information(i.vehicle_information_type) }.sort_by{ |i| i.vehicle_information_type.name }
+    self.vehicle_informations.select { |i| i == self.last_information(i.vehicle_information_type) }.sort_by{ |i| i.vehicle_information_type.name }
   end
 
   def get_types

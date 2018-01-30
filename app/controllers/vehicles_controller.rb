@@ -82,6 +82,10 @@ class VehiclesController < ApplicationController
     @vehicle.model = VehicleModel.find(params.require(:vehicle_model_id).to_i)
     # @vehicle.carwash_code = params.require(:carwash_code).to_i
     @vehicle.carwash_code = @vehicle.get_carwash_cade if @vehicle.id.nil?
+    @vehicle.vehicle_equipments.clear
+    params.require(:vehicle_equipments).each do |e|
+      @vehicle.vehicle_equipments << VehicleEquipment.find(e.to_i)
+    end
     # @vehicle_types = @vehicle.get_types
     # @vehicle_typologies = @vehicle.vehicle_type.vehicle_typologies
     # @vehicle_models = VehicleModel.manufacturer_model_order
