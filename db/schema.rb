@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180126122913) do
+ActiveRecord::Schema.define(version: 20180214090604) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -238,6 +238,21 @@ ActiveRecord::Schema.define(version: 20180126122913) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "external_vehicles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "owner_id",            null: false
+    t.string   "plate",               null: false
+    t.integer  "id_veicolo",          null: false
+    t.integer  "id_fornitore",        null: false
+    t.integer  "vehicle_type_id",     null: false
+    t.integer  "vehicle_typology_id"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["owner_id"], name: "index_external_vehicles_on_owner_id", using: :btree
+    t.index ["plate"], name: "index_external_vehicles_on_plate", using: :btree
+    t.index ["vehicle_type_id"], name: "index_external_vehicles_on_vehicle_type_id", using: :btree
+    t.index ["vehicle_typology_id"], name: "index_external_vehicles_on_vehicle_typology_id", using: :btree
+  end
+
   create_table "gears", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name",              null: false
     t.string   "serial",            null: false
@@ -356,6 +371,18 @@ ActiveRecord::Schema.define(version: 20180126122913) do
     t.datetime "updated_at",                        null: false
     t.index ["mobile_workshop_id"], name: "fk_rails_0662c38a37", using: :btree
     t.index ["storage_item_id"], name: "fk_rails_077a2def56", using: :btree
+  end
+
+  create_table "mssql_references", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "local_object_type"
+    t.integer  "local_object_id",     null: false
+    t.integer  "remote_object_id",    null: false
+    t.string   "remote_object_table", null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["local_object_id", "local_object_type", "remote_object_id", "remote_object_table"], name: "mssql_references_uniques", unique: true, using: :btree
+    t.index ["local_object_type", "local_object_id"], name: "index_mssql_references_on_local_object_type_and_local_object_id", using: :btree
+    t.index ["remote_object_table"], name: "index_mssql_references_on_remote_object_table", using: :btree
   end
 
   create_table "offices", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -692,6 +719,7 @@ ActiveRecord::Schema.define(version: 20180126122913) do
     t.string   "serie"
     t.integer  "carwash_code"
     t.integer  "vehicle_category_id",               default: 1,     null: false
+    t.string   "registration_model"
     t.index ["model_id"], name: "index_vehicles_on_model_id", using: :btree
     t.index ["property_id"], name: "index_vehicles_on_property_id", using: :btree
     t.index ["vehicle_category_id"], name: "index_vehicles_on_vehicle_category_id", using: :btree
@@ -775,6 +803,8 @@ ActiveRecord::Schema.define(version: 20180126122913) do
   add_foreign_key "company_phone_numbers", "company_addresses"
   add_foreign_key "equipment_articles", "articles"
   add_foreign_key "equipment_articles", "equipment"
+  add_foreign_key "external_vehicles", "vehicle_types"
+  add_foreign_key "external_vehicles", "vehicle_typologies"
   add_foreign_key "geo_cities", "geo_provinces"
   add_foreign_key "geo_localities", "geo_cities"
   add_foreign_key "geo_provinces", "geo_states"

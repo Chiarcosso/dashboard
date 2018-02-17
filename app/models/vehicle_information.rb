@@ -5,6 +5,9 @@ class VehicleInformation < ApplicationRecord
   belongs_to :vehicle_information_type
   # enum type: ['Targa','N. di telaio']
 
+  def complete_information
+    "#{self.vehicle_information_type.name}: #{self.get_information}"
+  end
   def self.oldest(type,vehicle)
     VehicleInformation.where(vehicle_information_type: type, vehicle: vehicle).order(date: :asc).first
   end
@@ -37,15 +40,19 @@ class VehicleInformation < ApplicationRecord
     if self.information.nil?
       return nil
     else
-      case self.vehicle_information_type.data_type
-      when 'Data'
-        return Date.parse self.information
-      when 'Numero intero'
-        return self.information.to_i
-      when 'Numero decimale'
-        return self.information.to_f
-      else
-        return self.information
+      begin
+        case self.vehicle_information_type.data_type
+        when 'Data'
+          return Date.parse self.information
+        when 'Numero intero'
+          return self.information.to_i
+        when 'Numero decimale'
+          return self.information.to_f
+        else
+          return self.information
+        end
+      rescue Exception => e
+        return "(Errore) #{self.information}. #{e.message}"
       end
     end
   end

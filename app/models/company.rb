@@ -20,14 +20,27 @@ class Company < ApplicationRecord
   has_many :company_phone_numbers
 
   scope :filter, ->(search) { where('name like ?',"%#{search}%").order(:name) }
+  scope :not_us, -> { where("name not like 'Autotrasporti Chiarcosso%' and name not like 'Trans Est%'")}
+  scope :most_used_transporter, -> { where("transporter = 1 and id in "\
+    "(select a.owner_id from "\
+      "(select owner_id, count(external_vehicles.id) as count "\
+        "from external_vehicles group by owner_id order by count(external_vehicles.id) desc) as a )") }
   # scope :find_by_name,->(name) { where("lower(name) = ?", name) }
   def self.chiarcosso
     Company.where("name like 'Autotrasporti Chiarcosso%'").first
   end
 
+  def self.edilizia
+    Company.where("name like 'Edilizia Chiarcosso%'").first
+  end
+
   def self.transest
     Company.where("name like 'Trans Est%'").first
   end
+
+  # def self.most_used_transporter
+  #   Company..first
+  # end
 
   def to_worksheet_financial_csv(options = {},year = Date.current.year)
     CSV.generate(options) do |csv|

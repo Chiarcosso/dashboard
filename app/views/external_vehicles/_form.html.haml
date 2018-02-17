@@ -1,0 +1,22 @@
+= form_for @external_vehicle do |f|
+  - if @external_vehicle.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@external_vehicle.errors.count, "error")} prohibited this external_vehicle from being saved:"
+      %ul
+        - @external_vehicle.errors.full_messages.each do |message|
+          %li= message
+
+  .field
+    = f.label :owner_id
+    = f.number_field :owner_id
+  .field
+    = f.label :plate
+    = f.text_field :plate
+  .field
+    = f.label :vehicle_type
+    = f.text_field :vehicle_type
+  .field
+    = f.label :vehicle_typology
+    = f.text_field :vehicle_typology
+  .actions
+    = f.submit 'Save'

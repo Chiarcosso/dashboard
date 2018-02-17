@@ -19,6 +19,8 @@ class Vehicle < ApplicationRecord
   has_many :vehicle_informations, :dependent => :destroy
   has_many :worksheets
   has_one :carwash_vehicle_code, :dependent => :destroy
+
+  has_many :mssql_references, as: :local_object
   # has_many :carwash_usages, through: :carwash_vehicle_code
   # has_one :vehicle_type, through: :model
   belongs_to :property, class_name: 'Company'
@@ -33,6 +35,9 @@ class Vehicle < ApplicationRecord
   scope :filter_by_model, ->(search) { joins(:model).where('vehicle_models.name LIKE ?', '%'+search+'%') }
   scope :filter_by_property, ->(property) { joins(:property).where('companies.name LIKE ?', '%'+property+'%') }
   scope :null_scope, -> { where(id: nil) }
+  scope :with_worksheets, -> { where("id in (select vehicle_id from worksheets)") }
+  scope :free_to_delete, -> { where("id not in (select vehicle_id from worksheets) and id not in (select destination_id from output_orders where destination_type = 'Vehicle')")}
+  scope :not_free_to_delete, -> { where("id in (select vehicle_id from worksheets) or id in (select destination_id from output_orders where destination_type = 'Vehicle')")}
   # scope :filter, ->(search) { joins(:vehicle_informations).joins(:model).joins('left join vehicle_types on vehicle_types.id = vehicles.vehicle_type_id').joins('left join vehicle_typologies on vehicle_typologies.id = vehicles.vehicle_typology_id').joins('inner join companies on vehicle_models.manufacturer_id = companies.id').joins('inner join companies prop on vehicles.property_id = prop.id').where("vehicle_informations.information LIKE '%#{search.tr(' ','%').tr('*','%')}%' or vehicle_models.name LIKE '%#{search.tr(' ','%').tr('*','%')}%' or companies.name LIKE '%#{search.tr(' ','%').tr('*','%')}%' or prop.name LIKE '%#{search.tr(' ','%').tr('*','%')}%' or vehicle_types.name LIKE '%#{search.tr(' ','%').tr('*','%')}%' or vehicle_typologies.name LIKE '%#{search.tr(' ','%').tr('*','%')}%'").distinct }
   scope :filter, ->(search) { joins("left join vehicle_informations on vehicle_informations.vehicle_id = vehicles.id").where("vehicle_type_id in (select id from vehicle_types where name like '%#{search.tr(' ','%').tr('*','%')}%') or vehicle_typology_id in (select id from vehicle_typologies where name like '%#{search.tr(' ','%').tr('*','%')}%')"\
                 " or property_id in (select id from companies where name like '%#{search.tr(' ','%').tr('*','%')}%') or model_id in (select id from vehicle_models where name like '%#{search.tr(' ','%').tr('*','%')}%' or manufacturer_id in (select id from companies where name like '%#{search.tr(' ','%').tr('*','%')}%'))"\
@@ -41,9 +46,39 @@ class Vehicle < ApplicationRecord
 
   self.per_page = 30
 
+  def long_label
+    begin
+      "ID: #{self.id}; proprietà: #{self.property.name}; targa: #{self.plate}; modello: #{self.model.complete_name}; tipo: #{self.vehicle_type.name}; tipologia: #{self.vehicle_typology.name}; "\
+      "categoria: #{self.vehicle_category.name}; telaio: #{self.chassis_number}; attrezzatura: #{self.vehicle_equipments.pluck(:name).join(', ')}; info: #{self.vehicle_informations.map { |i| i.complete_information }.join(', ')}"
+    rescue Exception => e
+      e.message
+    end
+  end
+
+  def has_reference?(table,id)
+    !MssqlReference.identify(self,table,id).nil?
+  end
+
+  def check_properties(comp)
+    if comp['property'] == 'T' and self.property != Company.transest or comp['property'] == 'A' and self.property != Company.chiarcosso
+      return false
+    # elsif comp['plate'].upcase.tr('. *','') != self.plate
+    #   byebug
+    #   return false
+    elsif comp['manufacturer'].upcase != self.model.manufacturer.name.upcase
+      return false
+    elsif comp['model'].upcase != self.model.name.upcase
+      return false
+    elsif !comp['registration_date'].nil? && (DateTime.parse(comp['registration_date']) != self.registration_date)
+      return false
+    elsif comp['carwash_code'] != self.carwash_code
+      return false
+    end
+    return true
+  end
 
   def self.find_by_plate(plate)
-    Vehicle.where("id in (select vehicle_id from vehicle_informations where vehicle_information_type_id = #{VehicleInformationType.plate.id} and information = '#{plate.upcase}')").last
+    Vehicle.where("id in (select vehicle_id from vehicle_informations where vehicle_information_type_id = #{VehicleInformationType.plate.id} and upper(information) = '#{plate.upcase}')").last
   end
 
   def possible_information_types
@@ -111,7 +146,7 @@ class Vehicle < ApplicationRecord
   end
 
   def just_washed?
-    unless self.last_washing.nil? or self.last_washing.starting_time + 3.hours < DateTime.now
+    unless self.last_washing.nil? or self.last_washing.starting_time + 1.days < DateTime.now
       true
     else
       false
@@ -137,6 +172,9 @@ class Vehicle < ApplicationRecord
   end
 
   def last_information(information_type)
+    if information_type.class != VehicleInformationType
+      information_type = VehicleInformationType.find_by_name(information_type)
+    end
     VehicleInformation.where(vehicle: self).where(vehicle_information_type: information_type).order(:date).last
   end
 

@@ -5,12 +5,26 @@
       .row
         .col-sm-1
           = text_field_tag 'mdc_user', mdcu.user.upcase, class: 'form-control', disabled: :disabled
-        .col-sm-6
-          = text_field_tag 'mdc_user_name', mdcu.holder.nil?? '' : mdcu.holder.complete_name, data: { autocomplete: autocomplete_person_company_ws_path }, class: 'form-control people_companies_auto'
+        .col-sm-1
+          -unless mdcu.holder.nil?
+            -if mdcu.holder.class == Person
+              = 'Persona'
+            -elsif mdcu.holder.class == Company
+              = 'Ditta'
+            -else
+              mdcu.holder.class
+        .col-sm-5
+          -if mdcu.holder.nil?
+            = text_field_tag 'mdc_user_name', mdcu.holder.nil?? '' : mdcu.holder.complete_name, data: { autocomplete: autocomplete_person_company_ws_path }, class: 'form-control people_companies_auto'
+          -else
+            %b= mdcu.holder.list_name
           = hidden_field_tag :holder, mdcu.holder.nil?? '' : mdcu.holder.id
           = hidden_field_tag :holder_type, mdcu.holder.class
         .col-sm-3
-          = text_field_tag 'mdc_activation_code', mdcu.activation_code, placeholder: 'Codice attivazione', class: 'form-control'
+          -if mdcu.holder.nil?
+            = text_field_tag 'mdc_activation_code', mdcu.activation_code, placeholder: 'Codice attivazione', class: 'form-control'
+          -else
+            %b= mdcu.activation_code
           -# = text_field_tag 'carwash_driver_code[person]', cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
           -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
         .col-sm-2

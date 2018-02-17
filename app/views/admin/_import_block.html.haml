@@ -1,0 +1,54 @@
+- results.each_with_index do |r,i|
+
+  - manufacturer = Company.where("name like '%#{r[:data]["marca"]}%'").first
+  - model = VehicleModel.where("name like '#{r[:data]["modello"]}' or manufacturer_id in (select id from companies where name like '%#{r[:data]["marca"]}%')").first
+  -# - case r[:route]
+  -# - when :new
+
+
+  .row.bottom_border{style: "background-color: #{r[:color]}"}
+
+    .col-sm-2
+      = check_box_tag "vehicles[#{i}][check]", true, false
+      = hidden_field_tag "vehicle[#{i}][id]", r[:vehicle].id unless r[:vehicle].nil?
+      -if r[:vehicle].nil?
+        %b= "Crea"
+      -else
+        %b= "Aggiorna"
+    .col-sm-10
+      %b= r[:vehicle].long_label unless r[:vehicle].nil?
+  - r[:data].each do |k,v|
+    - vehicle_information_type = VehicleInformationType.where("name like '#{k}'").first
+    - vehicle_equipment = VehicleEquipment.where("name like '#{k}'").first
+    .row.bottom_border{style: "background-color: #{r[:color]}"}
+      .col-sm-2
+        = k
+      .col-sm-2
+        = v.inspect
+      .col-sm-4
+        -case k
+        -when "ditta"
+          -if v == "A"
+            - property =  @chiarcosso
+          -elsif v == "T"
+            - property =  @transest
+          = select_tag "vehicles[#{i}][property_id]", options_from_collection_for_select(@transporters,"id","name",selected: property.nil?? nil : property.id), class: "form-control"
+        -when "marca"
+          = select_tag "vehicles[#{i}][manufacturer_id]", options_from_collection_for_select(@manufacturers,"id","name", selected: manufacturer.nil?? nil : manufacturer.id), class: "form-control"
+        -when "modello"
+          = select_tag "vehicles[#{i}][vehicle_model_id]", options_from_collection_for_select(VehicleModel.where("manufacturer_id in (select id from companies where name like '%#{r[:data]["marca"]}%')"),"id","complete_name",selected: model.nil?? nil : model.id), class: "form-control"
+
+        -else
+          -unless vehicle_information_type.nil?
+            .col-sm-6
+              = select_tag "vehicles[#{i}][vehicle_informations[][vehicle_information_type_id]]", options_from_collection_for_select(@information_types,"id","name",selected: vehicle_information_type.nil?? nil : vehicle_information_type.id), class: "form-control"
+            .col-sm-6
+              -if vehicle_information_type == @plate or vehicle_information_type == @chassis
+                = text_field_tag "vehicles[#{i}][vehicle_informations[][information]]", v.tr(". *","").upcase, class: "form-control"
+              -else
+                = text_field_tag "vehicles[#{i}][vehicle_informations[][information]]", v, class: "form-control"
+          -unless vehicle_equipment.nil?
+            -# = select_tag "vehicle_equipments[]", options_from_collection_for_select(@equipment,"id","name",selected: vehicle_equipment.nil?? nil : vehicle_equipment.id), class: "form-control"
+            = check_box_field "vehicles[#{i}][vehicle_equipments[]]", vehicle_equipment.id, true
+            = vehicle_equipment.name
+  %br

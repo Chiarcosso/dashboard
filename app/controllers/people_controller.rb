@@ -139,8 +139,8 @@ class PeopleController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
       p = params.require(:person).permit(:name, :surname, :notes, :search)
-      p[:name] = p[:name].titleize
-      p[:surname] = p[:surname].titleize
+      p[:name] = p[:name].strip.titleize
+      p[:surname] = p[:surname].strip.titleize
       p
     end
 

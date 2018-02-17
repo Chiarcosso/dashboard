@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b Owner:
+  = @external_vehicle.owner_id
+%p
+  %b Plate:
+  = @external_vehicle.plate
+%p
+  %b Vehicle type:
+  = @external_vehicle.vehicle_type
+%p
+  %b Vehicle typology:
+  = @external_vehicle.vehicle_typology
+
+= link_to 'Edit', edit_external_vehicle_path(@external_vehicle)
+\|
+= link_to 'Back', external_vehicles_path

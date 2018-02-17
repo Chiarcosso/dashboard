@@ -22,6 +22,11 @@ class VehicleType < ApplicationRecord
   has_many :vehicle_type_information_types, dependent: :destroy
   has_many :vehicle_information_types, through: :vehicle_type_information_types
 
+  scope :most_used, -> { where("id in "\
+    "(select a.property_id from "\
+      "(select property_id, count(vehicles.id) as count "\
+        "from vehicles group by property_id order by count(vehicles.id) desc) as a )") }
+
   def self.not_available
     VehicleType.where(:name => 'N/D').first
   end

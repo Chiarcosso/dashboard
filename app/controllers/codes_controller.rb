@@ -117,8 +117,8 @@ class CodesController < ApplicationController
       unless cwu.carwash_special_code.nil?
         response += ",#{cwu.carwash_special_code.carwash_code}"
       else
-        response += ",#{cwu.vehicle_1.carwash_code.to_s}" unless cwu.vehicle_1.nil?
-        response += ",#{cwu.vehicle_2.carwash_code.to_s}" unless cwu.vehicle_2.nil?
+        response += ",#{cwu.vehicle_1.carwash_code.to_i.to_s}" unless cwu.vehicle_1.nil?
+        response += ",#{cwu.vehicle_2.carwash_code.to_i.to_s}" unless cwu.vehicle_2.nil?
       end
     else
       response = 0

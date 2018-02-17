@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :external_vehicles
   resources :vehicle_typologies
   resources :vehicle_categories
   resources :vehicle_equipments
@@ -54,6 +55,9 @@ Rails.application.routes.draw do
   get   '/admin/manage', to: 'admin#manage', as: :admin_manage
   post   '/admin/manage', to: 'admin#manage', as: :admin_manage_post
   post   '/admin/queries/vehicles', to: 'admin#send_query_vehicles', as: :admin_queries_vehicles
+  post   '/admin/upsync_vehicles/:update', to: 'admin#upsync_vehicles', as: :upsync_vehicles
+  post   '/admin/upsync_other_vehicles/:update', to: 'admin#upsync_other_vehicles', as: :upsync_other_vehicles
+  post   '/admin/upsync_trailers/:simulate', to: 'admin#upsync_trailers', as: :upsync_trailers
   post   '/admin/queries/people', to: 'admin#send_query_people', as: :admin_queries_people
   get    '/admin/soap', to: 'admin#soap', as: :admin_soap
   get    '/admin/vacation', to: 'admin#get_vacation', as: :admin_vacation
@@ -183,6 +187,9 @@ Rails.application.routes.draw do
   post '/vehicles/edit', to: 'vehicles#edit', as: :edit_vehicle_search
   post '/vehicles/edit', to: 'vehicles#back', as: :vehicles_back_search
   post '/vehicle/update', to: 'vehicles#update', as: :update_vehicle
+  get '/vehicle/assignation', to: 'vehicles#assignation', as: :vehicles_assignation
+  post '/vehicle/massive_delete', to: 'vehicles#massive_delete', as: :massive_vehicles_delete
+  post '/vehicle/massive_update', to: 'vehicles#massive_update', as: :massive_vehicles_update
   post  '/vehicle/new_plate', to: 'vehicles#new_plate', as: :vehicle_new_plate
   post  '/vehicle/new_chassis', to: 'vehicles#new_chassis', as: :vehicle_new_chassis
   post  '/vehicle/new_information', to: 'vehicles#new_information', as: :vehicle_new_information
@@ -194,6 +201,8 @@ Rails.application.routes.draw do
   post  'vehicles/changing_type', to: 'vehicles#change_type', as: :change_vehicle_type
   post  'vehicles/changing_typology', to: 'vehicles#change_typology', as: :change_vehicle_typology
   delete '/vehicle/delete_information/:id', to: 'vehicles#delete_information', as: :delete_vehicle_information
+
+  post '/external_vehicles/json_autocomplete_plate/', to: 'external_vehicles#json_autocomplete_plate', as: :external_vehicles_json_autocomplete_plate
 
   post '/vehicle_models/new', to: 'vehicle_models#new', as: :new_vehicle_model_search
   post '/vehicle_models/edit', to: 'vehicle_models#edit', as: :edit_vehicle_model_search

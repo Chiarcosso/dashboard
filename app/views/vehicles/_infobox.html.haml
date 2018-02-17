@@ -1,5 +1,5 @@
 -# %div{style: 'width: 90vh; padding: 0px'}
-.small-title="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
+.small-title="#{@vehicle.model.complete_name} (#{@vehicle.registration_model}) - #{@vehicle.plate}"
 %b= "#{@vehicle.vehicle_type.name}#{@vehicle.vehicle_category == VehicleCategory.not_available ? '' : " ("+@vehicle.vehicle_category.name+")"} (cat. #{@vehicle.vehicle_category.name}), #{@vehicle.vehicle_typology.name}"
 %br
 %br

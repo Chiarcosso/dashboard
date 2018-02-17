@@ -72,7 +72,7 @@ class Worksheet < ApplicationRecord
   end
 
   def toggle_closure
-    if self.closingDate .nil?
+    if self.closingDate.nil?
       self.update(closingDate: Date.current)
     else
       self.update(closingDate: nil)

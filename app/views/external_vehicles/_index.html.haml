@@ -1,0 +1,32 @@
+#external_vehcles
+  %h3= 'Mezzi esterni'
+  .container-fluid
+    .row
+      .col-sm-2
+        %b='Targa'
+      .col-sm-3
+        %b='Ditta'
+      .col-sm-2
+        %b='Tipo'
+      .col-sm-3
+        %b='Tipologia'
+      .col-sm-2
+    .row
+      = form_tag(:external_vehicles, method: :post, format: :js, remote: true) do |f|
+        .col-sm-2
+          = text_field_tag 'external_vehicle[plate]', '', placeholder: 'Targa', class: 'autofocus json-autocomplete form-control', data: { target: 'external_vehicles/json_autocomplete_plate', destination: '#plates-autocomplete' }
+        .col-sm-3
+          = select_tag 'external_vehicle[owner_id]', options_from_collection_for_select(Company.not_us.where(:transporter => true).order(:name), "id", "name", Company.not_us.most_used_transporter.first), class: 'form-control'
+        .col-sm-2
+          = select_tag 'external_vehicle[vehicle_type_id]', options_from_collection_for_select(VehicleType.order(:name), "id", "name", VehicleType.most_used.first.id), id: 'vehicle_type_id', class: 'changing-select form-control', data: {target: change_vehicle_type_path, data: {vehicle_type_id: nil, vehicle_typology_id: VehicleTypology.most_used.first.id}}
+        .col-sm-3
+          = select_tag 'external_vehicle[vehicle_typology_id]', options_from_collection_for_select(VehicleTypology.order(:name), "id", "name", VehicleTypology.most_used.first.id), id: 'vehicle_typology_id', class: 'form-control'
+        .col-sm-2
+          = submit_tag 'Crea', class: 'form-control'
+    .row
+      .col-sm-12#json-autocomplete-destination
+
+
+:javascript
+
+    autofocus_ready_func();

@@ -1,6 +1,6 @@
 class AdminController < ApplicationController
   require 'roo'
-  # require 'tiny_tds'
+  require 'tiny_tds'
 
   before_action :authenticate_user!
   before_action :authorize_admin
@@ -8,11 +8,28 @@ class AdminController < ApplicationController
   require "#{Rails.root}/app/models/mdc_webservice"
   include AdminHelper
 
+  def upsync_other_vehicles
+    res = MssqlReference::upsync_other_vehicles(params[:update]=='update')
+    render :json => { html: res[:response], element: '#block-altri_mezzi-pre'}
+  end
+
+  def upsync_vehicles
+    res = MssqlReference::upsync_vehicles(params[:update]=='update')
+    render :json => { html: res[:response], element: '#block-veicoli-pre'}
+  end
+
+  def upsync_trailers
+    res = MssqlReference::upsync_trailers(params[:update]=='update')
+    render :json => { html: res[:response], element: '#block-rimorchi1-pre'}
+  end
+
   def import_vehicles
-    client = TinyTds::Client.new username: 'chiarcosso', password: 'chiarcosso2011!', host: '10.0.0.101', port: 1433, database: 'chiarcosso'
-    @results = client.execute("select idveicolo, targa, marca, modello from veicoli "\
-                "where marca is not null and marca <> '' and modello is not null and modello <> ''")
-    render 'admin/get_vehicles'
+    # query_vehicles
+    # @results += vehicles.map { |v| {vehicle: v, data: [], color: '#999', route: :delete}}
+    @delete_vehicles = []
+    @no_delete_vehicles = Vehicle.not_free_to_delete
+
+    render 'admin/import_vehicles'
   end
 
   def import_vehicles2
@@ -368,6 +385,7 @@ class AdminController < ApplicationController
   end
 
   private
+
 
   def query_params
     params.require(:model_class)

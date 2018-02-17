@@ -18,6 +18,11 @@ class VehicleTypology < ApplicationRecord
   has_many :vehicle_model_typologies, dependent: :destroy
   has_many :vehicle_models, through: :vehicle_model_typologies
 
+  scope :most_used, -> { where("id in "\
+    "(select a.vehicle_typology_id from "\
+      "(select vehicle_typology_id, count(vehicles.id) as count "\
+        "from vehicles group by vehicle_typology_id order by count(vehicles.id) desc) as a )") }
+
   def self.not_available
     VehicleTypology.where(:name => 'N/D').first
   end

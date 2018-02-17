@@ -135,6 +135,55 @@ function complete_popup_link_func(data){
    deactivateLoadingScreen();
  }
 
+ function complete_ajax_link_func(data){
+   params = JSON.parse(data.responseText);
+   console.log(data.responseText);
+   $(params.element).html(params.html);
+   deactivateLoadingScreen();
+ }
+
+ function ajax_link_click_func(e){
+   if((typeof $(this).data('confirmation')) != 'undefined'){
+     if(!confirm($(this).data('confirmation'))){
+       return null;
+     }
+   }
+   activateLoadingScreen();
+   e.preventDefault();
+
+   var target = $(this).data('target');
+   // var method = $(this).parents('form').first().children('input[name=_method]').val();
+   var method = $(this).data('method');
+   var data = $(this).data('data');
+   $.ajax({
+       type: method,
+       url: target,
+       data: data,
+       complete: complete_ajax_link_func
+     });
+ }
+
+function complete_json_autocomplete_keyup_func(data){
+  data = JSON.parse(data.responseText);
+  $('#json-autocomplete-destination').html('');
+  for( i = 0 ; i < data.length; i++){
+    row = '<div class="row colored"></div>';
+    $('#json-autocomplete-destination').append($(row));
+    for( j = 0; j < data[i].length; j++){
+      $(row).append($('<div class="col-sm-'+data[i][j].width+'">'+data[i][j].value+'</div>'));
+    }
+  }
+}
+
+function json_autocomplete_keyup_func(){
+  $($(this).data('destination')).attr('id','#json-autocomplete-destination');
+  $.ajax({
+    url: $(this).data('target'),
+    method: 'post',
+    data: {search: $(this).val()},
+    complete: complete_json_autocomplete_keyup_func
+  });
+}
 
 function activateJS(){
 
@@ -155,6 +204,10 @@ function activateJS(){
   $('body').on('click', '.close', close_click_func);
 
   $('body').on('click', '.popup-link', popup_link_func);
+
+  $('body').on('click', '.ajax-link', ajax_link_click_func);
+
+  $('body').on('keyup', '.json-autocomplete', json_autocomplete_keyup_func);
 }
 
 function activateErrors(){
@@ -687,22 +740,7 @@ function domInit() {
 
   activateAutoComplete();
 
-  $('.ajax-link').off('click');
-  $('.ajax-link').on('click',function(e){
-    activateLoadingScreen();
-    e.preventDefault();
-    var target = $(this).data('target');
-    var method = $(this).parents('form').first().children('input[name=_method]').val();
-    var data = $(this).data('data');
-    alert(method);
-    $.ajax({
-        type: method,
-        url: target,
-        complete: function(data){
-          console.log(data);
-        }
-      });
-  });
+
 
   $('.ajax-link-select').off('change');
   $('.ajax-link-select').on('change',function(e){

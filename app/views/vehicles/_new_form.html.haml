@@ -31,6 +31,10 @@
             = render :partial => 'vehicles/vehicle_models'
         .row.no-margins
           .col-sm-12
+            %b= 'Modello da libretto'
+            = text_field_tag 'vehicle[registration_model]', nil, class: 'form-control'
+        .row.no-margins
+          .col-sm-12
             %b= 'Chilometraggio'
             = number_field_tag 'vehicle[mileage]', nil, class: 'form-control'
         .row.no-margins

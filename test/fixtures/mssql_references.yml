@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  local_object: one
+  local_object_type: Local object
+  remote_object_id: 1
+  remote_table: MyString
+
+two:
+  local_object: two
+  local_object_type: Local object
+  remote_object_id: 1
+  remote_table: MyString

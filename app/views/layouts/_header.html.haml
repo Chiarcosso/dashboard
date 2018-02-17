@@ -1,5 +1,8 @@
 = navbar fixed: :top do
-  = navbar_header brand: 'Chiarcosso Dashboard', brand_link: '/', align: 'left'
+  -unless current_user.nil?
+    -unless current_user.has_role?(:admin)
+      = navbar_header brand: 'Chiarcosso Dashboard', brand_link: '/', align: 'left'
+  -# %h3= 'Chiarcosso Dashboard'
   = navbar_collapse do
     = navbar_group class: 'foo', id: 'menu' do
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:personale) || current_user.has_role?('amministratore utenti') || current_user.has_role?(:lavaggio) || current_user.has_role?(:traffico))
@@ -15,6 +18,10 @@
           - if (current_user.has_role?(:traffico) || current_user.has_role?(:admin))
             = navbar_item "Codici MDC", mdc_codes_path
           -# = navbar_item "Dotazione", equipment_home_path
+      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:traffico))
+        = navbar_dropdown "Traffico" do
+          = navbar_item "Assegnazione mezzi", vehicles_assignation_path
+          = navbar_item "Mezzi agenzie", external_vehicles_path
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?(:lavaggio))
         = navbar_dropdown "Officina" do
           - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin))

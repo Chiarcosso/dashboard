@@ -1,4 +1,5 @@
 class VehiclesController < ApplicationController
+  include AdminHelper
   before_action :set_vehicle#, only: [:show, :edit, :update, :destroy, :vehicle_information_type_autocomplete, :get_info, :get_workshop_info, :new_information, :create_information]
   before_action :set_vehicle_information, only: [:delete_information]
   before_action :search_params
@@ -251,8 +252,23 @@ class VehiclesController < ApplicationController
     end
   end
 
-  # DELETE /vehicles/1
-  # DELETE /vehicles/1.json
+  def massive_update
+    byebug
+    begin
+      @view = 'altri_mezzi'
+    rescue Exception => e
+      @error = e.message
+    end
+    query_vehicles
+    respond_to do |format|
+      if @error.nil?
+        format.js { render :partial => 'admin/import_vehicles_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
   def destroy
     begin
       @vehicle.destroy
@@ -263,6 +279,24 @@ class VehiclesController < ApplicationController
     respond_to do |format|
       if @error.nil?
         format.js { render :partial => 'vehicles/list_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def massive_delete
+    begin
+      params.require(:vehicles_list).each do |v|
+        Vehicle.find(v.to_i).destroy
+      end
+    rescue Exception => e
+      @error = e.message
+    end
+    query_vehicles
+    respond_to do |format|
+      if @error.nil?
+        format.js { render :partial => 'admin/import_vehicles_js' }
       else
         format.js { render :partial => 'layouts/error' }
       end
@@ -307,7 +341,7 @@ class VehiclesController < ApplicationController
       # @serial = params.require(:initial_serial).permit(:info)[:info]
 
       begin
-        p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :vehicle_type_id, :vehicle_typology_id, :property, :notes, :carwash_code, :search, :equipment, :mileage)
+        p = params.require(:vehicle).permit(:dismissed, :registration_date, :serie, :model, :registration_model, :vehicle_type_id, :vehicle_typology_id, :property, :notes, :carwash_code, :search, :equipment, :mileage, :property_id)
 
         # @informations = params.require(:informations).permit!
         unless params[:equipment].nil?
