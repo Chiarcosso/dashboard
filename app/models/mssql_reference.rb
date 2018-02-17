@@ -595,6 +595,6 @@ class MssqlReference < ApplicationRecord
   end
 
   def self.get_client
-    TinyTds::Client.new username: ENV['RAILS_SQL_USER'], password: ENV['RAILS_SQL_PASS'], host: ENV['RAILS_SQL_HOST'], port: ENV['RAILS_SQL_PORT'], database: ENV['RAILS_SQL_DB']
+    TinyTds::Client.new username: ENV['RAILS_MSSQL_USER'], password: ENV['RAILS_MSSQL_PASS'], host: ENV['RAILS_MSSQL_HOST'], port: ENV['RAILS_MSSQL_PORT'], database: ENV['RAILS_MSSQL_DB']
   end
 end
