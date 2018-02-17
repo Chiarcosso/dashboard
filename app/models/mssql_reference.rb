@@ -424,13 +424,13 @@ class MssqlReference < ApplicationRecord
                   "left join Tipo on Tipo.IDTipo = [Altri mezzi].id_tipo "\
                   "left join [Tipologia rimorchio/semirimorchio] tipologia on [Altri mezzi].id_tipologia = tipologia.ID "\
                   "where marca is not null and marca != '' and tipo is not null and tipo != '' "\
-                  "and ditta is not null and ditta != '' and marca != 'Targa' and targa is not null and targa != '' "\
+                  "and ditta is not null and ditta != '' and marca != 'Targa' and modello is not null and modello != '' and targa is not null and targa != '' "\
                   "order by targa"
       list = client.execute(query)
 
       special_logger.info("#{list.count} records found")
       special_logger.info(query)
-      response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - Trovati #{list.count} record nella tabella Rimorchi1, dove targa, marca, tipo e ditta sono compilati.\n"
+      response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - Trovati #{list.count} record nella tabella Altri mezzi, dove targa, marca, modello, tipo e ditta sono compilati.\n"
       list.each do |r|
         @error = nil
         vehicle_equipments = Array.new
