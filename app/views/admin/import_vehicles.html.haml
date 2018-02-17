@@ -5,7 +5,7 @@
       .col-sm-12
         = "Mezzi con ordini di magazzino"
     .row{style: "background-color: #999"}
-      .col-sm-12
+      .col-sm-12.scrollable-panel
         = @no_delete_vehicles.map { |v| v.plate }.join(', ')
     .row
       .col-sm-12

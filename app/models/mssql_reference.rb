@@ -29,6 +29,8 @@ class MssqlReference < ApplicationRecord
       te = Company.transest
       motivo_fuori_parco = VehicleInformationType.find_by(name: 'Motivo fuori parco')
       motivo_fuori_parco = VehicleInformationType.create(name: 'Motivo fuori parco') if motivo_fuori_parco.nil?
+      posti_a_sedere = VehicleInformationType.find_by(name: 'Posti a sedere')
+      posti_a_sedere = VehicleInformationType.create(name: 'Posti a sedere') if posti_a_sedere.nil?
       @vehicles = Array.new
       @errors = Array.new
       query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
@@ -154,6 +156,7 @@ class MssqlReference < ApplicationRecord
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Attrezzatura: #{vehicle_equipments.pluck(:name).join(', ')}.\n"
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
               end
+
               v.mssql_references << MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
             elsif v.check_properties(r)
 
@@ -410,15 +413,16 @@ class MssqlReference < ApplicationRecord
       motivo_fuori_parco = VehicleInformationType.create(name: 'Motivo fuori parco') if motivo_fuori_parco.nil?
       @vehicles = Array.new
       @errors = Array.new
-      query = "select 'Altri mezzi' as table_name, cod as id, targa as plate, telaio as chassis, "\
-                  "id_tipo as type, ditta as property, numero_posti as seat_number, "\
+      query = "select 'Altri mezzi' as table_name, convert(int,cod) as id, targa as plate, telaio as chassis, "\
+                  "tipo.tipodiveicolo as type, ditta as property, numero_posti as seat_number, "\
                   "marca as manufacturer, modello as model, modello as registration_model, "\
                   "codice_lavaggio as carwash_code, circola as notdismissed, "\
                   "tipologia.[tipologia semirimorchio] as typology, Km as mileage, "\
                   "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, "\
                   "categoria as category, motivo_fuori_parco "\
-                  "from veicoli "\
-                  "left join [Tipologia rimorchio/semirimorchio] tipologia on rimorchi1.[Tipologia Rimorchio/Semirimorchio] = tipologia.ID "\
+                  "from [Altri mezzi] "\
+                  "left join Tipo on Tipo.IDTipo = [Altri mezzi].id_tipo "\
+                  "left join [Tipologia rimorchio/semirimorchio] tipologia on [Altri mezzi].id_tipologia = tipologia.ID "\
                   "where marca is not null and marca != '' and tipo is not null and tipo != '' "\
                   "and ditta is not null and ditta != '' and marca != 'Targa' and targa is not null and targa != '' "\
                   "order by targa"
@@ -438,6 +442,7 @@ class MssqlReference < ApplicationRecord
         end
         property = atc if r['property'] == 'A'
         property = te if r['property'] == 'T'
+        property = ec if r['property'] == 'E'
         if property.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
           response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}\n"
