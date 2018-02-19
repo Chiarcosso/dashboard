@@ -55,26 +55,26 @@ class MssqlReference < ApplicationRecord
         vehicle_type = VehicleType.find_by(:name => r['type'])
         if vehicle_type.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle type: #{r['type']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipo non valido: #{r['type']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipo non valido: #{r['type']}</span>\n"
           special_logger.error(@error)
         end
         property = atc if r['property'] == 'A'
         property = te if r['property'] == 'T'
         if property.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}</span>\n"
           special_logger.error(@error)
         end
         manufacturer = Company.find_by(:name => r['manufacturer'])
         if manufacturer.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}</span>\n"
           special_logger.error(@error)
         end
         model = VehicleModel.where(:name => r['model'], :manufacturer => manufacturer).first
         if model.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}</span>\n"
           special_logger.error(@error)
         end
         registration_model = r['registration_model']
@@ -94,7 +94,7 @@ class MssqlReference < ApplicationRecord
           end
           if vehicle_typology.nil?
             @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
-            response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}\n"
+            response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
             special_logger.error(@error)
           end
         end
@@ -103,8 +103,8 @@ class MssqlReference < ApplicationRecord
           registration_date = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
         rescue
           @error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}\n"
-          # special_logger.error(@error)
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}</span>\n"
+          special_logger.error(@error)
         end
         if r['category'] == '' or r['category'] == 'NULL' or r['category'].nil?
           vehicle_category = VehicleCategory.not_available
@@ -112,7 +112,7 @@ class MssqlReference < ApplicationRecord
           vehicle_category = VehicleCategory.find_by(:name => r['category'])
           if vehicle_category.nil?
             @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle category: #{r['category']}"
-            response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Categoria non valida: #{r['category']}\n"
+            response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Categoria non valida: #{r['category']}</span>\n"
             special_logger.error(@error)
           end
         end
@@ -123,7 +123,7 @@ class MssqlReference < ApplicationRecord
         end
         if r['plate'].nil?
           @error = " #{r['plate']} (#{r['id']}) - Blank plate"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
           special_logger.error(@error)
         else
           v = Vehicle.find_by_plate(r['plate'].tr('. *',''))
@@ -200,13 +200,13 @@ class MssqlReference < ApplicationRecord
           end
         rescue Exception => e
           special_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
 
         end
       end
     rescue Exception => e
       special_logger.error("#{e.message}\n#{e.backtrace}")
-      response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}\n"
+      response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
 
     end
 
@@ -250,26 +250,26 @@ class MssqlReference < ApplicationRecord
         vehicle_type = VehicleType.find_by(:name => r['type'])
         if vehicle_type.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle type: #{r['type']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipo non valido: #{r['type']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipo non valido: #{r['type']}</span>\n"
           special_logger.error(@error)
         end
         property = atc if r['property'] == 'A'
         property = te if r['property'] == 'T'
         if property.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}</span>\n"
           special_logger.error(@error)
         end
         manufacturer = Company.find_by(:name => r['manufacturer'])
         if manufacturer.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}</span>\n"
           special_logger.error(@error)
         end
         model = VehicleModel.where(:name => r['model'], :manufacturer => manufacturer).first
         if model.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}</span>\n"
           special_logger.error(@error)
         end
         registration_model = r['registration_model']
@@ -289,7 +289,7 @@ class MssqlReference < ApplicationRecord
           end
           if vehicle_typology.nil?
             @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
-            response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}\n"
+            response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
             special_logger.error(@error)
           end
         end
@@ -298,8 +298,8 @@ class MssqlReference < ApplicationRecord
           registration_date = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
         rescue
           @error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}\n"
-          # special_logger.error(@error)
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}</span>\n"
+          special_logger.error(@error)
         end
         if r['category'] == '' or r['category'] == 'NULL' or r['category'].nil?
           vehicle_category = VehicleCategory.not_available
@@ -307,7 +307,7 @@ class MssqlReference < ApplicationRecord
           vehicle_category = VehicleCategory.find_by(:name => r['category'])
           if vehicle_category.nil?
             @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle category: #{r['category']}"
-            response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Categoria non valida: #{r['category']}\n"
+            response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Categoria non valida: #{r['category']}</span>\n"
             special_logger.error(@error)
           end
         end
@@ -318,7 +318,7 @@ class MssqlReference < ApplicationRecord
         end
         if r['plate'].nil?
           @error = " #{r['plate']} (#{r['id']}) - Blank plate"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
           special_logger.error(@error)
         else
           v = Vehicle.find_by_plate(r['plate'].tr('. *',''))
@@ -415,13 +415,13 @@ class MssqlReference < ApplicationRecord
           end
         rescue Exception => e
           special_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}\n</span>"
 
         end
       end
     rescue Exception => e
       special_logger.error("#{e.message}\n#{e.backtrace}")
-      response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}\n"
+      response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
 
     end
 
@@ -468,7 +468,7 @@ class MssqlReference < ApplicationRecord
         vehicle_type = VehicleType.find_by(:name => r['type'])
         if vehicle_type.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle type: #{r['type']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipo non valido: #{r['type']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipo non valido: #{r['type']}</span>\n"
           special_logger.error(@error)
         end
         property = atc if r['property'] == 'A'
@@ -476,13 +476,13 @@ class MssqlReference < ApplicationRecord
         property = ec if r['property'] == 'E'
         if property.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}</span>\n"
           special_logger.error(@error)
         end
         manufacturer = Company.find_by(:name => r['manufacturer'])
         if manufacturer.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}</span>\n"
           special_logger.error(@error)
         end
         serie = nil
@@ -494,7 +494,7 @@ class MssqlReference < ApplicationRecord
         model = VehicleModel.where(:name => r['model'], :manufacturer => manufacturer).first
         if model.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}</span>\n"
           special_logger.error(@error)
         end
         registration_model = r['registration_model']
@@ -514,7 +514,7 @@ class MssqlReference < ApplicationRecord
           end
           if vehicle_typology.nil?
             @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
-            response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}\n"
+            response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
             special_logger.error(@error)
           end
         end
@@ -523,8 +523,8 @@ class MssqlReference < ApplicationRecord
           registration_date = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
         rescue
           @error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}\n"
-          # special_logger.error(@error)
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}</span>\n"
+          special_logger.error(@error)
         end
         if r['category'] == '' or r['category'] == 'NULL' or r['category'].nil?
           vehicle_category = VehicleCategory.not_available
@@ -532,7 +532,7 @@ class MssqlReference < ApplicationRecord
           vehicle_category = VehicleCategory.find_by(:name => r['category'])
           if vehicle_category.nil?
             @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle category: #{r['category']}"
-            response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Categoria non valida: #{r['category']}\n"
+            response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Categoria non valida: #{r['category']}</span>\n"
             special_logger.error(@error)
           end
         end
@@ -543,7 +543,7 @@ class MssqlReference < ApplicationRecord
         end
         if r['plate'].nil?
           @error = " #{r['plate']} (#{r['id']}) - Blank plate"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
           special_logger.error(@error)
         else
           v = Vehicle.find_by_plate(r['plate'].tr('. *',''))
@@ -664,13 +664,13 @@ class MssqlReference < ApplicationRecord
           end
         rescue Exception => e
           special_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}\n"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
 
         end
       end
     rescue Exception => e
       special_logger.error("#{e.message}\n#{e.backtrace}")
-      response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}\n"
+      response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
 
     end
 

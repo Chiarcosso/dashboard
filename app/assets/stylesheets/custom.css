@@ -92,6 +92,11 @@ body{
   border: 1px solid #d77;
 }
 
+.error-line{
+  font-weight: bolder;
+  color: #f00;
+}
+
 .floating-block{
   float: left;
   margin: .5em;
