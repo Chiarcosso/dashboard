@@ -38,6 +38,7 @@ class Vehicle < ApplicationRecord
   scope :with_worksheets, -> { where("id in (select vehicle_id from worksheets)") }
   scope :free_to_delete, -> { where("id not in (select vehicle_id from worksheets) and id not in (select destination_id from output_orders where destination_type = 'Vehicle')")}
   scope :not_free_to_delete, -> { where("id in (select vehicle_id from worksheets) or id in (select destination_id from output_orders where destination_type = 'Vehicle')")}
+  scope :no_reference, -> { where("id not in (select local_object_id from mssql_references where local_object_type = 'Vehicle')")}
   # scope :filter, ->(search) { joins(:vehicle_informations).joins(:model).joins('left join vehicle_types on vehicle_types.id = vehicles.vehicle_type_id').joins('left join vehicle_typologies on vehicle_typologies.id = vehicles.vehicle_typology_id').joins('inner join companies on vehicle_models.manufacturer_id = companies.id').joins('inner join companies prop on vehicles.property_id = prop.id').where("vehicle_informations.information LIKE '%#{search.tr(' ','%').tr('*','%')}%' or vehicle_models.name LIKE '%#{search.tr(' ','%').tr('*','%')}%' or companies.name LIKE '%#{search.tr(' ','%').tr('*','%')}%' or prop.name LIKE '%#{search.tr(' ','%').tr('*','%')}%' or vehicle_types.name LIKE '%#{search.tr(' ','%').tr('*','%')}%' or vehicle_typologies.name LIKE '%#{search.tr(' ','%').tr('*','%')}%'").distinct }
   scope :filter, ->(search) { joins("left join vehicle_informations on vehicle_informations.vehicle_id = vehicles.id").where("vehicle_type_id in (select id from vehicle_types where name like '%#{search.tr(' ','%').tr('*','%')}%') or vehicle_typology_id in (select id from vehicle_typologies where name like '%#{search.tr(' ','%').tr('*','%')}%')"\
                 " or property_id in (select id from companies where name like '%#{search.tr(' ','%').tr('*','%')}%') or model_id in (select id from vehicle_models where name like '%#{search.tr(' ','%').tr('*','%')}%' or manufacturer_id in (select id from companies where name like '%#{search.tr(' ','%').tr('*','%')}%'))"\
@@ -56,7 +57,7 @@ class Vehicle < ApplicationRecord
   end
 
   def has_reference?(table,id)
-    !MssqlReference.identify(self,table,id).nil?
+    !MssqlReference.where(local_object:self,remote_object_id:table,remote_object_id:id).empty?
   end
 
   def check_properties(comp)

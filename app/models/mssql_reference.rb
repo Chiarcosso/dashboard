@@ -74,7 +74,7 @@ class MssqlReference < ApplicationRecord
         model = VehicleModel.where(:name => r['model'], :manufacturer => manufacturer).first
         if model.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['model']}\n"
+          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}\n"
           special_logger.error(@error)
         end
         registration_model = r['registration_model']
@@ -157,25 +157,29 @@ class MssqlReference < ApplicationRecord
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
               end
 
-              v.mssql_references << MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
+              mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+              special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
+
             elsif v.check_properties(r)
 
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - A posto (id: #{v.id}).\n"
-              unless v.has_reference?('Veicoli',r['id']) or !update
-                ref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i)
-                v.mssql_references << ref
-                special_logger.info("reference added: 'Veicoli', #{r['id']} (#{ref.id}).")
-                response += "Aggiunto riferimento: 'Veicoli', #{r['id']} (#{ref.id}).\n"
+              unless v.has_reference?('Veicoli',r['id'])
+                mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
               end
             else
               v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
-              special_logger.info("vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
-              response += "tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
+              special_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, property: #{v.property.name}, model: #{v.model.complete_name}, registration_model: #{v.registration_model}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.vehicle_typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.vehicle_category.name}, carwash_code: #{v.carwash_code}.")
+              response += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.property.name}, modello: #{v.model.complete_name}, modello libretto: #{v.registration_model}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.vehicle_typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.vehicle_category.name}, codice_lavaggio: #{v.carwash_code}.\n"
+              special_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
+              response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 
-              if v.find_information(chassis).nil? and update
-                VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *','').upcase, date: registration_date)
+              if v.find_information(chassis).nil?
+                VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *','').upcase, date: registration_date) if update
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
               end
@@ -187,10 +191,10 @@ class MssqlReference < ApplicationRecord
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Attrezzatura: #{vehicle_equipments.pluck(:name).join(', ')}.\n"
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
               end
-              unless v.has_reference?('Veicoli',r['id']) or !update
-                ref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i)
-                special_logger.info("reference added: 'Veicoli', #{r['id']} (#{ref.id}).")
-                response += "Aggiunto riferimento: 'Veicoli', #{r['id']} (#{ref.id}).\n"
+              unless v.has_reference?('Veicoli',r['id'])
+                mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
               end
             end
           end
@@ -265,7 +269,7 @@ class MssqlReference < ApplicationRecord
         model = VehicleModel.where(:name => r['model'], :manufacturer => manufacturer).first
         if model.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['model']}\n"
+          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}\n"
           special_logger.error(@error)
         end
         registration_model = r['registration_model']
@@ -347,25 +351,43 @@ class MssqlReference < ApplicationRecord
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Attrezzatura: #{vehicle_equipments.pluck(:name).join(', ')}.\n"
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
               end
-              v.mssql_references << MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
+              if v.find_information(motivo_fuori_parco).nil?
+                unless r['motivo_fuori_parco'].nil? or r['motivo_fuori_parco'] == ''
+                  VehicleInformation.create(vehicle: v, vehicle_information_type: motivo_fuori_parco, information: r['motivo_fuori_parco'], date: registration_date) unless r['posti_a_sedere'].to_s == '' if update
+                  special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Dismission cause added -> #{r['motivo_fuori_parco']} (id: #{v.id}).")
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
+                end
+              end
+              mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Rimorchi1', remote_object_id: r['id'].to_i) if update
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+              special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
+
             elsif v.check_properties(r)
 
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - A posto (id: #{v.id}).\n"
-              unless v.has_reference?('Veicoli',r['id']) or !update
-                ref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i)
-                v.mssql_references << ref
-                special_logger.info("reference added: 'Veicoli', #{r['id']} (#{ref.id}).")
-                response += "Aggiunto riferimento: 'Veicoli', #{r['id']} (#{ref.id}).\n"
+              if v.find_information(motivo_fuori_parco).nil?
+                unless r['motivo_fuori_parco'].nil? or r['motivo_fuori_parco'] == ''
+                  VehicleInformation.create(vehicle: v, vehicle_information_type: motivo_fuori_parco, information: r['motivo_fuori_parco'], date: registration_date) unless r['posti_a_sedere'].to_s == '' if update
+                  special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Dismission cause added -> #{r['motivo_fuori_parco']} (id: #{v.id}).")
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
+                end
+              end
+              unless v.has_reference?('Rimorchi1',r['id'])
+                mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Rimorchi1', remote_object_id: r['id'].to_i) if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
               end
             else
               v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
-              special_logger.info("vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
-              response += "tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
+              special_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, property: #{v.property.name}, model: #{v.model.complete_name}, registration_model: #{v.registration_model}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.vehicle_typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.vehicle_category.name}, carwash_code: #{v.carwash_code}.")
+              response += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.property.name}, modello: #{v.model.complete_name}, modello libretto: #{v.registration_model}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.vehicle_typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.vehicle_category.name}, codice_lavaggio: #{v.carwash_code}.\n"
+              special_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
+              response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 
-              if v.find_information(chassis).nil? and update
-                VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *','').upcase, date: registration_date)
+              if v.find_information(chassis).nil?
+                VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *','').upcase, date: registration_date) if update
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
               end
@@ -377,10 +399,17 @@ class MssqlReference < ApplicationRecord
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Attrezzatura: #{vehicle_equipments.pluck(:name).join(', ')}.\n"
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
               end
-              unless v.has_reference?('Veicoli',r['id']) or !update
-                ref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i)
-                special_logger.info("reference added: 'Veicoli', #{r['id']} (#{ref.id}).")
-                response += "Aggiunto riferimento: 'Veicoli', #{r['id']} (#{ref.id}).\n"
+              if v.find_information(motivo_fuori_parco).nil?
+                unless r['motivo_fuori_parco'].nil? or r['motivo_fuori_parco'] == ''
+                  VehicleInformation.create(vehicle: v, vehicle_information_type: motivo_fuori_parco, information: r['motivo_fuori_parco'], date: registration_date) unless r['posti_a_sedere'].to_s == '' if update
+                  special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Dismission cause added -> #{r['motivo_fuori_parco']} (id: #{v.id}).")
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
+                end
+              end
+              unless v.has_reference?('Rimorchi1',r['id'])
+                mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Rimorchi1', remote_object_id: r['id'].to_i) if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
               end
             end
           end
@@ -411,10 +440,12 @@ class MssqlReference < ApplicationRecord
       ec = Company.edilizia
       motivo_fuori_parco = VehicleInformationType.find_by(name: 'Motivo fuori parco')
       motivo_fuori_parco = VehicleInformationType.create(name: 'Motivo fuori parco') if motivo_fuori_parco.nil?
+      posti_a_sedere = VehicleInformationType.find_by(name: 'Posti a sedere')
+      posti_a_sedere = VehicleInformationType.find_by(name: 'Posti a sedere') if posti_a_sedere.nil?
       @vehicles = Array.new
       @errors = Array.new
       query = "select 'Altri mezzi' as table_name, convert(int,cod) as id, targa as plate, telaio as chassis, "\
-                  "tipo.tipodiveicolo as type, ditta as property, numero_posti as seat_number, "\
+                  "tipo.tipodiveicolo as type, ditta as property, numero_posti as posti_a_sedere, "\
                   "marca as manufacturer, modello as model, modello as registration_model, "\
                   "codice_lavaggio as carwash_code, circola as notdismissed, "\
                   "tipologia.[tipologia semirimorchio] as typology, Km as mileage, "\
@@ -454,10 +485,16 @@ class MssqlReference < ApplicationRecord
           response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}\n"
           special_logger.error(@error)
         end
+        serie = nil
+        if r['model'] =~ /\d serie$/
+          serie = r['model'][/(\d) serie$/,1].to_i
+          r['model'] = r['model'][/^(.*) \d serie$/,1]
+        end
+
         model = VehicleModel.where(:name => r['model'], :manufacturer => manufacturer).first
         if model.nil?
           @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
-          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['model']}\n"
+          response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}\n"
           special_logger.error(@error)
         end
         registration_model = r['registration_model']
@@ -513,9 +550,9 @@ class MssqlReference < ApplicationRecord
         end
         begin
           if @error.nil?
-            if v.nil?
+            if v.nil? #Vehicle does not exist
               if update
-                v = Vehicle.create(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code)
+                v = Vehicle.create(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], serie: serie, dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code)
               else
                 v = Vehicle.new
                 v.id = 0
@@ -523,14 +560,29 @@ class MssqlReference < ApplicationRecord
 
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Created (id: #{v.id}).")
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Creato (id: #{v.id}).\n"
-              special_logger.info("vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}.")
-              response += "tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}.\n"
+              special_logger.info("vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, serie: #{serie}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}.")
+              response += "tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, serie: #{serie}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}.\n"
 
               VehicleInformation.create(vehicle: v, vehicle_information_type: plate, information: r['plate'].tr('. *','').upcase, date: registration_date) if update
 
-              VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *','').upcase, date: registration_date) unless r['chassis'].to_s == '' if update
-              special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
-              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
+
+              unless r['chassis'].nil? or r['chassis'] == ''
+                VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *','').upcase, date: registration_date) unless r['chassis'].to_s == '' if update
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
+              end
+              unless r['posti_a_sedere'].nil? or r['posti_a_sedere'] == ''
+                VehicleInformation.create(vehicle: v, vehicle_information_type: posti_a_sedere, information: r['posti_a_sedere'], date: registration_date) unless r['posti_a_sedere'].to_s == '' if update
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Seat number added -> #{r['posti_a_sedere']} (id: #{v.id}).")
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto nr. posti a sedere -> #{r['posti_a_sedere']} (id: #{v.id}).\n"
+              end
+              unless r['motivo_fuori_parco'].nil? or r['motivo_fuori_parco'] == ''
+                VehicleInformation.create(vehicle: v, vehicle_information_type: motivo_fuori_parco, information: r['motivo_fuori_parco'], date: registration_date) unless r['posti_a_sedere'].to_s == '' if update
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Dismission cause added -> #{r['motivo_fuori_parco']} (id: #{v.id}).")
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
+              end
+
+
 
               vehicle_equipments.each do |e|
                 v.vehicle_equipments << e if update
@@ -539,25 +591,45 @@ class MssqlReference < ApplicationRecord
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Attrezzatura: #{vehicle_equipments.pluck(:name).join(', ')}.\n"
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
               end
-              v.mssql_references << MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
-            elsif v.check_properties(r)
+
+              mssqlref = MssqlReference.create(local_object: v, remote_object_table: '[Altri mezzi]', remote_object_id: r['id'].to_i) if update
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+              special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
+
+            elsif v.check_properties(r)  #Vehicle exists and has the same properties as the importing one
 
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - A posto (id: #{v.id}).\n"
-              unless v.has_reference?('Veicoli',r['id']) or !update
-                ref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i)
-                v.mssql_references << ref
-                special_logger.info("reference added: 'Veicoli', #{r['id']} (#{ref.id}).")
-                response += "Aggiunto riferimento: 'Veicoli', #{r['id']} (#{ref.id}).\n"
+              unless v.has_reference?('[Altri mezzi]',r['id'])
+                mssqlref = MssqlReference.create(local_object: v, remote_object_table: '[Altri mezzi]', remote_object_id: r['id'].to_i) if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
               end
-            else
-              v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
+              if v.find_information(posti_a_sedere).nil?
+                unless r['posti_a_sedere'].nil? or r['posti_a_sedere'] == ''
+                  VehicleInformation.create(vehicle: v, vehicle_information_type: posti_a_sedere, information: r['posti_a_sedere'], date: registration_date) unless r['posti_a_sedere'].to_s == '' if update
+                  special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Seat number added -> #{r['posti_a_sedere']} (id: #{v.id}).")
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto nr. posti a sedere -> #{r['posti_a_sedere']} (id: #{v.id}).\n"
+                end
+              end
+              if v.find_information(motivo_fuori_parco).nil?
+                unless r['motivo_fuori_parco'].nil? or r['motivo_fuori_parco'] == ''
+                  VehicleInformation.create(vehicle: v, vehicle_information_type: motivo_fuori_parco, information: r['motivo_fuori_parco'], date: registration_date) unless r['posti_a_sedere'].to_s == '' if update
+                  special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Dismission cause added -> #{r['motivo_fuori_parco']} (id: #{v.id}).")
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
+                end
+              end
+            else #Vehicle exists but has not the same properties as the importing one
+
+              v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], serie: serie, dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
-              special_logger.info("vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
-              response += "tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
+              special_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, property: #{v.property.name}, model: #{v.model.complete_name}, registration_model: #{v.registration_model}, serie: #{serie}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.vehicle_typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.vehicle_category.name}, carwash_code: #{v.carwash_code}.")
+              response += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.property.name}, modello: #{v.model.complete_name}, modello libretto: #{v.registration_model}, serie: #{serie}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.vehicle_typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.vehicle_category.name}, codice_lavaggio: #{v.carwash_code}.\n"
+              special_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, serie: #{serie}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
+              response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, serie: #{serie}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 
-              if v.find_information(chassis).nil? and update
-                VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *','').upcase, date: registration_date)
+              if v.find_information(chassis).nil?
+                VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *','').upcase, date: registration_date) if update
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
               end
@@ -569,10 +641,24 @@ class MssqlReference < ApplicationRecord
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Attrezzatura: #{vehicle_equipments.pluck(:name).join(', ')}.\n"
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
               end
-              unless v.has_reference?('Veicoli',r['id']) or !update
-                ref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i)
-                special_logger.info("reference added: 'Veicoli', #{r['id']} (#{ref.id}).")
-                response += "Aggiunto riferimento: 'Veicoli', #{r['id']} (#{ref.id}).\n"
+              if v.find_information(posti_a_sedere).nil?
+                unless r['posti_a_sedere'].nil? or r['posti_a_sedere'] == ''
+                  VehicleInformation.create(vehicle: v, vehicle_information_type: posti_a_sedere, information: r['posti_a_sedere'], date: registration_date) unless r['posti_a_sedere'].to_s == '' if update
+                  special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Seat number added -> #{r['posti_a_sedere']} (id: #{v.id}).")
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto nr. posti a sedere -> #{r['posti_a_sedere']} (id: #{v.id}).\n"
+                end
+              end
+              if v.find_information(motivo_fuori_parco).nil?
+                unless r['motivo_fuori_parco'].nil? or r['motivo_fuori_parco'] == ''
+                  VehicleInformation.create(vehicle: v, vehicle_information_type: motivo_fuori_parco, information: r['motivo_fuori_parco'], date: registration_date) unless r['posti_a_sedere'].to_s == '' if update
+                  special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Dismission cause added -> #{r['motivo_fuori_parco']} (id: #{v.id}).")
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
+                end
+              end
+              unless v.has_reference?('[Altri mezzi]',r['id'])
+                mssqlref = MssqlReference.create(local_object: v, remote_object_table: '[Altri mezzi]', remote_object_id: r['id'].to_i) if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
               end
             end
           end
@@ -591,7 +677,9 @@ class MssqlReference < ApplicationRecord
     return {response: response, array: [] }
   end
 
-
+  def to_s
+    "id: #{self.id}, local_object_id: #{self.local_object_id}, local_object_type: #{self.local_object_type}, remote_object_id: #{self.remote_object_id}, remote_object_table: #{self.remote_object_table}"
+  end
 
   private
 

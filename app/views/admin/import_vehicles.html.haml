@@ -5,21 +5,21 @@
       .col-sm-12
         = "Mezzi con ordini di magazzino"
     .row{style: "background-color: #999"}
-      .col-sm-12.scrollable-panel
+      .col-sm-12.scrollable-panel{style: "max-height: 5em;"}
         = @no_delete_vehicles.map { |v| v.plate }.join(', ')
     .row
       .col-sm-12
         %br
 
   -if @delete_vehicles.size > 0
-    .row{style: "background-color: #999"}
+    .row{style: "background-color: #999; max-height: 5em;"}
       = form_tag(massive_vehicles_delete_path,method: :post, remote: true) do
         .col-sm-10
           = "Mezzi non trovati in access, senza ordini di magazzino"
         .col-sm-2
           = submit_tag 'Elimina selezionati', data: { confirm: "Eliminare i mezzi selezionati?"}
         .row
-          .col-sm-12
+          .col-sm-12.scrollable-panel{style: "max-height: 5em;"}
             -@delete_vehicles.each do |v|
               .floating-block
                 = check_box_tag 'vehicles_list[]', v.id
@@ -46,23 +46,9 @@
           =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_other_vehicles_path('update'), method: 'post', data: {}, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
       .row
         .col-sm-12
-          .scrollable-panel#block-altri_mezzi
+          #block-altri_mezzi{style: 'height: 82%'}
             -# = render :partial => 'admin/import_block', locals: { results: @altri_mezzi}
-            %pre#block-altri_mezzi-pre{ style: {'white-space': 'pre-line', 'word-wrap': 'unset'}}
-              =@res
-  .tab-pane.active#tab-veicoli
-    .container-fluid
-      .row
-        .col-sm-8
-          %b="Veicoli"# - #{@veicoli.size} trovati, "+@veicoli.reject{|v| v[:route].nil?}.size.to_s+" non corretti."
-        .col-sm-4
-          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_vehicles_path('simulate'), method: 'post', data: {}}
-          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_vehicles_path('update'), method: 'post', data: {}, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
-      .row
-        .col-sm-12
-          .scrollable-panel#block-veicoli
-            -# = render :partial => 'admin/import_block', locals: { results: @veicoli}
-            %pre#block-veicoli-pre{ style: 'white-space: pre-line; word-wrap: unset'}
+            %pre.scrollable-panel#block-altri_mezzi-pre{ style: 'white-space: pre-line; word-wrap: unset'}
               =@res
 
   .tab-pane#tab-rimorchi1
@@ -75,7 +61,22 @@
           =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_trailers_path('update'), method: 'post', data: {}, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
       .row
         .col-sm-12
-          .scrollable-panel#block-rimorchi1
+          #block-rimorchi1{style: 'height: 82%'}
             -# = render :partial => 'admin/import_block', locals: { results: @rimorchi1}
-            %pre#block-rimorchi1-pre{ style: {'white-space': 'pre-line', 'word-wrap': 'unset'}}
+            %pre.scrollable-panel#block-rimorchi1-pre{ style: 'white-space: pre-line; word-wrap: unset'}
+              =@res
+
+  .tab-pane.active#tab-veicoli
+    .container-fluid
+      .row
+        .col-sm-8
+          %b="Veicoli"# - #{@veicoli.size} trovati, "+@veicoli.reject{|v| v[:route].nil?}.size.to_s+" non corretti."
+        .col-sm-4
+          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_vehicles_path('simulate'), method: 'post', data: {}}
+          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_vehicles_path('update'), method: 'post', data: {}, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
+      .row
+        .col-sm-12
+          #block-veicoli{style: 'height: 82%'}
+            -# = render :partial => 'admin/import_block', locals: { results: @veicoli}
+            %pre.scrollable-panel#block-veicoli-pre{ style: 'white-space: pre-line; word-wrap: unset'}
               =@res

@@ -57,7 +57,7 @@ Rails.application.routes.draw do
   post   '/admin/queries/vehicles', to: 'admin#send_query_vehicles', as: :admin_queries_vehicles
   post   '/admin/upsync_vehicles/:update', to: 'admin#upsync_vehicles', as: :upsync_vehicles
   post   '/admin/upsync_other_vehicles/:update', to: 'admin#upsync_other_vehicles', as: :upsync_other_vehicles
-  post   '/admin/upsync_trailers/:simulate', to: 'admin#upsync_trailers', as: :upsync_trailers
+  post   '/admin/upsync_trailers/:update', to: 'admin#upsync_trailers', as: :upsync_trailers
   post   '/admin/queries/people', to: 'admin#send_query_people', as: :admin_queries_people
   get    '/admin/soap', to: 'admin#soap', as: :admin_soap
   get    '/admin/vacation', to: 'admin#get_vacation', as: :admin_vacation
