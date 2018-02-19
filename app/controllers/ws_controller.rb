@@ -87,7 +87,6 @@ class WsController < ApplicationController
   def update_fares
     # user = Person.find_by_complete_name(Base64.decode64(params.require(:driver)))
     user = MdcUser.find_by_holder(Base64.decode64(params.require(:driver))) || MdcUser.find_by_holder(Base64.decode64(params.require(:company)))
-    byebug
     unless user.nil?
       if user.assigned_to_person.nil? and user.assigned_to_company.nil?
         @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{user.holder.complete_name} non ha un utente assegnato."

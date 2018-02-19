@@ -16,6 +16,10 @@ class VehiclesController < ApplicationController
     end
   end
 
+  def assignation
+
+  end
+
   def get_info
     respond_to do |format|
       format.js { render :partial => 'vehicles/infobox' }
@@ -253,7 +257,7 @@ class VehiclesController < ApplicationController
   end
 
   def massive_update
-    byebug
+    # byebug
     begin
       @view = 'altri_mezzi'
     rescue Exception => e

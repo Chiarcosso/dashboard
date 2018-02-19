@@ -49,7 +49,6 @@ class GeoController < ApplicationController
       p[:geo_state] = GeoState.find(p[:geo_state].to_i) unless p[:geo_state].nil?
       p[:geo_province] = GeoProvince.find(p[:geo_province].to_i) unless p[:geo_province].nil?
       p[:geo_city] = GeoCity.find(p[:geo_city].to_i) unless p[:geo_city].nil?
-      byebug
       model.create(p) unless model.all.include? model.new(p)
     end
 
