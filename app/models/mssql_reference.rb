@@ -157,6 +157,12 @@ class MssqlReference < ApplicationRecord
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
               end
 
+              unless v.carwash_code == 'N/D' or v.carwash_code.nil?
+                cwc = CarwashVehicleCode.createUnique v if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
+              end
+
               mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
@@ -164,6 +170,11 @@ class MssqlReference < ApplicationRecord
             elsif v.check_properties(r)
 
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - A posto (id: #{v.id}).\n"
+              if v.carwash_vehicle_code.nil? and v.carwash_code == 'N/D'
+                cwc = CarwashVehicleCode.createUnique v if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
+              end
               unless v.has_reference?('Veicoli',r['id'])
                 mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
@@ -190,6 +201,11 @@ class MssqlReference < ApplicationRecord
               if vehicle_equipments.size > 0
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Attrezzatura: #{vehicle_equipments.pluck(:name).join(', ')}.\n"
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
+              end
+              if v.carwash_vehicle_code.nil? and v.carwash_code == 'N/D'
+                cwc = CarwashVehicleCode.createUnique v if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
               end
               unless v.has_reference?('Veicoli',r['id'])
                 mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Veicoli', remote_object_id: r['id'].to_i) if update
@@ -358,6 +374,11 @@ class MssqlReference < ApplicationRecord
                   response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
                 end
               end
+              if v.carwash_vehicle_code.nil? and v.carwash_code == 'N/D'
+                cwc = CarwashVehicleCode.createUnique v if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
+              end
               mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Rimorchi1', remote_object_id: r['id'].to_i) if update
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
@@ -371,6 +392,11 @@ class MssqlReference < ApplicationRecord
                   special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Dismission cause added -> #{r['motivo_fuori_parco']} (id: #{v.id}).")
                   response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
                 end
+              end
+              if v.carwash_vehicle_code.nil? and v.carwash_code == 'N/D'
+                cwc = CarwashVehicleCode.createUnique v if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
               end
               unless v.has_reference?('Rimorchi1',r['id'])
                 mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Rimorchi1', remote_object_id: r['id'].to_i) if update
@@ -405,6 +431,11 @@ class MssqlReference < ApplicationRecord
                   special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Dismission cause added -> #{r['motivo_fuori_parco']} (id: #{v.id}).")
                   response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
                 end
+              end
+              if v.carwash_vehicle_code.nil? and v.carwash_code == 'N/D'
+                cwc = CarwashVehicleCode.createUnique v if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
               end
               unless v.has_reference?('Rimorchi1',r['id'])
                 mssqlref = MssqlReference.create(local_object: v, remote_object_table: 'Rimorchi1', remote_object_id: r['id'].to_i) if update
@@ -592,12 +623,23 @@ class MssqlReference < ApplicationRecord
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{vehicle_equipments.pluck(:name).join(', ')}.")
               end
 
+              if v.carwash_vehicle_code.nil? and v.carwash_code == 'N/D'
+                cwc = CarwashVehicleCode.createUnique v if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
+              end
+
               mssqlref = MssqlReference.create(local_object: v, remote_object_table: '[Altri mezzi]', remote_object_id: r['id'].to_i) if update
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
 
             elsif v.check_properties(r)  #Vehicle exists and has the same properties as the importing one
 
+              if v.carwash_vehicle_code.nil? and v.carwash_code == 'N/D'
+                cwc = CarwashVehicleCode.createUnique v if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
+              end
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - A posto (id: #{v.id}).\n"
               unless v.has_reference?('[Altri mezzi]',r['id'])
                 mssqlref = MssqlReference.create(local_object: v, remote_object_table: '[Altri mezzi]', remote_object_id: r['id'].to_i) if update
@@ -654,6 +696,11 @@ class MssqlReference < ApplicationRecord
                   special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Dismission cause added -> #{r['motivo_fuori_parco']} (id: #{v.id}).")
                   response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto motivo fuori parco -> #{r['motivo_fuori_parco']} (id: #{v.id}).\n"
                 end
+              end
+              if v.carwash_vehicle_code.nil? and v.carwash_code == 'N/D'
+                cwc = CarwashVehicleCode.createUnique v if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
               end
               unless v.has_reference?('[Altri mezzi]',r['id'])
                 mssqlref = MssqlReference.create(local_object: v, remote_object_table: '[Altri mezzi]', remote_object_id: r['id'].to_i) if update

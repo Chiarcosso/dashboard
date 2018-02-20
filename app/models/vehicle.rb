@@ -11,6 +11,7 @@ class Vehicle < ApplicationRecord
   belongs_to :vehicle_type
   belongs_to :vehicle_category
 
+  has_one :carwash_vehicle_code, :dependent => :destroy
   has_many :carwash_usages_as_first, :foreign_key => 'vehicle_1_id', :class_name => 'CarwashUsage'
   has_many :carwash_usages_as_second, :foreign_key => 'vehicle_2_id', :class_name => 'CarwashUsage'
 
@@ -18,7 +19,6 @@ class Vehicle < ApplicationRecord
   has_many :vehicle_equipments, through: :vehicle_vehicle_equipments
   has_many :vehicle_informations, :dependent => :destroy
   has_many :worksheets
-  has_one :carwash_vehicle_code, :dependent => :destroy
 
   has_many :mssql_references, as: :local_object
   # has_many :carwash_usages, through: :carwash_vehicle_code

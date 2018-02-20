@@ -20,6 +20,10 @@ class CarwashVehicleCode < ApplicationRecord
   #   self.carwash_usages_as_first + self.carwash_usages_as_second
   # end
 
+  def to_s
+    self.code
+  end
+
   def self.createUnique vehicle
     if CarwashVehicleCode.findByVehicle(vehicle).first.nil?
       code = 'M'+SecureRandom.hex(2).upcase
@@ -55,7 +59,7 @@ class CarwashVehicleCode < ApplicationRecord
       :data                      => self.code,
       :position                  => [10, 60],
       :height                    => 110,
-      :print_human_readable_code => false,
+      :print_human_readable_code => true,
       :narrow_bar_width          => 3,
       :wide_bar_width            => 6,
       :type                      => Zebra::Epl::BarcodeType::CODE_128_AUTO
