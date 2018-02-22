@@ -6,7 +6,7 @@
         = "Mezzi con ordini di magazzino"
     .row{style: "background-color: #999"}
       .col-sm-12.scrollable-panel{style: "max-height: 5em;"}
-        = @no_delete_vehicles.map { |v| v.plate }.join(', ')
+        = @no_delete_vehicles.map { |v| v.plate.nil?? v.inspect : v.plate }.join(', ')
     .row
       .col-sm-12
         %br
