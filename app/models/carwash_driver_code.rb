@@ -15,7 +15,6 @@ class CarwashDriverCode < ApplicationRecord
       while !CarwashDriverCode.where(code: code).empty?
         code = 'A'+SecureRandom.hex(2).upcase
       end
-      byebug
       CarwashDriverCode.create(code: code, person: person)
     end
   end
