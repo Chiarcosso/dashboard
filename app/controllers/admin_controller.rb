@@ -32,7 +32,7 @@ class AdminController < ApplicationController
     # query_vehicles
     # @results += vehicles.map { |v| {vehicle: v, data: [], color: '#999', route: :delete}}
     @delete_vehicles = []
-    @no_delete_vehicles = Vehicle.not_free_to_delete
+    @no_delete_vehicles = Vehicle.not_free_to_delete.sort_by{ |v| v.plate }
 
     render 'admin/import_vehicles'
   end
