@@ -4,11 +4,14 @@
       = hidden_field_tag :id, cwdc.id
       .row
         .col-sm-4
-          = text_field_tag 'carwash_special_code[code]', cwdc.code, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          -# = text_field_tag 'carwash_special_code[code]', cwdc.code, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          %b=cwdc.code
         .col-sm-5
-          = text_field_tag 'carwash_special_code[label]', cwdc.label, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          -# = text_field_tag 'carwash_special_code[label]', cwdc.label, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          %b=cwdc.label
         .col-sm-3
-          = number_field_tag 'carwash_special_code[carwash_code]', cwdc.carwash_code.to_s, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          -# = number_field_tag 'carwash_special_code[carwash_code]', cwdc.carwash_code.to_s, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          %b=cwdc.carwash_code
           -# = text_field_tag 'carwash_driver_code[person]', cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
           -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
       .row

@@ -1,4 +1,4 @@
-%h3= "Importazione veicoli"# - #{@veicoli.size+@altri_mezzi.size+@rimorchi1.size} trovati"
+%h3= "Importazione dati Access"# - #{@veicoli.size+@altri_mezzi.size+@rimorchi1.size} trovati"
 .container-fluid
   -if @no_delete_vehicles.size > 0
     .row{style: "background-color: #999"}
@@ -34,6 +34,8 @@
     =link_to 'Rimorchi1', '#tab-rimorchi1', data: { toggle: 'tab'}, class: 'no-loader'
   %li.active
     =link_to 'Veicoli', '#tab-veicoli', data: { toggle: 'tab'}, class: 'no-loader'
+  %li
+    =link_to 'Personale', '#tab-autisti', data: { toggle: 'tab'}, class: 'no-loader'
 
 .tab-content
   .tab-pane#tab-altri-mezzi
@@ -79,4 +81,19 @@
           #block-veicoli{style: 'height: 82%'}
             -# = render :partial => 'admin/import_block', locals: { results: @veicoli}
             %pre.scrollable-panel#block-veicoli-pre{ style: 'white-space: pre-line; word-wrap: unset'}
+              =@res
+
+  .tab-pane#tab-autisti
+    .container-fluid
+      .row
+        .col-sm-8
+          %b="Personale"# - #{@altri_mezzi.size} trovati, "+@altri_mezzi.reject{|v| v[:route].nil?}.size.to_s+" non corretti."
+        .col-sm-4
+          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_employees_path('simulate'), method: 'post', data: {}}
+          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_employees_path('update'), method: 'post', data: {}, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
+      .row
+        .col-sm-12
+          #block-autisti{style: 'height: 82%'}
+            -# = render :partial => 'admin/import_block', locals: { results: @altri_mezzi}
+            %pre.scrollable-panel#block-autisti-pre{ style: 'white-space: pre-line; word-wrap: unset'}
               =@res

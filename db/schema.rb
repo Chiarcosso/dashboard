@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180214090604) do
+ActiveRecord::Schema.define(version: 20180221110632) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -187,10 +187,12 @@ ActiveRecord::Schema.define(version: 20180214090604) do
     t.integer  "person_id"
     t.integer  "company_id"
     t.integer  "company_relation_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.boolean  "acting",              default: true, null: false
     t.index ["company_id"], name: "index_company_people_on_company_id", using: :btree
     t.index ["company_relation_id"], name: "index_company_people_on_company_relation_id", using: :btree
+    t.index ["person_id", "company_id", "company_relation_id"], name: "company_people_unique", unique: true, using: :btree
     t.index ["person_id"], name: "index_company_people_on_person_id", using: :btree
   end
 

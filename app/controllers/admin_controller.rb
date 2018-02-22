@@ -23,6 +23,11 @@ class AdminController < ApplicationController
     render :json => { html: res[:response], element: '#block-rimorchi1-pre'}
   end
 
+  def upsync_employees
+    res = MssqlReference::upsync_employees(params[:update]=='update')
+    render :json => { html: res[:response], element: '#block-autisti-pre'}
+  end
+
   def import_vehicles
     # query_vehicles
     # @results += vehicles.map { |v| {vehicle: v, data: [], color: '#999', route: :delete}}

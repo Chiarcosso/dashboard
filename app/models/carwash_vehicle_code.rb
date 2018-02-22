@@ -10,7 +10,7 @@ class CarwashVehicleCode < ApplicationRecord
 
   scope :findByCode, ->(code) { where(:code => code) }
   scope :findByVehicle, ->(vehicle) { where(:vehicle => vehicle) }
-  scope :order_plate, -> { joins(:vehicle_informations).where('vehicle_informations.vehicle_information_type_id = ?',VehicleInformationType.where(name: 'Targa').first.id).order('vehicle_informations.information') }
+  # scope :order_plate, -> { joins(:vehicle_informations).where('vehicle_informations.vehicle_information_type_id = ?',VehicleInformationType.where(name: 'Targa').first.id).order('vehicle_informations.information').distinct }
 
   # def last_usage
   #   self.carwash_usages.order(:starting_time => :desc).limit(1).first unless self.carwash_usages.empty?
@@ -27,7 +27,7 @@ class CarwashVehicleCode < ApplicationRecord
   def self.createUnique vehicle
     if CarwashVehicleCode.findByVehicle(vehicle).first.nil?
       code = 'M'+SecureRandom.hex(2).upcase
-      while !CarwashVehicleCode.findByCode(code).first.nil?
+      while !CarwashVehicleCode.where(code).empty?
         code = 'M'+SecureRandom.hex(2).upcase
       end
       CarwashVehicleCode.create(code: code, vehicle: vehicle)

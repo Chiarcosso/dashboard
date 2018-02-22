@@ -12,7 +12,7 @@ class MssqlReference < ApplicationRecord
     upsync_vehicles
     upsync_trailers
     upsync_other_vehicles
-
+    upsync_employees
     # update_employees
     # update_companies
   end
@@ -181,11 +181,12 @@ class MssqlReference < ApplicationRecord
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
               end
             else
-              v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
+
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
               special_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, property: #{v.property.name}, model: #{v.model.complete_name}, registration_model: #{v.registration_model}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.vehicle_typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.vehicle_category.name}, carwash_code: #{v.carwash_code}.")
               response += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.property.name}, modello: #{v.model.complete_name}, modello libretto: #{v.registration_model}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.vehicle_typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.vehicle_category.name}, codice_lavaggio: #{v.carwash_code}.\n"
+              v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
               special_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
               response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 
@@ -404,11 +405,12 @@ class MssqlReference < ApplicationRecord
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
               end
             else
-              v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
+
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
               special_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, property: #{v.property.name}, model: #{v.model.complete_name}, registration_model: #{v.registration_model}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.vehicle_typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.vehicle_category.name}, carwash_code: #{v.carwash_code}.")
               response += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.property.name}, modello: #{v.model.complete_name}, modello libretto: #{v.registration_model}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.vehicle_typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.vehicle_category.name}, codice_lavaggio: #{v.carwash_code}.\n"
+              v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
               special_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
               response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 
@@ -662,11 +664,12 @@ class MssqlReference < ApplicationRecord
               end
             else #Vehicle exists but has not the same properties as the importing one
 
-              v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], serie: serie, dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
+
               special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
               special_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, property: #{v.property.name}, model: #{v.model.complete_name}, registration_model: #{v.registration_model}, serie: #{serie}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.vehicle_typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.vehicle_category.name}, carwash_code: #{v.carwash_code}.")
               response += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.property.name}, modello: #{v.model.complete_name}, modello libretto: #{v.registration_model}, serie: #{serie}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.vehicle_typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.vehicle_category.name}, codice_lavaggio: #{v.carwash_code}.\n"
+              v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], serie: serie, dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
               special_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, serie: #{serie}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
               response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, serie: #{serie}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 
@@ -706,6 +709,162 @@ class MssqlReference < ApplicationRecord
                 mssqlref = MssqlReference.create(local_object: v, remote_object_table: '[Altri mezzi]', remote_object_id: r['id'].to_i) if update
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
                 special_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
+              end
+            end
+          end
+        rescue Exception => e
+          special_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
+
+        end
+      end
+    rescue Exception => e
+      special_logger.error("#{e.message}\n#{e.backtrace}")
+      response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
+
+    end
+
+    return {response: response, array: [] }
+  end
+
+  def self.upsync_employees(update)
+
+    begin
+      special_logger.info("Starting vehicles upsync") if update
+      response = "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - Inizio importazione #{(update ? '' : '(simulata)')}\n"
+      client = get_client
+
+      atc = Company.chiarcosso
+      te = Company.transest
+      driver = CompanyRelation.find_by(name: 'Autista')
+      driver = CompanyRelation.create(name: 'Autista') if driver.nil?
+
+      @errors = Array.new
+      query = "select 'Autisti' as table_name, a.Idautista as id, a.ditta as employer, a.nome as name, a.cognome as surname, "\
+                  "Mansione.Descrizione as role, a.attivo as dismissed "\
+                  "from Autisti a "\
+                  "left join Mansione on a.idmansione = mansione.idmansione "\
+                  "where a.ditta is not null and a.ditta != '' and a.nome is not null and a.nome != '' "\
+                  "and a.cognome is not null and a.cognome != ''"\
+                  "order by a.cognome,a.nome"
+      list = client.execute(query)
+
+      special_logger.info("#{list.count} records found")
+      special_logger.info(query)
+      response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - Trovati #{list.count} record nella tabella Autisti, dove ditta, nome e cognome sono compilati.\n"
+      list.each do |r|
+        @error = nil
+
+        employer = atc if r['employer'] == 'A'
+        employer = te if r['employer'] == 'T'
+        r['name'] = r['name'].strip.titleize
+        r['surname'] = r['surname'].strip.titleize
+
+        if employer.nil?
+          @error = " #{r['cognome']} #{r['nome']} (#{r['id']}) - Invalid employer: #{r['employer']}"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['cognome']} #{r['nome']} (#{r['id']}) - Ditta non valida: #{r['employer']}</span>\n"
+          special_logger.error(@error)
+        end
+        if r['notdismissed'] == false
+          notdismissed = false
+        else
+          notdismissed = true
+        end
+
+        company_relation = CompanyRelation.find_by(:name => r['role'])
+        if company_relation.nil?
+          @error = " #{r['cognome']} #{r['nome']} (#{r['id']}) - Invalid company relation: #{r['role']}"
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")}  #{r['cognome']} #{r['nome']} (#{r['id']}) - Mansione non valida: #{r['role']}</span>\n"
+          special_logger.error(@error)
+        end
+
+        p = Person.find_by(name: r['name'], surname: r['surname'])
+
+        begin
+          if @error.nil?
+            if p.nil?
+              if update
+                p = Person.create(name: r['name'], surname: r['surname'])
+              else
+                p = Person.new(name: r['name'], surname: r['surname'])
+                p.id = 0
+              end
+
+              special_logger.info(" - #{p.id} ->  #{r['cognome']} #{r['nome']} (#{r['id']}) - Created (id: #{p.id}).")
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")}  #{r['cognome']} #{r['nome']} (#{r['id']}) - Creato (id: #{p.id}).\n"
+              special_logger.info("name: #{p.surname} #{p.name}.")
+              response += "nome: #{p.name}, cognome: #{p.surname}.\n"
+
+              CompanyPerson.create(person: p, company: employer, company_relation: company_relation, acting: notdismissed) if update
+              special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - CompanyPerson added -> #{employer}: #{r['role']} (id: #{p.id}).")
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunto ruolo -> #{employer}: #{r['role']} (id: #{p.id}).\n"
+
+              if company_relation == driver
+                cwc = CarwashDriverCode.createUnique p if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
+              end
+
+              mssqlref = MssqlReference.create(local_object: p, remote_object_table: 'Autisti', remote_object_id: r['id'].to_i) if update
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+              special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
+
+            elsif p.check_properties(r)
+
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:S")} #{p.surname} #{p.name} (#{r['id']}) - A posto (id: #{p.id}).\n"
+              unless p.has_relation?(employer,company_relation)
+                CompanyPerson.create(person: p, company: employer, company_relation: company_relation, acting: notdismissed) if update
+                special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - CompanyPerson added -> #{employer}: #{r['role']} -> #{notdismissed ? 'acting' : 'non acting'} (id: #{p.id}).")
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunto ruolo -> #{employer}: #{r['role']} -> #{notdismissed ? 'attivo' : 'non attivo'} (id: #{p.id}).\n"
+              else
+                cr = CompanyPerson.find_by(person: p, company: employer, company_relation: company_relation)
+                if cr.acting != notdismissed
+                  cr.update(acting: notdismissed) if update
+                  special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - CompanyPerson updated -> #{employer}: #{r['role']} -> #{notdismissed ? 'acting' : 'non acting'} (id: #{p.id}).")
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunto ruolo -> #{employer}: #{r['role']} -> #{notdismissed ? 'attivo' : 'non attivo'} (id: #{p.id}).\n"
+                end
+              end
+              if company_relation == driver
+                if p.carwash_driver_code.nil?
+                  cwc = CarwashDriverCode.createUnique p if update
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                  special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
+                end
+              end
+              unless p.has_reference?('Autisti',r['id'])
+                mssqlref = MssqlReference.create(local_object: p, remote_object_table: 'Autisti', remote_object_id: r['id'].to_i) if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+                special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
+              end
+
+            else
+              p.update(name: r['name'], surname: r['surname']) if update
+              special_logger.info(" - #{p.id} ->  #{r['cognome']} #{r['nome']} (#{r['id']}) - Created (id: #{p.id}).")
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")}  #{r['cognome']} #{r['nome']} (#{r['id']}) - Creato (id: #{p.id}).\n"
+              special_logger.info("name: #{p.surname} #{p.name}.")
+              response += "nome: #{p.name}, cognome: #{p.surname}.\n"
+
+              unless p.has_relation?(employer,company_relation)
+                CompanyPerson.create(person: p, company: employer, company_relation: company_relation, acting: notdismissed) if update
+                special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - CompanyPerson added -> #{employer}: #{r['role']} -> #{notdismissed ? 'acting' : 'non acting'} (id: #{p.id}).")
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunto ruolo -> #{employer}: #{r['role']} -> #{notdismissed ? 'attivo' : 'non attivo'} (id: #{p.id}).\n"
+              else
+                cr = CompanyPerson.find_by(person: p, company: employer, company_relation: company_relation)
+                if cr.acting != notdismissed
+                  cr.update(acting: notdismissed) if update
+                  special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - CompanyPerson updated -> #{employer}: #{r['role']} -> #{notdismissed ? 'acting' : 'non acting'} (id: #{p.id}).")
+                  response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunto ruolo -> #{employer}: #{r['role']} -> #{notdismissed ? 'attivo' : 'non attivo'} (id: #{p.id}).\n"
+                end
+              end
+              if company_relation == driver
+                cwc = CarwashDriverCode.createUnique p if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+                special_logger.info(" - #{v.id} -> #{p.surname} #{p.name} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
+              end
+              unless p.has_reference?('Autisti',r['id'])
+                mssqlref = MssqlReference.create(local_object: p, remote_object_table: 'Autisti', remote_object_id: r['id'].to_i) if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['cognome']} #{r['nome']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+                special_logger.info(" - #{p.id} -> #{r['cognome']} #{r['nome']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
               end
             end
           end

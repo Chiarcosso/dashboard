@@ -1,12 +1,14 @@
 .container-fluid
-  - CarwashDriverCode.order_person().each do |cwdc|
+  - CarwashDriverCode.all.sort_by{ |c| c.person.surname }.each do |cwdc|
     = form_tag(update_carwash_driver_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
       = hidden_field_tag :id, cwdc.id
       .row
         .col-sm-4
-          = text_field_tag 'carwash_driver_code[code]', cwdc.code, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          -# = text_field_tag 'carwash_driver_code[code]', cwdc.code, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          %b=cwdc.code
         .col-sm-8
-          = text_field_tag 'carwash_driver_code[person]', cwdc.person.list_name, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          -# = text_field_tag 'carwash_driver_code[person]', cwdc.person.list_name, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
+          %b=cwdc.person.list_name
           -# = text_field_tag 'carwash_driver_code[person]', cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
           -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
       .row

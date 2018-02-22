@@ -6,6 +6,7 @@ class Person < ApplicationRecord
   has_many :company_relations, through: :relations
 
   has_one :carwash_driver_code, :dependent => :destroy
+  has_many :mssql_references, as: :local_object
 
   scope :order_alpha, -> { order(:name).order(:surname) }
   scope :order_alpha_surname, -> { order(:surname).order(:name) }
@@ -14,8 +15,25 @@ class Person < ApplicationRecord
   scope :filter, ->(name) { where("name like ? or surname like ? or mdc_user like ? or ('mdc' like ? and mdc_user is not null and mdc_user != '')", "%#{name}%", "%#{name}%", "%#{name}%", "%#{name}%").order(:surname) }
   scope :mdc, -> { where("mdc_user is not null and mdc_user != ''") }
   scope :order_mdc_user, -> { order(:mdc_user)}
+
   # scope :drivers, -> { include(:relations).where("relations.name = 'Autista'") }
   # scope :company, ->(name) { joins(:companies).where('company.name like ?',"%#{name}%") }
+  def check_properties(comp)
+    if comp['name'].upcase != self.name.upcase
+      return false
+    elsif comp['surname'].upcase != self.surname.upcase
+      return false
+    end
+    return true
+  end
+
+  def has_reference?(table,id)
+    !MssqlReference.where(local_object:self,remote_object_id:table,remote_object_id:id).empty?
+  end
+
+  def has_relation?(company,relation)
+    !CompanyPerson.where(person: self, company: company, company_relation: relation).empty?
+  end
 
   def self.find_by_complete_name name
     Person.where("lower(concat_ws(' ',surname,name)) = ?", name).first
