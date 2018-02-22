@@ -27,7 +27,7 @@ class CarwashVehicleCode < ApplicationRecord
   def self.createUnique vehicle
     if CarwashVehicleCode.findByVehicle(vehicle).first.nil?
       code = 'M'+SecureRandom.hex(2).upcase
-      while !CarwashVehicleCode.where(code).empty?
+      while !CarwashVehicleCode.where(code: code).empty?
         code = 'M'+SecureRandom.hex(2).upcase
       end
       CarwashVehicleCode.create(code: code, vehicle: vehicle)
