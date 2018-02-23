@@ -56,7 +56,7 @@
   - CarwashUsage.lastmonth.order(:ending_time => :desc).each do |c|
     .row
       .col-sm-3
-        = c.person.complete_name
+        = c.person.complete_name unless c.person.nil?
       .col-sm-4
         = c.vehicle_1.plate unless c.vehicle_1.nil?
         = c.vehicle_2.plate unless c.vehicle_2.nil?
