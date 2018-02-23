@@ -24,7 +24,7 @@
       -#     = navbar_item "Mezzi agenzie", external_vehicles_path
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?(:lavaggio)|| current_user.has_role?(:officina)|| current_user.has_role?('amministratore officina'))
         = navbar_dropdown "Officina" do
-          - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin))
+          - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina'))
             = navbar_item "Lavaggio", carwash_path
           -# - if (current_user.has_role?(:officina) || current_user.has_role?(:admin))
           -#   = navbar_item "Segnalazioni", vehicle_notifications_path
