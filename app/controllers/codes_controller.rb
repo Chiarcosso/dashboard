@@ -103,12 +103,13 @@ class CodesController < ApplicationController
     special = nil
     codes.uniq.each do |c|
       code = CarwashDriverCode.findByCode(c).first || CarwashVehicleCode.findByCode(c).first || CarwashSpecialCode.findByCode(c).first
+
       if code.is_a? CarwashDriverCode
         driver = code.person
       elsif code.is_a? CarwashSpecialCode
         special = code
       elsif code.is_a? CarwashVehicleCode
-        vehicles << code.vehicle unless code.vehicle.carwash_code.to_i == 0 or code.vehicle.just_washed? # and code.vehicle.vehicle_type.carwash_type == 0
+        vehicles << code.vehicle unless Vehicle.carwash_codes[code.vehicle.carwash_code] == 0 or code.vehicle.just_washed? # and code.vehicle.vehicle_type.carwash_type == 0
       end
     end
     unless (driver.nil? and special.nil?) or ((vehicles.size > 2 or vehicles.size < 1) and special.nil?)
@@ -117,14 +118,15 @@ class CodesController < ApplicationController
       unless cwu.carwash_special_code.nil?
         response += ",#{cwu.carwash_special_code.carwash_code}"
       else
-        response += ",#{cwu.vehicle_1.carwash_code.to_i.to_s}" unless cwu.vehicle_1.nil?
-        response += ",#{cwu.vehicle_2.carwash_code.to_i.to_s}" unless cwu.vehicle_2.nil?
+        response += ",#{Vehicle.carwash_codes[cwu.vehicle_1.carwash_code]}" unless cwu.vehicle_1.nil?
+        response += ",#{Vehicle.carwash_codes[cwu.vehicle_2.carwash_code]}" unless cwu.vehicle_2.nil?
       end
+      @@special_logger.info("Authorize -> row: #{row} || codes: #{codes.inspect}  ||| #{params.inspect}")
     else
       @@special_logger.error("Authorize -> row: #{row} || special: #{special.inspect} || driver: #{driver.inspect} || vehicles: #{vehicles.inspect} || codes: #{codes.inspect}  ||| #{params.inspect}")
       response = 0
     end
-   @@special_logger.info("Authorize -> row: #{row} || codes: #{codes.inspect}  ||| #{params.inspect}")
+
     render :html => response
 
 
@@ -144,7 +146,13 @@ class CodesController < ApplicationController
   def carwash_check
     code = CarwashDriverCode.findByCode(params.permit(:code)[:code]).first || CarwashVehicleCode.findByCode(params.permit(:code)[:code]).first || CarwashSpecialCode.findByCode(params.permit(:code)[:code]).first
     @@special_logger.info("Check -> #{code.inspect} ||| #{params.inspect}")
-    if(code.nil?)
+    if (code.class == CarwashVehicleCode)
+      if code.vehicle.carwash_code == 'N/D'
+        no_go = true
+      end
+    end
+    end
+    if(code.nil? or no_go)
       render :json => 0
     else
       render :json => 1
