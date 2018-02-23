@@ -111,7 +111,6 @@ class CodesController < ApplicationController
         vehicles << code.vehicle unless code.vehicle.carwash_code.to_i == 0 or code.vehicle.just_washed? # and code.vehicle.vehicle_type.carwash_type == 0
       end
     end
-    byebug
     unless (driver.nil? and special.nil?) or ((vehicles.size > 2 or vehicles.size < 1) and special.nil?)
       cwu = CarwashUsage.create(session_id: SecureRandom.hex(10), person: driver, vehicle_1: vehicles[0], vehicle_2: vehicles[1], carwash_special_code: special, row: row, starting_time: DateTime.now)
       response = "#{cwu.session_id}"
