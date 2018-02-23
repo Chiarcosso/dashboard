@@ -1,8 +1,8 @@
 - worksheets.each do |ws|
   .row.colored
     .col-sm-2
-      =button_tag ws.number
-    .col-sm-3
-      ="Chiuso il: #{I18n.l ws.closingDate}"
+      =button_tag "Apri"
     .col-sm-2
-      =ws.vehicle.plate
+      ="N. #{ws.number}"
+    .col-sm-4
+      ="Chiuso il: #{I18n.l ws.closingDate}"

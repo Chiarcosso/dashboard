@@ -57,7 +57,7 @@ class Vehicle < ApplicationRecord
   end
 
   def typology
-    if self.vehicle_type.nil?
+    if self.vehicle_type.nil? or self.vehicle_typology == VehicleTypology.not_available
       ''
     else
       self.vehicle_typology.name
