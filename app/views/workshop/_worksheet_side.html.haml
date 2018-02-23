@@ -19,4 +19,4 @@
 .row
   .col-sm-12
     .scrollable-panel
-      =render :partial => 'workshop/list_old', :locals => { :worksheets => Worksheet.where("vehicle_id = #{@vehicle.id} and closingDate is not null")}
+      =render :partial => 'workshop/list_old', :locals => { :worksheets => Worksheet.where("vehicle_id = #{@vehicle.id} and closingDate is not null").order(:closingDate)}

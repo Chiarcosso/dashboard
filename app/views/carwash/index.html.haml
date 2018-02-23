@@ -16,7 +16,7 @@
     .col-sm-2
       %b
         Sessione
-  - CarwashUsage.opened.order(:starting_time => :desc).each do |c|
+  - CarwashUsage.opened.order(:starting_time => :asc).each do |c|
     .row
       .col-sm-3
         = c.person.complete_name unless c.person.nil?
