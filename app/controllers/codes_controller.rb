@@ -121,6 +121,7 @@ class CodesController < ApplicationController
         response += ",#{cwu.vehicle_2.carwash_code.to_i.to_s}" unless cwu.vehicle_2.nil?
       end
     else
+      @@special_logger.error("Authorize -> row: #{row} || special: #{special.inspect} || driver: #{driver.inspect} || vehicles: #{vehicles.inspect} || codes: #{codes.inspect}  ||| #{params.inspect}")
       response = 0
     end
    @@special_logger.info("Authorize -> row: #{row} || codes: #{codes.inspect}  ||| #{params.inspect}")
