@@ -19,6 +19,8 @@ class Company < ApplicationRecord
   has_many :company_pec_addresses
   has_many :company_phone_numbers
 
+  has_many :vehicle_properties, as: :owner
+
   scope :filter, ->(search) { where('name like ?',"%#{search}%").order(:name) }
   scope :not_us, -> { where("name not like 'Autotrasporti Chiarcosso%' and name not like 'Trans Est%'")}
   scope :most_used_transporter, -> { where("transporter = 1 and id in "\

@@ -21,6 +21,7 @@ class Vehicle < ApplicationRecord
   has_many :worksheets
 
   has_many :mssql_references, as: :local_object
+  has_many :vehicel_properties
   # has_many :carwash_usages, through: :carwash_vehicle_code
   # has_one :vehicle_type, through: :model
   belongs_to :property, class_name: 'Company'
@@ -47,6 +48,11 @@ class Vehicle < ApplicationRecord
 
   self.per_page = 30
 
+  def self.find_by_reference(table,id)
+    v = MssqlReference.find_by(remote_object_table: table, remote_object_id: id).local_object
+    # find and create new vehicle if v.nil?
+  end
+
   def long_label
     begin
       "ID: #{self.id}; proprietà: #{self.property.name}; targa: #{self.plate}; modello: #{self.model.complete_name}; tipo: #{self.vehicle_type.name}; tipologia: #{self.vehicle_typology.name}; "\
@@ -56,8 +62,16 @@ class Vehicle < ApplicationRecord
     end
   end
 
+  def has_property?(property=nil)
+    if property.nil?
+      !VehicleProperty.where(vehicle:self).empty?
+    else
+      !VehicleProperty.where(vehicle:self,owner: property).empty?
+    end
+  end
+
   def has_reference?(table,id)
-    !MssqlReference.where(local_object:self,remote_object_id:table,remote_object_id:id).empty?
+    !MssqlReference.where(local_object:self,remote_object_table:table,remote_object_id:id).empty?
   end
 
   def check_properties(comp)

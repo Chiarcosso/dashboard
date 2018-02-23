@@ -82,6 +82,29 @@ class Worksheet < ApplicationRecord
     end
   end
 
+  def self.upsync_all
+    res = get_client.query("select Protocollo, CodiceAutomezzo, Tipo, DataUscitaVeicolo "\
+      "from autoodl "\
+      "where DataEntrataVeicolo is not null")
+    res.each do |odl|
+      ws = Worksheet.find_by(code: "EWC*#{odl['Protocollo']}")
+      case odl['Tipo']
+      when 'A'
+          table = 'Altri mezzi'
+      when 'T', 'M'
+          table = 'Veicoli'
+      when 'S', 'R'
+          table = 'Rimorchi1'
+      end
+
+      vehicle = Vehicle.get_by_reference(table,odl['CodiceAutomezzo'])
+      if ws.nil?
+        Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle)
+      else
+        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: odl['DataUscitaVeicolo'].nil?? nil : Date.parse(odl['DataUscitaVeicolo']))
+      end
+    end
+  end
 
   def self.findByCode code
     Worksheet.where(code: code).first
@@ -90,4 +113,15 @@ class Worksheet < ApplicationRecord
   def self.filter(search)
     Worksheet.find_by_sql("SELECT DISTINCT w.* FROM worksheets w LEFT JOIN vehicle_informations i ON w.vehicle_id = i.vehicle_id WHERE w.code LIKE '%#{search}%' OR i.information LIKE '%#{search}%'")
   end
+
+  private
+
+  def self.special_logger
+    @@special_logger ||= Logger.new("#{Rails.root}/log/worksheets.log")
+  end
+
+  def self.get_client
+    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB']
+  end
+
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180222125738) do
+ActiveRecord::Schema.define(version: 20180223083944) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -620,6 +620,18 @@ ActiveRecord::Schema.define(version: 20180222125738) do
     t.index ["manufacturer_id"], name: "index_vehicle_models_on_manufacturer_id", using: :btree
   end
 
+  create_table "vehicle_properties", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "vehicle_id", null: false
+    t.string   "owner_type"
+    t.integer  "owner_id",   null: false
+    t.date     "date_since"
+    t.date     "date_to"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id"], name: "index_vehicle_properties_on_owner_type_and_owner_id", using: :btree
+    t.index ["vehicle_id"], name: "index_vehicle_properties_on_vehicle_id", using: :btree
+  end
+
   create_table "vehicle_type_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "vehicle_type_id",     null: false
     t.integer  "vehicle_category_id", null: false
@@ -847,6 +859,7 @@ ActiveRecord::Schema.define(version: 20180222125738) do
   add_foreign_key "vehicle_model_typologies", "vehicle_models"
   add_foreign_key "vehicle_model_typologies", "vehicle_typologies"
   add_foreign_key "vehicle_models", "companies", column: "manufacturer_id"
+  add_foreign_key "vehicle_properties", "vehicles"
   add_foreign_key "vehicle_type_categories", "vehicle_categories"
   add_foreign_key "vehicle_type_categories", "vehicle_types"
   add_foreign_key "vehicle_type_equipments", "vehicle_equipments"
