@@ -19,6 +19,10 @@ class Worksheet < ApplicationRecord
     end
   end
 
+  def number
+    self.code[/EWC\*(.*)/,1]
+  end
+
   def code_number
     self.code.tr 'EWC*' ''
   end

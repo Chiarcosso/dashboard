@@ -1,0 +1,5 @@
+removejtk();
+$(".popup").remove();
+$(".infobox").remove();
+$("#worksheet_side").html("#{escape_javascript(render :partial => 'workshop/worksheet_side'  )} ");
+deactivateLoadingScreen();

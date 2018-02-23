@@ -16,6 +16,16 @@ class VehiclesController < ApplicationController
     end
   end
 
+  def info_for_workshop
+    respond_to do |format|
+      if @error.nil?
+        format.js { render :partial => 'workshop/worksheet_side_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
   def assignation
 
   end

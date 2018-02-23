@@ -155,11 +155,16 @@ function complete_popup_link_func(data){
    // var method = $(this).parents('form').first().children('input[name=_method]').val();
    var method = $(this).data('method');
    var data = $(this).data('data');
+   if ($(this).data('check_complete')){
+    complete = complete_ajax_link_func;
+    } else {
+      complete = null;
+    }
    $.ajax({
        type: method,
        url: target,
        data: data,
-       complete: complete_ajax_link_func
+       complete: complete
      });
  }
 

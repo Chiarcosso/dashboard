@@ -137,6 +137,7 @@ Rails.application.routes.draw do
   post   '/worksheet/hours', to: 'worksheets#set_hours', as: :worksheet_hours
   post   "/worksheet/toogle_closure", to: 'orders#toggle_worksheet_closure', as: :worksheet_closure_toggle
 
+
   get '/equipment', to: 'equipment#index', as: :equipment
   get '/equipment_home', to: 'equipment#home', as: :equipment_home
 
@@ -205,6 +206,8 @@ Rails.application.routes.draw do
   post  'vehicles/changing_typology', to: 'vehicles#change_typology', as: :change_vehicle_typology
   delete '/vehicle/delete_information/:id', to: 'vehicles#delete_information', as: :delete_vehicle_information
 
+  post   '/vehicle/info_for_workshop', to: 'vehicles#info_for_workshop', as: :info_for_workshop
+  
   post '/external_vehicles/json_autocomplete_plate/', to: 'external_vehicles#json_autocomplete_plate', as: :external_vehicles_json_autocomplete_plate
 
   post '/vehicle_models/new', to: 'vehicle_models#new', as: :new_vehicle_model_search

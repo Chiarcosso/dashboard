@@ -1,0 +1,9 @@
+%div{ style: 'height: 100vh, padding-top: 3em'}
+  %h3="ODL officina aperti:"
+  .row
+    .col-sm-6
+      .scrollable-panel
+        =render :partial => 'workshop/list', :locals => { :worksheets => Worksheet.open.order(:created_at) }
+    .col-sm-6
+      #worksheet_side
+        =render :partial => 'workshop/worksheet_side'

@@ -48,6 +48,22 @@ class Vehicle < ApplicationRecord
 
   self.per_page = 30
 
+  def type
+    if self.vehicle_type.nil?
+      ''
+    else
+      self.vehicle_type.name
+    end
+  end
+
+  def typology
+    if self.vehicle_type.nil?
+      ''
+    else
+      self.vehicle_typology.name
+    end
+  end
+
   def self.find_by_reference(table,id)
     v = MssqlReference.find_by(remote_object_table: table, remote_object_id: id).local_object
     # find and create new vehicle if v.nil?
@@ -152,7 +168,6 @@ class Vehicle < ApplicationRecord
       # (self.vehicle_type.vehicle_typologies & self.vehicle_category.vehicle_typologies).sort_by { |i| i.name }
     # end
   end
-
 
 
   def get_models
