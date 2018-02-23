@@ -151,7 +151,6 @@ class CodesController < ApplicationController
         no_go = true
       end
     end
-    end
     if(code.nil? or no_go)
       render :json => 0
     else
