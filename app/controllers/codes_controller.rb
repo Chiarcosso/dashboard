@@ -1,6 +1,7 @@
 class CodesController < ApplicationController
 
   before_action :authenticate_user!
+  before_action :special_logger
   protect_from_forgery except: [:carwash_check,:carwash_close,:carwash_authorize]
   skip_before_action :authenticate_user!, :only => [:carwash_check,:carwash_close,:carwash_authorize]
   # before_action :get_person, only: [:new_carwash_driver_code,:update_carwash_driver_code]
@@ -110,8 +111,8 @@ class CodesController < ApplicationController
         vehicles << code.vehicle unless code.vehicle.carwash_code.to_i == 0 or code.vehicle.just_washed? # and code.vehicle.vehicle_type.carwash_type == 0
       end
     end
-
-    unless driver.nil? or ((vehicles.size > 2 or vehicles.size < 1) and special.nil?)
+    byebug
+    unless (driver.nil? and special.nil?) or ((vehicles.size > 2 or vehicles.size < 1) and special.nil?)
       cwu = CarwashUsage.create(session_id: SecureRandom.hex(10), person: driver, vehicle_1: vehicles[0], vehicle_2: vehicles[1], carwash_special_code: special, row: row, starting_time: DateTime.now)
       response = "#{cwu.session_id}"
       unless cwu.carwash_special_code.nil?
@@ -123,7 +124,7 @@ class CodesController < ApplicationController
     else
       response = 0
     end
-    @@special_logger.info("Authorize -> row: #{row} || codes: #{codes.inspect} || driver: #{driver.list_name} || vehicle1: #{vehicle1.plate} || vehicle2: #{vehicle2.plate} ||| #{params.inspect}")
+   @@special_logger.info("Authorize -> row: #{row} || codes: #{codes.inspect}  ||| #{params.inspect}")
     render :html => response
 
 
@@ -131,7 +132,7 @@ class CodesController < ApplicationController
 
   def carwash_close
     cwu = CarwashUsage.find_by(:session_id => params.require(:sessionid))
-    @@special_logger.info("Close -> #{cwu.inspect} ||| #{params.inspect}")
+   @@special_logger.info("Close -> #{cwu.inspect} ||| #{params.inspect}")
     if cwu.nil? or !cwu.ending_time.nil?
       render :json => 0
     else
@@ -262,7 +263,13 @@ class CodesController < ApplicationController
     end
   end
 
+
+
   private
+
+  def special_logger
+    @@special_logger ||= Logger.new("#{Rails.root}/log/carwash.log")
+  end
 
   def get_driver_code
 
@@ -322,7 +329,5 @@ class CodesController < ApplicationController
     # @vehicle = Vehicle.filter(@params[:vehicle]).first
   end
 
-  def self.special_logger
-    @@special_logger ||= Logger.new("#{Rails.root}/log/carwash.log")
-  end
+
 end
