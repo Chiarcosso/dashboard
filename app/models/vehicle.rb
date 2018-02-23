@@ -21,7 +21,7 @@ class Vehicle < ApplicationRecord
   has_many :worksheets
 
   has_many :mssql_references, as: :local_object
-  has_many :vehicel_properties
+  has_many :vehicle_properties
   # has_many :carwash_usages, through: :carwash_vehicle_code
   # has_one :vehicle_type, through: :model
   belongs_to :property, class_name: 'Company'
@@ -68,6 +68,14 @@ class Vehicle < ApplicationRecord
     else
       !VehicleProperty.where(vehicle:self,owner: property).empty?
     end
+  end
+
+  def actual_property
+    VehicleProperty.where(vehicle: self).order(date_since: :desc).first
+  end
+
+  def owners_history
+    VehicleProperty.where(vehicle: self).where("id <> #{self.actual_property.id}").order(date_since: :desc)
   end
 
   def has_reference?(table,id)

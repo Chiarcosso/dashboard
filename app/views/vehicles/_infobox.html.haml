@@ -1,8 +1,21 @@
 -# %div{style: 'width: 90vh; padding: 0px'}
-.small-title="#{@vehicle.model.complete_name} (#{@vehicle.registration_model}) - #{@vehicle.plate}"
+.small-title="#{@vehicle.model.complete_name} (#{@vehicle.registration_model}) - #{@vehicle.plate} - #{@vehicle.actual_property.owner.complete_name}"
 %b= "#{@vehicle.vehicle_type.name}#{@vehicle.vehicle_category == VehicleCategory.not_available ? '' : " ("+@vehicle.vehicle_category.name+")"} (cat. #{@vehicle.vehicle_category.name}), #{@vehicle.vehicle_typology.name}"
 %br
 %br
+.row.no-margins
+  .col-sm-12
+    %div
+      - history = @vehicle.owners_history
+      .infobox-block{data: {expand: (history.size > 0).to_json}}
+        %b= "Proprietà: #{@vehicle.actual_property.owner.complete_name}"
+        - if history.size > 0
+          %span{style: 'color: #44f'}
+            (Storico)
+          - history.each do |h|
+            %br
+            = h.owner.complete_name
+            = "dal: #{h.date_since.nil? ? '' : (I18n.l h.date_since)}, al: #{h.date_to.nil? ? '' : (I18n.l h.date_to)}"
 .row.no-margins
   .col-sm-12
     %div

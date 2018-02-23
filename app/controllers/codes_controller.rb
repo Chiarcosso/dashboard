@@ -123,6 +123,7 @@ class CodesController < ApplicationController
     else
       response = 0
     end
+    @@special_logger.info("Authorize -> row: #{row} || codes: #{codes.inspect} || driver: #{driver.list_name} || vehicle1: #{vehicle1.plate} || vehicle2: #{vehicle2.plate} ||| #{params.inspect}")
     render :html => response
 
 
@@ -130,6 +131,7 @@ class CodesController < ApplicationController
 
   def carwash_close
     cwu = CarwashUsage.find_by(:session_id => params.require(:sessionid))
+    @@special_logger.info("Close -> #{cwu.inspect} ||| #{params.inspect}")
     if cwu.nil? or !cwu.ending_time.nil?
       render :json => 0
     else
@@ -140,6 +142,7 @@ class CodesController < ApplicationController
 
   def carwash_check
     code = CarwashDriverCode.findByCode(params.permit(:code)[:code]).first || CarwashVehicleCode.findByCode(params.permit(:code)[:code]).first || CarwashSpecialCode.findByCode(params.permit(:code)[:code]).first
+    @@special_logger.info("Check -> #{code.inspect} ||| #{params.inspect}")
     if(code.nil?)
       render :json => 0
     else
@@ -317,5 +320,9 @@ class CodesController < ApplicationController
   def get_vehicle
     @vehicle = Vehicle.find_by_plate(params.require(:carwash_vehicle_code).permit(:plate)[:plate]).first
     # @vehicle = Vehicle.filter(@params[:vehicle]).first
+  end
+
+  def self.special_logger
+    @@special_logger ||= Logger.new("#{Rails.root}/log/carwash.log")
   end
 end
