@@ -150,8 +150,8 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:closeSession xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId></ns3:closeSession></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-
-    HTTPI.post(request)
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   def begin_transaction
@@ -161,7 +161,8 @@ class MdcWebservice
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:beginTransaction xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId></ns3:beginTransaction></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
 
-    HTTPI.post(request)
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   def commit_transaction
@@ -171,7 +172,8 @@ class MdcWebservice
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:commitTransaction xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId></ns3:commitTransaction></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
 # puts request.body
-    HTTPI.post(request)
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   def end_transaction
@@ -181,7 +183,8 @@ class MdcWebservice
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:endTransaction xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId></ns3:endTransaction></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
 
-    HTTPI.post(request)
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   def send_push_notification_ext(deviceCodes,message,collectionID)
@@ -199,9 +202,8 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendPushNotificationExt xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:notificationExtList>#{pne.xml}</ns3:notificationExtList></ns3:sendPushNotificationExt></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    puts request.body
-    resp = HTTPI.post(request)
-    puts resp.body
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   def send_push_notification(deviceCodes,message)
@@ -218,9 +220,8 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendPushNotification xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:messageList>#{message}</ns3:messageList></ns3:sendPushNotification></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    puts request.body
-    resp = HTTPI.post(request)
-    puts resp.body
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   def insert_or_update_tabgen(tabgen)
@@ -229,9 +230,8 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:insertOrUpdateTabgen xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{tabgen.xml}</ns3:insertOrUpdateTabgen></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    puts request.body
-    resp = HTTPI.post(request)
-    puts resp.body
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   def delete_tabgen_by_selector(selectors)
@@ -244,9 +244,8 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:deleteTabgenBySelector xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{sel}</ns3:deleteTabgenBySelector></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    puts request.body
-    resp = HTTPI.post(request)
-    puts resp.body
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   def select_data_collection_heads(ops)
@@ -260,9 +259,9 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:selectDataCollectionHeads xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:applicationID>#{ops[:applicationID]}</ns3:applicationID><ns3:deviceCode>#{ops[:deviceCode]}</ns3:deviceCode><ns3:status>#{ops[:status]}</ns3:status></ns3:selectDataCollectionHeads></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    # puts request.body
+    special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
-    # puts resp.body
+    special_logger.info(HTTPI.post(resp.body+"\n"))
     unpack_response(resp.body)
   end
 
@@ -272,9 +271,9 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:selectDataCollectionRows xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{dataCollectionHead.xml}</ns3:selectDataCollectionRows></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    # puts request.body
+    special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
-    # puts resp.body
+    special_logger.info(HTTPI.post(resp.body+"\n"))
     unpack_response(resp.body)
   end
 
@@ -291,8 +290,8 @@ class MdcWebservice
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:updateDataCollectionRowsStatus xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{keys}<ns3:status>#{status}</ns3:status></ns3:updateDataCollectionRowsStatus></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-    # puts request.body
-    HTTPI.post(request)
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   def download_file(filename)
@@ -302,10 +301,15 @@ class MdcWebservice
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:downloadFile xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:fileName>#{filename}</ns3:fileName></ns3:downloadFile></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
 
-    HTTPI.post(request)
+    special_logger.info(request.body+"\n")
+    special_logger.info(HTTPI.post(request).body+"\n\n")
   end
 
   private
+
+  def special_logger
+    @@special_logger ||= Logger.new("#{Rails.root}/log/mdc_webservice.log")
+  end
 
   def data_transform(definition)
     # byebug if definition[:data_type]=='DataCollectionRow'
