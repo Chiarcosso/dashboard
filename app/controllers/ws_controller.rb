@@ -39,7 +39,7 @@ class WsController < ApplicationController
       #     break
       #   end
       # end
-      MdcUser.create(:user => params.require(:user), :activation_code => params.require(:activation_code), :assigned_to_person => person )
+      MdcUser.create(:user => params.require(:user).upcase, :activation_code => params.require(:activation_code), :assigned_to_person => person )
     end
     render 'mdc/codes_index'
   end
@@ -108,7 +108,7 @@ class WsController < ApplicationController
         # end
         # mdc.send_push_notification((MdcUser.all - [user]),'Aggiornamento viaggi.')
         # mdc.send_push_notification([user],msg)
-        mdc.send_push_notification_ext((MdcUser.all - [user]).to_a,'Aggiornamento viaggi.',nil)
+        mdc.send_push_notification_ext((MdcUser.all.to_a - [user]),'Aggiornamento viaggi.',nil)
         mdc.send_push_notification_ext([user],msg,nil)
         mdc.commit_transaction
         mdc.end_transaction
