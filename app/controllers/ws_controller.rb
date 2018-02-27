@@ -108,7 +108,7 @@ class WsController < ApplicationController
         # end
         # mdc.send_push_notification((MdcUser.all - [user]),'Aggiornamento viaggi.')
         # mdc.send_push_notification([user],msg)
-        mdc.send_push_notification_ext((MdcUser.all - [user]),'Aggiornamento viaggi.',nil)
+        mdc.send_push_notification_ext((MdcUser.all - [user]).to_a,'Aggiornamento viaggi.',nil)
         mdc.send_push_notification_ext([user],msg,nil)
         mdc.commit_transaction
         mdc.end_transaction
