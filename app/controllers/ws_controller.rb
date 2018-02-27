@@ -76,7 +76,7 @@ class WsController < ApplicationController
     # Person.mdc.each do |p|
     #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
     # end
-    mdc.send_push_notification(MdcUser.assigned,'Aggiornamento viaggi.')
+    mdc.send_push_notification_ext(MdcUser.assigned,'Aggiornamento viaggi.')
     # MdcUser.assigned.each do |mdcu|
     #   mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil)
     # end
