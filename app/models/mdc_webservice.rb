@@ -230,7 +230,7 @@ class MdcWebservice
     #   nots += n.xml
     # end
 
-    pne = NotificationExt.new(collectionID: nil, doSync: 1, playNotificationSound: 0, message: message).xml
+    pne = NotificationExt.new(collectionID: nil, doSync: 1, playNotificationSound: 0, message: message)
     request = HTTPI::Request.new
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendSamePushNotificationExt xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:notificationExt>#{pne.xml}</ns3:notificationExt></ns3:sendSamePushNotificationExt></soapenv:Body></soapenv:Envelope>"
