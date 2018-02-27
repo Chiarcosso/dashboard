@@ -20,6 +20,7 @@ class WsController < ApplicationController
       r = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.user.upcase, status: @status}).reverse[0,10]
       @results << r unless r.empty?
     end
+    mdc.close_session
     render 'mdc/index'
   end
 
@@ -75,7 +76,8 @@ class WsController < ApplicationController
     # Person.mdc.each do |p|
     #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
     # end
-    mdc.send_push_notification(MdcUser.all,'Aggiornamento viaggi.')
+    # mdc.send_push_notification(MdcUser.all,'Aggiornamento viaggi.')
+    mdc.send_push_notification_ext(MdcUser.all,'Aggiornamento viaggi.',nil)
     # mdc.send_push_notification(['ALL'],'Aggiornamento viaggi.')
     # mdc.send_push_notification(Person.mdc.pluck(:mdc_user),'Aggiornamento viaggi.')
     mdc.commit_transaction
@@ -104,8 +106,10 @@ class WsController < ApplicationController
         # MdcUser.all.each do |p|
         #   mdc.send_push_notification([p.user],'Aggiornamento viaggi.') unless p == user
         # end
-        mdc.send_push_notification((MdcUser.all - [user]),'Aggiornamento viaggi.')
-        mdc.send_push_notification([user.user],msg)
+        # mdc.send_push_notification((MdcUser.all - [user]),'Aggiornamento viaggi.')
+        # mdc.send_push_notification([user],msg)
+        mdc.send_push_notification_ext((MdcUser.all - [user]),'Aggiornamento viaggi.',nil)
+        mdc.send_push_notification_ext([user],msg,nil)
         mdc.commit_transaction
         mdc.end_transaction
         mdc.close_session
@@ -146,6 +150,7 @@ class WsController < ApplicationController
       end
       pdf.image 'tmp.jpg', :fit => [595.28 - margins*2, 841.89 - margins*2]
     end
+    mdc.close_session
     respond_to do |format|
       format.pdf do
         send_data pdf.render, filename:
