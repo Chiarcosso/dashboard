@@ -76,7 +76,7 @@ class WsController < ApplicationController
     # Person.mdc.each do |p|
     #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
     # end
-    mdc.send_push_notification_ext(MdcUser.assigned,'Aggiornamento viaggi.',nil)
+    mdc.send_same_push_notification_ext(MdcUser.assigned,'Aggiornamento viaggi.')
     # MdcUser.assigned.each do |mdcu|
     #   mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil)
     # end
@@ -113,7 +113,7 @@ class WsController < ApplicationController
         # MdcUser.assigned.each do |mdcu|
         #   mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil) unless mdcu == user
         # end
-        mdc.send_push_notification_ext((MdcUser.assigned.to_a - [user]),'Aggiornamento viaggi.',nil)
+        mdc.send_same_push_notification_ext((MdcUser.assigned.to_a - [user]),'Aggiornamento viaggi.')
         mdc.send_push_notification_ext([user],msg,nil)
         mdc.commit_transaction
         mdc.end_transaction
