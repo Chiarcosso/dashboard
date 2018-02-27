@@ -153,6 +153,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   def begin_transaction
@@ -165,6 +166,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   def commit_transaction
@@ -177,6 +179,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   def end_transaction
@@ -189,6 +192,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   def send_push_notification_ext(deviceCodes,message,collectionID)
@@ -209,6 +213,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   def send_push_notification(deviceCodes,message)
@@ -228,6 +233,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   def insert_or_update_tabgen(tabgen)
@@ -239,6 +245,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   def delete_tabgen_by_selector(selectors)
@@ -254,6 +261,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   def select_data_collection_heads(ops)
@@ -301,6 +309,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   def download_file(filename)
@@ -313,6 +322,7 @@ class MdcWebservice
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    resp
   end
 
   private
