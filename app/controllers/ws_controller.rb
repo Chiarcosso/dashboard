@@ -16,7 +16,7 @@ class WsController < ApplicationController
     mdc = MdcWebservice.new
 
     @results = Array.new
-    MdcUser.all.each do |p|
+    MdcUser.assigned.each do |p|
       r = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.user.upcase, status: @status}).reverse[0,10]
       @results << r unless r.empty?
     end
@@ -77,7 +77,9 @@ class WsController < ApplicationController
     #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
     # end
     # mdc.send_push_notification(MdcUser.all,'Aggiornamento viaggi.')
-    mdc.send_push_notification_ext(MdcUser.assigned.to_a,'Aggiornamento viaggi.',nil)
+    MdcUser.assigned.each do |mdcu|
+      mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil)
+    end
     # mdc.send_push_notification(['ALL'],'Aggiornamento viaggi.')
     # mdc.send_push_notification(Person.mdc.pluck(:mdc_user),'Aggiornamento viaggi.')
     mdc.commit_transaction
@@ -108,7 +110,10 @@ class WsController < ApplicationController
         # end
         # mdc.send_push_notification((MdcUser.all - [user]),'Aggiornamento viaggi.')
         # mdc.send_push_notification([user],msg)
-        mdc.send_push_notification_ext((MdcUser.assigned.to_a - [user]),'Aggiornamento viaggi.',nil)
+        MdcUser.assigned.each do |mdcu|
+          mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil) unless mdcu == user
+        end
+        # mdc.send_push_notification_ext((MdcUser.assigned.to_a - [user]),'Aggiornamento viaggi.',nil)
         mdc.send_push_notification_ext([user],msg,nil)
         mdc.commit_transaction
         mdc.end_transaction
