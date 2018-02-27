@@ -4,6 +4,8 @@ class MdcUser < ApplicationRecord
   belongs_to :assigned_to_person, class_name: 'Person'
   belongs_to :assigned_to_company, class_name: 'Company'
 
+  scope :assigned, -> { where("assigned_to_person_id is not null or assigned_to_company_id is not null") }
+  
   def holder
     self.assigned_to_person.nil?? self.assigned_to_company : self.assigned_to_person
   end
