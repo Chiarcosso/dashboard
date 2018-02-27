@@ -72,9 +72,10 @@ class WsController < ApplicationController
     mdc.begin_transaction
     mdc.update_data_collection_rows_status(Base64.decode64(params.require(:data_collection_rows)))
     mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: params.require(:id), deviceCode: ''})])
-    Person.mdc.each do |p|
-      mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
-    end
+    # Person.mdc.each do |p|
+    #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
+    # end
+    mdc.send_push_notification(MdcUser.all,'Aggiornamento viaggi.')
     # mdc.send_push_notification(['ALL'],'Aggiornamento viaggi.')
     # mdc.send_push_notification(Person.mdc.pluck(:mdc_user),'Aggiornamento viaggi.')
     mdc.commit_transaction

@@ -16,7 +16,8 @@ class OutputOrder < ApplicationRecord
   scope :unprocessed, -> { where("id in (select output_order_id from output_order_items )").where(:processed => false).distinct }
   scope :processed, -> { where(:processed => true)}
   # scope :worksheet, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
-  scope :open_worksheets_filter, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('worksheets.closingDate is null') }
+  # scope :open_worksheets_filter, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('worksheets.closingDate is null') }
+  scope :open_worksheets_filter, -> { where(:destination_type => 'Worksheet').where('destination_id in (select id from worksheets where closingDate is null )') }
 
 
   def to_mobile_workshop?
