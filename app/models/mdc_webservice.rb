@@ -198,17 +198,19 @@ class MdcWebservice
   def send_push_notification_ext(deviceCodes,message,collectionID)
 
     dc = ''
+    pne = ''
     deviceCodes.each do |d|
       dc += "<ns1:username xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{d.user.upcase}</ns1:username>"
+      pne += NotificationExt.new(collectionID: collectionID, doSync: 1, playNotificationSound: 0, message: message).xml
     end
     # nots = ''
     # message.each do |n|
     #   nots += n.xml
     # end
-    pne = NotificationExt.new(collectionID: collectionID, doSync: 1, playNotificationSound: 0, message: message)
+
     request = HTTPI::Request.new
     request.url = @endpoint
-    request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendPushNotificationExt xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:notificationExtList>#{pne.xml}</ns3:notificationExtList></ns3:sendPushNotificationExt></soapenv:Body></soapenv:Envelope>"
+    request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendPushNotificationExt xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:notificationExtList>#{pne}</ns3:notificationExtList></ns3:sendPushNotificationExt></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
