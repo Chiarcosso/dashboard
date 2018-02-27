@@ -261,7 +261,7 @@ class MdcWebservice
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
-    special_logger.info(HTTPI.post(resp).body+"\n")
+    special_logger.info(HTTPI.post(resp.body)+"\n")
     unpack_response(resp.body)
   end
 
@@ -273,7 +273,7 @@ class MdcWebservice
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
     special_logger.info(request.body+"\n")
     resp = HTTPI.post(request)
-    special_logger.info(HTTPI.post(resp).body+"\n")
+    special_logger.info(HTTPI.post(resp.body)+"\n")
     unpack_response(resp.body)
   end
 
