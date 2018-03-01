@@ -107,7 +107,7 @@ module AdminHelper
     @error = nil
     data = get_vehicle_objects(r,vbase)
     begin
-      v = data[:vehicle] = ExternalVehicle.find_by_plate(r['plate'].tr('. *-',''))
+      v = data[:vehicle] = Vehicle.find_by_plate(r['plate'].tr('. *-',''))
       if @error.nil?
         if v.nil?
           if update
