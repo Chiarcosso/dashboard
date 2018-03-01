@@ -14,7 +14,7 @@
     .row
       = form_tag(:external_vehicles, method: :post, format: :js, remote: true) do |f|
         .col-sm-2
-          = text_field_tag 'external_vehicle[plate]', '', placeholder: 'Targa', class: 'autofocus json-autocomplete form-control', data: { target: 'external_vehicles/json_autocomplete_plate', destination: '#plates-autocomplete' }
+          = text_field_tag 'external_vehicle[plate]', '', placeholder: 'Targa', class: 'autofocus json-autocomplete form-control', data: { target: 'external_vehicles/json_autocomplete_plate', target_element: '#plates-autocomplete' }
         .col-sm-3
           = select_tag 'external_vehicle[owner_id]', options_from_collection_for_select(Company.not_us.where(:transporter => true).order(:name), "id", "name", Company.not_us.most_used_transporter.first), class: 'form-control'
         .col-sm-2
@@ -24,7 +24,7 @@
         .col-sm-2
           = submit_tag 'Crea', class: 'form-control'
     .row
-      .col-sm-12#json-autocomplete-destination
+      .col-sm-12#plates-autocomplete
 
 
 :javascript

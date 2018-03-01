@@ -76,7 +76,7 @@ class WsController < ApplicationController
     # Person.mdc.each do |p|
     #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
     # end
-    mdc.send_same_push_notification_ext(MdcUser.assigned,'Aggiornamento viaggi.')
+    mdc.send_same_push_notification_ext(MdcUser.assigned.to_a,'Aggiornamento viaggi.')
     # MdcUser.assigned.each do |mdcu|
     #   mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil)
     # end
@@ -85,6 +85,7 @@ class WsController < ApplicationController
     mdc.commit_transaction
     mdc.end_transaction
     mdc.close_session
+    @status = 1
     index
   end
 

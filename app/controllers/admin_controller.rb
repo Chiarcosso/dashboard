@@ -18,6 +18,11 @@ class AdminController < ApplicationController
     render :json => { html: res[:response], element: '#block-veicoli-pre'}
   end
 
+  def upsync_external_vehicles
+    res = MssqlReference::upsync_external_vehicles(params[:update]=='update')
+    render :json => { html: res[:response], element: '#block-veicoli-pre'}
+  end
+
   def upsync_trailers
     res = MssqlReference::upsync_trailers(params[:update]=='update')
     render :json => { html: res[:response], element: '#block-rimorchi1-pre'}

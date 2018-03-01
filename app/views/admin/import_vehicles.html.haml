@@ -35,6 +35,8 @@
   %li.active
     =link_to 'Veicoli', '#tab-veicoli', data: { toggle: 'tab'}, class: 'no-loader'
   %li
+    =link_to 'Veicoli esterni', '#tab-veicoli-esterni', data: { toggle: 'tab'}, class: 'no-loader'
+  %li
     =link_to 'Personale', '#tab-autisti', data: { toggle: 'tab'}, class: 'no-loader'
 
 .tab-content
@@ -44,8 +46,8 @@
         .col-sm-8
           %b="Altri mezzi"# - #{@altri_mezzi.size} trovati, "+@altri_mezzi.reject{|v| v[:route].nil?}.size.to_s+" non corretti."
         .col-sm-4
-          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_other_vehicles_path('simulate'), method: 'post', data: {}}
-          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_other_vehicles_path('update'), method: 'post', data: {}, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
+          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_other_vehicles_path('simulate'), method: 'post', data: {}, target_element: '#block-altri_mezzi-pre', check_complete: true}
+          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_other_vehicles_path('update'), method: 'post', data: {}, target_element: '#block-altri_mezzi-pre', check_complete: true, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
       .row
         .col-sm-12
           #block-altri_mezzi{style: 'height: 82%'}
@@ -59,8 +61,8 @@
         .col-sm-8
           %b="Rimorchi1"# - #{@rimorchi1.size} trovati, "+@rimorchi1.reject{|v| v[:route].nil?}.size.to_s+" non corretti."
         .col-sm-4
-          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_trailers_path('simulate'), method: 'post', data: {}}
-          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_trailers_path('update'), method: 'post', data: {}, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
+          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_trailers_path('simulate'), method: 'post', data: {}, target_element: '#block-rimorchi1-pre', check_complete: true}
+          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_trailers_path('update'), method: 'post', data: {}, target_element: '#block-rimorchi1-pre', check_complete: true, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
       .row
         .col-sm-12
           #block-rimorchi1{style: 'height: 82%'}
@@ -74,13 +76,28 @@
         .col-sm-8
           %b="Veicoli"# - #{@veicoli.size} trovati, "+@veicoli.reject{|v| v[:route].nil?}.size.to_s+" non corretti."
         .col-sm-4
-          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_vehicles_path('simulate'), method: 'post', data: {}}
-          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_vehicles_path('update'), method: 'post', data: {}, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
+          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_vehicles_path('simulate'), method: 'post', data: {}, target_element: '#block-veicoli-pre', check_complete: true}
+          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_vehicles_path('update'), method: 'post', data: {}, target_element: '#block-veicoli-pre', check_complete: true, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
       .row
         .col-sm-12
           #block-veicoli{style: 'height: 82%'}
             -# = render :partial => 'admin/import_block', locals: { results: @veicoli}
             %pre.scrollable-panel#block-veicoli-pre{ style: 'white-space: pre-line; word-wrap: unset'}
+              =@res
+
+  .tab-pane.active#tab-veicoli-esterni
+    .container-fluid
+      .row
+        .col-sm-8
+          %b="Veicoli esterni"# - #{@veicoli.size} trovati, "+@veicoli.reject{|v| v[:route].nil?}.size.to_s+" non corretti."
+        .col-sm-4
+          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_external_vehicles_path('simulate'), method: 'post', data: {}, target_element: '#block-veicoli-esterni-pre', check_complete: true}
+          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_external_vehicles_path('update'), method: 'post', data: {}, target_element: '#block-veicoli-esterni-pre', check_complete: true, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
+      .row
+        .col-sm-12
+          #block-veicoli-esterni{style: 'height: 82%'}
+            -# = render :partial => 'admin/import_block', locals: { results: @veicoli}
+            %pre.scrollable-panel#block-veicoli-esterni-pre{ style: 'white-space: pre-line; word-wrap: unset'}
               =@res
 
   .tab-pane#tab-autisti

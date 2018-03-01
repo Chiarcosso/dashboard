@@ -1,4 +1,5 @@
 class Vehicle < ApplicationRecord
+  include AdminHelper
   resourcify
 
   # def self.carwash_codes
@@ -67,6 +68,68 @@ class Vehicle < ApplicationRecord
   def self.find_by_reference(table,id)
     v = MssqlReference.find_by(remote_object_table: table, remote_object_id: id).local_object
     # find and create new vehicle if v.nil?
+  end
+
+  def self.get_or_create_by_reference(table, id)
+    v = MssqlReference.find_by(remote_object_table: table, remote_object_id: id).local_object
+    if v.nil?
+      case table
+      when 'Veicoli' then
+        query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
+                    "Tipo.Tipodiveicolo as type, ditta as property, marca as manufacturer, "\
+                    "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
+                    "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
+                    "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, categoria as category, motivo_fuori_parco "\
+                    "from veicoli "\
+                    "left join Tipo on veicoli.IDTipo = Tipo.IDTipo "\
+                    "left join [Tipologia rimorchio/semirimorchio] tipologia on veicoli.Id_Tipologia = tipologia.ID "\
+                    "where idveicolo = #{id}"
+        ref = MssqlReference::get_client.execute(query)[0]
+        unless ref.nil?
+          if ref['Model'].nil?
+            v = create_external_vehicle_from_veicoli ref
+          else
+            v = create_vehicle_from_veicoli ref
+          end
+        end
+      when 'Rimorchi1' then
+        query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
+                    "Tipo.Tipodiveicolo as type, ditta as property, marca as manufacturer, "\
+                    "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
+                    "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
+                    "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, categoria as category, motivo_fuori_parco "\
+                    "from veicoli "\
+                    "left join Tipo on veicoli.IDTipo = Tipo.IDTipo "\
+                    "left join [Tipologia rimorchio/semirimorchio] tipologia on veicoli.Id_Tipologia = tipologia.ID "\
+                    "where idveicolo = #{id}"
+        ref = MssqlReference::get_client.execute(query)[0]
+        unless ref.nil?
+          if ref['Model'].nil?
+            v = create_external_vehicle_from_veicoli ref
+          else
+            v = create_vehicle_from_veicoli ref
+          end
+        end
+      when 'Altri mezzi' then
+        query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
+                    "Tipo.Tipodiveicolo as type, ditta as property, marca as manufacturer, "\
+                    "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
+                    "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
+                    "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, categoria as category, motivo_fuori_parco "\
+                    "from veicoli "\
+                    "left join Tipo on veicoli.IDTipo = Tipo.IDTipo "\
+                    "left join [Tipologia rimorchio/semirimorchio] tipologia on veicoli.Id_Tipologia = tipologia.ID "\
+                    "where idveicolo = #{id}"
+        ref = MssqlReference::get_client.execute(query)[0]
+        unless ref.nil?
+          if ref['Model'].nil?
+            v = create_external_vehicle_from_veicoli ref
+          else
+            v = create_vehicle_from_veicoli ref
+          end
+        end
+      end
+    end
   end
 
   def long_label

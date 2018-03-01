@@ -10,6 +10,7 @@
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+/*global $ */
 //= require jquery
 //= require bootstrap
 //= require jquery_ujs
@@ -18,210 +19,245 @@
 //= require jquery-ui
 //= require autocomplete-rails
 //= require_tree .
-function autofocus_ready_func(){
-  $('.autofocus').first().val($('.autofocus').first().val());
-  $('.autofocus').first().select().focus();
+
+function deactivateLoadingScreen() {
+    "use strict";
+    $('.loading-screen').hide();
 }
 
-function error_click_func(event){
-  $('.selected-row').removeClass('selected-row');
-  $(this).fadeOut(400,function(){$(this).remove()});
-  deactivateLoadingScreen();
+function autofocus_ready_func() {
+    "use strict";
+    $('.autofocus').first().val($('.autofocus').first().val());
+    $('.autofocus').first().select().focus();
 }
 
-function infobox_block_mouseenter_func(){
-  el = $(this).clone();
-  $('.infobox-block-expanded').remove();
-  if($(this).data('expand')){
-    $(el).removeClass('infobox-block');
-    $(el).addClass('infobox-block-expanded');
-    $('body').append(el);
-    var top = $(this).offset().top +2;
-    var left = $(this).offset().left + 2;
-    $(el).css('top',top+'px');
-    $(el).css('left',left+'px');
-  }
+function error_click_func() {
+    "use strict";
+    $('.selected-row').removeClass('selected-row');
+    $(this).fadeOut(400, function () { $(this).remove(); });
+    deactivateLoadingScreen();
 }
 
-function infobox_block_expanded_mouseleave_func(){
-  $('.infobox-block-expanded').remove();
+function infobox_block_mouseenter_func() {
+    "use strict";
+    var el, top, left;
+    el = $(this).clone();
+    $('.infobox-block-expanded').remove();
+    if ($(this).data('expand')) {
+        $(el).removeClass('infobox-block');
+        $(el).addClass('infobox-block-expanded');
+        $('body').append(el);
+        top = $(this).offset().top + 2;
+        left = $(this).offset().left + 2;
+        $(el).css('top', top + 'px');
+        $(el).css('left', left + 'px');
+    }
 }
 
-function complete_infobox_link_func(data){
-  $('#'+name).html(data.responseText);
+function infobox_block_expanded_mouseleave_func() {
+    "use strict";
+    $('.infobox-block-expanded').remove();
 }
 
-function infobox_button_click_func(){
-  $('.selected-row').removeClass('selected-row');
-  $(this).parents('.row').first().addClass('selected-row');
-  name = $(this).data('name');
-  target = $(this).data('target');
-  if($('#'+name).length == 0 ){
-    $('.infobox').remove();
-    $('body').append('<div class="infobox" id="'+name+'"></div>');
-    $.ajax({
-      method: 'GET',
-      url: target,
-      complete: complete_infobox_link_func
-    });
-  } else {
-    $('#'+name).remove();
-  }
+var infobox_name;
+function complete_infobox_link_func(data) {
+    "use strict";
+    $('#' + infobox_name).html(data.responseText);
 }
 
-function complete_popup_link_func(data){
-   $('.popup#'+name).remove();
-   $('body').append('<div class="popup" id="'+name+'"></div>');
-   $('#'+name).html(data.responseText);
-   $('#'+name).append('<div class="close">Chiudi</div>');
- }
-
- function popup_link_func(e){
-   if(this.nodeName == 'INPUT' && $(this).attr('type') == 'submit'){
-     action = $(this).form().attr('action');
-     method = $(this).form().attr('method');
-     data = $(this).form().serializeArray();
-     name = $(this).data('name').replace(' ','_');
-   } else {
-     e.preventDefault();
-     // activateLoadingScreen();
-     if (typeof $(this).data('method') != undefined){
-       method = $(this).data('method');
-     } else {
-       method = 'GET';
-     }
-     action = $(this).data('target');
-     name = $(this).data('name').replace(' ','_');
-     if (typeof $(this).data('data') != undefined){
-       data = $(this).data('data');
-     }
-   }
-   $.ajax({
-       type: method,
-       url: action,
-       data: data,
-       complete: complete_popup_link_func
-   });
-   return false;
- }
-
- function changing_checkbox_change_func(){
-   var eqs = [];
-   var class_name = $(this).data('class');
-   $.each($('.'+class_name+':checked'),function(){
-     eqs.push($(this).val());
-   });
-   data = $('.changing-checkbox').data('data');
-   data[class_name] = eqs;
-   $('.changing-select').data('data',data);
-   $('.changing-checkbox').data('data',data);
- }
-
- function changing_select_change_func(){
-     url = $(this).data('target');
-     data = $(this).data('data');
-     data[this.id] = $(this).val();
-     $.ajax({
-       url: url,
-       method: 'post',
-       data: data
-     });
- }
-
- function close_click_func(){
-   $('.custom-autocomplete-dropdown').remove();
-   specificCloseFunctions();
-   $(this).parent().fadeOut(400,function(){$(this).remove()});
-   deactivateLoadingScreen();
- }
-
- function complete_ajax_link_func(data){
-   params = JSON.parse(data.responseText);
-   console.log(data.responseText);
-   $(params.element).html(params.html);
-   deactivateLoadingScreen();
- }
-
- function ajax_link_click_func(e){
-   if((typeof $(this).data('confirmation')) != 'undefined'){
-     if(!confirm($(this).data('confirmation'))){
-       return null;
-     }
-   }
-   activateLoadingScreen();
-   e.preventDefault();
-
-   var target = $(this).data('target');
-   // var method = $(this).parents('form').first().children('input[name=_method]').val();
-   var method = $(this).data('method');
-   var data = $(this).data('data');
-   if ($(this).data('check_complete')){
-    complete = complete_ajax_link_func;
+function infobox_button_click_func() {
+    "use strict";
+    $('.selected-row').removeClass('selected-row');
+    $(this).parents('.row').first().addClass('selected-row');
+    var target;
+    infobox_name = $(this).data('name');
+    target = $(this).data('target');
+    if ($('#' + infobox_name).length === 0) {
+        $('.infobox').remove();
+        $('body').append('<div class="infobox" id="' + infobox_name + '"></div>');
+        $.ajax({
+            method: 'GET',
+            url: target,
+            complete: complete_infobox_link_func
+        });
     } else {
-      complete = null;
+        $('#' + infobox_name).remove();
     }
-   $.ajax({
-       type: method,
-       url: target,
-       data: data,
-       complete: complete
-     });
- }
+}
 
-function complete_json_autocomplete_keyup_func(data){
-  data = JSON.parse(data.responseText);
-  $('#json-autocomplete-destination').html('');
-  for( i = 0 ; i < data.length; i++){
-    row = '<div class="row colored"></div>';
-    $('#json-autocomplete-destination').append($(row));
-    for( j = 0; j < data[i].length; j++){
-      $(row).append($('<div class="col-sm-'+data[i][j].width+'">'+data[i][j].value+'</div>'));
+var popup_name;
+function complete_popup_link_func(data) {
+    "use strict";
+    $('.popup#' + popup_name).remove();
+    $('body').append('<div class="popup" id="' + popup_name + '"></div>');
+    $('#' + popup_name).html(data.responseText);
+    $('#' + popup_name).append('<div class="close">Chiudi</div>');
+}
+
+function popup_link_func(e) {
+    "use strict";
+    var method, action, data;
+    popup_name = $(this).data('name').replace(' ', '_');
+    if (this.nodeName === 'INPUT' && $(this).attr('type') === 'submit') {
+        action = $(this).form().attr('action');
+        method = $(this).form().attr('method');
+        data = $(this).form().serializeArray();
+    } else {
+        e.preventDefault();
+       // activateLoadingScreen();
+        if ($(this).data('method') !== undefined) {
+            method = $(this).data('method');
+        } else {
+            method = 'GET';
+        }
+        action = $(this).data('target');
+        if ($(this).data('data') !== undefined) {
+            data = $(this).data('data');
+        }
     }
-  }
+    $.ajax({
+        type: method,
+        url: action,
+        data: data,
+        complete: complete_popup_link_func
+    });
+    return false;
 }
 
-function json_autocomplete_keyup_func(){
-  $($(this).data('destination')).attr('id','#json-autocomplete-destination');
-  $.ajax({
-    url: $(this).data('target'),
-    method: 'post',
-    data: {search: $(this).val()},
-    complete: complete_json_autocomplete_keyup_func
-  });
+function changing_checkbox_change_func() {
+    "use strict";
+    var eqs, class_name, data;
+    eqs = [];
+    class_name = $(this).data('class');
+    $.each($('.' + class_name + ':checked'), function () {
+        eqs.push($(this).val());
+    });
+    data = $('.changing-checkbox').data('data');
+    data[class_name] = eqs;
+    $('.changing-select').data('data', data);
+    $('.changing-checkbox').data('data', data);
 }
 
-function activateJS(){
-
-  $('#center').on('load', '.autofocus',autofocus_ready_func);
-
-  $('body').on("click",".error,.infobox", error_click_func);
-
-  $('body').on("mouseenter",".infobox-block", infobox_block_mouseenter_func);
-
-  $('body').on("mouseleave",".infobox-block-expanded", infobox_block_expanded_mouseleave_func);
-
-  $('body').on('click', '.infobox-button', infobox_button_click_func);
-
-  $('body').on('change','.changing-checkbox',changing_checkbox_change_func);
-
-  $('body').on('change','.changing-select,.changing-checkbox',changing_select_change_func);
-
-  $('body').on('click', '.close', close_click_func);
-
-  $('body').on('click', '.popup-link', popup_link_func);
-
-  $('body').on('click', '.ajax-link', ajax_link_click_func);
-
-  $('body').on('keyup', '.json-autocomplete', json_autocomplete_keyup_func);
+function changing_select_change_func() {
+    "use strict";
+    var url, data;
+    url = $(this).data('target');
+    data = $(this).data('data');
+    data[this.id] = $(this).val();
+    $.ajax({
+        url: url,
+        method: 'post',
+        data: data
+    });
 }
 
-function activateErrors(){
-  // $('.error').delay(3000).fadeOut();
+function close_click_func() {
+    "use strict";
+    $('.custom-autocomplete-dropdown').remove();
+    specificCloseFunctions();
+    $(this).parent().fadeOut(400, function () {$(this).remove(); });
+    deactivateLoadingScreen();
 }
 
-function activateCustomAutocomplete(func){
-  $('.custom_autocomplete').off('keyup');
-  $('.custom_autocomplete').on('keyup',function(e){
+var ajax_link_element;
+function complete_ajax_link_func(data) {
+    "use strict";
+    var params = JSON.parse(data.responseText);
+    $(ajax_link_element).html(params.html);
+    deactivateLoadingScreen();
+}
+
+function ajax_link_click_func(e) {
+    "use strict";
+    if (($(this).data('confirmation')) !== undefined) {
+        if (!confirm($(this).data('confirmation'))) {
+            return null;
+        }
+    }
+    activateLoadingScreen();
+    e.preventDefault();
+    var target, method, data, complete;
+    target = $(this).data('target');
+    // var method = $(this).parents('form').first().children('input[name=_method]').val();
+    method = $(this).data('method');
+    data = $(this).data('data');
+    ajax_link_element = $(this).data('target-element');
+    if ($(this).data('check-complete')) {
+        complete = complete_ajax_link_func;
+    } else {
+        complete = null;
+    }
+    $.ajax({
+        type: method,
+        url: target,
+        data: data,
+        complete: complete
+    });
+}
+
+var json_link_element;
+function complete_json_autocomplete_keyup_func(data) {
+    "use strict";
+    data = JSON.parse(data.responseText);
+    var i, j, row, content;
+    $(json_link_element).html('');
+    for (i = 0; i < data.length; i += 1) {
+        content = '<div class="row colored">';
+        for (j = 0; j < data[i].length; j += 1) {
+            // $(row).append($('<div class="col-sm-' + data[i][j].width + '">' + data[i][j].value + '</div>'));
+            content += '<div class="col-sm-' + data[i][j].width + '">' + data[i][j].value + "</div>\n";
+        }
+        content += '</div>';
+        $(json_link_element).append(content);
+    }
+}
+
+function json_autocomplete_keyup_func() {
+    "use strict";
+    // $($(this).data('destination')).attr('id', '#json-autocomplete-destination');
+    json_link_element = $(this).data('target-element')
+    $.ajax({
+        url: $(this).data('target'),
+        method: 'post',
+        data: {search: $(this).val()},
+        complete: complete_json_autocomplete_keyup_func
+    });
+}
+
+function activateJS() {
+    "use strict";
+    $('#center').on('load', '.autofocus', autofocus_ready_func);
+
+    $('body').on("click", ".error,.infobox", error_click_func);
+
+    $('body').on("mouseenter", ".infobox-block", infobox_block_mouseenter_func);
+
+    $('body').on("mouseleave", ".infobox-block-expanded", infobox_block_expanded_mouseleave_func);
+
+    $('body').on('click', '.infobox-button', infobox_button_click_func);
+
+    $('body').on('change', '.changing-checkbox', changing_checkbox_change_func);
+
+    $('body').on('change', '.changing-select,.changing-checkbox', changing_select_change_func);
+
+    $('body').on('click', '.close', close_click_func);
+
+    $('body').on('click', '.popup-link', popup_link_func);
+
+    $('body').on('click', '.ajax-link', ajax_link_click_func);
+
+    $('body').on('keyup', '.json-autocomplete', json_autocomplete_keyup_func);
+}
+
+// function activateErrors() {
+//     "use strict";
+//     // $('.error').delay(3000).fadeOut();
+// }
+
+function activateCustomAutocomplete(func) {
+    "use strict";
+    $('.custom_autocomplete').off('keyup');
+    $('.custom_autocomplete').on('keyup', function(e) {
     var focusElement;
     if(e.which == 13) {
       e.preventDefault();
@@ -325,7 +361,7 @@ function activateCustomAutocomplete(func){
   });
 }
 
-function activateHideBlock(){
+function activateHideBlock() {
   $('.hide-block').off('click');
   $('.hide-block').on('click',function(){
     element = $(this).data('block');
@@ -333,7 +369,7 @@ function activateHideBlock(){
   });
 }
 
-function activatePopUp(){
+function activatePopUp() {
   $('.popup-link').off('click');
   $('.popup-link').on('click', function(e){
     if(this.nodeName == 'INPUT' && $(this).attr('type') == 'submit'){
@@ -377,7 +413,7 @@ function activatePopUp(){
   });
 }
 
-function activateGallery(){
+function activateGallery() {
   $('.gallery-image').off('click');
   $('.gallery-image').on('click',function(){
     $('body').append('<div class="popup gallery-popup" id="gallery"><div class="close">Chiudi</div><div class="scrollable-panel"><img src="'+this.src+'" class="gimage gi-rotate-0"/></div></div>');
@@ -432,7 +468,7 @@ function activateGallery(){
     //   }
     //   move = false;
     // });
-    $('.gimage').on('mousemove',function(e){
+    $('.gimage').on('mousemove',function(e) {
       if(move){
         spaceX = offsetX - e['pageX'];
         spaceY = offsetY - e['pageY'];
@@ -450,26 +486,26 @@ function activateGallery(){
   });
 }
 
-function activateLoadingScreen(){
+function activateLoadingScreen() {
   $('form').on('submit',function(){
 
     if(!$(this).hasClass('no-loader') && $(this).children('.no-loader').length == 0) {
       activateLoadingScreen();
     }
   });
-  $('input[type=submit]').on('click',function(){
+  $('input[type=submit]').on('click',function() {
 
     if(!$(this).hasClass('no-loader')) {
       activateLoadingScreen();
     }
   });
-  $('a').on('click',function(){
+  $('a').on('click',function() {
 
     if(!$(this).hasClass('no-loader') && !$(this).hasClass('dropdown-toggle') ) {
       activateLoadingScreen();
     }
   });
-  $('button').on('click',function(){
+  $('button').on('click',function() {
 
     if(!$(this).hasClass('no-loader')) {
       activateLoadingScreen();
@@ -479,17 +515,14 @@ function activateLoadingScreen(){
   $('.loading-screen').show();
 }
 
-function deactivateLoadingScreen(){
-  $('.loading-screen').hide();
-}
 
-function reloadSelectBoxes(){
+function reloadSelectBoxes() {
   $('select').each(function(select){
     console.log($('select').html());
   });
 };
 
-function activateClose(){
+function activateClose() {
   $('.close').off('click');
   $('.close').on('click',function(){
     $('.custom-autocomplete-dropdown').remove();
@@ -499,7 +532,7 @@ function activateClose(){
   });
 };
 
-function activateReserveAlert(){
+function activateReserveAlert() {
   if($('.signal-danger').length > 0){
     $.each($('.signal-danger'),function(){
       alert($(this).data('name')+' è sotto la scorta minima.');
@@ -507,7 +540,7 @@ function activateReserveAlert(){
   }
 }
 
-function activateFinder(){
+function activateFinder() {
   $('.finder').off();
   $('.finder').on('keyup',function(e){
     var target = $(this).data('target')+$(this).val();
@@ -522,7 +555,7 @@ function activateFinder(){
   });
 }
 
-function activateDelete(){
+function activateDelete() {
   $('.delete').off('click');
   $('.delete').on('click',function(e){
     e.preventDefault();
@@ -544,13 +577,13 @@ function activateDelete(){
   });
 };
 
-function activateAF(){
+function activateAF() {
   // $('.autofocus').first().focus();
   // // $('.autofocus').val('');
   // $('.autofocus').first().select();
 };
 
-function activateDatePicker(date){
+function activateDatePicker(date) {
   if(typeof date == null){
     dt = new Date();
   } else {
@@ -566,7 +599,7 @@ function activateDatePicker(date){
 
 };
 
-function preventCr(){
+function preventCr() {
   $('.prevent-cr').on('keypress', function(e){
     if(e.which == 13){
       e.preventDefault();
@@ -575,7 +608,7 @@ function preventCr(){
   })
 };
 
-function activateAutoComplete(){
+function activateAutoComplete() {
   $('.autocomplete').off('ready');
   $('.autocomplete').on('ready',function(){
     var context = $(this).data('context');
@@ -612,7 +645,7 @@ function domInit() {
   activateClose();
   activateAF();
   activateDelete();
-  $('.popup form').submit(function(){
+  $('.popup form').submit(function() {
     specificSubmitFunctions();
       reloadSelectBoxes();
       $(this).parents('.popup').children('.close:first').trigger('click');
@@ -650,12 +683,12 @@ function domInit() {
   });
 
   $('.on-top').off('click');
-  $('.on-top').on('click',function(e){
+  $('.on-top').on('click',function(e) {
     e.stopPropagation();
   });
 
   $('.hover-hilight').off('click');
-  $('.hover-hilight').on('click',function(e){
+  $('.hover-hilight').on('click',function(e) {
     var itemRow = $(this);
 
     if ($(this).data('popup') == true) {
@@ -667,7 +700,7 @@ function domInit() {
 
       $('#amount').focus();
       $('#amount').off('keypress');
-      $('#amount').on('keypress',function(e){
+      $('#amount').on('keypress',function(e) {
         if(e.which == '13'){
           $('.popup').remove();
           // itemRow.find('#chamount').val($(this).val());
@@ -700,7 +733,7 @@ function domInit() {
     }
   });
 
-  if($('.autosearch').length > 0){
+  if($('.autosearch').length > 0) {
     var l = $('.autosearch').val().length;
     $('.autosearch').first()[0].setSelectionRange(l,l);
     $('.autosearch').first().focus();
@@ -721,7 +754,7 @@ function domInit() {
   // });
 
   $('.autosearch').off('keyup');
-  $('.autosearch').on('keyup',function(e){
+  $('.autosearch').on('keyup',function(e) {
     var element = this;
     var form = $(this).parents('form').first();
     // window.clearTimeout(timer);
@@ -748,7 +781,7 @@ function domInit() {
 
 
   $('.ajax-link-select').off('change');
-  $('.ajax-link-select').on('change',function(e){
+  $('.ajax-link-select').on('change',function(e) {
     activateLoadingScreen();
     e.preventDefault();
     var form = $(this).parents('form').first()[0];
@@ -767,7 +800,7 @@ function domInit() {
   });
 
   $('.ajax-link-stand-alone').off('click');
-  $('.ajax-link-stand-alone').on('click',function(e){
+  $('.ajax-link-stand-alone').on('click',function(e) {
     e.preventDefault();
     e.stopPropagation();
     var route = $(this).data('route');
@@ -789,7 +822,7 @@ function domInit() {
   });
 
   $('.popup-link').off('click');
-  $('.popup-link').on('click', function(e){
+  $('.popup-link').on('click', function(e) {
     activateLoadingScreen();
     var target = $(this).data('target');
     var name = $(this).data('name');

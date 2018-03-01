@@ -101,7 +101,7 @@ class Worksheet < ApplicationRecord
           table = 'Rimorchi1'
       end
 
-      vehicle = Vehicle.get_by_reference(table,odl['CodiceAutomezzo'])
+      vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
       if ws.nil?
         Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle)
       else
