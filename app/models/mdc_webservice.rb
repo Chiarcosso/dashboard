@@ -40,8 +40,8 @@ class MdcWebservice
     case what
       when :vacation then
         MdcUser.assigned.each do |p|
-          puts "VACATION Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
-          mdc.get_vacation_data({applicationID: 'FERIE', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
+          puts "VACATION Search for user #{p.user.upcase} (#{p.complete_name})"
+          mdc.get_vacation_data({applicationID: 'FERIE', deviceCode: p.user.upcase, status: 0}).each do |r|
 
               r.send_mail unless r.data.nil?
 
@@ -50,8 +50,8 @@ class MdcWebservice
         end
       when :gear then
         MdcUser.assigned.each do |p|
-          puts "GEAR Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
-          mdc.get_gear_data({applicationID: 'GEAR', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
+          puts "GEAR Search for user #{p.user.upcase} (#{p.complete_name})"
+          mdc.get_gear_data({applicationID: 'GEAR', deviceCode: p.user.upcase, status: 0}).each do |r|
 
               r.send_mail unless r.data.nil?
 

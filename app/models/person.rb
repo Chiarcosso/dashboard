@@ -8,7 +8,7 @@ class Person < ApplicationRecord
   has_one :carwash_driver_code, :dependent => :destroy
   has_many :mssql_references, as: :local_object
   has_many :vehicle_properties, as: :owner
-  
+
   scope :order_alpha, -> { order(:name).order(:surname) }
   scope :order_alpha_surname, -> { order(:surname).order(:name) }
   # scope :find_by_complete_name,->(name) { where("lower(concat_ws(' ',surname,name)) = ?", name) }
@@ -61,7 +61,8 @@ class Person < ApplicationRecord
   end
 
   def self.find_by_mdc_user(user)
-    Person.mdc.where(:mdc_user => user).first
+    # Person.mdc.where(:mdc_user => user).first
+    Person.find(MdcUser.find_by(user: user).assigned_to_person_id)
   end
 
   def complete_name

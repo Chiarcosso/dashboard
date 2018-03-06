@@ -64,7 +64,8 @@
             = hidden_field_tag :vvehicle_id, @recipient.plate, id: 'vehicle_id'
         - when :Worksheet
           .col-sm-4
-            = text_field_tag :recipient, @recipient.nil? ? nil : @recipient.code, placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control finder', data: { target: '/output/ws/' }
+            -# = hidden_field_tag :recipient, @recipient.nil? ? nil : @recipient.code, placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control finder', data: { target: '/output/ws/' }
+            = hidden_field_tag :recipient, @recipient.nil? ? nil : @recipient.code, placeholder: 'Ordine di lavoro', class: 'prevent-cr form-control finder', data: { target: '/output/ws/' }
             = hidden_field_tag :worksheet_id, @recipient.nil? ? '' : @recipient.id, id: 'worksheet_id'
           .col-sm-8
             -# = select_tag :vehicle, options_from_collection_for_select(Vehicle.order_by_plate, "id", "plate", @recipient.nil? ? nil : @recipient.vehicle), class: 'form-control'

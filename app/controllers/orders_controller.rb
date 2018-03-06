@@ -743,7 +743,7 @@ class OrdersController < ApplicationController
     end
 
     def worksheet_params
-      ws = Worksheet.find_or_create_by_code(params.require(:search)[/(\d*)$/,1])
+      ws = Worksheet.find_or_create_by_code(params.require(:recipient)[/(\d*)$/,1])
       @destination = 'Worksheet'
       if ws.nil? and $error.nil?
         $error += "Impossibile trovare ODL nr. #{params.require(:search)[/(\d*)$/,1]}" if $error.nil?
