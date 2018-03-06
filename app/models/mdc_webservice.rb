@@ -725,13 +725,17 @@ class VacationRequest
 
       @date = Date.strptime(dcr.data[:date], '%Y%m%d')
       @dataCollectionRowKey = dcr.dataCollectionRowKey
+      begin
       case dcr.data[:fieldCode]
-      when 'date_from' then @data[:date_from] = dcr.data[:extendedValue].nil? ? nil : Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
-        when 'date_to' then @data[:date_to] = dcr.data[:extendedValue].nil? ? nil : Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
+        when 'date_from' then @data[:date_from] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
+        when 'date_to' then @data[:date_to] = Date.strptime(dcr.data[:extendedValue], '%d/%m/%Y')
         # when 'time_from' then @data[:time_from] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
         # when 'time_to' then @data[:time_to] = Date.strptime(dcr.data[:extendedValue], '%h:%M:%s')
       end
-
+    rescue Exception => e
+      puts e.message
+      puts e.backtrack
+    end
       if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
          @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
       end
