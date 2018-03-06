@@ -113,14 +113,14 @@ class Worksheet < ApplicationRecord
     end
     begin
       vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
-      $error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil? and $error.nil?
+      @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil? and @error.nil?
       if ws.nil?
         ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle)
       else
         ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: odl['DataUscitaVeicolo'].nil?? nil : Date.parse(odl['DataUscitaVeicolo']))
       end
     rescue Exception => e
-      $error = e.message if $error.nil?
+      @error = e.message if @error.nil?
     end
     ws
   end

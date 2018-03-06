@@ -23,29 +23,29 @@ module AdminHelper
     res[:vehicle_equipments] = Array.new
     res[:vehicle_type] = VehicleType.find_by(:name => r['type'])
     if res[:vehicle_type].nil?
-      $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle type: #{r['type']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle type: #{r['type']}"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipo non valido: #{r['type']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     res[:property] = res[:atc] if r['property'] == 'A'
     res[:property] = res[:te] if r['property'] == 'T'
     res[:property] = res[:ec] if r['property'] == 'E'
     if res[:property].nil?
-      $error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     res[:manufacturer] = Company.find_by(:name => r['manufacturer'])
     if res[:manufacturer].nil?
-      $error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     res[:model] = VehicleModel.where(:name => r['model'], :manufacturer => res[:manufacturer]).first
     if res[:model].nil?
-      $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     res[:registration_model] = r['registration_model']
     if r['notdismissed'] == false
@@ -63,27 +63,27 @@ module AdminHelper
         res[:vehicle_typology] = VehicleTypology.find_by(:name => r['typology'])
       end
       if res[:vehicle_typology].nil?
-        $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
+        @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
         res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
-        mssql_reference_logger.error($error)
+        mssql_reference_logger.error(@error)
       end
     end
     res[:mileage] = r['mileage'].to_i
     begin
       res[:registration_date] = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
     rescue
-      $error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     if r['category'] == '' or r['category'] == 'NULL' or r['category'].nil?
       res[:vehicle_category] = VehicleCategory.not_available
     else
       res[:vehicle_category] = VehicleCategory.find_by(:name => r['category'])
       if res[:vehicle_category].nil?
-        $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle category: #{r['category']}"
+        @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle category: #{r['category']}"
         res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Categoria non valida: #{r['category']}</span>\n"
-        mssql_reference_logger.error($error)
+        mssql_reference_logger.error(@error)
       end
     end
     if r['carwash_code'].nil? or r['carawash_code'] == ''
@@ -92,9 +92,9 @@ module AdminHelper
       r['carwash_code'] = res[:carwash_code] = Vehicle.carwash_codes.key(r['carwash_code'].to_i)
     end
     if r['plate'].nil?
-      $error = " #{r['plate']} (#{r['id']}) - Blank plate"
+      @error = " #{r['plate']} (#{r['id']}) - Blank plate"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     else
       res[:plate] = r['plate']
       res[:vehicle] = Vehicle.find_by_plate(r['plate'].tr('. *-',''))
@@ -104,11 +104,11 @@ module AdminHelper
   end
 
   def create_vehicle_from_veicoli(r,update = true,vbase = get_vehicle_basis)
-    $error = nil
+    @error = nil
     data = get_vehicle_objects(r,vbase)
     begin
       v = data[:vehicle] = Vehicle.find_by_plate(r['plate'].tr('. *-',''))
-      if $error.nil?
+      if @error.nil?
         if v.nil?
           if update
             v = Vehicle.create(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code])
@@ -141,7 +141,11 @@ module AdminHelper
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
           end
           unless v.has_property?( data[:property])
-            vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date) if update
+            if update
+              vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date)
+            else
+              vp = VehicleProperty.new(vehicle: v, owner: data[:property], date_since: v.registration_date)
+            end
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta proprietà: #{vp.owner.complete_name}.\n"
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Property added: #{vp.owner.complete_name} #{I18n.l vp.date_since}.")
           end
@@ -163,7 +167,11 @@ module AdminHelper
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
           end
           unless v.has_property?( data[:property])
-            vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date) if update
+            if update
+              vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date)
+            else
+              vp = VehicleProperty.new(vehicle: v, owner: data[:property], date_since: v.registration_date)
+            end
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta proprietà: #{vp.owner.complete_name}.\n"
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Property added: #{vp.owner.complete_name} #{I18n.l vp.date_since}.")
           end
@@ -177,7 +185,7 @@ module AdminHelper
           data[:response] += "Access - tipo: #{data[:vehicle_type].name}, proprietà: #{data[:property].name}, modello: #{data[:model].complete_name}, modello libretto: #{data[:registration_model]}, dismesso: #{data[:dismissed].to_s}, tipologia: #{data[:vehicle_typology].name}, chilometraggio: #{data[:mileage]}, data immatricolazione: #{data[:registration_date].strftime("%d/%m/%Y")}, categoria: #{data[:vehicle_category].name}, codice_lavaggio: #{data[:carwash_code]}.\n"
           mssql_reference_logger.info("Access - vehicle_type: #{data[:vehicle_type].name}, property: #{data[:property].name}, model: #{data[:model].complete_name}, registration_model: #{data[:registration_model]}, dismissed: #{data[:dismissed].to_s}, vehicle_typology: #{data[:vehicle_typology].name}, mileage: #{data[:mileage]}, registration_date: #{data[:registration_date].strftime("%d/%m/%Y")}, vehicle_category: #{data[:vehicle_category].name}, carwash_code: #{data[:carwash_code]}.")
 
-          if v.find_information(data[:chassis]).nil?
+          if v.find_information(data[:chassis_info]).nil?
             VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: data[:registration_date]) if update
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
@@ -196,7 +204,11 @@ module AdminHelper
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
           end
           unless v.has_property?( data[:property])
-            vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date) if update
+            if update
+              vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date)
+            else
+              vp = VehicleProperty.new(vehicle: v, owner: data[:property], date_since: v.registration_date)
+            end
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta proprietà: #{vp.owner.complete_name}.\n"
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Property added: #{vp.owner.complete_name} #{I18n.l vp.date_since}.")
           end
@@ -231,14 +243,14 @@ module AdminHelper
     end
 
     if res[:vehicle_typology].nil?
-      $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     if r['owner'].nil?
-      $error = " #{r['plate']} (#{r['id']}) - no owner id"
+      @error = " #{r['plate']} (#{r['id']}) - no owner id"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Id fornitore mancante</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     else
       res[:owner] = Company.find_by(:name => r['owner'].titleize)
       if res[:owner].nil?
@@ -248,15 +260,15 @@ module AdminHelper
           res[:owner] = Company.new(:name => r['owner'].titleize, transporter: true)
         end
         res[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Creata ditta: #{res[:owner].name} (id: #{res[:owner].id})\n"
-        mssql_reference_logger.error($error)
+        mssql_reference_logger.error(@error)
       end
     end
     res[:idveicolo] = r['id']
     res[:idfornitore] = r['idfornitore']
     if r['plate'].nil?
-      $error = " #{r['plate']} (#{r['id']}) - Blank plate"
+      @error = " #{r['plate']} (#{r['id']}) - Blank plate"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     else
       res[:plate] = r['plate']
       res[:vehicle] = ExternalVehicle.find_by(plate: r['plate'].tr('. *-',''))
@@ -266,11 +278,11 @@ module AdminHelper
   end
 
   def create_external_vehicle_from_veicoli(r,update = true,vbase = get_vehicle_basis)
-    $error = nil
+    @error = nil
     data = get_external_vehicle_objects(r,vbase)
     begin
       v = data[:vehicle]
-      if $error.nil?
+      if @error.nil?
         if v.nil?
           if update
             v = ExternalVehicle.create(plate: data[:plate].tr('. *-','').upcase, vehicle_type: data[:vehicle_type], owner: data[:owner], vehicle_typology: data[:vehicle_typology], id_veicolo: data[:idveicolo], id_fornitore: data[:idfornitore])
@@ -323,33 +335,33 @@ module AdminHelper
   end
 
   def create_vehicle_from_rimorchi1(r,update,vbase)
-    $error = nil
+    @error = nil
     data = get_vehicle_objects(r,vbase)
     # vehicle_equipments = Array.new
     # vehicle_type = VehicleType.find_by(:name => r['type'])
     # if vehicle_type.nil?
-    #   $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle type: #{r['type']}"
+    #   @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle type: #{r['type']}"
     #   response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipo non valido: #{r['type']}</span>\n"
-    #   mssql_reference_logger.error($error)
+    #   mssql_reference_logger.error(@error)
     # end
     # property = atc if r['property'] == 'A'
     # property = te if r['property'] == 'T'
     # if property.nil?
-    #   $error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
+    #   @error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
     #   response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}</span>\n"
-    #   mssql_reference_logger.error($error)
+    #   mssql_reference_logger.error(@error)
     # end
     # manufacturer = Company.find_by(:name => r['manufacturer'])
     # if manufacturer.nil?
-    #   $error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
+    #   @error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
     #   response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}</span>\n"
-    #   mssql_reference_logger.error($error)
+    #   mssql_reference_logger.error(@error)
     # end
     # model = VehicleModel.where(:name => r['model'], :manufacturer => manufacturer).first
     # if model.nil?
-    #   $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
+    #   @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
     #   response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}</span>\n"
-    #   mssql_reference_logger.error($error)
+    #   mssql_reference_logger.error(@error)
     # end
     # registration_model = r['registration_model']
     # if r['notdismissed'] == false
@@ -367,27 +379,27 @@ module AdminHelper
     #     vehicle_typology = VehicleTypology.find_by(:name => r['typology'])
     #   end
     #   if vehicle_typology.nil?
-    #     $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
+    #     @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
     #     response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
-    #     mssql_reference_logger.error($error)
+    #     mssql_reference_logger.error(@error)
     #   end
     # end
     # mileage = r['mileage'].to_i
     # begin
     #   registration_date = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
     # rescue
-    #   $error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
+    #   @error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
     #   response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}</span>\n"
-    #   mssql_reference_logger.error($error)
+    #   mssql_reference_logger.error(@error)
     # end
     # if r['category'] == '' or r['category'] == 'NULL' or r['category'].nil?
     #   vehicle_category = VehicleCategory.not_available
     # else
     #   vehicle_category = VehicleCategory.find_by(:name => r['category'])
     #   if vehicle_category.nil?
-    #     $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle category: #{r['category']}"
+    #     @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle category: #{r['category']}"
     #     response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Categoria non valida: #{r['category']}</span>\n"
-    #     mssql_reference_logger.error($error)
+    #     mssql_reference_logger.error(@error)
     #   end
     # end
     # if r['carwash_code'].nil? or r['carawash_code'] == ''
@@ -396,14 +408,14 @@ module AdminHelper
     #   r['carwash_code'] = carwash_code = Vehicle.carwash_codes.key(r['carwash_code'].to_i)
     # end
     # if r['plate'].nil?
-    #   $error = " #{r['plate']} (#{r['id']}) - Blank plate"
+    #   @error = " #{r['plate']} (#{r['id']}) - Blank plate"
     #   response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
-    #   mssql_reference_logger.error($error)
+    #   mssql_reference_logger.error(@error)
     # else
     #   v = Vehicle.find_by_plate(r['plate'].tr('. *-',''))
     # end
     begin
-      if $error.nil?
+      if @error.nil?
         v = data[:vehicle]
         if v.nil?
           if update
@@ -477,7 +489,7 @@ module AdminHelper
           mssql_reference_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
           response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 
-          if v.find_information(data[:chassis]).nil?
+          if v.find_information(data[:chassis_info]).nil?
             VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *-','').upcase, date: registration_date) if update
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
             response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
@@ -517,27 +529,27 @@ module AdminHelper
   end
 
   def create_vehicle_from_altri_mezzi(r,update)
-    $error = nil
+    @error = nil
     vehicle_equipments = Array.new
     vehicle_type = VehicleType.find_by(:name => r['type'])
     if vehicle_type.nil?
-      $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle type: #{r['type']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle type: #{r['type']}"
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipo non valido: #{r['type']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     property = atc if r['property'] == 'A'
     property = te if r['property'] == 'T'
     property = ec if r['property'] == 'E'
     if property.nil?
-      $error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     manufacturer = Company.find_by(:name => r['manufacturer'])
     if manufacturer.nil?
-      $error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     serie = nil
     if r['model'] =~ /\d serie$/
@@ -547,9 +559,9 @@ module AdminHelper
 
     model = VehicleModel.where(:name => r['model'], :manufacturer => manufacturer).first
     if model.nil?
-      $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     registration_model = r['registration_model']
     if r['notdismissed'] == false
@@ -567,27 +579,27 @@ module AdminHelper
         vehicle_typology = VehicleTypology.find_by(:name => r['typology'])
       end
       if vehicle_typology.nil?
-        $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
+        @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
         response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
-        mssql_reference_logger.error($error)
+        mssql_reference_logger.error(@error)
       end
     end
     mileage = r['mileage'].to_i
     begin
       registration_date = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
     rescue
-      $error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
+      @error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     end
     if r['category'] == '' or r['category'] == 'NULL' or r['category'].nil?
       vehicle_category = VehicleCategory.not_available
     else
       vehicle_category = VehicleCategory.find_by(:name => r['category'])
       if vehicle_category.nil?
-        $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle category: #{r['category']}"
+        @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle category: #{r['category']}"
         response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Categoria non valida: #{r['category']}</span>\n"
-        mssql_reference_logger.error($error)
+        mssql_reference_logger.error(@error)
       end
     end
     if r['carwash_code'].nil? or r['carawash_code'] == ''
@@ -596,14 +608,14 @@ module AdminHelper
       r['carwash_code'] = carwash_code = Vehicle.carwash_codes.key(r['carwash_code'].to_i)
     end
     if r['plate'].nil?
-      $error = " #{r['plate']} (#{r['id']}) - Blank plate"
+      @error = " #{r['plate']} (#{r['id']}) - Blank plate"
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
-      mssql_reference_logger.error($error)
+      mssql_reference_logger.error(@error)
     else
       v = Vehicle.find_by_plate(r['plate'].tr('. *-',''))
     end
     begin
-      if $error.nil?
+      if @error.nil?
         if v.nil? #Vehicle does not exist
           if update
             v = Vehicle.create(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], serie: serie, dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code)
@@ -694,7 +706,7 @@ module AdminHelper
           mssql_reference_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, serie: #{serie}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
           response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, serie: #{serie}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 
-          if v.find_information(data[:chassis]).nil?
+          if v.find_information(data[:chassis_info]).nil?
             VehicleInformation.create(vehicle: v, vehicle_information_type: chassis, information: r['chassis'].tr('. *-','').upcase, date: registration_date) if update
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
             response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"

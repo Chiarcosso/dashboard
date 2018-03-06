@@ -689,7 +689,7 @@ class OrdersController < ApplicationController
             @newItem = @newItem.find_next_usable(itms)
             itms << @newItem
             if @newItem.nil?
-              $error = 'I pezzi disponibili non sono sufficienti.'
+              @error = 'I pezzi disponibili non sono sufficienti.'
               break
             end
           end
@@ -745,8 +745,8 @@ class OrdersController < ApplicationController
     def worksheet_params
       ws = Worksheet.find_or_create_by_code(params.require(:recipient)[/(\d*)$/,1])
       @destination = 'Worksheet'
-      if ws.nil? and $error.nil?
-        $error += "Impossibile trovare ODL nr. #{params.require(:search)[/(\d*)$/,1]}" if $error.nil?
+      if ws.nil? and @error.nil?
+        @error += "Impossibile trovare ODL nr. #{params.require(:search)[/(\d*)$/,1]}" if @error.nil?
       end
       begin
         @order = OutputOrder.findByRecipient(ws.code,Worksheet).last
@@ -755,10 +755,10 @@ class OrdersController < ApplicationController
         end
         @recipient = ws
       rescue Exception => e
-        $error = e.message if $error.nil?
+        @error = e.message if @error.nil?
       end
 
-      unless $error.nil?
+      unless @error.nil?
         respond_to do |format|
           format.js { render partial: 'layouts/error'}
         end
