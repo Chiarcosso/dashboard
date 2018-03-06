@@ -734,7 +734,7 @@ class VacationRequest
       end
     rescue Exception => e
       puts e.message
-      puts e.backtrack
+      puts e.backtrace
     end
       if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
          @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
