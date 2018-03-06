@@ -66,14 +66,14 @@ class MssqlReference < ApplicationRecord
       @errors = Array.new
       response = ''
       query = "select distinct 'Veicoli' as table_name, idveicolo as id, idfornitore, targa as plate, "\
-                  "Tipo.Tipodiveicolo as type, clienti.ragionesociale as property "\
+                  "Tipo.Tipodiveicolo as type, clienti.ragionesociale as owner, veicoli.idfornitore "\
                   "from veicoli "\
                   "inner join clienti on veicoli.IDfornitore = clienti.codtraffico "\
                   "left join Tipo on veicoli.IDTipo = Tipo.IDTipo "\
                   "where (ditta is null or ditta = '') and idfornitore is not null and idfornitore != '' "\
               "union select distinct 'Rimorchi1' as table_name, idrimorchio as id, idfornitore, targa as plate, "\
                   "(case tipo when 'S' then 'Semirimorchio' when 'R' then 'Rimorchio' end) as type, "\
-                  "clienti.ragionesociale as property "\
+                  "clienti.ragionesociale as owner, rimorchi1.idfornitore "\
                   "from rimorchi1 "\
                   "inner join clienti on rimorchi1.Idfornitore = clienti.codtraffico "\
                   "where (ditta is null or ditta = '') and idfornitore is not null and idfornitore != '' "\

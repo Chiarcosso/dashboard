@@ -247,7 +247,7 @@ module AdminHelper
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
       mssql_reference_logger.error(@error)
     end
-    if r['owner'].nil?
+    if r['owner'].nil? and r['idfornitore'].nil?
       @error = " #{r['plate']} (#{r['id']}) - no owner id"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Id fornitore mancante</span>\n"
       mssql_reference_logger.error(@error)
