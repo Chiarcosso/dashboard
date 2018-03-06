@@ -3,7 +3,13 @@
     .col-sm-3
       = link_to "Ordine per dotazione personale", output_path(:Person), remote: true, class: 'btn btn-primary'
     .col-sm-2
-      = link_to "Ordine per ODS", output_path(:Worksheet), remote: true, class: 'btn btn-primary'
+      -# = link_to "Ordine per ODS", output_path(:Worksheet,:id), remote: true, class: 'btn btn-primary'
+      %b= "Ordine per ODS"
+      = form_tag(edit_output_path(Worksheet), method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
+        = hidden_field_tag :area, :Worksheet
+        .row
+          .col-sm-10
+            = text_field_tag :search, nil, class: 'form-control', :placeholder => 'Codice..'
     .col-sm-2
       = link_to "Ordine per minuteria", output_path(:Office), remote: true, class: 'btn btn-primary'
     .col-sm-2

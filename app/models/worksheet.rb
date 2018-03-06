@@ -1,11 +1,12 @@
 class Worksheet < ApplicationRecord
   resourcify
-
+  include ErrorHelper
   belongs_to :vehicle
   has_many :output_orders, -> { where("output_orders.destination_type = 'Worksheet'") }, class_name: 'OutputOrder', foreign_key: :destination_id
   has_many :output_order_items, through: :output_orders
   has_many :items, through: :output_order_items
 
+  belongs_to :vehicle, polymorphic:true
 
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
   scope :open, -> { where(closingDate: nil) }
@@ -86,27 +87,50 @@ class Worksheet < ApplicationRecord
     end
   end
 
+  def self.find_or_create_by_code(protocol)
+    ws = Worksheet.find_by(code: "EWC*#{protocol}")
+    if ws.nil?
+      res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo "\
+        "from autoodl "\
+        "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.codice "\
+        "where Protocollo = #{protocol} limit 1")
+      if res.count > 0
+        ws = Worksheet.upsync_ws(res.first)
+      end
+    end
+    ws
+  end
+
+  def self.upsync_ws(odl)
+    ws = Worksheet.find_by(code: "EWC*#{odl['Protocollo']}")
+    case odl['Tipo']
+    when 'A'
+        table = 'Altri mezzi'
+    when 'T', 'M'
+        table = 'Veicoli'
+    when 'S', 'R'
+        table = 'Rimorchi1'
+    end
+    begin
+      vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
+      $error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil? and $error.nil?
+      if ws.nil?
+        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle)
+      else
+        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: odl['DataUscitaVeicolo'].nil?? nil : Date.parse(odl['DataUscitaVeicolo']))
+      end
+    rescue Exception => e
+      $error = e.message if $error.nil?
+    end
+    ws
+  end
+
   def self.upsync_all
     res = get_client.query("select Protocollo, CodiceAutomezzo, Tipo, DataUscitaVeicolo "\
       "from autoodl "\
       "where DataEntrataVeicolo is not null")
     res.each do |odl|
-      ws = Worksheet.find_by(code: "EWC*#{odl['Protocollo']}")
-      case odl['Tipo']
-      when 'A'
-          table = 'Altri mezzi'
-      when 'T', 'M'
-          table = 'Veicoli'
-      when 'S', 'R'
-          table = 'Rimorchi1'
-      end
-
-      vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
-      if ws.nil?
-        Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle)
-      else
-        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: odl['DataUscitaVeicolo'].nil?? nil : Date.parse(odl['DataUscitaVeicolo']))
-      end
+      Worksheet.upsync_ws(odl)
     end
   end
 
@@ -127,5 +151,6 @@ class Worksheet < ApplicationRecord
   def self.get_client
     Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB']
   end
+
 
 end

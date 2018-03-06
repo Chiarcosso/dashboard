@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180223151825) do
+ActiveRecord::Schema.define(version: 20180301172748) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -755,12 +755,13 @@ ActiveRecord::Schema.define(version: 20180223151825) do
   end
 
   create_table "worksheets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",                                                null: false
+    t.string   "code",                                                     null: false
     t.date     "closingDate"
-    t.integer  "vehicle_id",                                          null: false
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
-    t.decimal  "hours",       precision: 4, scale: 1, default: "0.0", null: false
+    t.integer  "vehicle_id",                                               null: false
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
+    t.decimal  "hours",        precision: 4, scale: 1, default: "0.0",     null: false
+    t.string   "vehicle_type",                         default: "Vehicle", null: false
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end
 
@@ -884,5 +885,4 @@ ActiveRecord::Schema.define(version: 20180223151825) do
   add_foreign_key "worksheet_operations", "people"
   add_foreign_key "worksheet_operations", "worksheets"
   add_foreign_key "worksheet_operations", "workshop_operations"
-  add_foreign_key "worksheets", "vehicles"
 end

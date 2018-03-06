@@ -35,7 +35,7 @@
       .row.colored
         .col-sm-1
           -begin
-            = button_to "x", "/output_order/#{order.id}", data: {:confirm => "Eliminare l'ordine nr. #{order.id}, #{order.destination.complete_name}?"}, :method => :delete, :remote => true
+            = button_to "x", "/output_order/#{order.id}", data: {:confirm => "Eliminare l'ordine nr. #{order.id}, #{order.destination.nil? ? '' : order.destination.complete_name}?"}, :method => :delete, :remote => true
           -rescue
             ="error"
         .col-sm-1

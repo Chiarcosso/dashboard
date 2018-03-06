@@ -18,6 +18,7 @@ class ApplicationController < ActionController::Base
   #     format.json { render :json => @items.to_json }
   #     end
   # end
+
   protected
 
   def configure_permitted_parameters

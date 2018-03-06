@@ -39,7 +39,7 @@ class MdcWebservice
     results = Array.new
     case what
       when :vacation then
-        Person.mdc.order_mdc_user.each do |p|
+        MdcUser.assigned.each do |p|
           puts "VACATION Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
           mdc.get_vacation_data({applicationID: 'FERIE', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
 
@@ -49,7 +49,7 @@ class MdcWebservice
           end
         end
       when :gear then
-        Person.mdc.order_mdc_user.each do |p|
+        MdcUser.assigned.each do |p|
           puts "GEAR Search for user #{p.mdc_user.upcase} (#{p.complete_name})"
           mdc.get_gear_data({applicationID: 'GEAR', deviceCode: p.mdc_user.upcase, status: 0}).each do |r|
 

@@ -1,6 +1,8 @@
 class Vehicle < ApplicationRecord
   include AdminHelper
+  include ErrorHelper
   resourcify
+
 
   # def self.carwash_codes
   #   ['N/D', 'Trattore standard', 'Motrice scarrabile', 'Autocarro cassone aperto (tre assi)', 'Autocarro cassone chiuso (tre assi)', 'Autocarro speciale', 'Semirimorchio cassone aperto (con e senza sponde idrauliche)', 'Semirimorchio cassone chiuso permanente (centinato - walking floor)', 'Semirimorchio / rimorchio cisterna', 'Rimorchio cassone aperto', 'Rimorchio cassone chiuso permanente (centinato)', 'Rimorchio trasporto mezzi / scarrabile', 'Rimorchio / semirimorchio speciale', 'Auto / furgone']
@@ -21,8 +23,8 @@ class Vehicle < ApplicationRecord
   has_many :vehicle_informations, :dependent => :destroy
   has_many :worksheets
 
-  has_many :mssql_references, as: :local_object
-  has_many :vehicle_properties
+  has_many :mssql_references, as: :local_object, :dependent => :destroy
+  has_many :vehicle_properties, :dependent => :destroy
   # has_many :carwash_usages, through: :carwash_vehicle_code
   # has_one :vehicle_type, through: :model
   belongs_to :property, class_name: 'Company'
@@ -71,65 +73,92 @@ class Vehicle < ApplicationRecord
   end
 
   def self.get_or_create_by_reference(table, id)
-    v = MssqlReference.find_by(remote_object_table: table, remote_object_id: id).local_object
+    mr = MssqlReference.find_by(remote_object_table: table, remote_object_id: id)
+    v = mr.local_object unless mr.nil?
+
     if v.nil?
       case table
       when 'Veicoli' then
         query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
                     "Tipo.Tipodiveicolo as type, ditta as property, marca as manufacturer, "\
+                    "clienti.ragioneSociale as owner, "
                     "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
                     "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
                     "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, categoria as category, motivo_fuori_parco "\
                     "from veicoli "\
+                    "left join clienti on veicoli.IDfornitore = clienti.codtraffico "\
                     "left join Tipo on veicoli.IDTipo = Tipo.IDTipo "\
                     "left join [Tipologia rimorchio/semirimorchio] tipologia on veicoli.Id_Tipologia = tipologia.ID "\
                     "where idveicolo = #{id}"
-        ref = MssqlReference::get_client.execute(query)[0]
+        ref = MssqlReference::get_client.execute(query).first
         unless ref.nil?
-          if ref['Model'].nil?
-            v = create_external_vehicle_from_veicoli ref
+          if ref['property'] == 'A' or ref['property'] == 'T' or  ref['property'] == 'E'
+            VehiclesController.helpers.create_vehicle_from_veicoli ref
+            v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
           else
-            v = create_vehicle_from_veicoli ref
+            VehiclesController.helpers.create_external_vehicle_from_veicoli ref
+            v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
           end
         end
       when 'Rimorchi1' then
-        query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
-                    "Tipo.Tipodiveicolo as type, ditta as property, marca as manufacturer, "\
-                    "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
-                    "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
-                    "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, categoria as category, motivo_fuori_parco "\
-                    "from veicoli "\
-                    "left join Tipo on veicoli.IDTipo = Tipo.IDTipo "\
-                    "left join [Tipologia rimorchio/semirimorchio] tipologia on veicoli.Id_Tipologia = tipologia.ID "\
-                    "where idveicolo = #{id}"
-        ref = MssqlReference::get_client.execute(query)[0]
+        # query = "select 'Rimorchi1' as table_name, idrimorchio as id, targa as plate, telaio as chassis, "\
+        #             "(case tipo) as type, ditta as property, marca as manufacturer, "\
+        #             "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
+        #             "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
+        #             "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, categoria as category, motivo_fuori_parco "\
+        #             "from veicoli "\
+        #             "left join Tipo on veicoli.IDTipo = Tipo.IDTipo "\
+        #             "left join [Tipologia rimorchio/semirimorchio] tipologia on veicoli.Id_Tipologia = tipologia.ID "\
+        #             "where idveicolo = #{id}"
+        query = "select 'Rimorchi1' as table_name, idrimorchio as id, targa as plate, telaio as chassis, "\
+                    "(case Tipo when 'S' then 'Semirimorchio' when 'R' then 'Rimorchio' end) as type, ditta as property, "\
+                    "marca as manufacturer, (case Tipo when 'S' then 'Semirimorchio' when 'R' then 'Rimorchio' end) as model, "\
+                    "clienti.ragioneSociale as owner, "\
+                    "(case Tipo when 'S' then 'Semirimorchio' when 'R' then 'Rimorchio' end) as registration_model, "\
+                    "codice_lavaggio as carwash_code, circola as notdismissed, "\
+                    "tipologia.[tipologia semirimorchio] as typology, Km as mileage, "\
+                    "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, "\
+                    "categoria as category, motivo_fuori_parco "\
+                    "from rimorchi1 "\
+                    "inner join clienti on rimorchi1.IDfornitore = clienti.codtraffico "\
+                    "left join [Tipologia rimorchio/semirimorchio] tipologia on rimorchi1.[Tipologia Rimonchio/Semirimorchio] = tipologia.ID "\
+                    "where idrimorchio = #{id}"
+        ref = MssqlReference::get_client.execute(query).first
+
         unless ref.nil?
-          if ref['Model'].nil?
-            v = create_external_vehicle_from_veicoli ref
+          if ref['property'] == 'A' or ref['property'] == 'T' or  ref['property'] == 'E'
+            VehiclesController.helpers.create_vehicle_from_veicoli ref
+            v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
           else
-            v = create_vehicle_from_veicoli ref
+            VehiclesController.helpers.create_external_vehicle_from_veicoli ref
+            v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
           end
         end
       when 'Altri mezzi' then
-        query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
-                    "Tipo.Tipodiveicolo as type, ditta as property, marca as manufacturer, "\
-                    "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
-                    "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
-                    "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, categoria as category, motivo_fuori_parco "\
-                    "from veicoli "\
-                    "left join Tipo on veicoli.IDTipo = Tipo.IDTipo "\
-                    "left join [Tipologia rimorchio/semirimorchio] tipologia on veicoli.Id_Tipologia = tipologia.ID "\
-                    "where idveicolo = #{id}"
-        ref = MssqlReference::get_client.execute(query)[0]
+        query = "select 'Altri mezzi' as table_name, convert(int,cod) as id, targa as plate, telaio as chassis, "\
+                    "tipo.tipodiveicolo as type, ditta as property, numero_posti as posti_a_sedere, "\
+                    "marca as manufacturer, modello as model, modello as registration_model, "\
+                    "codice_lavaggio as carwash_code, circola as notdismissed, "\
+                    "tipologia.[tipologia semirimorchio] as typology, Km as mileage, "\
+                    "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, "\
+                    "categoria as category, motivo_fuori_parco "\
+                    "from [Altri mezzi] "\
+                    "left join Tipo on Tipo.IDTipo = [Altri mezzi].id_tipo "\
+                    "left join [Tipologia rimorchio/semirimorchio] tipologia on [Altri mezzi].id_tipologia = tipologia.ID "\
+                    "where cod = #{id}"
+        ref = MssqlReference::get_client.execute(query).first
         unless ref.nil?
-          if ref['Model'].nil?
-            v = create_external_vehicle_from_veicoli ref
+          if ref['property'] == 'A' or ref['property'] == 'T' or  ref['property'] == 'E'
+            VehiclesController.helpers.create_vehicle_from_veicoli ref
+            v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
           else
-            v = create_vehicle_from_veicoli ref
+            VehiclesController.helpers.create_external_vehicle_from_veicoli ref
+            v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
           end
         end
       end
     end
+    v
   end
 
   def long_label
@@ -165,7 +194,6 @@ class Vehicle < ApplicationRecord
     if comp['property'] == 'T' and self.property != Company.transest or comp['property'] == 'A' and self.property != Company.chiarcosso
       return false
     # elsif comp['plate'].upcase.tr('. *','') != self.plate
-    #   byebug
     #   return false
     elsif comp['manufacturer'].upcase != self.model.manufacturer.name.upcase
       return false
@@ -292,5 +320,6 @@ class Vehicle < ApplicationRecord
   def complete_name
     self.plate+' '+self.model.complete_name
   end
+
 
 end

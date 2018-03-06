@@ -18,7 +18,7 @@ class VehiclesController < ApplicationController
 
   def info_for_workshop
     respond_to do |format|
-      if @error.nil?
+      if $error.nil?
         format.js { render :partial => 'workshop/worksheet_side_js' }
       else
         format.js { render :partial => 'layouts/error' }
@@ -129,11 +129,11 @@ class VehiclesController < ApplicationController
       @vehicle_information = VehicleInformation.create(vehicle_information_params)
       @informations = get_vehicle_informations
     rescue Exception => e
-      @error = "#{e.message}"
+      $error = "#{e.message}"
     end
 
     respond_to do |format|
-      if @error.nil?
+      if $error.nil?
         if @vehicle_information.vehicle_information_type == VehicleInformationType.plate or @vehicle_information.vehicle_information_type == VehicleInformationType.chassis
           format.js { render partial: 'vehicles/all_vehicle_informations_js'}
         else
@@ -150,10 +150,10 @@ class VehiclesController < ApplicationController
       @vehicle_information.destroy
       @informations = get_vehicle_informations
     rescue Exception => e
-      @error = "Impossibile eliminare l'informazione.\n\n#{e.message}"
+      $error = "Impossibile eliminare l'informazione.\n\n#{e.message}"
     end
     respond_to do |format|
-      if @error.nil?
+      if $error.nil?
         format.js { render :partial => 'vehicles/vehicle_informations_js' }
       else
         format.js { render :partial => 'layouts/error' }
@@ -163,35 +163,35 @@ class VehiclesController < ApplicationController
 
   def create
     begin
-      @error = "Targa già esistente." unless Vehicle.find_by_plate(params[:vehicle_plate][:information]).nil?
-      @vehicle = Vehicle.new(vehicle_params) if @error.nil?
+      $error = "Targa già esistente." unless Vehicle.find_by_plate(params[:vehicle_plate][:information]).nil?
+      @vehicle = Vehicle.new(vehicle_params) if $error.nil?
     rescue Exception => e
-      @error = "#{e.message}"
+      $error = "#{e.message}"
     end
     begin
       params.require(:vehicle_plate).permit('information','date')
       if params[:vehicle_plate][:information] == '' or params[:vehicle_plate][:date] == ''
-        @error = "Inserire la targa con data."
+        $error = "Inserire la targa con data."
       end
     rescue Exception => e
-      @error = "Inserire la targa con data. #{e.message}"
+      $error = "Inserire la targa con data. #{e.message}"
     end
     begin
       params.require(:vehicle_chassis).permit('information','date')
       if params[:vehicle_chassis][:information] == '' or params[:vehicle_chassis][:date] == ''
-        @error = "Inserire il numero di telaio con data."
+        $error = "Inserire il numero di telaio con data."
       end
     rescue Exception => e
-      @error = "Inserire il numero di telaio con data. #{e.message}"
+      $error = "Inserire il numero di telaio con data. #{e.message}"
     end
-    if @error.nil?
+    if $error.nil?
       begin
         @vehicle.save
       rescue Exception => e
-        @error = "#{e.message}"
+        $error = "#{e.message}"
       end
     end
-    if @error.nil?
+    if $error.nil?
       begin
         if @vehicle.last_information(VehicleInformationType.plate).nil?
           params[:vehicle_plate][:vehicle_id] = @vehicle.id
@@ -219,11 +219,11 @@ class VehiclesController < ApplicationController
           end
         end
       rescue Exception => e
-        @error = "#{e.message}"
+        $error = "#{e.message}"
       end
     end
     respond_to do |format|
-      if @error.nil?
+      if $error.nil?
         # format.js { render :partial => 'vehicles/list_js' }
         @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?
         format.js { render 'vehicles/index_js' }
@@ -252,11 +252,11 @@ class VehiclesController < ApplicationController
         end
       end
     rescue Exception => e
-      @error = "#{e.message}"
+      $error = "#{e.message}"
     end
 
     respond_to do |format|
-      if @error.nil?
+      if $error.nil?
         # format.js { render :partial => 'vehicles/list_js' }
         @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?
         format.js { render 'vehicles/index_js' }
@@ -271,11 +271,11 @@ class VehiclesController < ApplicationController
     begin
       @view = 'altri_mezzi'
     rescue Exception => e
-      @error = e.message
+      $error = e.message
     end
     query_vehicles
     respond_to do |format|
-      if @error.nil?
+      if $error.nil?
         format.js { render :partial => 'admin/import_vehicles_js' }
       else
         format.js { render :partial => 'layouts/error' }
@@ -284,14 +284,18 @@ class VehiclesController < ApplicationController
   end
 
   def destroy
-    begin
-      @vehicle.destroy
-    rescue Exception => e
-      @error = "Impossibile eliminare mezzo.\n\n#{e.message}"
+    if @vehicle.worksheets.empty?
+      begin
+        @vehicle.destroy
+      rescue Exception => e
+        $error = "Impossibile eliminare mezzo.\n\n#{e.message}"
+      end
+    else
+      $error = "Esistono ODL per questo mezzo."
     end
     @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?
     respond_to do |format|
-      if @error.nil?
+      if $error.nil?
         format.js { render :partial => 'vehicles/list_js' }
       else
         format.js { render :partial => 'layouts/error' }
@@ -305,11 +309,11 @@ class VehiclesController < ApplicationController
         Vehicle.find(v.to_i).destroy
       end
     rescue Exception => e
-      @error = e.message
+      $error = e.message
     end
     query_vehicles
     respond_to do |format|
-      if @error.nil?
+      if $error.nil?
         format.js { render :partial => 'admin/import_vehicles_js' }
       else
         format.js { render :partial => 'layouts/error' }
@@ -337,7 +341,7 @@ class VehiclesController < ApplicationController
           @vehicle = Vehicle.find(params.require(:id))
 
         rescue Exception, ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound  => e
-          @error = "Impossibile trovare mezzo.\n\n#{e.message}\n\n"
+          $error = "Impossibile trovare mezzo.\n\n#{e.message}\n\n"
         end
       end
     end
@@ -365,11 +369,11 @@ class VehiclesController < ApplicationController
         # p[:vehicle_type] = VehicleType.find(p[:vehicle_type].to_i)
         # p[:vehicle_typology] = VehicleTypology.find(p[:vehicle_typology].to_i)
         p[:property] = Company.where(name: p[:property]).first
-        @error = "Inserire la proprietà." if p[:property].nil?
+        $error = "Inserire la proprietà." if p[:property].nil?
         p[:dismissed] = p[:dismissed].nil? ? false : true
         p[:carwash_code] = p[:carwash_code].to_i
       rescue Exception => e
-        @error = e.message
+        $error = e.message
       end
       p
       # params.require(:vehicle)[:model] = VehicleModel.find(params.require(:vehicle)[:model].to_i)
@@ -380,7 +384,7 @@ class VehiclesController < ApplicationController
       begin
         @vehicle_information = VehicleInformation.find(params.require(:vehicle_information).permit(:id)[:id])
       rescue Exception, ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
-        @error = "Impossibile trovare l'informazione (id: #{params[:id]}).\n\n#{e.message}"
+        $error = "Impossibile trovare l'informazione (id: #{params[:id]}).\n\n#{e.message}"
       end
     end
 

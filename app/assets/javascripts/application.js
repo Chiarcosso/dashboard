@@ -321,7 +321,7 @@ function activateCustomAutocomplete(func) {
         });
         $('.custom-autocomplete-choice').off('click');
         $('.custom-autocomplete-choice').on('click',function (){
-          choice = func(this);
+          var choice = func(this);
           $(element).val(choice['label']);
           $.each($('input.'+target+'-'+choice['field']),function(){
             $(this).val('');

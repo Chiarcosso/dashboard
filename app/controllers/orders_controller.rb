@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-
+  include ErrorHelper
   require 'output_order_item'
 
   before_action :autocomplete_params, only: [:autocomplete_vehicles_plate_order,:add_item,:output,:add_item_to_new_order]
@@ -7,7 +7,7 @@ class OrdersController < ApplicationController
   before_action :set_article_for_order, only: [:add_item_to_new_order]
   before_action :set_items_for_order, only: [:add_item_to_new_order]
   before_action :output_params, only: [:add_item, :output]
-  before_action :worksheet_params, only: [:edit_output]
+  before_action :worksheet_params, only: [:edit_output,:edit_ws_output]
   before_action :exit_params, only: [:exit_order,:confirm_order,:destroy_output_order, :print_pdf, :print_pdf_module]
 
   autocomplete :vehicle_information, :information, full: true, :id_element => '#vehicle_id'
@@ -62,8 +62,21 @@ class OrdersController < ApplicationController
     end
   end
 
+  def edit_ws_output
+    respond_to do |format|
+      # if @save
+      #   @partial = 'storage/output_initial'
+      #   format.js { render :js, :partial => 'storage/output_initial_js' }
+      #   # format.js { render :js 'storage/index' }
+      # else
+        format.js { render :js, :partial => 'orders/output' }
+      # end
+    end
+  end
+
   def edit_output
-    @order = OutputOrder.find_by_recipient(params.require(:code))
+    # @order = OutputOrder.find_by_recipient(params.require(:search))
+    @order = OutputOrder.find_by_recipient(@recipient)
     @search = search_params.nil?? '' : search_params
     if @order.nil? or @order.output_order_items.empty?
       @checked_items = Array.new
@@ -671,12 +684,12 @@ class OrdersController < ApplicationController
             amount -= @newItem.remaining_quantity
             @newItem.remaining_quantity = 0
             @newItems << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: given_quantity)
-            # byebug
+
             itms = get_output_items.map! { |oo_itm| oo_itm.item } if itms.nil?
             @newItem = @newItem.find_next_usable(itms)
             itms << @newItem
             if @newItem.nil?
-              @error = 'I pezzi disponibili non sono sufficienti.'
+              $error = 'I pezzi disponibili non sono sufficienti.'
               break
             end
           end
@@ -730,27 +743,50 @@ class OrdersController < ApplicationController
     end
 
     def worksheet_params
-      code = (params[:code].nil? or params[:code] == '') ? params.require(:recipient) : params.require(:code)
+      ws = Worksheet.find_or_create_by_code(params.require(:search)[/(\d*)$/,1])
       @destination = 'Worksheet'
-      unless code.nil? or code == ''
-        if code.index('EWC*').nil?
-          code.gsub!(/[^\d]/, '')
-          code = 'EWC*'+code
-        end
-        @recipient = Worksheet.findByCode(code)
-        unless params[:vehicle].nil? or params[:vehicle] == ''
-          @recipient.vehicle = Vehicle.find_by_plate(params.require(:vehicle))#.first
-          @recipient.save
-        end
-
-        unless @recipient.nil?
-          @order = OutputOrder.findByRecipient(@recipient.code,Worksheet).last
-        else
-          @recipient = Worksheet.new(:code => code, :vehicle => Vehicle.new)
-        end
-          if @order.nil?
-            @order = OutputOrder.new
-          end
+      if ws.nil? and $error.nil?
+        $error += "Impossibile trovare ODL nr. #{params.require(:search)[/(\d*)$/,1]}" if $error.nil?
       end
+      begin
+        @order = OutputOrder.findByRecipient(ws.code,Worksheet).last
+        if @order.nil?
+          @order = OutputOrder.new(destination: ws)
+        end
+        @recipient = ws
+      rescue Exception => e
+        $error = e.message if $error.nil?
+      end
+
+      unless $error.nil?
+        respond_to do |format|
+          format.js { render partial: 'layouts/error'}
+        end
+        return nil
+      end
+      ws
+      # code = (params[:code].nil? or params[:code] == '') ? params.require(:recipient) : params.require(:code)
+      # @destination = 'Worksheet'
+      # unless code.nil? or code == ''
+      #   if code.index('EWC*').nil?
+      #     code.gsub!(/[^\d]/, '')
+      #     code = 'EWC*'+code
+      #   end
+      #   # @recipient = Worksheet.findByCode(code)
+      #   @recipient = Worksheet.find_or_create_by_code(code.gsub(/[^\d]/, ''))
+      #   # unless params[:vehicle].nil? or params[:vehicle] == ''
+      #   #   @recipient.vehicle = Vehicle.find_by_plate(params.require(:vehicle))#.first
+      #   #   @recipient.save
+      #   # end
+      #
+      #   unless @recipient.nil?
+      #     @order = OutputOrder.findByRecipient(@recipient.code,Worksheet).last
+      #   else
+      #     @recipient = Worksheet.new(:code => code, :vehicle => Vehicle.new)
+      #   end
+      #     if @order.nil?
+      #       @order = OutputOrder.new
+      #     end
+      # end
     end
 end

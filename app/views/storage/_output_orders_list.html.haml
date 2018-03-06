@@ -6,7 +6,7 @@
       .col-sm-1
         = oo.id
       .col-sm-2
-        = oo.destination.complete_name
+        = oo.destination.complete_name unless oo.destination.nil?
       .col-sm-2
         = l(oo.created_at)
       .col-sm-7

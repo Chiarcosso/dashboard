@@ -1,6 +1,6 @@
 class OutputOrder < ApplicationRecord
   resourcify
-
+  include ErrorHelper
   before_destroy :recover_items
 
   has_many :output_order_items, :dependent => :destroy
@@ -39,7 +39,11 @@ class OutputOrder < ApplicationRecord
   end
 
   def self.find_by_recipient(search)
-    recipient = Worksheet.find_by_code(search)
+    if search.is_a? String
+      recipient = Worksheet.find_by_code(search)
+    else
+      recipient = search
+    end
     OutputOrder.where("destination_type = 'Worksheet' and destination_id = #{recipient.id}").last unless recipient.nil?
   end
 
@@ -55,7 +59,7 @@ class OutputOrder < ApplicationRecord
     end
     receivers = Person.filter(search).to_a
     items = Item.assigned.filter(search).to_a
-    # byebug
+
     hits = Array.new
     recipients.each do |r|
       unless r.nil?

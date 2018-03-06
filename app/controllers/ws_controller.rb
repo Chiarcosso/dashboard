@@ -85,7 +85,7 @@ class WsController < ApplicationController
     mdc.commit_transaction
     mdc.end_transaction
     mdc.close_session
-    @status = 1
+    @status = 0
     index
   end
 
