@@ -227,11 +227,13 @@ module AdminHelper
     if r['typology'] == '' or r['typology'] == 'NULL' or r['typology'].nil?
       res[:vehicle_typology] = res[:no_vehicle_typology]
     else
-      if res[:vehicle_typology].nil?
-        $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
-        res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
-        mssql_reference_logger.error($error)
-      end
+      res[:vehicle_typology] = VehicleTypology.find_by(:name => r['typology'])
+    end
+
+    if res[:vehicle_typology].nil?
+      $error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
+      res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
+      mssql_reference_logger.error($error)
     end
     if r['owner'].nil?
       $error = " #{r['plate']} (#{r['id']}) - no owner id"
@@ -250,6 +252,7 @@ module AdminHelper
       end
     end
     res[:idveicolo] = r['id']
+    res[:idfornitore] = r['idfornitore']
     if r['plate'].nil?
       $error = " #{r['plate']} (#{r['id']}) - Blank plate"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
@@ -300,7 +303,7 @@ module AdminHelper
           data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
           mssql_reference_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, owner: #{v.owner.name}, vehicle_typology: #{v.vehicle_typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.")
           data[:response] += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.owner.name}, tipologia: #{v.vehicle_typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.\n"
-          v.update(vehicle_type: data[:vehicle_type], owner: data[:owner], vehicle_typology: data[:vehicle_typology], id_veicolo: data[:idveicolo], id_fornitore: data[:idfornitore]) if update
+          v.update(vehicle_type: data[:vehicle_type], owner: data[:owner], vehicle_typology: data[:vhicle_typology], id_veicolo: data[:idveicolo], id_fornitore: data[:idfornitore]) if update
           data[:response] += "Access - tipo: #{data[:vehicle_type].name}, proprietà: #{data[:owner].name}, tipologia: #{data[:vehicle_typology].name}, id_veicolo: #{data[:idveicolo]}, id_fornitore: #{data[:idfornitore]}.\n"
           mssql_reference_logger.info("Access - vehicle_type: #{data[:vehicle_type].name}, owner: #{data[:owner].name}, vehicle_typology: #{data[:vehicle_typology].name}, id_veicolo: #{data[:idveicolo]}, id_fornitore: #{data[:idfornitore]}.")
 

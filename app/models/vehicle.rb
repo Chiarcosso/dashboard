@@ -81,7 +81,7 @@ class Vehicle < ApplicationRecord
       when 'Veicoli' then
         query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
                     "Tipo.Tipodiveicolo as type, ditta as property, marca as manufacturer, "\
-                    "clienti.ragioneSociale as owner, "
+                    "clienti.ragioneSociale as owner, veicoli.idfornitore, "
                     "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
                     "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
                     "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, categoria as category, motivo_fuori_parco "\
@@ -113,7 +113,7 @@ class Vehicle < ApplicationRecord
         query = "select 'Rimorchi1' as table_name, idrimorchio as id, targa as plate, telaio as chassis, "\
                     "(case Tipo when 'S' then 'Semirimorchio' when 'R' then 'Rimorchio' end) as type, ditta as property, "\
                     "marca as manufacturer, (case Tipo when 'S' then 'Semirimorchio' when 'R' then 'Rimorchio' end) as model, "\
-                    "clienti.ragioneSociale as owner, "\
+                    "clienti.ragioneSociale as owner, rimorchi1.idfornitore, "\
                     "(case Tipo when 'S' then 'Semirimorchio' when 'R' then 'Rimorchio' end) as registration_model, "\
                     "codice_lavaggio as carwash_code, circola as notdismissed, "\
                     "tipologia.[tipologia semirimorchio] as typology, Km as mileage, "\
