@@ -33,7 +33,7 @@ function autofocus_ready_func() {
 
 function error_click_func() {
     "use strict";
-    $('.selected-row').removeClass('selected-row');
+  //  $('.selected-row').removeClass('selected-row');
     $(this).fadeOut(400, function () { $(this).remove(); });
     deactivateLoadingScreen();
 }
@@ -67,8 +67,10 @@ function complete_infobox_link_func(data) {
 
 function infobox_button_click_func() {
     "use strict";
-    $('.selected-row').removeClass('selected-row');
-    $(this).parents('.row').first().addClass('selected-row');
+    if ($(this).parents('.row').hasClass('selectable')) {
+        $('.selected-row').removeClass('selected-row');
+        $(this).parents('.row').first().addClass('selected-row');
+    }
     var target;
     infobox_name = $(this).data('name');
     target = $(this).data('target');
@@ -199,7 +201,7 @@ var json_link_element;
 function complete_json_autocomplete_keyup_func(data) {
     "use strict";
     data = JSON.parse(data.responseText);
-    var i, j, row, content;
+    var i, j, content;
     $(json_link_element).html('');
     for (i = 0; i < data.length; i += 1) {
         content = '<div class="row colored">';
@@ -214,14 +216,19 @@ function complete_json_autocomplete_keyup_func(data) {
 
 function json_autocomplete_keyup_func() {
     "use strict";
-    // $($(this).data('destination')).attr('id', '#json-autocomplete-destination');
-    json_link_element = $(this).data('target-element')
+    json_link_element = $(this).data('target-element');
     $.ajax({
         url: $(this).data('target'),
         method: 'post',
         data: {search: $(this).val()},
         complete: complete_json_autocomplete_keyup_func
     });
+}
+
+function selectable_click_func() {
+    "use strict";
+    $('.selected-row').removeClass('selected-row');
+    $(this).addClass('selected-row');
 }
 
 function activateJS() {
@@ -247,6 +254,8 @@ function activateJS() {
     $('body').on('click', '.ajax-link', ajax_link_click_func);
 
     $('body').on('keyup', '.json-autocomplete', json_autocomplete_keyup_func);
+
+    $('body').on('click', '.selectable', selectable_click_func);
 }
 
 // function activateErrors() {

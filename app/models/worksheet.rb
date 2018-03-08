@@ -88,6 +88,7 @@ class Worksheet < ApplicationRecord
   end
 
   def self.find_or_create_by_code(protocol)
+    
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
       res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo "\

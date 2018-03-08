@@ -17,7 +17,7 @@ module AdminHelper
     res
   end
 
-  def get_vehicle_objects(r,res = get_vehicle_basis)
+  def get_vehicle_objects(r,res = get_vehicle_basis,update)
 
     res[:response] = ''
     res[:vehicle_equipments] = Array.new
@@ -105,7 +105,7 @@ module AdminHelper
 
   def create_vehicle_from_veicoli(r,update = true,vbase = get_vehicle_basis)
     @error = nil
-    data = get_vehicle_objects(r,vbase)
+    data = get_vehicle_objects(r,vbase,update)
     begin
       v = data[:vehicle] = Vehicle.find_by_plate(r['plate'].tr('. *-',''))
       if @error.nil?
@@ -227,7 +227,7 @@ module AdminHelper
     data[:response]
   end
 
-  def get_external_vehicle_objects(r,res = get_vehicle_basis)
+  def get_external_vehicle_objects(r,res = get_vehicle_basis,update)
 
     res[:response] = ''
     res[:vehicle_type] = VehicleType.find_by(:name => r['type'])
@@ -279,7 +279,7 @@ module AdminHelper
 
   def create_external_vehicle_from_veicoli(r,update = true,vbase = get_vehicle_basis)
     @error = nil
-    data = get_external_vehicle_objects(r,vbase)
+    data = get_external_vehicle_objects(r,vbase,update)
     begin
       v = data[:vehicle]
       if @error.nil?

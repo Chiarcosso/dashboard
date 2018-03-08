@@ -1,8 +1,9 @@
 .row
   .col-sm-12
+    =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@vehicle.id), name: "infobox_vehicle_#{@vehicle.id}" }
     %b='Mezzo: '
     =@vehicle.plate
-    =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@vehicle.id), name: "infobox_vehicle_#{@vehicle.id}" }
+
 .row
   .col-sm-12
     =@vehicle.model.complete_name unless @vehicle.model.nil?
