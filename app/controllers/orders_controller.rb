@@ -176,6 +176,7 @@ class OrdersController < ApplicationController
       @recipient.vehicle = Vehicle.new
     when :Vehicle
       @recipient = Vehicle.new
+      @receiver = Person.new
     when :Office
       @recipient = Office.all.first
     end
@@ -239,9 +240,10 @@ class OrdersController < ApplicationController
     if @save
       # @order = OutputOrder.findByCode(params.require(:code))
       if @order.id.nil?
-        @order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination, receiver: @receiver)
+        @order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @recipient.class, receiver: @receiver)
       end
       @order.receiver = @receiver
+      @order.destination = @recipient
       # @order.output_order_items.clear
       # @order.recover_items
       @order.output_order_items.each do |ooi|
@@ -504,6 +506,10 @@ class OrdersController < ApplicationController
           @order = OutputOrder.new
         else
           @order = OutputOrder.find(params.require(:order_id).to_i)
+          @recipient = @order.destination if @recipient.nil?
+          if params[:code] = 'Vehicle'
+            @receiver = @order.receiver if @receiver.nil?
+          end
         end
       end
     end
@@ -631,12 +637,24 @@ class OrdersController < ApplicationController
       @destination = params.require(:code)
       unless params[:order_id].nil? or params[:order_id].to_i == 0
         @order = OutputOrder.find(params.require(:order_id))
-        @recipient = @order.destination
+        if @destination == 'Vehicle'
+          if !params['vvehicle_id'].to_i == 0
+            @recipient = Vehicle.find(params.require('vvehicle_id').to_i)
+          elsif !params['vrecipient'].nil?
+            @recipient = Vehicle.find_by_plate(params.require('vrecipient'))
+          else
+            @recipient = Vehicle.new
+          end
+        else
+          @recipient = @order.destination
+        end
       end
       if @order.nil? and params[:code] == 'Worksheet'
         worksheet_params
       end
-
+      if params[:code] == 'Vehicle'
+        @receiver = @order.receiver
+      end
       # @destination = params.require(:destination)
       # case params.require(:destination).to_sym
       # when :Person
