@@ -16,7 +16,7 @@
           = submit_tag 'Rigenera'
           = submit_tag 'Elimina'
           = 'Stampa'
-          = check_box_tag "print-drivers[]",cwdc.id, false, class: 'print', data: {date: cwdc.updated_at.strftime('%Y%m%d')}
+          = check_box_tag "print-drivers[]",cwdc.id, false, class: 'print print-driver', data: {date: cwdc.updated_at.strftime('%Y%m%d')}
           %hr
           -# = submit_tag 'Stampa'
     -# = text_field_tag :person, cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete_source: Person.find_by_complete_name(:name).map(&:name) }, class: 'form-control autofocus', id: 'person'

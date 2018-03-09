@@ -58,6 +58,15 @@
           = 'Seleziona tutti'
           = check_box_tag "print-all",false, false, id: 'print_all'
           &nbsp&nbsp&nbsp
+          = 'Seleziona tutti gli autisti'
+          = check_box_tag "print-all-drivers",false, false, id: 'print_all_drivers'
+          &nbsp&nbsp&nbsp
+          = 'Seleziona tutti i veicoli'
+          = check_box_tag "print-all-vehicles",false, false, id: 'print_all_vehicles'
+          &nbsp&nbsp&nbsp
+          = 'Seleziona tutti le tessere speciali'
+          = check_box_tag "print-all-specials",false, false, id: 'print_all_specials'
+          &nbsp&nbsp&nbsp
           = "Seleziona creati dal"
           = date_field_tag 'from_date', nil, id: 'from_date'
 :javascript
@@ -76,6 +85,57 @@
       $('.print').prop('checked',check);
     }
 
+
+    alert('Selezionate '+$('.print:checked').length+' tessere.');
+  });
+
+  $('#print_all_drivers').off('click');
+  $('#print_all_drivers').on('click',function(){
+    check = $(this).prop('checked');
+    if (check == true){
+      $.each($('.print-driver'),function(){
+        console.log($(this).parents('.error-item').length,check);
+        if(!$(this).parents('.error-item').length > 0){
+          $(this).prop('checked',check);
+        }
+      });
+    } else {
+      $('.print-driver').prop('checked',check);
+    }
+
+    alert('Selezionate '+$('.print:checked').length+' tessere.');
+  });
+
+  $('#print_all_vehicles').off('click');
+  $('#print_all_vehicles').on('click',function(){
+    check = $(this).prop('checked');
+    if (check == true){
+      $.each($('.print-vehicle'),function(){
+        console.log($(this).parents('.error-item').length,check);
+        if(!$(this).parents('.error-item').length > 0){
+          $(this).prop('checked',check);
+        }
+      });
+    } else {
+      $('.print-vehicle').prop('checked',check);
+    }
+
+    alert('Selezionate '+$('.print:checked').length+' tessere.');
+  });
+
+  $('#print_all_specials').off('click');
+  $('#print_all_specials').on('click',function(){
+    check = $(this).prop('checked');
+    if (check == true){
+      $.each($('.print-special'),function(){
+        console.log($(this).parents('.error-item').length,check);
+        if(!$(this).parents('.error-item').length > 0){
+          $(this).prop('checked',check);
+        }
+      });
+    } else {
+      $('.print-special').prop('checked',check);
+    }
 
     alert('Selezionate '+$('.print:checked').length+' tessere.');
   });
