@@ -23,8 +23,8 @@ class CodesController < ApplicationController
     require "prawn/measurement_extensions"
 
     margins = 15
-    card_width = 86
-    card_height = 55
+    card_width = 81
+    card_height = 52
 
     pdf = Prawn::Document.new :filename=>'foo.pdf',
                           :page_size=> "A4",
@@ -68,6 +68,7 @@ class CodesController < ApplicationController
           pdf.text c.print_owner
           c.generate_barcode
           pdf.image "tmp/cw-code-temp.png", vposition: :center, position: card_width.mm/2-margins
+          # pdf.text c.code
         end
         pdf.stroke_bounds
       end
@@ -87,7 +88,7 @@ class CodesController < ApplicationController
     # end
     respond_to do |format|
       format.pdf do
-        send_data pdf.render, filename: "test.pdf",
+        send_data pdf.render, filename: "tessere_lavaggio_#{Date.current.strftime('%Y%m%d')}.pdf",
         type: "application/pdf"
       end
     end

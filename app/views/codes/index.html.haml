@@ -54,13 +54,47 @@
       .ontop
         = form_tag(carwash_print_path(format: :pdf), method: :post) do |f|
           = button_tag 'Stampa selezionati', id: :print_cards, class: 'no-loader'
+          &nbsp&nbsp&nbsp
           = 'Seleziona tutti'
           = check_box_tag "print-all",false, false, id: 'print_all'
+          &nbsp&nbsp&nbsp
+          = "Seleziona creati dal"
+          = date_field_tag 'from_date', nil, id: 'from_date'
 :javascript
 
   $('#print_all').off('click');
   $('#print_all').on('click',function(){
     $('.print').prop('checked',$(this).prop('checked'));
+    alert('Selezionate '+$('.print:checked').length+' tessere.');
+  });
+
+  function check_all(){
+    if($('.print').length == $('.print:checked').length){
+      $('#print_all').prop('checked',true);
+    } else {
+      $('#print_all').prop('checked',false);
+    }
+  };
+
+  $('.print').off('click');
+  $('.print').on('click',function(){
+    check_all();
+  });
+
+  $('#from_date').off('change');
+  $('#from_date').on('change', function(){
+    if($(this).val() != undefined && $(this).val() != ''){
+      var date = $(this).val().split('-').join('');
+      $.each($('.print'),function(){
+        if($(this).data('date') > date){
+          $(this).prop('checked',true);
+        } else {
+          $(this).prop('checked',false);
+        }
+      });
+      check_all();
+      alert('Selezionate '+$('.print:checked').length+' tessere.');
+    }
   });
 
   $('#print_cards').off('click');

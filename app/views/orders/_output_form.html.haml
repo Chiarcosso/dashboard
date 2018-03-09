@@ -3,7 +3,7 @@
 
     = hidden_field_tag :chamount, 1
     - @selected_items
-    -# = form_tag(output_path(@destination), method: :get, remote: true, type: :script) do |f|
+
     .row
       .col-sm-6
         = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch prevent-cr', 'data-target': add_item_to_order_path
@@ -26,9 +26,8 @@
     -# = form_tag(add_item_to_order_path, method: :post, remote: true, type: :script) do |f|
     .scrollable-panel.colored.half
       -# = hidden_field_tag :search, @search
-      = hidden_field_tag :destination, @destination
       - @selected_items.each do |key, item|
-        .row.colored.hover-hilight{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-max': item.article.actual_availability(@checked_items), 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
+        .row.colored.hover-hilight.clickable{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-max': item.article.actual_availability(@checked_items), 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
           .col-sm-4
             -# = hidden_field_tag :item, item.id
             = item.id.to_s+'::'+item.article.complete_name.to_s
@@ -93,6 +92,8 @@
 
 
     .bottom-box
+      = hidden_field_tag :code, @destination
+      = hidden_field_tag :order_id, @order.id.to_i unless @order.id.nil?
       = submit_tag 'Conferma', class:'prevent-cr'
 :javascript
 

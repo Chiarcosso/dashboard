@@ -169,7 +169,7 @@ Rails.application.routes.draw do
   post '/mdc/update_code', to: 'ws#update_user', as: :update_mdc_code
   post   '/sendfare', to: 'ws#update_fares', as: :update_fares
 
-  get    '/output/:destination', to: 'orders#output', as: :output
+  get    '/output/:code', to: 'orders#output', as: :output
   post   '/output/ws/:code', to: 'orders#edit_output', as: :edit_output
   post   '/output/ws/', to: 'orders#edit_ws_output', as: :edit_ws_output
   get    '/output/', to: 'orders#index', as: :output_orders

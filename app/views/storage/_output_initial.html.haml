@@ -6,7 +6,7 @@
       -# = link_to "Ordine per ODS", output_path(:Worksheet,:id), remote: true, class: 'btn btn-primary'
       %b= "Ordine per ODS"
       = form_tag(edit_output_path(Worksheet), method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
-        = hidden_field_tag :area, :Worksheet
+        = hidden_field_tag :destination, :Worksheet
         .row
           .col-sm-10
             = text_field_tag :recipient, nil, class: 'form-control', :placeholder => 'Codice..'

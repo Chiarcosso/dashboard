@@ -2,17 +2,19 @@
 %br
 .scrollable-panel#output-list
   - OutputOrder.unprocessed.each do |oo|
-    .row.colored.hover-hilight.popup-link{'data-target': output_order_exit_path(oo.id), 'data-name': 'ouput-exit'}
+    .row.colored.hover-hilight.ajax-link{'data-target': edit_output_path(oo.destination.class), 'data-name': 'ouput-exit', 'data-method': 'post', 'data-data': "{\"order_id\": #{oo.id}}"}
       .col-sm-1
         = oo.id
       .col-sm-2
         = oo.destination.complete_name unless oo.destination.nil?
       .col-sm-2
         = l(oo.created_at)
-      .col-sm-7
+      .col-sm-6
         - oo.compacted_items.each do |i|
           = i[1][:amount].to_s+'x '+i[1][:name]
           %br
+      .col-sm-1
+        = button_tag 'Chiudi', class: 'popup-link no-loader', data: {target: output_order_exit_path(oo.id), name: 'ouput-exit'}
 
 :javascript
 

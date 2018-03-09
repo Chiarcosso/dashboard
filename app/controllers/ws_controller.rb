@@ -100,7 +100,7 @@ class WsController < ApplicationController
         id = params.require(:id)
         msg = Base64.decode64(params.require('ChatMessage'))
         mdc = MdcWebservice.new
-
+        mdc.begin_transaction
         mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: id, deviceCode: ''})])
         mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{user.user.upcase}|", key: id, order: 0, tabname: 'FARES', values: [msg]}))
         # Person.mdc.each do |p|

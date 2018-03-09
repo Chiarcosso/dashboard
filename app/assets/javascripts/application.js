@@ -20,6 +20,37 @@
 //= require autocomplete-rails
 //= require_tree .
 
+function activateLoadingScreen() {
+    "use strict";
+    $('form').on('submit',function(){
+
+      if(!$(this).hasClass('no-loader') && $(this).children('.no-loader').length == 0) {
+        activateLoadingScreen();
+      }
+    });
+    $('input[type=submit]').on('click',function() {
+
+      if(!$(this).hasClass('no-loader')) {
+        activateLoadingScreen();
+      }
+    });
+    $('a').on('click',function() {
+
+      if(!$(this).hasClass('no-loader') && !$(this).hasClass('dropdown-toggle') ) {
+        activateLoadingScreen();
+      }
+    });
+    $('button').on('click',function() {
+
+      if(!$(this).hasClass('no-loader')) {
+        activateLoadingScreen();
+      }
+    });
+
+    $('.loading-screen').show();
+}
+
+
 function deactivateLoadingScreen() {
     "use strict";
     $('.loading-screen').hide();
@@ -182,7 +213,9 @@ function ajax_link_click_func(e) {
     target = $(this).data('target');
     // var method = $(this).parents('form').first().children('input[name=_method]').val();
     method = $(this).data('method');
+    console.log(target,method,$(this).data('data'));
     data = $(this).data('data');
+
     ajax_link_element = $(this).data('target-element');
     if ($(this).data('check-complete')) {
         complete = complete_ajax_link_func;
@@ -231,6 +264,49 @@ function selectable_click_func() {
     $(this).addClass('selected-row');
 }
 
+var popup_link_name
+function complete_popup_link_func(data) {
+    "use strict";
+     $('body').append('<div class="popup" id="'+name+'"></div>');
+     $('#'+popup_link_name).html(data.responseText);
+     $('#'+popup_link_name).append('<div class="close">Chiudi</div>');
+     // activateClose();
+     deactivateLoadingScreen();
+}
+
+function popup_link_click_func() {
+    "use strict";
+    activateLoadingScreen();
+    var target, method, data;
+    target = $(this).data('target');
+    data = $(this).data('data');
+    method = $(this).data('method');
+    if (method === undefined) {
+      method = 'get';
+    }
+    popup_link_name = $(this).data('name');
+    $.ajax({
+        type: method,
+        url: target,
+        data: data,
+        complete: complete_popup_link_click_func
+    });
+
+    return false;
+
+}
+
+function clickable_link_click_func() {
+    "use strict";
+    target = $(this).data('target');
+    method = $(this).data('method');
+
+}
+
+function on_top_click_func(e) {
+  e.stopPropagation();
+}
+
 function activateJS() {
     "use strict";
     $('#center').on('load', '.autofocus', autofocus_ready_func);
@@ -256,6 +332,11 @@ function activateJS() {
     $('body').on('keyup', '.json-autocomplete', json_autocomplete_keyup_func);
 
     $('body').on('click', '.selectable', selectable_click_func);
+
+    $('body').on('click', '.clickable-link', clickable_link_click_func);
+
+    $('body').on('click', '.on-top', on_top_click_func);
+
 }
 
 // function activateErrors() {
@@ -495,34 +576,6 @@ function activateGallery() {
   });
 }
 
-function activateLoadingScreen() {
-  $('form').on('submit',function(){
-
-    if(!$(this).hasClass('no-loader') && $(this).children('.no-loader').length == 0) {
-      activateLoadingScreen();
-    }
-  });
-  $('input[type=submit]').on('click',function() {
-
-    if(!$(this).hasClass('no-loader')) {
-      activateLoadingScreen();
-    }
-  });
-  $('a').on('click',function() {
-
-    if(!$(this).hasClass('no-loader') && !$(this).hasClass('dropdown-toggle') ) {
-      activateLoadingScreen();
-    }
-  });
-  $('button').on('click',function() {
-
-    if(!$(this).hasClass('no-loader')) {
-      activateLoadingScreen();
-    }
-  });
-
-  $('.loading-screen').show();
-}
 
 
 function reloadSelectBoxes() {
@@ -691,54 +744,56 @@ function domInit() {
     }
   });
 
-  $('.on-top').off('click');
-  $('.on-top').on('click',function(e) {
-    e.stopPropagation();
-  });
+  // $('.on-top').off('click');
+  // $('.on-top').on('click',function(e) {
+  //   e.stopPropagation();
+  // });
 
   $('.hover-hilight').off('click');
   $('.hover-hilight').on('click',function(e) {
-    var itemRow = $(this);
+    if ($(this).hasClass('clickable')) {
+      var itemRow = $(this);
 
-    if ($(this).data('popup') == true) {
-      //$('body').append('<div class="popup">Quantità <input type="number" value="1" step="any" pattern="[0-9]+([\\.,][0-9]+)?" formnovalidate="true" id="amount" name="amount" class="form-control"><div class="close">Chiudi</div></div>');
-      $('body').append('<div class="popup">Quantità <input type="text" pattern="[0-9]+([\\.,][0-9]+)?" id="amount" name="amount" data-max="'+$(this).data('max')+'" class="input-number form-control"><div class="close">Chiudi</div></div>');
-      $('#amount').val('1');
-      $('.popup').css({height: '10em'});
-      activateClose();
+      if ($(this).data('popup') == true) {
+        //$('body').append('<div class="popup">Quantità <input type="number" value="1" step="any" pattern="[0-9]+([\\.,][0-9]+)?" formnovalidate="true" id="amount" name="amount" class="form-control"><div class="close">Chiudi</div></div>');
+        $('body').append('<div class="popup">Quantità <input type="text" pattern="[0-9]+([\\.,][0-9]+)?" id="amount" name="amount" data-max="'+$(this).data('max')+'" class="input-number form-control"><div class="close">Chiudi</div></div>');
+        $('#amount').val('1');
+        $('.popup').css({height: '10em'});
+        activateClose();
 
-      $('#amount').focus();
-      $('#amount').off('keypress');
-      $('#amount').on('keypress',function(e) {
-        if(e.which == '13'){
-          $('.popup').remove();
-          // itemRow.find('#chamount').val($(this).val());
-          $('#chamount').val($(this).val().replace(',','.'));
-          if (parseFloat($('#chamount').val()) > parseFloat($(this).data('max'))){
-            $('#chamount').val($(this).data('max'));
+        $('#amount').focus();
+        $('#amount').off('keypress');
+        $('#amount').on('keypress',function(e) {
+          if(e.which == '13'){
+            $('.popup').remove();
+            // itemRow.find('#chamount').val($(this).val());
+            $('#chamount').val($(this).val().replace(',','.'));
+            if (parseFloat($('#chamount').val()) > parseFloat($(this).data('max'))){
+              $('#chamount').val($(this).data('max'));
+            }
+            var route = itemRow.data('target');
+            itemRow.parents('form').first().append('<input type=hidden name="item" value="'+itemRow.data('data')+'">')
+
+            var valuesToSubmit = itemRow.parents('form').first().serialize();
+            activateLoadingScreen();
+            $.ajax({
+              method: 'post',
+              url: route,
+              data: valuesToSubmit
+            });
           }
-          var route = itemRow.data('target');
-          itemRow.parents('form').first().append('<input type=hidden name="item" value="'+itemRow.data('data')+'">')
-
-          var valuesToSubmit = itemRow.parents('form').first().serialize();
-          activateLoadingScreen();
-          $.ajax({
-            method: 'post',
-            url: route,
-            data: valuesToSubmit
-          });
-        }
-      });
-    } else {
-      var route = $(this).data('target');
-      $(this).parents('form').first().append('<input type=hidden name="item" value="'+$(this).data('data')+'">')
-      var valuesToSubmit = $(this).parents('form').first().serialize();
-      activateLoadingScreen();
-      $.ajax({
-        method: 'post',
-        url: route,
-        data: valuesToSubmit
-      });
+        });
+      } else {
+        var route = $(this).data('target');
+        $(this).parents('form').first().append('<input type=hidden name="item" value="'+$(this).data('data')+'">')
+        var valuesToSubmit = $(this).parents('form').first().serialize();
+        activateLoadingScreen();
+        $.ajax({
+          method: 'post',
+          url: route,
+          data: valuesToSubmit
+        });
+      }
     }
   });
 
@@ -830,26 +885,8 @@ function domInit() {
 
   });
 
-  $('.popup-link').off('click');
-  $('.popup-link').on('click', function(e) {
-    activateLoadingScreen();
-    var target = $(this).data('target');
-    var name = $(this).data('name');
-    $.ajax({
-        type: "GET",
-        url: target,
-        complete: function(data){
-           $('body').append('<div class="popup" id="'+name+'"></div>');
-           $('#'+name).html(data.responseText);
-           $('#'+name).append('<div class="close">Chiudi</div>');
-           activateClose();
-           deactivateLoadingScreen();
-        }
-    });
-
-    return false;
-
-  });
-
-  deactivateLoadingScreen();
+  // $('.popup-link').off('click');
+  // $('.popup-link').on('click', function(e) {
+    deactivateLoadingScreen();
+    // }
 };

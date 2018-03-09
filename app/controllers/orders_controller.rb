@@ -6,8 +6,8 @@ class OrdersController < ApplicationController
   before_action :set_order, only: [:show, :edit, :update, :destroy]
   before_action :set_article_for_order, only: [:add_item_to_new_order]
   before_action :set_items_for_order, only: [:add_item_to_new_order]
-  before_action :output_params, only: [:add_item, :output]
-  before_action :worksheet_params, only: [:edit_output,:edit_ws_output]
+  before_action :output_params, only: [:add_item, :output, :edit_output]
+  before_action :worksheet_params, only: [:edit_ws_output]
   before_action :exit_params, only: [:exit_order,:confirm_order,:destroy_output_order, :print_pdf, :print_pdf_module]
 
   autocomplete :vehicle_information, :information, full: true, :id_element => '#vehicle_id'
@@ -76,7 +76,9 @@ class OrdersController < ApplicationController
 
   def edit_output
     # @order = OutputOrder.find_by_recipient(params.require(:search))
-    @order = OutputOrder.find_by_recipient(@recipient)
+
+    worksheet_params unless params[:search].nil? or params[:destination] != 'Worksheet'
+    @order = OutputOrder.find_by_recipient(@recipient) if @order.nil?
     @search = search_params.nil?? '' : search_params
     if @order.nil? or @order.output_order_items.empty?
       @checked_items = Array.new
@@ -184,6 +186,7 @@ class OrdersController < ApplicationController
     else
       @selected_items = Array.new
     end
+    get_order
     # render :partial => 'items/index'
     respond_to do |format|
       format.js { render :js, :partial => 'orders/output' }
@@ -231,8 +234,9 @@ class OrdersController < ApplicationController
     # end
     # render :partial => 'items/index'
     # @selected_items -= @checked_items
-    if @save
+
       get_order
+    if @save
       # @order = OutputOrder.findByCode(params.require(:code))
       if @order.id.nil?
         @order = OutputOrder.create(createdBy: current_user,destination_id: @recipient.id,destination_type: @destination, receiver: @receiver)
@@ -437,7 +441,7 @@ class OrdersController < ApplicationController
       else
         @save = true
       end
-      case params.require(:destination).to_sym
+      case params.require(:code).to_sym
       when :Person
         @recipient = params[:recipient].nil?? Person.all.first : Person.find(params.require(:recipient).to_i)
       when :Office
@@ -482,7 +486,7 @@ class OrdersController < ApplicationController
           @recipient.vehicle = Vehicle.new
         end
       end
-      @order = OutputOrder.new(:destination => @recipient,:destination_type => params.require(:destination))
+      @order = OutputOrder.new(:destination => @recipient,:destination_type => params.require(:code))
       get_output_items
 
     end
@@ -496,7 +500,11 @@ class OrdersController < ApplicationController
       when 'Worksheet'
         worksheet_params unless params[:recipient] == '' or params[:recipient].nil?
       else
-        nil
+        if params[:order_id].nil? or params[:order_id].to_i == 0
+          @order = OutputOrder.new
+        else
+          @order = OutputOrder.find(params.require(:order_id).to_i)
+        end
       end
     end
 
@@ -620,54 +628,63 @@ class OrdersController < ApplicationController
     end
 
     def output_params
-      @destination = params.require(:destination)
-      case params.require(:destination).to_sym
-      when :Person
-        @recipient = params[:recipient].nil?? Person.all.first : Person.find(params.require(:recipient).to_i)
-      when :Office
-        @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
-      when :Vehicle
-        # @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
-        if params[:vrecipient] == '' and params[:vvehicle_id] == ''
-          @recipient = Vehicle.new
-        else
-          @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)) : Vehicle.find_by_plate(params.require(:vrecipient))#.first
-        end
-        if params[:precipient] == '' or params[:precipient].nil?
-          @receiver = Person.new
-        else
-          @receiver = Person.find(params.require(:precipient).to_i)
-        end
-      when :Worksheet
-        unless params[:recipient].nil? || params[:recipient] == ''
-          @recipient = Worksheet.findByCode(params.require(:recipient))
-          if @recipient.nil?
-            unless params[:vehicle_id].to_i == 0
-              vehicle = Vehicle.find(params[:vehicle_id].to_i)
-            end
-            if vehicle.nil?
-              vehicle = Vehicle.find_by_plate(params[:vehicle])#.first
-            end
-            if vehicle.nil?
-              vehicle = Vehicle.new
-            end
-            @recipient = Worksheet.create(:code => params.require(:recipient).upcase, :vehicle => vehicle)
-          elsif @recipient.vehicle.nil?
-            vehicle = Vehicle.find_by_plate(params[:vehicle])#.first
-            # if vehicle.nil?
-            #   vehicle = Vehicle.find(params.require(:vehicle_id))
-            # end
-            if vehicle.nil?
-              vehicle = Vehicle.new
-            end
-            @recipient.vehicle = vehicle
-            @recipient.save
-          end
-        else
-          @recipient = Worksheet.new
-          @recipient.vehicle = Vehicle.new
-        end
+      @destination = params.require(:code)
+      unless params[:order_id].nil? or params[:order_id].to_i == 0
+        @order = OutputOrder.find(params.require(:order_id))
+        @recipient = @order.destination
       end
+      if @order.nil? and params[:code] == 'Worksheet'
+        worksheet_params
+      end
+
+      # @destination = params.require(:destination)
+      # case params.require(:destination).to_sym
+      # when :Person
+      #   @recipient = params[:recipient].nil?? Person.all.first : Person.find(params.require(:recipient).to_i)
+      # when :Office
+      #   @recipient = params[:recipient].nil?? Office.all.first : Office.find(params.require(:recipient).to_i)
+      # when :Vehicle
+      #   # @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)).first : Vehicle.find_by_plate(params.require(:vrecipient)).first
+      #   if params[:vrecipient] == '' and params[:vvehicle_id] == ''
+      #     @recipient = Vehicle.new
+      #   else
+      #     @recipient = (params[:vrecipient].nil? || params[:vrecipient] == '')? Vehicle.find_by_plate((params[:vvehicle_id].nil? || params[:vvehicle_id] == '') ? '': params.require(:vvehicle_id)) : Vehicle.find_by_plate(params.require(:vrecipient))#.first
+      #   end
+      #   if params[:precipient] == '' or params[:precipient].nil?
+      #     @receiver = Person.new
+      #   else
+      #     @receiver = Person.find(params.require(:precipient).to_i)
+      #   end
+      # when :Worksheet
+      #   unless params[:recipient].nil? || params[:recipient] == ''
+      #     @recipient = Worksheet.findByCode(params.require(:recipient))
+      #     if @recipient.nil?
+      #       unless params[:vehicle_id].to_i == 0
+      #         vehicle = Vehicle.find(params[:vehicle_id].to_i)
+      #       end
+      #       if vehicle.nil?
+      #         vehicle = Vehicle.find_by_plate(params[:vehicle])#.first
+      #       end
+      #       if vehicle.nil?
+      #         vehicle = Vehicle.new
+      #       end
+      #       @recipient = Worksheet.create(:code => params.require(:recipient).upcase, :vehicle => vehicle)
+      #     elsif @recipient.vehicle.nil?
+      #       vehicle = Vehicle.find_by_plate(params[:vehicle])#.first
+      #       # if vehicle.nil?
+      #       #   vehicle = Vehicle.find(params.require(:vehicle_id))
+      #       # end
+      #       if vehicle.nil?
+      #         vehicle = Vehicle.new
+      #       end
+      #       @recipient.vehicle = vehicle
+      #       @recipient.save
+      #     end
+      #   else
+      #     @recipient = Worksheet.new
+      #     @recipient.vehicle = Vehicle.new
+      #   end
+      # end
       unless params[:item].nil?
         @newItem = Item.find(params.require(:item).to_i)
         @newItems = Array.new
