@@ -653,7 +653,11 @@ class OrdersController < ApplicationController
         worksheet_params
       end
       if params[:code] == 'Vehicle'
-        @receiver = @order.receiver
+        if  @order.nil?
+          @receiver = Person.new
+        else
+          @receiver = @order.receiver
+        end
       end
       # @destination = params.require(:destination)
       # case params.require(:destination).to_sym

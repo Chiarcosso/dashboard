@@ -2,7 +2,7 @@
   - CarwashVehicleCode.all.sort_by{ |c| c.vehicle.plate }.each do |cwdc|
     = form_tag(update_carwash_vehicle_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
       = hidden_field_tag :id, cwdc.id
-      .row
+      .row{class: (cwdc.vehicle.dismissed ? ' error-item' : '')}
         .col-sm-4
           -# = text_field_tag 'carwash_vehicle_code[code]', cwdc.code, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
           %b=cwdc.code
@@ -11,12 +11,12 @@
           -# = text_field_tag 'carwash_vehicle_code[vehicle]', cwdc.vehicle.nil? ? '' : cwdc.vehicle.plate, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
           -# = text_field_tag 'carwash_driver_code[person]', cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
           -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
-      .row
+      .row{class: (cwdc.vehicle.dismissed ? ' error-item' : '')}
         .col-sm-12
           = submit_tag 'Rigenera'
           = submit_tag 'Elimina'
           = 'Stampa'
-          = check_box_tag "print-vehicles[]",cwdc.id, false, class: 'print'+(cwdc.vehicle.dismissed ? ' error-item' : ''), data: {date: cwdc.vehicle.dismissed ? -1 : cwdc.updated_at.strftime('%Y%m%d')}
+          = check_box_tag "print-vehicles[]",cwdc.id, false, class: 'print', data: {date: cwdc.vehicle.dismissed ? -1 : cwdc.updated_at.strftime('%Y%m%d')}
           %hr
     -# = text_field_tag :person, cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete_source: Person.find_by_complete_name(:name).map(&:name) }, class: 'form-control autofocus', id: 'person'
 

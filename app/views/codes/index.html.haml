@@ -64,7 +64,19 @@
 
   $('#print_all').off('click');
   $('#print_all').on('click',function(){
-    $('.print').prop('checked',$(this).prop('checked'));
+    check = $(this).prop('checked');
+    if (check == true){
+      $.each($('.print'),function(){
+        console.log($(this).parents('.error-item').length,check);
+        if(!$(this).parents('.error-item').length > 0){
+          $(this).prop('checked',check);
+        }
+      });
+    } else {
+      $('.print').prop('checked',check);
+    }
+
+
     alert('Selezionate '+$('.print:checked').length+' tessere.');
   });
 
