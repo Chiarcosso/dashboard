@@ -195,6 +195,8 @@ class Vehicle < ApplicationRecord
       return false
     # elsif comp['plate'].upcase.tr('. *','') != self.plate
     #   return false
+    elsif comp['notdismissed'] == self.dismissed
+      return false
     elsif comp['manufacturer'].upcase != self.model.manufacturer.name.upcase
       return false
     elsif comp['model'].upcase != self.model.name.upcase
