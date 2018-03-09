@@ -195,7 +195,7 @@ class Vehicle < ApplicationRecord
       return false
     # elsif comp['plate'].upcase.tr('. *','') != self.plate
     #   return false
-  elsif (comp['mileage'].to_i > self.mileage)
+  elsif (comp['mileage'].to_i > self.mileage.to_i)
       return false
     elsif comp['notdismissed'] == self.dismissed
       return false
