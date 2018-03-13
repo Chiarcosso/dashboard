@@ -1,0 +1,24 @@
+- worksheets.each do |ws|
+  .row.colored.hilight
+    .col-sm-1
+      =button_tag 'Apri'
+    .col-sm-1
+      ="n. #{ws.number}"
+    .col-sm-1
+      =ws.vehicle.plate
+    .col-sm-1
+      ="#{I18n.l ws.created_at}"
+    .col-sm-1
+      ="#{I18n.l ws.closingDate}" unless ws.opened?
+    - if ws.opened?
+      .col-sm-1
+        = number_field_tag :hours, ws.hours, class: 'form-control', step: :any, min: 0, width: '1em'
+      .col-sm-1
+        = button_tag 'Chiudi'
+    - else
+      .col-sm-1
+        = ws.hours
+      .col-sm-1
+        = button_tag 'Riapri'
+    .col-sm-1
+      = button_tag 'Conteggio'

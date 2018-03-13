@@ -264,10 +264,10 @@ function selectable_click_func() {
     $(this).addClass('selected-row');
 }
 
-var popup_link_name
+var popup_link_name;
 function complete_popup_link_func(data) {
     "use strict";
-     $('body').append('<div class="popup" id="'+name+'"></div>');
+     $('body').append('<div class="popup" id="'+popup_link_name+'"></div>');
      $('#'+popup_link_name).html(data.responseText);
      $('#'+popup_link_name).append('<div class="close">Chiudi</div>');
      // activateClose();
@@ -285,6 +285,7 @@ function popup_link_click_func() {
       method = 'get';
     }
     popup_link_name = $(this).data('name');
+    alert(popup_link_name);
     $.ajax({
         type: method,
         url: target,

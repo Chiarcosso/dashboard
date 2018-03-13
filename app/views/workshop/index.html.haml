@@ -1,9 +1,46 @@
 %div{ style: 'height: 100vh, padding-top: 3em'}
-  %h3="ODL officina aperti:"
-  .row
-    .col-sm-6
-      .scrollable-panel
-        =render :partial => 'workshop/list', :locals => { :worksheets => Worksheet.open.order(:created_at) }
-    .col-sm-6
-      #worksheet_side
-        =render :partial => 'workshop/worksheet_side'
+  %ul.nav.nav-tabs
+    -# %style
+    -#   a:visited,a:link,a:hover,a:active{ color: black; font-style: normal; font-size: +2; }
+    %li.active
+      =link_to 'ODL officina aperti:', '#tab-opened-ws', data: { toggle: 'tab'}, class: 'no-loader'
+    %li
+      =link_to 'Lista ODL', '#tab-ws-list', data: { toggle: 'tab'}, class: 'no-loader'
+    %li.active
+
+.tab-content
+  .tab-pane#tab-opened-ws.active
+    .container-fluid
+      .row
+        .col-sm-6
+          .scrollable-panel
+            =render :partial => 'workshop/list', :locals => { :worksheets => Worksheet.open.order(:created_at) }
+        .col-sm-6
+          #worksheet_side
+            =render :partial => 'workshop/worksheet_side'
+
+  .tab-pane#tab-ws-list
+    .container-fluid
+      .row
+        .col-sm-12
+          Filtri vari
+      .row
+        .col-sm-1
+        .col-sm-1
+          Nr. ordine
+        .col-sm-1
+          Targa
+        .col-sm-1
+          Aperto
+        .col-sm-1
+          Chiuso
+        .col-sm-1
+          Ore
+        .col-sm-1
+        .col-sm-1
+        .col-sm-4
+
+      .row
+        .col-sm-12
+          .scrollable-panel
+            =render :partial => 'workshop/complete_list', :locals => { :worksheets => Worksheet.order(:created_at) }
