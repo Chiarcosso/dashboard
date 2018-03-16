@@ -76,7 +76,7 @@
         .row.colored.hover-hilight.chklist{'data-target': add_item_to_order_path, 'data-data': oo_item.id, 'data-dsc': oo_item.item.complete_name, 'data-serial': oo_item.item.serial}
           .col-sm-4
             -# = hidden_field_tag 'items[][id]', oo_item.id
-            = hidden_field_tag 'items[][id]', Base64.encode64(YAML::dump(oo_item))
+            = hidden_field_tag 'items[][id]', Base64.encode64(YAML::dump([oo_item,oo_item.new_item]))
             = "#{oo_item.item.id}::#{oo_item.item.article.complete_name.to_s}"
           .col-sm-1
             = oo_item.item.actualBarcode
@@ -84,6 +84,7 @@
             = 'x'+oo_item.quantity.to_s
           .col-sm-2
             = oo_item.item.serial
+            -# = oo_item.new_item.inspect
           .col-sm-1
             = oo_item.item.state#+" #{oo_item.item.remaining_quantity}"
           .col-sm-1

@@ -53,6 +53,7 @@ class Item < ApplicationRecord
 
   @amount = 1
   @actualItems = Array.new
+  
 
   def to_s
     "Pezzo nr. #{self.id}, #{self.article.complete_name}#{(self.serial.nil? or self.serial == '') ? '' : ', seriale: '+self.serial},  creato il: #{self.created_at}, modificato il: #{self.updated_at}"

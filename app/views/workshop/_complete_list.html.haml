@@ -1,4 +1,4 @@
-- worksheets.each do |ws|
+- @worksheets.each do |ws|
   .row.colored.hilight
     .col-sm-1
       =button_tag 'Apri'
@@ -12,13 +12,27 @@
       ="#{I18n.l ws.closingDate}" unless ws.opened?
     - if ws.opened?
       .col-sm-1
-        = number_field_tag :hours, ws.hours, class: 'form-control', step: :any, min: 0, width: '1em'
+        = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+          = hidden_field_tag 'worksheet[id]', ws.id
+          = number_field_tag 'worksheet[hours]', ws.hours, class: 'form-control', step: 0.5, min: 0, width: '1em'
+          = submit_tag :Ok, class: 'no-loader'
+        -# = number_field_tag :hours, ws.hours, class: 'form-control', step: :any, min: 0, width: '1em'
       .col-sm-1
-        = button_tag 'Chiudi'
+        = form_tag(worksheet_closure_toggle_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+          = hidden_field_tag :id, ws.id
+          = hidden_field_tag :search, nil
+          = hidden_field_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil
+          = submit_tag 'Chiudi', class: 'small-button'
     - else
       .col-sm-1
         = ws.hours
       .col-sm-1
-        = button_tag 'Riapri'
+        = form_tag(worksheet_closure_toggle_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+          = hidden_field_tag :id, ws.id
+          = hidden_field_tag :search, nil
+          = hidden_field_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil
+          = submit_tag 'Riapri', class: 'small-button'
+    .col-sm-1
+      = button_tag 'PDF'
     .col-sm-1
       = button_tag 'Conteggio'

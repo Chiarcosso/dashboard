@@ -6,6 +6,15 @@ class OutputOrderItem < ApplicationRecord
   has_one :article, through: :item
   belongs_to :output_order
 
+  @new_item = false
+
+  def new_item(set = false)
+    if set
+      @new_item = true
+    end
+    @new_item
+  end
+  
   def actual_price
     (self.item.actual_box_price / self.item.article.containedAmount) * self.quantity
   end

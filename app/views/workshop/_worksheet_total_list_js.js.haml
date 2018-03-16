@@ -1,0 +1,5 @@
+removejtk();
+$(".popup").remove();
+$(".infobox").remove();
+$("#worksheet_complete_list").html("#{escape_javascript(render :partial => 'workshop/complete_list'  )} ");
+deactivateLoadingScreen();

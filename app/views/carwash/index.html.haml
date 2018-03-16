@@ -20,9 +20,11 @@
     .row
       .col-sm-3
         = c.person.complete_name unless c.person.nil?
-      .col-sm-4
+      .col-sm-1
         = c.vehicle_1.plate unless c.vehicle_1.nil?
+      .col-sm-1
         = c.vehicle_2.plate unless c.vehicle_2.nil?
+      .col-sm-1
         = c.carwash_special_code.label unless c.carwash_special_code.nil?
       -# .col-sm-2
       -#   = c.vehicle_2.plate unless c.vehicle_2.nil?
@@ -53,13 +55,15 @@
     .col-sm-2
       %b
         Fine
-  - CarwashUsage.lastmonth.order(:ending_time => :desc).each do |c|
+  - CarwashUsage.lastmonth.limit(30).order(:ending_time => :desc).each do |c|
     .row
       .col-sm-3
         = c.person.complete_name unless c.person.nil?
-      .col-sm-4
+      .col-sm-1
         = c.vehicle_1.plate unless c.vehicle_1.nil?
+      .col-sm-1
         = c.vehicle_2.plate unless c.vehicle_2.nil?
+      .col-sm-1
         = c.carwash_special_code.label unless c.carwash_special_code.nil?
       .col-sm-1
         = c.row

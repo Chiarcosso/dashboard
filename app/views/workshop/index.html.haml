@@ -22,25 +22,46 @@
   .tab-pane#tab-ws-list
     .container-fluid
       .row
-        .col-sm-12
-          Filtri vari
+        = form_tag(worksheet_filter_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+          .col-sm-1
+            Aperte
+            = check_box_tag 'search[opened]', @search[:opened]
+          .col-sm-1
+            Chiuse
+            = check_box_tag 'search[closed]', @search[:closed]
+          .col-sm-2
+            Targa
+            = text_field_tag 'search[plate]', @search[:plate]
+          .col-sm-2
+            Nr.
+            = text_field_tag 'search[number]', @search[:number]
+          .col-sm-2
+            Dal
+            = date_field_tag 'search[date_since]', @search[:date_since]
+          .col-sm-2
+            Al
+            = date_field_tag 'search[date_to]', @search[:date_to]
+          .col-sm-2
+            Manutentore
+            = select_tag 'search[mechanic]', Hash.new
       .row
         .col-sm-1
         .col-sm-1
-          Nr. ordine
+          %b='Nr. ordine'
         .col-sm-1
-          Targa
+          %b='Targa'
         .col-sm-1
-          Aperto
+          %b='Aperto'
         .col-sm-1
-          Chiuso
+          %b='Chiuso'
         .col-sm-1
-          Ore
+          %b='Ore'
         .col-sm-1
         .col-sm-1
-        .col-sm-4
+        .col-sm-1
+        .col-sm-3
 
       .row
         .col-sm-12
-          .scrollable-panel
-            =render :partial => 'workshop/complete_list', :locals => { :worksheets => Worksheet.order(:created_at) }
+          .scrollable-panel#worksheet_complete_list
+            =render :partial => 'workshop/complete_list'

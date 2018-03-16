@@ -39,28 +39,7 @@ class OrdersController < ApplicationController
     end
   end
 
-  def toggle_worksheet_closure
-    ws = Worksheet.find(params[:id].to_i)
-    # OutputOrder.where("destination_type = 'Worksheet' and destination_id = ?",ws.id).each do |oo|
-    #   oo.update(:processed => !ws.opened?)
-    # end
-    ws.toggle_closure
-    search_params
-    if @open_worksheets_filter
-      @orders = OutputOrder.open_worksheets_filter #.paginate(:page => params[:page], :per_page => 30)
-    else
-      @orders = OutputOrder.all #.paginate(:page => params[:page], :per_page => 30)
-    end
-    if @search.nil? or @search == ''
-      @orders = @orders.order(:processed => :asc, :created_at => :desc) #.paginate(:page => params[:page], :per_page => 30)
-    else
-      @orders = @orders.findByRecipient(@search) #.paginate(:page => params[:page], :per_page => 30)
-    end
 
-    respond_to do |format|
-      format.js { render :js, :partial => 'orders/edit_output_orders' }
-    end
-  end
 
   def edit_ws_output
     respond_to do |format|
@@ -262,7 +241,7 @@ class OrdersController < ApplicationController
         end
         rq = ci.item.remaining_quantity - ci.quantity
         rq = 0 if rq < 0
-        ci.item.update(remaining_quantity: rq)
+        ci.item.update(remaining_quantity: rq) if ci.new_item
         ci.save
         @order.output_order_items << ci unless @order.output_order_items.include? ci
 
@@ -528,25 +507,9 @@ class OrdersController < ApplicationController
             unless id.nil?
               foo = OutputOrderItem.new #workaround for YAML.load bug
               ooi = YAML::load(Base64.decode64(id))
-              # itms << YAML::load(Base64.decode64(id))
-              # ooi.item.remaining_quantity -= ooi.quantity
-              itms << ooi
-              # new_ooi = nil
-              # itms.each do |i|
-              #   if i.item.id == ooi.item.id
-              #     i.quantity += ooi.quantity
-              #     i.item.remaining_quantity -= ooi.quantity
-              #     if i.item.remaining_quantity < 0
-              #       am = i.item.remaining_quantity.abs
-              #       i.item.remaining_quantity = 0
-              #       i.quantity -= am
-              #       new_ooi = OutputOrderItem.new(item: @newItem.find_next_usable(itms.map { |ooi| ooi.item }), output_order: @order, quantity: am)
-              #     end
-              #     ooi_in = true
-              #   end
-              # end
-              # itms << new_ooi unless new_ooi.nil?
-              # itms << ooi unless ooi_in
+
+              itms << ooi[0]
+              itms.last.new_item(true) if ooi[1]
             end
           end
         end
@@ -559,6 +522,7 @@ class OrdersController < ApplicationController
           new_itms = Array.new
           itms.each do |i|
             if i.item.id == @newItem.id
+              i.new_item(true)
               if i.item.remaining_quantity >= amount
                 i.item.remaining_quantity -= amount
                 i.quantity += amount
@@ -578,6 +542,7 @@ class OrdersController < ApplicationController
               ni = @newItem.clone
               ni.remaining_quantity -= amount
               new_itms << OutputOrderItem.new(item: ni, output_order: @order, quantity: amount)
+              new_itms.last.new_item(true)
               amount = 0
             else
               # ni = @newItem.clone
@@ -585,36 +550,18 @@ class OrdersController < ApplicationController
               amount -= @newItem.remaining_quantity
               @newItem.remaining_quantity = 0
               new_itms << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: q)
+              new_itms.last.new_item(true)
               puts " --- #{@newItem.inspect}"
               @newItem = @newItem.find_next_usable ((itms+new_itms).map { |ooi| ooi.item }),@from.to_i
               puts " +++ #{@newItem.inspect}"
               break if @newItem.nil?
             end
+
           end
           itms += new_itms
           new_itms = Array.new
         end
       end
-      #   new_item_in = false
-      #   itms.each do |i|
-      #     if i.item.id == @newItem.id
-      #
-      #       i.quantity += params.require(:chamount).to_f
-      #       if i.item.remaining_quantity < 0
-      #         am = i.item.remaining_quantity.abs
-      #         i.item.remaining_quantity = 0
-      #         i.quantity -= am
-      #         @newItem = @newItem.find_next_usable
-      #       else
-      #         new_item_in = true
-      #       end
-      #     end
-      #   end
-      #   unless new_item_in
-      #     @newItem.remaining_quantity -= params.require(:chamount).to_f
-      #     itms << OutputOrderItem.new(item: @newItem, output_order: @order, quantity: params.require(:chamount).to_f)
-      #   end
-      # end
       itms.reverse
     end
 
@@ -637,16 +584,19 @@ class OrdersController < ApplicationController
       @destination = params.require(:code)
       unless params[:order_id].nil? or params[:order_id].to_i == 0
         @order = OutputOrder.find(params.require(:order_id))
-        if @destination == 'Vehicle'
-          if !params['vvehicle_id'].to_i == 0
-            @recipient = Vehicle.find(params.require('vvehicle_id').to_i)
-          elsif !params['vrecipient'].nil?
-            @recipient = Vehicle.find_by_plate(params.require('vrecipient'))
+        @recipient = @order.destination
+        if @recipient.nil?
+          if @destination == 'Vehicle'
+            if !(params['vvehicle_id'].to_i == 0)
+              @recipient = Vehicle.find(params.require('vvehicle_id').to_i)
+            elsif !(params['vrecipient'].nil?)
+              @recipient = Vehicle.find_by_plate(params.require('vrecipient'))
+            else
+              @recipient = Vehicle.new
+            end
           else
-            @recipient = Vehicle.new
+            @recipient = @order.destination
           end
-        else
-          @recipient = @order.destination
         end
       end
       if @order.nil? and params[:code] == 'Worksheet'
@@ -732,6 +682,7 @@ class OrdersController < ApplicationController
               break
             end
           end
+          @newItems.last.new_item(true)
         end
         @newItems
       end
