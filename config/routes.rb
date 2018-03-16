@@ -226,6 +226,6 @@ Rails.application.routes.draw do
 
   get    '/worksheets/', to: 'worksheets#index', as: :worksheets
   post   '/worksheet/hours', to: 'worksheets#set_hours', as: :worksheet_hours
-  post   "/worksheet/toogle_closure", to: 'orders#toggle_worksheet_closure', as: :worksheet_closure_toggle
-  post   '/worksheet/filter/', to: 'worksheet#filter', as: :worksheet_filter
+  post   "/worksheet/toogle_closure", to: 'worksheets#toggle_closure', as: :worksheet_closure_toggle
+  post   '/worksheet/filter/', to: 'worksheets#filter', as: :worksheet_filter
 end
