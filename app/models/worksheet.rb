@@ -88,6 +88,7 @@ class Worksheet < ApplicationRecord
   end
 
   def self.find_or_create_by_code(protocol)
+    protocol = protocol[/(EWC\*)?([0-9]+).*/,2]
     
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?

@@ -94,6 +94,7 @@ class WorksheetsController < ApplicationController
       filter << "vehicle_id in (select vehicle_id from vehicle_informations where information like '%#{@search[:plate].tr('. *-','')}%' and vehicle_information_type_id = (select id from vehicle_information_types where name = 'Targa'))"
     end
     unless @search[:number].nil? or @search[:number] == ''
+      Worksheet.find_or_create_by_code(@search[:number])
       filter << "code like '%#{@search[:number]}%'"
     end
     unless @search[:date_since].nil? or @search[:date_since] == ''
