@@ -2,4 +2,3 @@ removejtk();
 $(".popup").remove();
 $("body").append('<div class="popup" id="popup-target"><h3>#{escape_javascript(@title)}</h3><div class="close">Chiudi</div><div id="cont"></div></div>');
 $("#cont").html("#{escape_javascript(render :partial => @partial, locals: @locals  )} ");
-activateClose();

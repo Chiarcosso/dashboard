@@ -481,7 +481,7 @@ function activatePopUp() {
              $('body').append('<div class="popup" id="'+name+'"></div>');
              $('#'+name).html(data.responseText);
              $('#'+name).append('<div class="close">Chiudi</div>');
-             activateClose();
+             // activateClose();
              deactivateLoadingScreen();
           }
       });
@@ -498,7 +498,7 @@ function activatePopUp() {
              $('body').append('<div class="popup" id="'+name+'"></div>');
              $('#'+name).html(data.responseText);
              $('#'+name).append('<div class="close">Chiudi</div>');
-             activateClose();
+             // activateClose();
              deactivateLoadingScreen();
           }
       });
@@ -576,7 +576,7 @@ function activateGallery() {
     $('.gimage').on('dragstart',function(e){
       e.preventDefault();
     });
-    activateClose();
+    // activateClose();
   });
 }
 
@@ -763,7 +763,7 @@ function domInit() {
         $('body').append('<div class="popup">Quantità <input type="text" pattern="[0-9]+([\\.,][0-9]+)?" id="amount" name="amount" data-max="'+$(this).data('max')+'" class="input-number form-control"><div class="close">Chiudi</div></div>');
         $('#amount').val('1');
         $('.popup').css({height: '10em'});
-        activateClose();
+        // activateClose();
 
         $('#amount').focus();
         $('#amount').off('keypress');
