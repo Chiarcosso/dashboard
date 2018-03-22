@@ -106,8 +106,8 @@
         .col-sm-8
           %b="Personale"# - #{@altri_mezzi.size} trovati, "+@altri_mezzi.reject{|v| v[:route].nil?}.size.to_s+" non corretti."
         .col-sm-4
-          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_employees_path('simulate'), method: 'post', data: {}}
-          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_employees_path('update'), method: 'post', data: {}, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
+          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_employees_path('simulate'), method: 'post', data: {}, target_element: '#block-autisti-pre'}
+          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_employees_path('update'), method: 'post', data: {}, target_element: '#block-autisti-pre', check_complete: true, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
       .row
         .col-sm-12
           #block-autisti{style: 'height: 82%'}

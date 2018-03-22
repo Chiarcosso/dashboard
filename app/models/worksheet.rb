@@ -89,7 +89,7 @@ class Worksheet < ApplicationRecord
 
   def self.find_or_create_by_code(protocol)
     protocol = protocol[/(EWC\*)?([0-9]+).*/,2]
-    
+
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
       res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo "\
@@ -142,6 +142,54 @@ class Worksheet < ApplicationRecord
 
   def self.filter(search)
     Worksheet.find_by_sql("SELECT DISTINCT w.* FROM worksheets w LEFT JOIN vehicle_informations i ON w.vehicle_id = i.vehicle_id WHERE w.code LIKE '%#{search}%' OR i.information LIKE '%#{search}%'")
+  end
+
+  def get_pdf
+    path = "/mnt/wshare/DBase/Automezzi/"
+    list = `find #{path}`
+    list.scan(/.*\/(#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')}) - (.*)\/(.*)-#{self.number}(.*)\.pdf/) do |line|
+      path += line
+      byebug
+    end
+    byebug
+    File.open(path,'r')
+  end
+
+  def print
+    pdf = Prawn::Document.new
+    pdf.text "ODL nr. #{self.number} - #{self.vehicle.plate}"
+
+    table = [['Articolo','Seriale/matricola','Costo']]
+    total = 0.0
+    self.output_orders.each do |oo|
+      oo.output_order_items.each do |i|
+        table << ["#{i.item.article.complete_name} (#{i.quantity}/#{i.item.article.containedAmount})","#{i.item.serial}","#{i.complete_price}"]
+      end
+      total += oo.total.to_f
+    end
+
+
+    table << ["Ore di lavoro","","#{self.hours_complete_price}"]
+    table << ["Materiale di consumo","","#{self.materials_complete_price}"]
+    total += self.hours_price
+    total += self.materials_price
+
+    table << ["Totale","","#{"%.2f" % total} €".tr('.',',')]
+
+    pdf.move_down 20
+    pdf.table table,
+      # :border_style => :grid,
+      # :font_size => 11,
+      :position => :center,
+      :column_widths => { 0 => 210, 1 => 223, 2 => 107},
+      # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+      :row_colors => ["d2e3ed", "FFFFFF"]
+
+    pdf.bounding_box([pdf.bounds.right - 50,pdf.bounds.bottom], :width => 60, :height => 20) do
+    	count = pdf.page_count
+    	pdf.text "Page #{count}"
+    end
+    pdf
   end
 
   private

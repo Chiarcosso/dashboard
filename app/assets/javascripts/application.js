@@ -310,6 +310,9 @@ function on_top_click_func(e) {
 
 function activateJS() {
     "use strict";
+
+    $('body').off("click").off("mouseenter").off("mouseleave").off("change").off("keyup");
+
     $('#center').on('load', '.autofocus', autofocus_ready_func);
 
     $('body').on("click", ".error,.infobox", error_click_func);
@@ -585,15 +588,15 @@ function reloadSelectBoxes() {
   });
 };
 
-function activateClose() {
-  $('.close').off('click');
-  $('.close').on('click',function(){
-    $('.custom-autocomplete-dropdown').remove();
-    specificCloseFunctions();
-    $(this).parent().fadeOut().remove();
-    deactivateLoadingScreen();
-  });
-};
+// function activateClose() {
+//   $('.close').off('click');
+//   $('.close').on('click',function(){
+//     $('.custom-autocomplete-dropdown').remove();
+//     specificCloseFunctions();
+//     $(this).parent().fadeOut().remove();
+//     deactivateLoadingScreen();
+//   });
+// };
 
 function activateReserveAlert() {
   if($('.signal-danger').length > 0){
@@ -705,7 +708,7 @@ function activateAutoComplete() {
 
 function domInit() {
 
-  activateClose();
+  // activateClose();
   activateAF();
   activateDelete();
   $('.popup form').submit(function() {

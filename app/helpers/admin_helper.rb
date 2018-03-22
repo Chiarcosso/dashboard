@@ -41,6 +41,11 @@ module AdminHelper
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}</span>\n"
       mssql_reference_logger.error(@error)
     end
+    res['serie'] = nil
+    if res['model'] =~ /\d serie$/
+      res['serie'] = res['model'][/(\d) serie$/,1].to_i
+      res['model'] = res['model'][/^(.*) \d serie$/,1]
+    end
     res[:model] = VehicleModel.where(:name => r['model'], :manufacturer => res[:manufacturer]).first
     if res[:model].nil?
       @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"

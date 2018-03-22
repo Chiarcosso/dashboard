@@ -288,8 +288,9 @@ class OrdersController < ApplicationController
   end
 
   def confirm_order
-    @order.processed = true;
-    if @order.save
+    begin
+      @order.processed = true;
+      @order.save
       @order.items.each do |i|
         ir = ItemRelation.new
         ir.item = i
@@ -306,11 +307,16 @@ class OrdersController < ApplicationController
         end
         ir.save
       end
-      @msg = 'Ordine evaso'
-    else
-      @msg = 'Errore'
+    rescue Exception => e
+      @error = e.message
     end
-      render :partial => 'layouts/messages'
+    respond_to do |format|
+      if @error.nil?
+        format.js { render partial: 'storage/orders_list_js.js.haml'}
+      else
+        format.js { render partial: 'layouts/error'}
+      end
+    end
   end
 
   def new_order
