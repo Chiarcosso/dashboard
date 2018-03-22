@@ -81,12 +81,15 @@ class WorksheetsController < ApplicationController
 
   def get_pdf
     ws = Worksheet.find(params.require(:id))
-    respond_to do |format|
-      format.pdf do
-        pdf = ws.get_pdf
-        send_data pdf.read, filename: File.basename(pdf.path),
-        type: "application/pdf"
+    begin
+      respond_to do |format|
+        format.pdf do
+          pdf = ws.get_pdf
+          send_data pdf.read, filename: File.basename(pdf.path),
+          type: "application/pdf"
+        end
       end
+    rescue
     end
   end
 

@@ -148,11 +148,11 @@ class Worksheet < ApplicationRecord
   def get_pdf
     path = "/mnt/wshare/DBase/Automezzi/"
     list = `find #{path}`
-    list.scan(/(.*)\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')}) - (.*)\/(.*)-#{self.number}(.*)\.pdf$/) do |line|
-      path += line
-      byebug
+    # list = '/mnt/wshare/DBase/Automezzi/DBase/Automezzi/2161 - ER 275 KY/20180306-51126-F.pdf'
+    # list.scan(/.*\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')} - .*\/.*-#{self.number}.*\.pdf/) do |line|
+    list.scan(/.*-#{self.number}-.*\.pdf/) do |line|
+      path = line
     end
-    byebug
     File.open(path,'r')
   end
 
