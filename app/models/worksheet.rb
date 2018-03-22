@@ -128,8 +128,9 @@ class Worksheet < ApplicationRecord
   end
 
   def self.upsync_all
-    res = get_client.query("select Protocollo, CodiceAutomezzo, Tipo, DataUscitaVeicolo "\
+    res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo "\
       "from autoodl "\
+      "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
       "where DataEntrataVeicolo is not null")
     res.each do |odl|
       Worksheet.upsync_ws(odl)

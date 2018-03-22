@@ -108,7 +108,7 @@ class WorksheetsController < ApplicationController
     filter = []
 
     if @search.with_indifferent_access[:opened] and @search.with_indifferent_access[:closed]
-      filter << ''
+      # filter << ''
     elsif @search.with_indifferent_access[:opened] and !@search.with_indifferent_access[:closed]
       filter << 'closingDate is null'
     elsif !@search.with_indifferent_access[:opened] and @search.with_indifferent_access[:closed]
