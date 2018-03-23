@@ -7,7 +7,7 @@
     .col-sm-1
       =ws.vehicle.plate
     .col-sm-2
-      ="#{I18n.l ws.created_at}"
+      ="#{I18n.l ws.opening_date}"
     .col-sm-2
       ="#{I18n.l ws.closingDate}" unless ws.opened?
     - if ws.opened?

@@ -125,10 +125,10 @@ class WorksheetsController < ApplicationController
       filter << "code like '%#{@search.with_indifferent_access[:number]}%'"
     end
     unless @search.with_indifferent_access[:date_since].nil? or @search.with_indifferent_access[:date_since] == ''
-      filter << "created_at >= '#{@search.with_indifferent_access[:date_since]}'"
+      filter << "opening_date >= '#{@search.with_indifferent_access[:date_since]}'"
     end
     unless @search.with_indifferent_access[:date_to].nil? or @search.with_indifferent_access[:date_to] == ''
-      filter << "created_at <= '#{@search.with_indifferent_access[:date_to]}'"
+      filter << "opening_date <= '#{@search.with_indifferent_access[:date_to]}'"
     end
     @worksheets = Worksheet.where(filter.join(' and ')).limit(100).order(:code => :asc)
 

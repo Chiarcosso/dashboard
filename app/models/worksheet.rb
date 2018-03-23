@@ -92,7 +92,7 @@ class Worksheet < ApplicationRecord
 
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
-      res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo "\
+      res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.codice "\
         "where Protocollo = #{protocol} limit 1")
@@ -117,9 +117,9 @@ class Worksheet < ApplicationRecord
       vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
       @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil? and @error.nil?
       if ws.nil?
-        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle)
+        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: (odl['DataUscitaVeicolo'].nil?? nil : Date.parse(odl['DataUscitaVeicolo'])), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : Date.parse(odl['DataEntrataVeicolo'])), notes: odl['Note'])
       else
-        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: odl['DataUscitaVeicolo'].nil?? nil : Date.parse(odl['DataUscitaVeicolo']))
+        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'])
       end
     rescue Exception => e
       @error = e.message if @error.nil?
@@ -128,7 +128,7 @@ class Worksheet < ApplicationRecord
   end
 
   def self.upsync_all
-    res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo "\
+    res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
       "where DataEntrataVeicolo is not null")

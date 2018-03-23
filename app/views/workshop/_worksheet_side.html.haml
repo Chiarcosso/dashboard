@@ -1,23 +1,24 @@
-.row
-  .col-sm-12
-    =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@vehicle.id), name: "infobox_vehicle_#{@vehicle.id}" }
-    %b='Mezzo: '
-    =@vehicle.plate
+- unless @vehicle.nil?
+  .row
+    .col-sm-12
+      =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@vehicle.id), name: "infobox_vehicle_#{@vehicle.id}" }
+      %b='Mezzo: '
+      =@vehicle.plate
 
-.row
-  .col-sm-12
-    =@vehicle.model.complete_name unless @vehicle.model.nil?
-.row
-  .col-sm-12
-    ="#{@vehicle.type} #{@vehicle.typology}"
-.row
-  .col-sm-12
-    -# ="Ultimo lavaggio: #{@vehicle.last_washing.inspect}"
-    ="Ultimo lavaggio: #{(@vehicle.last_washing.nil? ? '' : (I18n.l @vehicle.last_washing.starting_time))}"
-.row
-  .col-sm-12
-    %b="Ultimi ODL:"
-.row
-  .col-sm-12
-    .scrollable-panel
-      =render :partial => 'workshop/list_old', :locals => { :worksheets => Worksheet.where("vehicle_id = #{@vehicle.id} and closingDate is not null").order(:closingDate => :desc)}
+  .row
+    .col-sm-12
+      =@vehicle.model.complete_name unless @vehicle.model.nil?
+  .row
+    .col-sm-12
+      ="#{@vehicle.type} #{@vehicle.typology}"
+  .row
+    .col-sm-12
+      -# ="Ultimo lavaggio: #{@vehicle.last_washing.inspect}"
+      ="Ultimo lavaggio: #{(@vehicle.last_washing.nil? ? '' : (I18n.l @vehicle.last_washing.starting_time))}"
+  .row
+    .col-sm-12
+      %b="Ultimi ODL:"
+  .row
+    .col-sm-12
+      .scrollable-panel
+        =render :partial => 'workshop/list_old', :locals => { :worksheets => Worksheet.where("vehicle_id = #{@vehicle.id} and closingDate is not null").order(:closingDate => :desc)}
