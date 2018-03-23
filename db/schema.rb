@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180301172748) do
+ActiveRecord::Schema.define(version: 20180323093420) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -452,6 +452,18 @@ ActiveRecord::Schema.define(version: 20180301172748) do
     t.string   "mdc_user"
   end
 
+  create_table "performed_vehicle_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "vehicle_check_session_id",                            null: false
+    t.integer  "vehicle_check_id",                                    null: false
+    t.float    "value",                    limit: 24
+    t.string   "notes"
+    t.boolean  "performed",                           default: false, null: false
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
+    t.index ["vehicle_check_id"], name: "index_performed_vehicle_checks_on_vehicle_check_id", using: :btree
+    t.index ["vehicle_check_session_id"], name: "index_performed_vehicle_checks_on_vehicle_check_session_id", using: :btree
+  end
+
   create_table "position_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "floor",       limit: 1, default: 0, null: false
     t.integer  "row",         limit: 1, default: 0, null: false
@@ -539,6 +551,53 @@ ActiveRecord::Schema.define(version: 20180301172748) do
     t.datetime "updated_at",                null: false
     t.index ["name"], name: "index_vehicle_categories_on_name", using: :btree
     t.index ["name"], name: "vehicle_categories_unique_name", unique: true, using: :btree
+  end
+
+  create_table "vehicle_check_sessions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "theoretical_km"
+    t.integer  "real_km",              null: false
+    t.date     "date",                 null: false
+    t.integer  "operator_id",          null: false
+    t.integer  "theoretical_duration", null: false
+    t.integer  "real_duration",        null: false
+    t.integer  "worksheet_id",         null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["operator_id"], name: "index_vehicle_check_sessions_on_operator_id", using: :btree
+    t.index ["worksheet_id"], name: "index_vehicle_check_sessions_on_worksheet_id", using: :btree
+  end
+
+  create_table "vehicle_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "code",                                               null: false
+    t.integer  "vehicle_id"
+    t.integer  "vehicle_type_id"
+    t.integer  "vehicle_typology_id"
+    t.integer  "importance",                                         null: false
+    t.integer  "duration",                                           null: false
+    t.boolean  "check_driver",                       default: true,  null: false
+    t.boolean  "check_carwash",                      default: true,  null: false
+    t.boolean  "check_workshop",                     default: true,  null: false
+    t.integer  "frequency_km"
+    t.integer  "frequency_time"
+    t.integer  "alert_before_km"
+    t.integer  "alert_before_time"
+    t.boolean  "both_expired",                       default: false, null: false
+    t.boolean  "generate_worksheet",                 default: true,  null: false
+    t.string   "label",                                              null: false
+    t.decimal  "val_min",             precision: 10
+    t.decimal  "val_max",             precision: 10
+    t.integer  "group_id"
+    t.datetime "created_at",                                         null: false
+    t.datetime "updated_at",                                         null: false
+    t.index ["check_carwash"], name: "index_vehicle_checks_on_check_carwash", using: :btree
+    t.index ["check_driver"], name: "index_vehicle_checks_on_check_driver", using: :btree
+    t.index ["check_workshop"], name: "index_vehicle_checks_on_check_workshop", using: :btree
+    t.index ["code"], name: "index_vehicle_checks_on_code", using: :btree
+    t.index ["importance"], name: "index_vehicle_checks_on_importance", using: :btree
+    t.index ["label"], name: "index_vehicle_checks_on_label", using: :btree
+    t.index ["vehicle_id"], name: "index_vehicle_checks_on_vehicle_id", using: :btree
+    t.index ["vehicle_type_id"], name: "index_vehicle_checks_on_vehicle_type_id", using: :btree
+    t.index ["vehicle_typology_id"], name: "index_vehicle_checks_on_vehicle_typology_id", using: :btree
   end
 
   create_table "vehicle_equipments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -844,10 +903,17 @@ ActiveRecord::Schema.define(version: 20180301172748) do
   add_foreign_key "output_order_items", "output_orders"
   add_foreign_key "output_orders", "people", column: "receiver_id"
   add_foreign_key "output_orders", "users", column: "createdBy_id"
+  add_foreign_key "performed_vehicle_checks", "vehicle_check_sessions"
+  add_foreign_key "performed_vehicle_checks", "vehicle_checks"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
   add_foreign_key "transport_documents", "companies", column: "vector_id"
   add_foreign_key "transport_documents", "orders"
+  add_foreign_key "vehicle_check_sessions", "people", column: "operator_id"
+  add_foreign_key "vehicle_check_sessions", "worksheets"
+  add_foreign_key "vehicle_checks", "vehicle_types"
+  add_foreign_key "vehicle_checks", "vehicle_typologies"
+  add_foreign_key "vehicle_checks", "vehicles"
   add_foreign_key "vehicle_informations", "vehicle_information_types"
   add_foreign_key "vehicle_model_categories", "vehicle_categories"
   add_foreign_key "vehicle_model_categories", "vehicle_models"

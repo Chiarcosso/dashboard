@@ -146,9 +146,8 @@ class Worksheet < ApplicationRecord
   end
 
   def get_pdf
-    path = "/mnt/wshare/DBase/Automezzi/"
-    list = `find #{path}`
-    # list = '/mnt/wshare/DBase/Automezzi/DBase/Automezzi/2161 - ER 275 KY/20180306-51126-F.pdf'
+    path = nil
+    list = `find #{ENV['RAILS_WS_PATH']}`
     # list.scan(/.*\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')} - .*\/.*-#{self.number}.*\.pdf/) do |line|
     list.scan(/.*-#{self.number}-.*\.pdf/) do |line|
       path = line

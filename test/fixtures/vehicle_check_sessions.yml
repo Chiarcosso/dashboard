@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  theoretical_km: 1
+  real_km: 1
+  date: 2018-03-23
+  operator: one
+  theoretical_duration: 1
+  real_duration: 1
+  worksheet: one
+
+two:
+  theoretical_km: 1
+  real_km: 1
+  date: 2018-03-23
+  operator: two
+  theoretical_duration: 1
+  real_duration: 1
+  worksheet: two

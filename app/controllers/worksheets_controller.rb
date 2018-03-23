@@ -130,7 +130,7 @@ class WorksheetsController < ApplicationController
     unless @search.with_indifferent_access[:date_to].nil? or @search.with_indifferent_access[:date_to] == ''
       filter << "created_at <= '#{@search.with_indifferent_access[:date_to]}'"
     end
-    @worksheets = Worksheet.where(filter.join(' and ')).order(:code => :asc)
+    @worksheets = Worksheet.where(filter.join(' and ')).limit(100).order(:code => :asc)
 
   end
 
