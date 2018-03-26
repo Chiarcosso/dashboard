@@ -305,7 +305,13 @@ function clickable_link_click_func() {
 }
 
 function on_top_click_func(e) {
+  "use strinct";
   e.stopPropagation();
+}
+
+function toggable_display_change_func() {
+  "use strinct";
+  $('#'+$(this).data('target')).removeClass('invisible').addClass('visible');
 }
 
 function activateJS() {
@@ -340,6 +346,10 @@ function activateJS() {
     $('body').on('click', '.clickable-link', clickable_link_click_func);
 
     $('body').on('click', '.on-top', on_top_click_func);
+
+    $('body').on('change', '.toggable-display-fld', toggable_display_change_func);
+
+    $('body').on('keyup', '.toggable-display-fld', toggable_display_change_func);
 
 }
 

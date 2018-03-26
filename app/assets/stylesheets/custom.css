@@ -242,6 +242,10 @@ body{
   /* padding-bottom: 20em; */
 }
 
+.invisible{
+  opacity: 0 !important;
+}
+
 .item_box{
   margin: .4em
 }
@@ -414,4 +418,8 @@ body{
   margin-top: 1em;
   margin-bottom: .6em;
   font-weight: bolder;
+}
+
+.visible{
+  opacity: 1 !important;
 }

@@ -33,10 +33,12 @@
             .col-sm-4
               Targa
             .col-sm-8
-              = text_field_tag 'search[plate]', @search[:plate]
+              = text_field_tag 'search[plate]', @search[:plate], style: 'width: 9em;'
           .col-sm-2
-            Nr.
-            = text_field_tag 'search[number]', @search[:number]
+            .inline
+              Nr.
+            .inline
+              = text_field_tag 'search[number]', @search[:number]
           .col-sm-2
             Dal
             = date_field_tag 'search[date_since]', @search[:date_since]
@@ -45,27 +47,8 @@
             = date_field_tag 'search[date_to]', @search[:date_to]
           .col-sm-1
             Manutentore
-            = select_tag 'search[mechanic]', Hash.new
+            = select_tag 'search[mechanic]', Hash.new, class: 'form-control'
           .col-sm-1
-            = submit_tag 'Filtra'
-      .row
-        .col-sm-1
-        .col-sm-1
-          %b='Nr. scheda'
-        .col-sm-1
-          %b='Targa'
-        .col-sm-2
-          %b='Aperto'
-        .col-sm-2
-          %b='Chiuso'
-        .col-sm-2
-          %b='Ore'
-        .col-sm-1
-        .col-sm-1
-        .col-sm-1
-        .col-sm-3
-
-      .row
-        .col-sm-12
-          .scrollable-panel#worksheet_complete_list
-            =render :partial => 'workshop/complete_list'
+            = submit_tag 'Filtra', class: 'form-control'
+      #worksheet_complete_list
+        =render :partial => 'workshop/complete_list'
