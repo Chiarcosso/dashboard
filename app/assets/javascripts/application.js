@@ -20,6 +20,11 @@
 //= require autocomplete-rails
 //= require_tree .
 
+jQuery.ajaxSetup({
+            // Disable caching of AJAX responses
+            cache: false
+        });
+        
 function activateLoadingScreen() {
     "use strict";
     $('form').on('submit',function(){

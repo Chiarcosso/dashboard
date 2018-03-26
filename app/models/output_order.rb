@@ -132,7 +132,7 @@ class OutputOrder < ApplicationRecord
       # end
       pdf.move_down 20
       pdf.font_size = 12
-      pdf.text "Il sottoscritto #{self.destination.complete_name}, dipendente della ditta #{self.destination.companies.first.name}", align: :center
+      pdf.text "Il sottoscritto #{self.destination.complete_name}, dipendente della ditta __________________________________", align: :center
       pdf.text "con mansione di #{self.destination.company_relations.first.name.downcase}, dichiara di ricevere il seguente materiale antinfortunistico:", align: :center
       pdf.move_down 20
       pdf.font_size = 10
