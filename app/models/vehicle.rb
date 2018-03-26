@@ -77,7 +77,6 @@ class Vehicle < ApplicationRecord
       mr = MssqlReference.find_by(remote_object_table: table, remote_object_id: id.to_i)
       v = mr.local_object unless mr.nil?
 
-      byebug
       if v.nil?
         case table
         when 'Veicoli' then
