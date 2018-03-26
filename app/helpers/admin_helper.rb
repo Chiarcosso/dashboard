@@ -104,7 +104,7 @@ module AdminHelper
       res[:plate] = r['plate']
       res[:vehicle] = Vehicle.find_by_plate(r['plate'].tr('. *-',''))
     end
-
+    raise @error unless @error.nil?
     res
   end
 

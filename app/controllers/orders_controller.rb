@@ -12,6 +12,8 @@ class OrdersController < ApplicationController
 
   autocomplete :vehicle_information, :information, full: true, :id_element => '#vehicle_id'
 
+
+  @error = nil
   def autocomplete_person_filter
     # result = Array.new
     # Person.filter(params.permit(:term)[:term]).each do |p|
@@ -447,7 +449,7 @@ class OrdersController < ApplicationController
         end
       when :Worksheet
         unless params[:recipient].nil? || params[:recipient] == ''
-          @recipient = Worksheet.findByCode(params.require(:recipient))
+          @recipient = Worksheet.find_or_create_by_code(params.require(:recipient))
           if @recipient.nil?
             vehicle = Vehicle.find(params.require(:vehicle_id).to_i)
             if vehicle.nil?
@@ -739,12 +741,13 @@ class OrdersController < ApplicationController
     end
 
     def worksheet_params
-      ws = Worksheet.find_or_create_by_code(params.require(:recipient)[/(\d*)$/,1])
-      @destination = 'Worksheet'
-      if ws.nil? and @error.nil?
-        @error = "Errori nella ricerca dell'ODL nr. #{params.require(:recipient)[/(\d*)$/,1]}" if @error.nil?
-      end
+
+      # if ws.nil? and @error.nil?
+      #   @error = "Errori nella ricerca dell'ODL nr. #{params.require(:recipient)[/(\d*)$/,1]}" if @error.nil?
+      # end
       begin
+        ws = Worksheet.find_or_create_by_code(params.require(:recipient)[/(\d*)$/,1])
+        @destination = 'Worksheet'
         @order = OutputOrder.findByRecipient(ws.code,Worksheet).last
         if @order.nil?
           @order = OutputOrder.new(destination: ws)
@@ -752,6 +755,7 @@ class OrdersController < ApplicationController
         @recipient = ws
       rescue Exception => e
         @error = e.message if @error.nil?
+        # raise e.message
       end
 
       unless @error.nil?

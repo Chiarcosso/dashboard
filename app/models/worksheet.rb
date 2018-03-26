@@ -89,7 +89,6 @@ class Worksheet < ApplicationRecord
 
   def self.find_or_create_by_code(protocol)
     protocol = protocol[/(EWC\*)?([0-9]+).*/,2]
-
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
       res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
@@ -115,14 +114,16 @@ class Worksheet < ApplicationRecord
     end
     begin
       vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
-      @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil? and @error.nil?
+      # @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
+      raise "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       if ws.nil?
-        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: (odl['DataUscitaVeicolo'].nil?? nil : Date.parse(odl['DataUscitaVeicolo'])), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : Date.parse(odl['DataEntrataVeicolo'])), notes: odl['Note'])
+        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'])
       else
         ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'])
       end
     rescue Exception => e
-      @error = e.message if @error.nil?
+      # @error = e.message if @error.nil?
+      raise e.message
     end
     ws
   end
