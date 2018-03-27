@@ -1,0 +1,2 @@
+class VehiclePerformedCheck < ApplicationRecord
+end

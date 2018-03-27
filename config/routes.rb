@@ -121,6 +121,8 @@ Rails.application.routes.draw do
   post '/codes/carwash_print/', to: 'codes#carwash_print', as: :carwash_print
   get  '/codes/mdc', to: 'codes#mdc_index'
 
+  get  '/carwash/checks/', to: 'carwash#checks_index', as: :carwash_checks
+
   post '/companies/new', to: 'companies#new', as: :new_company_search
   post '/companies/edit', to: 'companies#edit', as: :edit_company_search
   post '/companies/vehicle_manufacturers_autocomplete', to: 'companies#vehicle_manufacturer_autocomplete', as: :custom_vehicle_manufacturers_autocomplete

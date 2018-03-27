@@ -1,0 +1,22 @@
+%div{ style: 'height: 100vh, padding-top: 3em'}
+  %ul.nav.nav-tabs
+    -# %style
+    -#   a:visited,a:link,a:hover,a:active{ color: black; font-style: normal; font-size: +2; }
+    %li.active
+      =link_to 'Controlli e manutenzione:', '#tab-checks', data: { toggle: 'tab'}, class: 'no-loader'
+    - if current_user.has_role?('amministratore officina') || current_user.has_role?(:admin)
+      %li
+        =link_to 'Gestione', '#tab-checks-management', data: { toggle: 'tab'}, class: 'no-loader'
+
+.tab-content
+  .tab-pane#tab-checks.active
+    .container-fluid
+      .row
+        .col-sm-3
+          
+      = render partial: 'carwash/check_view'
+
+  - if current_user.has_role?('amministratore officina') || current_user.has_role?(:admin)
+    .tab-pane#tab-checks-management
+      .container-fluid
+        Gestione

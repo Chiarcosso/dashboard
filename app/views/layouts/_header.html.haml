@@ -26,6 +26,8 @@
         = navbar_dropdown "Officina" do
           - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina'))
             = navbar_item "Lavaggio", carwash_path
+          - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina')|| current_user.has_role?(:officina))
+            = navbar_item "Controlli", carwash_checks_path
           - if (current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina')|| current_user.has_role?(:officina))
             = navbar_item "Lista ODL", worksheets_path
           -# - if (current_user.has_role?(:officina) || current_user.has_role?(:admin))

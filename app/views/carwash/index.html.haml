@@ -29,13 +29,13 @@
       .col-sm-2
         = c.row
       .col-sm-2
-        = l(c.starting_time)
+        = c.starting_time.strftime('%d/%m/%Y %H:%M:%S')
       .col-sm-2
         = c.session_id
 
 %h3='Lavaggi ultimo mese'
 .container.half.scrollable-panel
-  .row.colored
+  .row
     .col-sm-3
       %b
         Autista
@@ -52,7 +52,7 @@
       %b
         Fine
   - CarwashUsage.lastmonth.limit(30).order(:ending_time => :desc).each do |c|
-    .row
+    .row.colored
       .col-sm-3
         - if !c.carwash_special_code.nil?
           = c.carwash_special_code.label
@@ -64,6 +64,6 @@
       .col-sm-2
         = c.row
       .col-sm-2
-        = l(c.starting_time)
+        = c.starting_time.strftime('%d/%m/%Y %H:%M:%S')
       .col-sm-2
-        = l(c.ending_time)
+        = c.ending_time.strftime('%d/%m/%Y %H:%M:%S')

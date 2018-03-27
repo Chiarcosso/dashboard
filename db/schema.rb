@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180323104302) do
+ActiveRecord::Schema.define(version: 20180327085355) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -679,6 +679,18 @@ ActiveRecord::Schema.define(version: 20180323104302) do
     t.index ["manufacturer_id"], name: "index_vehicle_models_on_manufacturer_id", using: :btree
   end
 
+  create_table "vehicle_performed_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "vehicle_check_session_id",                            null: false
+    t.integer  "vehicle_check_id",                                    null: false
+    t.float    "value",                    limit: 24
+    t.string   "notes"
+    t.boolean  "performed",                           default: false, null: false
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
+    t.index ["vehicle_check_id"], name: "index_vehicle_performed_checks_on_vehicle_check_id", using: :btree
+    t.index ["vehicle_check_session_id"], name: "index_vehicle_performed_checks_on_vehicle_check_session_id", using: :btree
+  end
+
   create_table "vehicle_properties", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "vehicle_id", null: false
     t.string   "owner_type"
@@ -928,6 +940,8 @@ ActiveRecord::Schema.define(version: 20180323104302) do
   add_foreign_key "vehicle_model_typologies", "vehicle_models"
   add_foreign_key "vehicle_model_typologies", "vehicle_typologies"
   add_foreign_key "vehicle_models", "companies", column: "manufacturer_id"
+  add_foreign_key "vehicle_performed_checks", "vehicle_check_sessions"
+  add_foreign_key "vehicle_performed_checks", "vehicle_checks"
   add_foreign_key "vehicle_properties", "vehicles"
   add_foreign_key "vehicle_type_categories", "vehicle_categories"
   add_foreign_key "vehicle_type_categories", "vehicle_types"
