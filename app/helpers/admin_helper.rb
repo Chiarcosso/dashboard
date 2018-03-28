@@ -318,7 +318,7 @@ module AdminHelper
 
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
           data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
-          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, owner: #{v.owner.name}, vehicle_typology: #{v.vehicle_typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.")
+          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.nil?? '' : v.vehicle_type.name}, owner: #{v.owner.nil?? '' : v.owner.name}, vehicle_typology: #{v.vehicle_typology.nil?? '' : v.vehicle_typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.")
           data[:response] += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.owner.name}, tipologia: #{v.vehicle_typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.\n"
           v.update(vehicle_type: data[:vehicle_type], owner: data[:owner], vehicle_typology: data[:vhicle_typology], id_veicolo: data[:idveicolo], id_fornitore: data[:idfornitore]) if update
           data[:response] += "Access - tipo: #{data[:vehicle_type].name}, proprietà: #{data[:owner].name}, tipologia: #{data[:vehicle_typology].name}, id_veicolo: #{data[:idveicolo]}, id_fornitore: #{data[:idfornitore]}.\n"
