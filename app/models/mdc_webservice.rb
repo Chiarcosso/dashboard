@@ -200,7 +200,7 @@ class MdcWebservice
     dc = ''
     pne = ''
     deviceCodes.each do |d|
-      dc += "<ns1:username xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{d.user.downcase}</ns1:username>"
+      dc += "<ns1:device xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:username xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{d.user.downcase}</ns1:username></ns1:device>"
       pne += NotificationExt.new(collectionID: collectionID, doSync: 1, playNotificationSound: 0, message: message).xml
     end
     # nots = ''
@@ -223,7 +223,7 @@ class MdcWebservice
     dc = ''
     pne = ''
     deviceCodes.each do |d|
-      dc += "<ns1:username xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{d.user.downcase}</ns1:username>"
+      dc += "<ns1:device xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:username xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{d.user.downcase}</ns1:username></ns1:device>"
     end
     # nots = ''
     # message.each do |n|
@@ -245,7 +245,7 @@ class MdcWebservice
 
     dc = ''
     deviceCodes.each do |d|
-      dc += "<ns1:username xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{d.user.downcase}</ns1:username>"
+      dc += "<ns1:device xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:username xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{d.user.downcase}</ns1:username></ns1:device>"
     end
     # nots = ''
     # message.each do |n|
