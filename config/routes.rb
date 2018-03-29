@@ -122,6 +122,7 @@ Rails.application.routes.draw do
   get  '/codes/mdc', to: 'codes#mdc_index'
 
   get  '/carwash/checks/', to: 'carwash#checks_index', as: :carwash_checks
+  post '/carwash/start_session/', to: 'carwash#start_check_session', as: :start_check_session
 
   post '/companies/new', to: 'companies#new', as: :new_company_search
   post '/companies/edit', to: 'companies#edit', as: :edit_company_search
@@ -224,6 +225,7 @@ Rails.application.routes.draw do
   post  'vehicles/changing_typology', to: 'vehicles#change_typology', as: :change_vehicle_typology
   delete '/vehicle/delete_information/:id', to: 'vehicles#delete_information', as: :delete_vehicle_information
 
+  post   '/vehicle/vehicle_external_vehicle_autocomplete', to: 'vehicles#vehicle_external_vehicle_autocomplete', as: :custom_vehicle_external_vehicle_autocomplete
   post   '/vehicle/info_for_workshop', to: 'vehicles#info_for_workshop', as: :info_for_workshop
 
   get    '/worksheets/', to: 'worksheets#index', as: :worksheets

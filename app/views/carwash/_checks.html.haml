@@ -1,0 +1,13 @@
+%h3= "Controlli - #{@check_session} - ODL: #{@check_session.worksheet.number}"
+.container.half
+  .scrollable-panel
+    = render partial: 'carwash/checks_view'
+
+  .row
+    .col-sm-12
+      .col-sm-4
+        = "Tempo teorico: #{@check_session.expected_time}"
+      .col-sm-4
+        = "Tempo reale: #{@check_session.real_time}"
+      .col-sm-4
+        = "Temer: 00:06:23"

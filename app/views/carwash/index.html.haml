@@ -71,6 +71,6 @@
         .col-sm-2
           = c.starting_time.strftime('%d/%m/%Y %H:%M:%S')
         .col-sm-1
-          = "#{(c.ending_time - c.starting_time)*60} min."
+          = "#{((c.ending_time - c.starting_time)/3600).floor.to_s.rjust(2,'0')}:#{(((c.ending_time - c.starting_time)%3600)/60).floor.to_s.rjust(2,'0')}:#{((c.ending_time - c.starting_time)%60).to_i.to_s.rjust(2,'0')}"
         .col-sm-2
           = c.ending_time.strftime('%d/%m/%Y %H:%M:%S')

@@ -62,7 +62,8 @@ class Person < ApplicationRecord
 
   def self.find_by_mdc_user(user)
     # Person.mdc.where(:mdc_user => user).first
-    Person.find(MdcUser.find_by(user: user).assigned_to_person_id)
+    p = MdcUser.find_by(user: user).assigned_to_person_id
+    Person.find(p) unless p.nil?
   end
 
   def complete_name
