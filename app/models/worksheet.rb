@@ -91,7 +91,7 @@ class Worksheet < ApplicationRecord
     protocol = protocol[/(EWC\*)?([0-9]+).*/,2]
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
-      res = get_client.query("select Protocollo, CodiceAutomezzo, isnull(automezzi.Tipo,'S') as Tipo, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
+      res = get_client.query("select Protocollo, CodiceAutomezzo, ifnull(automezzi.Tipo,'S') as Tipo, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.codice "\
         "where Protocollo = #{protocol} limit 1")
