@@ -12,7 +12,7 @@
   .tab-pane#tab-checks.active
     .container-fluid
       .row
-        = form_tag(start_check_session_path, method: :post) do |f|
+        = form_tag(start_check_session_path, method: :post, remote: true) do |f|
           .col-sm-3
             = text_field_tag 'check_session[vehicle]', nil, placeholder: 'Targa..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_external_vehicle_autocomplete_path, target: 'VehicleCheckSession' }
             = hidden_field_tag 'check_session[vehicle_id]', nil, data: { target: 'VehicleCheckSession' }, class: 'autocomplete-field ac-VehicleCheckSession-vehicle'

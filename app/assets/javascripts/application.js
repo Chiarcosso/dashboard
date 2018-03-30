@@ -22,39 +22,39 @@
 
 jQuery.ajaxSetup({
             // Disable caching of AJAX responses
-            cache: false
-        });
-        
+    cache: false
+});
+
+
 function activateLoadingScreen() {
     "use strict";
-    $('form').on('submit',function(){
-
-      if(!$(this).hasClass('no-loader') && $(this).children('.no-loader').length == 0) {
-        activateLoadingScreen();
-      }
-    });
-    $('input[type=submit]').on('click',function() {
-
-      if(!$(this).hasClass('no-loader')) {
-        activateLoadingScreen();
-      }
-    });
-    $('a').on('click',function() {
-
-      if(!$(this).hasClass('no-loader') && !$(this).hasClass('dropdown-toggle') ) {
-        activateLoadingScreen();
-      }
-    });
-    $('button').on('click',function() {
-
-      if(!$(this).hasClass('no-loader')) {
-        activateLoadingScreen();
-      }
-    });
+    // $('form').on('submit',function() {
+    //
+    //   if(!$(this).hasClass('no-loader') && $(this).children('.no-loader').length == 0) {
+    //     activateLoadingScreen();
+    //   }
+    // });
+    // $('input[type=submit]').on('click',function() {
+    //
+    //   if(!$(this).hasClass('no-loader')) {
+    //     activateLoadingScreen();
+    //   }
+    // });
+    // $('a').on('click',function() {
+    //
+    //   if(!$(this).hasClass('no-loader') && !$(this).hasClass('dropdown-toggle') ) {
+    //     activateLoadingScreen();
+    //   }
+    // });
+    // $('button').on('click',function() {
+    //
+    //   if(!$(this).hasClass('no-loader')) {
+    //     activateLoadingScreen();
+    //   }
+    // });
 
     $('.loading-screen').show();
 }
-
 
 function deactivateLoadingScreen() {
     "use strict";
@@ -99,6 +99,7 @@ var infobox_name;
 function complete_infobox_link_func(data) {
     "use strict";
     $('#' + infobox_name).html(data.responseText);
+    clearMemory();
 }
 
 function infobox_button_click_func() {
@@ -130,6 +131,7 @@ function complete_popup_link_func(data) {
     $('body').append('<div class="popup" id="' + popup_name + '"></div>');
     $('#' + popup_name).html(data.responseText);
     $('#' + popup_name).append('<div class="close">Chiudi</div>');
+    clearMemory();
 }
 
 function popup_link_func(e) {
@@ -203,6 +205,7 @@ function complete_ajax_link_func(data) {
     var params = JSON.parse(data.responseText);
     $(ajax_link_element).html(params.html);
     deactivateLoadingScreen();
+    clearMemory();
 }
 
 function ajax_link_click_func(e) {
@@ -250,6 +253,7 @@ function complete_json_autocomplete_keyup_func(data) {
         content += '</div>';
         $(json_link_element).append(content);
     }
+    clearMemory();
 }
 
 function json_autocomplete_keyup_func() {
@@ -277,6 +281,7 @@ function complete_popup_link_func(data) {
      $('#'+popup_link_name).append('<div class="close">Chiudi</div>');
      // activateClose();
      deactivateLoadingScreen();
+     clearMemory();
 }
 
 function popup_link_click_func() {
@@ -322,6 +327,8 @@ function toggable_display_change_func() {
 function activateJS() {
     "use strict";
 
+    $('document').unbind();
+
     $('body').off("click").off("mouseenter").off("mouseleave").off("change").off("keyup");
 
     $('#center').on('load', '.autofocus', autofocus_ready_func);
@@ -356,6 +363,12 @@ function activateJS() {
 
     $('body').on('keyup', '.toggable-display-fld', toggable_display_change_func);
 
+}
+
+function clearMemory() {
+    // "use strict";
+    // jQuery('*').unbind();
+    // activateJS();
 }
 
 // function activateErrors() {

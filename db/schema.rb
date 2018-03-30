@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180329105052) do
+ActiveRecord::Schema.define(version: 20180330130713) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -537,11 +537,11 @@ ActiveRecord::Schema.define(version: 20180329105052) do
 
   create_table "vehicle_check_sessions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer  "theoretical_km"
-    t.integer  "real_km",              null: false
+    t.integer  "real_km"
     t.date     "date",                 null: false
     t.integer  "operator_id",          null: false
     t.integer  "theoretical_duration", null: false
-    t.integer  "real_duration",        null: false
+    t.integer  "real_duration"
     t.integer  "worksheet_id"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false

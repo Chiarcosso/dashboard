@@ -91,7 +91,7 @@ class Worksheet < ApplicationRecord
     protocol = protocol[/(EWC\*)?([0-9]+).*/,2]
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
-      res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
+      res = get_client.query("select Protocollo, CodiceAutomezzo, isnull(automezzi.Tipo,'S') as Tipo, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.codice "\
         "where Protocollo = #{protocol} limit 1")
@@ -109,15 +109,15 @@ class Worksheet < ApplicationRecord
         table = 'Altri mezzi'
     when 'T', 'M'
         table = 'Veicoli'
-    when 'S', 'R'
+    when 'S', 'R', ''
         table = 'Rimorchi1'
     end
     begin
-	  if odl['Tipo'] != 'C'
-		vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
-	  else
-		vehicle = Vehicle.new
-	  end
+  	  if odl['Tipo'] != 'C' and !table.nil?
+  		    vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
+  	  else
+  		    vehicle = Vehicle.new
+  	  end
       # @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       raise "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       if ws.nil?
@@ -127,7 +127,7 @@ class Worksheet < ApplicationRecord
       end
     rescue Exception => e
       # @error = e.message if @error.nil?
-      raise e.message
+      raise "#{e.message}\n\n#{e.backtrace}"
     end
     ws
   end
@@ -136,7 +136,7 @@ class Worksheet < ApplicationRecord
     res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
-      "where DataEntrataVeicolo is not null")
+      "where DataEntrataVeicolo is not null order by DataEntrataVeicolo desc")
     res.each do |odl|
       Worksheet.upsync_ws(odl)
     end

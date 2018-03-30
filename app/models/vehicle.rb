@@ -18,6 +18,8 @@ class Vehicle < ApplicationRecord
   has_many :carwash_usages_as_first, :foreign_key => 'vehicle_1_id', :class_name => 'CarwashUsage'
   has_many :carwash_usages_as_second, :foreign_key => 'vehicle_2_id', :class_name => 'CarwashUsage'
 
+  has_many :vehicle_check_sessions
+
   has_many :vehicle_vehicle_equipments, :dependent => :destroy
   has_many :vehicle_equipments, through: :vehicle_vehicle_equipments
   has_many :vehicle_informations, :dependent => :destroy
@@ -73,6 +75,10 @@ class Vehicle < ApplicationRecord
     # find and create new vehicle if v.nil?
   end
 
+  def vehicle_checks
+    Array.new
+  end
+
   def self.get_or_create_by_reference(table, id)
     begin
       mr = MssqlReference.find_by(remote_object_table: table, remote_object_id: id.to_i)
@@ -83,7 +89,7 @@ class Vehicle < ApplicationRecord
         when 'Veicoli' then
           query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
                       "Tipo.Tipodiveicolo as type, ditta as property, marca as manufacturer, "\
-                      "clienti.ragioneSociale as owner, veicoli.idfornitore, "
+                      "clienti.ragioneSociale as owner, veicoli.idfornitore, "\
                       "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
                       "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
                       "ISNULL(convert(nvarchar, data_immatricolazione,126),convert(nvarchar,ISNULL(anno,1900))+'-01-01') as registration_date, categoria as category, motivo_fuori_parco "\
@@ -99,6 +105,7 @@ class Vehicle < ApplicationRecord
               v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
             else
               VehiclesController.helpers.create_external_vehicle_from_veicoli ref
+              byebug
               v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
             end
           end
