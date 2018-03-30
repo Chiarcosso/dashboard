@@ -113,7 +113,11 @@ class Worksheet < ApplicationRecord
         table = 'Rimorchi1'
     end
     begin
-      vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
+	  if odl['Tipo'] != 'C'
+		vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
+	  else
+		vehicle = Vehicle.new
+	  end
       # @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       raise "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       if ws.nil?

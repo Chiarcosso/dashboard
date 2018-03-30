@@ -8,4 +8,4 @@
     .col-sm-2
       =ws.vehicle.plate
     .col-sm-4
-      ="#{I18n.l ws.opening_date}"
+      ="#{I18n.l ws.opening_date}" unless ws.opening_date.nil?

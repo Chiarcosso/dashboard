@@ -7,11 +7,12 @@ class VehiclesController < ApplicationController
 
   def vehicle_external_vehicle_autocomplete
     plate = params.require(:search)
-    ext = ExternalVehicle.find_by_sql("select 'vehicle' as field, 'ExternalVehicle' as model, ev.id as vehicle_id, ev.id as vehicle_id, ev.plate as label from external_vehicles ev where ev.plate like '%#{plate}%'")
-    vs = Vehicle.find_by_sql("select 'vehicle' as field, 'Vehicle' as model, v.id as vehicle_id, v.id as vehicle, v.model_id, vi.information as label "\
+    ext = ExternalVehicle.find_by_sql("select 'vehicle' as field, 'ExternalVehicle' as model_name, ev.id as vehicle_id, ev.id as vehicle_id, ev.plate as label from external_vehicles ev where ev.plate like '%#{plate}%'")
+    vs = Vehicle.find_by_sql("select 'vehicle' as field, 'Vehicle' as model_name, v.id as vehicle_id, v.id as vehicle, v.model_id, vi.information as label "\
       "from vehicles v inner join vehicle_informations vi on vi.vehicle_id = v.id "\
       "where vi.vehicle_information_type_id = (select id from vehicle_information_types where name = 'Targa') and vi.information like '%#{plate}%' ")
-    render :json => (ext + vs).take(10)
+    # render :json => (ext + vs).take(10)
+    render :json => vs.take(10)
   end
 
   def vehicle_information_type_autocomplete

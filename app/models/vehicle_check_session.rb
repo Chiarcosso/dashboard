@@ -1,4 +1,5 @@
 class VehicleCheckSession < ApplicationRecord
+  resourcify
   belongs_to :operator
   belongs_to :worksheet
 

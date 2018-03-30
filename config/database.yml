@@ -17,8 +17,8 @@ development:
   pool: 5
   timeout: 5000
   host: 'localhost'
-  username: 'root'
-  password: 'Aw3t01uzS'
+  username: <%= ENV["RAILS_SQL_DEV_USER"] %>
+  password: <%= ENV["RAILS_SQL_DEV_PASS"] %>
   database: 'dashboard_dev'
 
 # Warning: The database defined as "test" will be erased and
