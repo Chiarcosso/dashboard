@@ -123,6 +123,7 @@ Rails.application.routes.draw do
 
   get  '/carwash/checks/', to: 'carwash#checks_index', as: :carwash_checks
   post '/carwash/start_session/', to: 'carwash#start_check_session', as: :start_check_session
+  post '/carwash/continue_session/:id', to: 'carwash#continue_check_session', as: :continue_check_session
 
   post '/companies/new', to: 'companies#new', as: :new_company_search
   post '/companies/edit', to: 'companies#edit', as: :edit_company_search

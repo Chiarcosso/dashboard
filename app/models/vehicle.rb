@@ -75,8 +75,12 @@ class Vehicle < ApplicationRecord
     # find and create new vehicle if v.nil?
   end
 
-  def vehicle_checks
-    Array.new
+  def vehicle_checks(station)
+    case station
+    when 'carwash' then
+      station_check = 'and carwash_check != 0'
+    end
+    VehicleCheck.where("importance = 9 and vehicle_type_id = #{self.vehicle_type_id} or vehicle_typology_id = #{self.vehicle_typology_id} #{station_check}")
   end
 
   def self.get_or_create_by_reference(table, id)

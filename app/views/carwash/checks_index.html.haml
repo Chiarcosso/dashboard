@@ -9,7 +9,7 @@
         =link_to 'Gestione', '#tab-checks-management', data: { toggle: 'tab'}, class: 'no-loader'
 
 .tab-content
-  .tab-pane#tab-checks.active
+  .tab-pane#tab-checks.active{style: 'height:100%'}
     .container-fluid
       .row
         = form_tag(start_check_session_path, method: :post, remote: true) do |f|
@@ -17,6 +17,7 @@
             = text_field_tag 'check_session[vehicle]', nil, placeholder: 'Targa..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_external_vehicle_autocomplete_path, target: 'VehicleCheckSession' }
             = hidden_field_tag 'check_session[vehicle_id]', nil, data: { target: 'VehicleCheckSession' }, class: 'autocomplete-field ac-VehicleCheckSession-vehicle'
             = hidden_field_tag 'check_session[vehicle_table]', nil, data: { target: 'VehicleCheckSession' }, class: 'autocomplete-field ac-VehicleCheckSession-vehicle'
+            = hidden_field_tag 'check_session[station]', 'carwash'
           .col-sm-2
             = submit_tag 'Inizia controlli', class: 'form-control'
           -# = render partial: 'carwash/checks'
@@ -25,6 +26,9 @@
           .scrollable-panel
             - VehicleCheckSession.all.each do |cs|
               .row.colored
+                .col-sm-1
+                  = form_tag(continue_check_session_path(cs.id), method: :post, remote: true) do |f|
+                    = submit_tag 'Continua'
                 .col-sm-1
                   = cs.id
                 .col-sm-2

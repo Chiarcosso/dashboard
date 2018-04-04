@@ -1,4 +1,20 @@
-- @checks.each do |c|
-  .row.colored
+- @checks.sort_by{ |c| c.vehicle_check.importance }.reverse.each do |c|
+  .row.colored{style: "#{c.vehicle_check.style_by_importance}"}
+    .col-sm-4
+      = c.vehicle_check.label
     .col-sm-1
-      = c.label
+      = c.last_reading.time unless c.last_reading.nil?
+    .col-sm-1
+      = c.last_reading.value unless c.last_reading.nil?
+    .col-sm-2
+      - if c.vehicle_check.val_max.nil? and c.vehicle_check.val_min.nil?
+        = radio_button_tag 'check[value]', true
+        = 'Si'
+        = radio_button_tag 'check[value]', false
+        = 'No'
+      - else
+        = number_field_tag 'check[value]', nil, step: :any
+    .col-sm-1
+      =check_box_tag 'check[performed]', true, false
+    .col-sm-2
+      =text_field_tag 'check[notes]', nil, placeholder: 'Note..'

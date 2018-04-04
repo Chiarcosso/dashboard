@@ -7,7 +7,11 @@ class ExternalVehicle < ApplicationRecord
 
   has_many :worksheets, as: :vehicle
   has_many :mssql_references, as: :local_object, :dependent => :destroy
-  
+
+  def vehicle_checks
+    VehicleCheck.where("vehicle_type_id = #{self.vehicle_type_id} or vehicle_typology_id = #{self.vehicle_typology_id}")
+  end
+
   def has_reference?(table,id)
     !MssqlReference.where(local_object:self,remote_object_table:table,remote_object_id:id).empty?
   end

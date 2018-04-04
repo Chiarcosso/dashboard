@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180330130713) do
+ActiveRecord::Schema.define(version: 20180404100204) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -553,7 +553,7 @@ ActiveRecord::Schema.define(version: 20180330130713) do
     t.index ["worksheet_id"], name: "index_vehicle_check_sessions_on_worksheet_id", using: :btree
   end
 
-  create_table "vehicle_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "vehicle_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "code",                                               null: false
     t.integer  "vehicle_id"
     t.integer  "vehicle_type_id"
@@ -672,8 +672,17 @@ ActiveRecord::Schema.define(version: 20180330130713) do
     t.boolean  "performed",                           default: false, null: false
     t.datetime "created_at",                                          null: false
     t.datetime "updated_at",                                          null: false
+    t.datetime "time"
+    t.boolean  "is_last",                             default: false, null: false
+    t.integer  "vehicle_id"
+    t.integer  "external_vehicle_id"
+    t.index ["external_vehicle_id"], name: "index_vehicle_performed_checks_on_external_vehicle_id", using: :btree
+    t.index ["is_last", "external_vehicle_id", "vehicle_check_id"], name: "vpf_external_vehicle_last_check", using: :btree
+    t.index ["is_last", "vehicle_id", "vehicle_check_id"], name: "vpf_vehicle_last_check", using: :btree
     t.index ["vehicle_check_id"], name: "index_vehicle_performed_checks_on_vehicle_check_id", using: :btree
+    t.index ["vehicle_check_session_id", "vehicle_check_id"], name: "vehicle_check_session_check", unique: true, using: :btree
     t.index ["vehicle_check_session_id"], name: "index_vehicle_performed_checks_on_vehicle_check_session_id", using: :btree
+    t.index ["vehicle_id"], name: "index_vehicle_performed_checks_on_vehicle_id", using: :btree
   end
 
   create_table "vehicle_properties", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -925,8 +934,10 @@ ActiveRecord::Schema.define(version: 20180330130713) do
   add_foreign_key "vehicle_model_typologies", "vehicle_models"
   add_foreign_key "vehicle_model_typologies", "vehicle_typologies"
   add_foreign_key "vehicle_models", "companies", column: "manufacturer_id"
+  add_foreign_key "vehicle_performed_checks", "external_vehicles"
   add_foreign_key "vehicle_performed_checks", "vehicle_check_sessions"
   add_foreign_key "vehicle_performed_checks", "vehicle_checks"
+  add_foreign_key "vehicle_performed_checks", "vehicles"
   add_foreign_key "vehicle_properties", "vehicles"
   add_foreign_key "vehicle_type_categories", "vehicle_categories"
   add_foreign_key "vehicle_type_categories", "vehicle_types"

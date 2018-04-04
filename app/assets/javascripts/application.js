@@ -324,6 +324,12 @@ function toggable_display_change_func() {
   $('#'+$(this).data('target')).removeClass('invisible').addClass('visible');
 }
 
+function check_box_parent_click_func(){
+  "use strict";
+  console.log($(this));
+  $(this).children('input[type=checkbox]').val(!$(this).children('input[type=checkbox]').val());
+}
+
 function activateJS() {
     "use strict";
 
@@ -362,6 +368,8 @@ function activateJS() {
     $('body').on('change', '.toggable-display-fld', toggable_display_change_func);
 
     $('body').on('keyup', '.toggable-display-fld', toggable_display_change_func);
+
+    $('body').on('click', 'div > input[type=checkbox]', check_box_parent_click_func);
 
 }
 

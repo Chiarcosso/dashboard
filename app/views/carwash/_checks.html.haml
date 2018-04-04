@@ -1,13 +1,34 @@
-%h3= "Controlli - #{@check_session} - ODL: #{@check_session.worksheet.number}"
-.container.half
-  .scrollable-panel
-    = render partial: 'carwash/checks_view'
+.row
+  .col-sm-4
+    %b= "Sessione controlli nr. #{@check_session.id} - #{@check_session.destination_label}"
+  .col-sm-2
+    %b= "Ultimo valore"
+  .col-sm-2
+    %b= "Lettura"
+  .col-sm-1
+    %b= "Eseguito"
+  .col-sm-2
+    %b= "Note"
+.scrollable-panel
+  = render partial: 'carwash/check_view'
 
-  .row
-    .col-sm-12
-      .col-sm-4
-        = "Tempo teorico: #{@check_session.expected_time}"
-      .col-sm-4
-        = "Tempo reale: #{@check_session.real_time}"
-      .col-sm-4
-        = "Temer: 00:06:23"
+
+.row
+  .col-sm-12
+    .col-sm-1
+      = button_to 'Indietro', carwash_checks_path, method: :get
+    .col-sm-3
+      = "Tempo teorico: #{@check_session.theoretical_duration_label}"
+    .col-sm-3
+      #timer{'data-time': @check_session.real_duration.to_i}
+        = "Tempo reale: #{@check_session.real_duration_label}"
+    .col-sm-2
+      = button_tag 'Chiudi sessione'
+
+:javascript
+
+  var tm = parseInt($('#timer').data('time'));
+  setInterval(function(){
+    tm++;
+    $('#timer').html('Tempo reale: '+('0'+Math.floor(tm/3600)).slice(-2)+':'+('0'+Math.floor(tm/60)).slice(-2)+':'+('0'+(tm%60)).slice(-2));
+  },1000);
