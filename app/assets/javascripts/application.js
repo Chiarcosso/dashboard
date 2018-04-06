@@ -399,6 +399,8 @@ function activateJS() {
 
     $('body').on('click', 'div > input[type=checkbox]', check_box_parent_click_func);
 
+    $('body').on('keypress', '.prevent-cr', nocr_keyup_func);
+
     $('body').on('keyup', '.no-cr', nocr_keyup_func);
 
     $('body').on('change', '.ajax_update', ajax_update_change_func);
