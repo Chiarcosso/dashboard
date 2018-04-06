@@ -1,6 +1,6 @@
 - @checks.sort_by{ |c| c.vehicle_check.importance }.reverse.each do |c|
   .row.colored{style: "#{c.vehicle_check.style_by_importance}"}
-    .col-sm-4
+    .col-sm-4{id: c.id}
       = c.vehicle_check.label
     .col-sm-1
       = c.last_reading.time unless c.last_reading.nil?
@@ -8,13 +8,13 @@
       = c.last_reading.value unless c.last_reading.nil?
     .col-sm-2
       - if c.vehicle_check.val_max.nil? and c.vehicle_check.val_min.nil?
-        = radio_button_tag 'check[value]', true
+        = radio_button_tag "check[#{c.id}][value]", 1, c.value.nil?? nil : (c.value == 0.0 ? false : true), class: 'ajax_update', data: { target: update_vehicle_check_path, additional: @check_session.real_duration.to_i }
         = 'Si'
-        = radio_button_tag 'check[value]', false
+        = radio_button_tag "check[#{c.id}][value]", 0, c.value.nil?? nil : (c.value == 0.0 ? true : false), class: 'ajax_update', data: { target: update_vehicle_check_path, additional: @check_session.real_duration.to_i }
         = 'No'
       - else
-        = number_field_tag 'check[value]', nil, step: :any
+        = number_field_tag "check[#{c.id}][value]", c.value, step: :any, class: 'ajax_update', data: { target: update_vehicle_check_path, additional: @check_session.real_duration.to_i }
     .col-sm-1
-      =check_box_tag 'check[performed]', true, false
+      =check_box_tag "check[#{c.id}][performed]", true, c.performed, class: 'ajax_update', data: { target: update_vehicle_check_path, additional: @check_session.real_duration.to_i }
     .col-sm-2
-      =text_field_tag 'check[notes]', nil, placeholder: 'Note..'
+      =text_field_tag "check[#{c.id}][notes]", c.notes, placeholder: 'Note..', class: 'ajax_update', data: { target: update_vehicle_check_path, additional: @check_session.real_duration.to_i }

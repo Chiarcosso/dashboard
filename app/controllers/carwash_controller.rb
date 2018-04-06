@@ -35,9 +35,51 @@ class CarwashController < ApplicationController
   def continue_check_session
     begin
       @check_session = VehicleCheckSession.find(params.require(:id))
-      @checks = @check_session.vehicle_performed_checks
+      @checks = @check_session.vehicle_ordered_performed_checks
       respond_to do |format|
         format.js { render :partial => 'carwash/checks_js' }
+      end
+    rescue Exception => e
+      @error = e.message
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def update_vehicle_check
+    begin
+      pc = VehiclePerformedCheck.find(params.require(:field)[/check\[(\d*)\]\[.*\]$/,1].to_i)
+      case params.require(:field)[/check\[\d*\]\[(.*)\]$/,1]
+      when 'value' then
+        pc.update(value: params.require(:value), time: DateTime.now, performed: true)
+      when 'notes' then
+        pc.update(notes: params.require(:value))
+      when 'performed' then
+        pc.update(performed: params.require(:value))
+      end
+      @line = "##{pc.id}"
+      @check_session = pc.vehicle_check_session
+      @check_session.update(real_duration: params.require(:additional))
+      @checks = @check_session.vehicle_ordered_performed_checks
+      respond_to do |format|
+        format.js { render :partial => 'carwash/checks_js' }
+      end
+    rescue Exception => e
+      @error = e.message
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def save_check_session
+    begin
+      # @check_session = VehicleCheckSession.find(params.require(:id))
+      # @checks = @check_session.vehicle_ordered_performed_checks
+      respond_to do |format|
+        # format.js { render :partial => 'carwash/checks_js' }
+        format.js { redirect_to 'carwash/checks_index' }
       end
     rescue Exception => e
       @error = e.message

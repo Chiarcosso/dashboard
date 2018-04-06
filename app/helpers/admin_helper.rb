@@ -64,6 +64,9 @@ module AdminHelper
       if r['typology'] == 'Scarrabile con caricatore'
         res[:vehicle_typology] = VehicleTypology.find_by(:name => 'Scarrabile con gancio')
         res[:vehicle_equipments] << VehicleEquipment.find_by(name: 'Caricatore')
+      elsif r['typology'] == 'Ribaltabile trilaterale con gr'
+        res[:vehicle_typology] = VehicleTypology.find_by(:name => 'Ribaltabile trilaterale')
+        res[:vehicle_equipments] << VehicleEquipment.find_by(name: 'Caricatore')
       else
         res[:vehicle_typology] = VehicleTypology.find_by(:name => r['typology'])
       end

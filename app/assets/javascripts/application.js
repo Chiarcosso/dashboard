@@ -99,7 +99,7 @@ var infobox_name;
 function complete_infobox_link_func(data) {
     "use strict";
     $('#' + infobox_name).html(data.responseText);
-    clearMemory();
+    // //clearMemory();
 }
 
 function infobox_button_click_func() {
@@ -131,7 +131,7 @@ function complete_popup_link_func(data) {
     $('body').append('<div class="popup" id="' + popup_name + '"></div>');
     $('#' + popup_name).html(data.responseText);
     $('#' + popup_name).append('<div class="close">Chiudi</div>');
-    clearMemory();
+    // //clearMemory();
 }
 
 function popup_link_func(e) {
@@ -205,7 +205,7 @@ function complete_ajax_link_func(data) {
     var params = JSON.parse(data.responseText);
     $(ajax_link_element).html(params.html);
     deactivateLoadingScreen();
-    clearMemory();
+    //clearMemory();
 }
 
 function ajax_link_click_func(e) {
@@ -253,7 +253,7 @@ function complete_json_autocomplete_keyup_func(data) {
         content += '</div>';
         $(json_link_element).append(content);
     }
-    clearMemory();
+    //clearMemory();
 }
 
 function json_autocomplete_keyup_func() {
@@ -281,7 +281,7 @@ function complete_popup_link_func(data) {
      $('#'+popup_link_name).append('<div class="close">Chiudi</div>');
      // activateClose();
      deactivateLoadingScreen();
-     clearMemory();
+     //clearMemory();
 }
 
 function popup_link_click_func() {
@@ -295,7 +295,7 @@ function popup_link_click_func() {
       method = 'get';
     }
     popup_link_name = $(this).data('name');
-    alert(popup_link_name);
+    // alert(popup_link_name);
     $.ajax({
         type: method,
         url: target,
@@ -328,6 +328,34 @@ function check_box_parent_click_func(){
   "use strict";
   console.log($(this));
   $(this).children('input[type=checkbox]').val(!$(this).children('input[type=checkbox]').val());
+}
+
+function nocr_keyup_func(e){
+  if(e.which == 13){
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}
+
+var line;
+var scroll_element;
+function complete_ajax_update_change_func() {
+  "use strict";
+  $('#'+scroll_element[0].id).scrollTop(line);
+}
+
+function ajax_update_change_func() {
+  "use strict";
+  var target = $(this).data('target');
+  var data = {value: $(this).val(), field: $(this).attr('name'), additional: $(this).data('additional')};
+  scroll_element = $(this).parents('.scrollable-panel').first();
+  line = $(scroll_element).scrollTop();
+  $.ajax({
+      type: 'post',
+      url: target,
+      data: data,
+      complete: complete_ajax_update_change_func
+  });
 }
 
 function activateJS() {
@@ -370,6 +398,10 @@ function activateJS() {
     $('body').on('keyup', '.toggable-display-fld', toggable_display_change_func);
 
     $('body').on('click', 'div > input[type=checkbox]', check_box_parent_click_func);
+
+    $('body').on('keyup', '.no-cr', nocr_keyup_func);
+
+    $('body').on('change', '.ajax_update', ajax_update_change_func);
 
 }
 
@@ -701,14 +733,7 @@ function activateDatePicker(date) {
 
 };
 
-function preventCr() {
-  $('.prevent-cr').on('keypress', function(e){
-    if(e.which == 13){
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  })
-};
+
 
 function activateAutoComplete() {
   $('.autocomplete').off('ready');

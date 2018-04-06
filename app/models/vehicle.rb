@@ -80,7 +80,7 @@ class Vehicle < ApplicationRecord
     when 'carwash' then
       station_check = 'and carwash_check != 0'
     end
-    VehicleCheck.where("importance = 9 and vehicle_type_id = #{self.vehicle_type_id} or vehicle_typology_id = #{self.vehicle_typology_id} #{station_check}")
+    VehicleCheck.where("vehicle_type_id = #{self.vehicle_type_id} or vehicle_typology_id = #{self.vehicle_typology_id} #{station_check}").order({importance: :desc, label: :asc})
   end
 
   def self.get_or_create_by_reference(table, id)
@@ -92,7 +92,7 @@ class Vehicle < ApplicationRecord
         case table
         when 'Veicoli' then
           query = "select 'Veicoli' as table_name, idveicolo as id, targa as plate, telaio as chassis, "\
-                      "Tipo.Tipodiveicolo as type, ditta as property, marca as manufacturer, "\
+                      "Tipo.Tipodiveicolo as type, (case when veicoli.idfornitore = 749 then 'E' else ditta end) as property, marca as manufacturer, "\
                       "clienti.ragioneSociale as owner, veicoli.idfornitore, "\
                       "modello as model, modello2 as registration_model, codice_lavaggio as carwash_code, "\
                       "circola as notdismissed, tipologia.[tipologia semirimorchio] as typology, KmAttuali as mileage, "\
@@ -109,7 +109,6 @@ class Vehicle < ApplicationRecord
               v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
             else
               VehiclesController.helpers.create_external_vehicle_from_veicoli ref
-              byebug
               v = Vehicle.find_by_reference(ref['table_name'],ref['id'])
             end
           end

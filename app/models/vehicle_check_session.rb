@@ -14,6 +14,12 @@ class VehicleCheckSession < ApplicationRecord
     end
   end
 
+  def vehicle_ordered_performed_checks
+    byebug
+    self.vehicle_performed_checks.to_h.sort_by{ |vc| [ !vc.mandatory, vc.performed, -vc.vehicle_check.importance, vc.vehicle_check.label ] }
+    #.order({mandatory: :desc, performed: :asc, importance: :desc, label: :asc})
+  end
+
   def destination_label
     "#{self.actual_vehicle.plate}#{self.worksheet.nil?? '' : " (ODL nr. #{self.worksheet.number}"}"
   end
