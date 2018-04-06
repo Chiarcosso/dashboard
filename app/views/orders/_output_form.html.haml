@@ -6,7 +6,7 @@
 
     .row
       .col-sm-6
-        = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch prevent-cr', 'data-target': add_item_to_order_path
+        = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch no-cr', 'data-target': add_item_to_order_path
       .col-sm-2{ style: 'display: none'}
         = 'Pezzi da: '+(@from.to_i != 0 ? Office.find(@from.to_i).name : 'Magazzino')
         = select_tag :from, options_for_select([['Magazzino','0'],['Officina mobile 1', Office.where(:name => 'Officina mobile 1').first.id],['Officina mobile 2', Office.where(:name => 'Officina mobile 2').first.id]],@from), class: 'form-control'
