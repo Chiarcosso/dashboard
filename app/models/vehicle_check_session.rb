@@ -6,6 +6,9 @@ class VehicleCheckSession < ApplicationRecord
   belongs_to :external_vehicle
   has_many :vehicle_performed_checks
 
+  scope :opened, -> { where(finished: nil) }
+  scope :closed, -> { where('finished is not null').order(finished: :desc) }
+
   def actual_vehicle
     if self.vehicle.nil?
       self.external_vehicle
@@ -15,8 +18,8 @@ class VehicleCheckSession < ApplicationRecord
   end
 
   def vehicle_ordered_performed_checks
-    byebug
-    self.vehicle_performed_checks.to_h.sort_by{ |vc| [ !vc.mandatory, vc.performed, -vc.vehicle_check.importance, vc.vehicle_check.label ] }
+    self.vehicle_performed_checks.sort_by{ |vc| [ !vc.mandatory, vc.performed.to_s, -vc.vehicle_check.importance, vc.vehicle_check.label ] }
+    # self.vehicle_performed_checks.sort_by{ |vc| [ !vc.mandatory, !vc.performed.to_s, -vc.vehicle_check.importance, vc.vehicle_check.label ] }
     #.order({mandatory: :desc, performed: :asc, importance: :desc, label: :asc})
   end
 
@@ -29,7 +32,7 @@ class VehicleCheckSession < ApplicationRecord
   end
 
   def real_duration_label
-    "#{(self.real_duration.to_i/3600).floor.to_s.rjust(2,'0')}:#{(self.real_duration.to_i/60).floor.to_s.rjust(2,'0')}:#{(self.real_duration.to_i%60).floor.to_s.rjust(2,'0')}"
+    "#{(self.real_duration.to_i/3600).floor.to_s.rjust(2,'0')}:#{((self.real_duration.to_i/60)%60).floor.to_s.rjust(2,'0')}:#{(self.real_duration.to_i%60).floor.to_s.rjust(2,'0')}"
   end
 
   def recalculate_expected_time

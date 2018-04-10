@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180404113636) do
+ActiveRecord::Schema.define(version: 20180409084753) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -547,6 +547,7 @@ ActiveRecord::Schema.define(version: 20180404113636) do
     t.datetime "updated_at",           null: false
     t.integer  "vehicle_id"
     t.integer  "external_vehicle_id"
+    t.datetime "finished"
     t.index ["external_vehicle_id"], name: "index_vehicle_check_sessions_on_external_vehicle_id", using: :btree
     t.index ["operator_id"], name: "index_vehicle_check_sessions_on_operator_id", using: :btree
     t.index ["vehicle_id"], name: "index_vehicle_check_sessions_on_vehicle_id", using: :btree
@@ -829,6 +830,7 @@ ActiveRecord::Schema.define(version: 20180404113636) do
     t.string   "vehicle_type",                         default: "Vehicle", null: false
     t.string   "notes"
     t.date     "opening_date"
+    t.datetime "exit_time"
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end
 

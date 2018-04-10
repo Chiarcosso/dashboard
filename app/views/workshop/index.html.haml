@@ -1,9 +1,10 @@
+- @worksheets = Worksheet.incoming.order(:opening_date) if @worksheets.nil?
 %div{ style: 'height: 100vh, padding-top: 3em'}
   %ul.nav.nav-tabs
     -# %style
     -#   a:visited,a:link,a:hover,a:active{ color: black; font-style: normal; font-size: +2; }
     %li.active
-      =link_to 'ODL officina aperti:', '#tab-opened-ws', data: { toggle: 'tab'}, class: 'no-loader'
+      =link_to "ODL officina aperti (#{@worksheets.count}):", '#tab-opened-ws', data: { toggle: 'tab'}, class: 'no-loader'
     %li
       =link_to 'Lista ODL', '#tab-ws-list', data: { toggle: 'tab'}, class: 'no-loader'
     %li.active
@@ -14,7 +15,7 @@
       .row
         .col-sm-6
           .scrollable-panel
-            =render :partial => 'workshop/list', :locals => { :worksheets => Worksheet.open.order(:created_at) }
+            =render :partial => 'workshop/list', :locals => { :worksheets => @worksheets }
         .col-sm-6
           #worksheet_side
             =render :partial => 'workshop/worksheet_side'

@@ -1,31 +1,41 @@
 class CarwashController < ApplicationController
 
   def checks_index
-    @checks = VehicleCheck.all
+    @check_sessions = VehicleCheckSession.opened+VehicleCheckSession.closed
     render 'carwash/checks_index'
   end
 
   def start_check_session
     begin
       p = params.require('VehicleCheckSession').permit(:model_name,:vehicle_id,:station)
+
       if p[:model_name] == 'ExternalVehicle'
         v = ExternalVehicle.find(p[:vehicle_id])
-        @check_session = VehicleCheckSession.create(date: Date.today,external_vehicle: v, operator: current_user.person, theoretical_duration: v.vehicle_checks.map{ |c| c.duration }.inject(0,:+))
+        vec = v.vehicle_checks(p[:station])
+        if vec.size < 1
+          raise "Non ci sono controlli da fare per questo mezzo (targa: #{v.plate})."
+        end
+        @check_session = VehicleCheckSession.create(date: Date.today,external_vehicle: v, operator: current_user.person, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+))
       elsif p[:model_name] == 'Vehicle'
         v = Vehicle.find(p[:vehicle_id])
-        @check_session = VehicleCheckSession.create(date: Date.today,vehicle: v, operator: current_user.person, theoretical_duration: v.vehicle_checks.map{ |c| c.duration }.inject(0,:+))
+        vec = v.vehicle_checks(p[:station])
+        if vec.size < 1
+          raise "Non ci sono controlli da fare per questo mezzo (targa: #{v.plate})."
+        end
+        @check_session = VehicleCheckSession.create(date: Date.today,vehicle: v, operator: current_user.person, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+))
       else
         raise "Veicolo non specificato (#{p[:model_name].inspect})"
       end
       @checks = Array.new
-      v.vehicle_checks(p[:station]).each do |vc|
+
+      vec.each do |vc|
         @checks << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: false)
       end
       respond_to do |format|
         format.js { render :partial => 'carwash/checks_js' }
       end
     rescue Exception => e
-      @error = e.message
+      @error = e.message#+"\n\n"+e.backtrace.to_s
       respond_to do |format|
         format.js { render :partial => 'layouts/error' }
       end
@@ -56,7 +66,7 @@ class CarwashController < ApplicationController
       when 'notes' then
         pc.update(notes: params.require(:value))
       when 'performed' then
-        pc.update(performed: params.require(:value))
+        pc.update(performed: (params.require(:value).downcase == 'true' ? true : false))
       end
       @line = "##{pc.id}"
       @check_session = pc.vehicle_check_session
@@ -75,11 +85,10 @@ class CarwashController < ApplicationController
 
   def save_check_session
     begin
-      # @check_session = VehicleCheckSession.find(params.require(:id))
-      # @checks = @check_session.vehicle_ordered_performed_checks
+      VehicleCheckSession.find(params.require(:id)).update(finished: DateTime.now, real_duration: params.require(:time))
       respond_to do |format|
         # format.js { render :partial => 'carwash/checks_js' }
-        format.js { redirect_to 'carwash/checks_index' }
+        format.js { render 'carwash/checks_index_js' }
       end
     rescue Exception => e
       @error = e.message

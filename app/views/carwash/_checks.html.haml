@@ -16,15 +16,16 @@
 .row
   .col-sm-12
     .col-sm-1
-      = button_to 'Indietro', carwash_checks_path, method: :get
+      = button_to 'Pausa sessione', carwash_checks_path, method: :get
     .col-sm-3
       = "Tempo teorico: #{@check_session.theoretical_duration_label}"
     .col-sm-3
       #timer{'data-time': @check_session.real_duration.to_i}
         = "Tempo reale: #{@check_session.real_duration_label}"
     .col-sm-2
-      = form_tag(save_check_session_path, method: :post, remote: true, class: 'no-cr') do |f|
-        = submit_tag 'Chiudi sessione', class: 'no-cr'
+      = form_tag(save_check_session_path(@check_session.id), method: :post, remote: true, class: 'no-cr') do |f|
+        = hidden_field_tag :time, @check_session.real_duration.to_i
+        = submit_tag 'Concludi sessione', class: 'no-cr'
 
 :javascript
 
@@ -36,5 +37,6 @@
   timer = setInterval(function(){
     tm++;
     $('[data-additional]').data('additional',tm);
+    $('input[name=time]').val(tm);
     $('#timer').html('Tempo reale: '+('0'+Math.floor(tm/3600)).slice(-2)+':'+('0'+Math.floor((tm/60)%60)).slice(-2)+':'+('0'+(tm%60)).slice(-2));
   },1000);

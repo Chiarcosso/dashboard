@@ -17,14 +17,14 @@
             = text_field_tag 'check_session[vehicle]', nil, placeholder: 'Targa..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_external_vehicle_autocomplete_path, target: 'VehicleCheckSession' }
             = hidden_field_tag 'check_session[vehicle_id]', nil, data: { target: 'VehicleCheckSession' }, class: 'autocomplete-field ac-VehicleCheckSession-vehicle'
             = hidden_field_tag 'check_session[vehicle_table]', nil, data: { target: 'VehicleCheckSession' }, class: 'autocomplete-field ac-VehicleCheckSession-vehicle'
-            = hidden_field_tag 'check_session[station]', 'carwash'
+            = hidden_field_tag 'VehicleCheckSession[station]', 'carwash'
           .col-sm-2
             = submit_tag 'Inizia controlli', class: 'form-control'
           -# = render partial: 'carwash/checks'
       .row
         .col-sm-12
           .scrollable-panel
-            - VehicleCheckSession.all.each do |cs|
+            - @check_sessions.each do |cs|
               .row.colored
                 .col-sm-1
                   = form_tag(continue_check_session_path(cs.id), method: :post, remote: true) do |f|
@@ -33,6 +33,8 @@
                   = cs.id
                 .col-sm-2
                   = cs.vehicle.plate
+                .col-sm-2
+                  = cs.finished.strftime "%d/%m/%Y\n%H:%M:%S" unless cs.finished.nil?
 
   - if current_user.has_role?('amministratore officina') || current_user.has_role?(:admin)
     .tab-pane#tab-checks-management

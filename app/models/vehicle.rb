@@ -78,9 +78,10 @@ class Vehicle < ApplicationRecord
   def vehicle_checks(station)
     case station
     when 'carwash' then
-      station_check = 'and carwash_check != 0'
+      station_check = 'and check_carwash != 0'
     end
-    VehicleCheck.where("vehicle_type_id = #{self.vehicle_type_id} or vehicle_typology_id = #{self.vehicle_typology_id} #{station_check}").order({importance: :desc, label: :asc})
+    # VehicleCheck.where("(vehicle_type_id = #{self.vehicle_type_id} and vehicle_typology_id = #{self.vehicle_typology_id}) #{station_check}").order({importance: :desc, label: :asc})
+    VehicleCheck.where("((vehicle_type_id = #{self.vehicle_type_id} and vehicle_typology_id = #{self.vehicle_typology_id}) or (vehicle_type_id = #{self.vehicle_type_id} and vehicle_typology_id is null) or (vehicle_type_id is null and vehicle_typology_id = #{self.vehicle_typology_id}) or (vehicle_type_id is null and vehicle_typology_id is null)) #{station_check}").order({importance: :desc, label: :asc})
   end
 
   def self.get_or_create_by_reference(table, id)

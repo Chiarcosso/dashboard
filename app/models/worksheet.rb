@@ -10,6 +10,7 @@ class Worksheet < ApplicationRecord
 
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
   scope :open, -> { where(closingDate: nil) }
+  scope :incoming, -> { where(exit_time: nil).where(closingDate: nil) }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
   def opened?
@@ -137,8 +138,17 @@ class Worksheet < ApplicationRecord
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
       "where DataEntrataVeicolo is not null order by DataEntrataVeicolo desc")
+
+    @error = ''
     res.each do |odl|
-      Worksheet.upsync_ws(odl)
+      begin
+        Worksheet.upsync_ws(odl)
+      rescue Exception => e
+        @error += e.message+"\n\n"
+      end
+    end
+    unless @error == ''
+      special_logger(@error)
     end
   end
 
