@@ -27,7 +27,7 @@
     .scrollable-panel.colored.half
       -# = hidden_field_tag :search, @search
       - @selected_items.each do |key, item|
-        .row.colored.hover-hilight.clickable{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-max': item.article.actual_availability(@checked_items), 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name}
+        .row.colored.hover-hilight.clickable{class: ('signal-danger' if item.article.under_reserve?), 'data-popup': 'true', 'data-max': item.article.actual_availability(@checked_items), 'data-target': add_item_to_order_path, 'data-data': item.id, 'data-name': item.article.complete_name, 'data-model': Item}
           .col-sm-4
             -# = hidden_field_tag :item, item.id
             = item.id.to_s+'::'+item.article.complete_name.to_s
@@ -73,7 +73,7 @@
     %br
     .scrollable-panel.half
       - @checked_items.reverse.each do |oo_item|
-        .row.colored.hover-hilight.chklist{'data-target': add_item_to_order_path, 'data-data': oo_item.id, 'data-dsc': oo_item.item.complete_name, 'data-serial': oo_item.item.serial}
+        .row.colored.hover-hilight.chklist{'data-target': add_item_to_order_path, 'data-data': oo_item.id, 'data-dsc': oo_item.item.complete_name, 'data-serial': oo_item.item.serial, 'data-model': OutputOrderItem}
           .col-sm-4
             -# = hidden_field_tag 'items[][id]', oo_item.id
             = hidden_field_tag 'items[][id]', Base64.encode64(YAML::dump([oo_item,oo_item.new_item]))
@@ -106,17 +106,4 @@
   $('#vehicle').val($('#vehicle').data('value'));
   $('#vrecipient').val($('#vvehicle_id').val());
 
-  $('.chklist').off('click');
-  $('.chklist').on('click',function(){
-    msg = $(this).data('dsc');
-    sr = $(this).data('serial');
-    if(sr != ''){
-      msg += ' ('+sr+')';
-    }
-    if(confirm("Rimouvere "+msg+"?")){
-      $(this).remove();
-      var e = $.Event('keyup');
-      e.which = 13;
-      $('input[name=search]').trigger(e);
-    }
-  });
+  

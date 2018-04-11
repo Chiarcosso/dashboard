@@ -311,7 +311,6 @@ function clickable_link_click_func() {
     "use strict";
     target = $(this).data('target');
     method = $(this).data('method');
-
 }
 
 function on_top_click_func(e) {
@@ -848,6 +847,7 @@ function domInit() {
             }
             var route = itemRow.data('target');
             itemRow.parents('form').first().append('<input type=hidden name="item" value="'+itemRow.data('data')+'">')
+            itemRow.parents('form').first().append('<input type=hidden name="model" value="'+itemRow.data('model')+'">')
 
             var valuesToSubmit = itemRow.parents('form').first().serialize();
             activateLoadingScreen();
@@ -860,7 +860,8 @@ function domInit() {
         });
       } else {
         var route = $(this).data('target');
-        $(this).parents('form').first().append('<input type=hidden name="item" value="'+$(this).data('data')+'">')
+        $(this).parents('form').first().append('<input type=hidden name="item" value="'+$(this).data('data')+'">');
+        itemRow.parents('form').first().append('<input type=hidden name="model" value="'+itemRow.data('model')+'">')
         var valuesToSubmit = $(this).parents('form').first().serialize();
         activateLoadingScreen();
         $.ajax({
@@ -917,7 +918,21 @@ function domInit() {
 
   activateAutoComplete();
 
-
+  $('.chklist').off('click');
+  $('.chklist').on('click',function(){
+    alert('oo');
+    msg = $(this).data('dsc');
+    sr = $(this).data('serial');
+    if(sr != ''){
+      msg += ' ('+sr+')';
+    }
+    if(confirm("Rimuovere "+msg+"?")){
+      $(this).remove();
+      var e = $.Event('keyup');
+      e.which = 13;
+      $('input[name=search]').trigger(e);
+    }
+  });
 
   $('.ajax-link-select').off('change');
   $('.ajax-link-select').on('change',function(e) {
