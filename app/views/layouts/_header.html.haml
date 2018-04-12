@@ -46,7 +46,7 @@
             = navbar_item "Mezzi", vehicles_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin)|| current_user.has_role?("amministratore manutenzioni"))
             = navbar_item "Modelli veicolo", vehicle_models_path
-          - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin) || current_user.has_role?(:lavaggio)|| current_user.has_role?("amministratore manutenzioni"))
+          - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin) || current_user.has_role?("amministratore manutenzioni"))
             = navbar_item "Tipi di veicolo", vehicle_types_path
       - if current_user.present? && (current_user.has_role?(:amministrazione) || current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?(:ddt) || current_user.has_role?('mod. ditte'))
         = navbar_dropdown "Amministrazione" do

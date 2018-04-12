@@ -13,6 +13,7 @@ class CodesController < ApplicationController
   autocomplete :vehicle_information, :information, full: true, :id_element => '#vehicle_id', display_value: :information
 
   def index
+    
   end
 
   def autocomplete_person_surname

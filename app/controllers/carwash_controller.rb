@@ -1,5 +1,9 @@
 class CarwashController < ApplicationController
 
+  def index
+    @carwash_usages = CarwashUsage.lastmonth.order(:ending_time => :desc)
+  end
+  
   def checks_index
     @check_sessions = VehicleCheckSession.opened+VehicleCheckSession.closed
     render 'carwash/checks_index'

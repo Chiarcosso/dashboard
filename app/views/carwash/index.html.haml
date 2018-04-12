@@ -1,5 +1,5 @@
 %h3='Lavaggi aperti'
-.container.half
+.container{style: 'height: 10%'}
   .row
     .col-sm-3
       %b
@@ -35,7 +35,7 @@
           = c.session_id
 
 %h3='Lavaggi ultimo mese'
-.container.half
+.container{style: 'height: 90%'}
   .row
     .col-sm-3
       %b
@@ -56,7 +56,7 @@
       %b
         Fine
   .scrollable-panel
-    - CarwashUsage.lastmonth.limit(30).order(:ending_time => :desc).each do |c|
+    - @carwash_usages.each do |c|
       .row.colored
         .col-sm-3
           - if !c.carwash_special_code.nil?

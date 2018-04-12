@@ -7,6 +7,7 @@ class CarwashUsage < ApplicationRecord
   scope :opened, -> { where(:ending_time => nil) }
   scope :closed, -> { where('ending_time is not null') }
   scope :lastmonth, -> { where('ending_time > ?', DateTime.now - 30.days) }
+  scope :yesterday, -> { where('ending_time > ?', DateTime.now - 1.days) }
 
   def self.generate_session
     id = SecureRandom.hex(10)
