@@ -3,7 +3,7 @@ class CarwashController < ApplicationController
   def index
     @carwash_usages = CarwashUsage.lastmonth.order(:ending_time => :desc)
   end
-  
+
   def checks_index
     @check_sessions = VehicleCheckSession.opened+VehicleCheckSession.closed
     render 'carwash/checks_index'
@@ -33,7 +33,7 @@ class CarwashController < ApplicationController
       @checks = Array.new
 
       vec.each do |vc|
-        @checks << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: false)
+        @checks << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: false, mandatory: v.mandatory?(vc) )
       end
       respond_to do |format|
         format.js { render :partial => 'carwash/checks_js' }

@@ -8,7 +8,7 @@
     =link_to "Inserisci nuova persona", new_person_path, class: "btn btn-primary" if current_user.has_role?("personale") || current_user.has_role?(:admin)
 
 .container
-  = form_tag(people_path, method: :get, type: :script, class: 'prevent-cr') do |f|
+  = form_tag(people_path, method: :get, type: :script) do |f|
     = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': people_path
   .row
     .col-sm-3

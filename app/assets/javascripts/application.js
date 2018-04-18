@@ -359,8 +359,11 @@ function ajax_update_change_func() {
 
 function clickbox_click_func() {
   "use strict";
-  console.log('#'+$(this).data('trigger'));
-  $('#'+$(this).data('trigger')).trigger('click');
+  activateJS();
+  console.log($('#'+$(this).data('trigger')));
+  $(this).css('background-color: red;');
+  // $('#'+$(this).data('trigger')).trigger('click');
+  // $(this).children('#'+$(this).data('trigger')).trigger('click');
 }
 
 function activateJS() {

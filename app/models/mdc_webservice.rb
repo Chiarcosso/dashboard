@@ -661,11 +661,13 @@ class FareDocuments
           img = dcr.data[:description][/\/.*?([^\/]*.$)/,1] unless dcr.data[:description].nil?
           @data[:photos] << mdc.media_address+img unless img.nil?
       end
+
       # if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
       #    @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
       # end
 
     end
+    # byebug if @data[:id].nil? || @data[:id] == ''
     # @data = nil if @data[:date_from].nil? or @data[:date_to].nil?
     # mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
   end

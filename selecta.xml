@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Body>
+    <GetTotalsKmList xmlns="http://selecta.ve.it/selsystem">
+      <request xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+        <SecurityToken i:type="UserNamePasswordCompanyToken">
+          <CompanyID>8</CompanyID>
+          <Password>haqmr90!</Password>
+          <UserName>ws_chiarcosso</UserName>
+        </SecurityToken>
+        <UniqueId>00000000-0000-0000-0000-000000000000</UniqueId>
+      </request>
+    </GetTotalsKmList>
+  </s:Body>
+</s:Envelope>

@@ -1,7 +1,7 @@
 
 .row
   .col-sm-4
-    %b= "Sessione controlli nr. #{@check_session.id} - #{@check_session.destination_label}"
+    %b= "Sessione controlli nr. #{@check_session.id} - #{@check_session.destination_label} - Fatti #{@checks.select{ |c| c.performed }.size}/#{@checks.size} "
   .col-sm-2
     %b= "Ultimo valore"
   .col-sm-2
@@ -15,11 +15,11 @@
 
 .row
   .col-sm-12
-    .col-sm-1
+    .col-sm-2
       = button_to 'Pausa sessione', carwash_checks_path, method: :get
-    .col-sm-3
+    .col-sm-2
       = "Tempo teorico: #{@check_session.theoretical_duration_label}"
-    .col-sm-3
+    .col-sm-2
       #timer{'data-time': @check_session.real_duration.to_i}
         = "Tempo reale: #{@check_session.real_duration_label}"
     .col-sm-2
