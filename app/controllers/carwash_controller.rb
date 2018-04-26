@@ -54,7 +54,7 @@ class CarwashController < ApplicationController
         format.js { render :partial => 'carwash/checks_js' }
       end
     rescue Exception => e
-      @error = e.message
+      @error = e.message+"\n\n#{e.backtrace}"
       respond_to do |format|
         format.js { render :partial => 'layouts/error' }
       end
@@ -66,11 +66,11 @@ class CarwashController < ApplicationController
       pc = VehiclePerformedCheck.find(params.require(:field)[/check\[(\d*)\]\[.*\]$/,1].to_i)
       case params.require(:field)[/check\[\d*\]\[(.*)\]$/,1]
       when 'value' then
-        pc.update(value: params.require(:value), time: DateTime.now, performed: true)
+        pc.update(value: params.require(:value), time: DateTime.now, performed: true, user: current_user)
       when 'notes' then
-        pc.update(notes: params.require(:value))
+        pc.update(notes: params.require(:value), user: current_user)
       when 'performed' then
-        pc.update(performed: (params.require(:value).downcase == 'true' ? true : false))
+        pc.update(performed: (params.require(:value).downcase == 'true' ? true : false), user: current_user)
       end
       @line = "##{pc.id}"
       @check_session = pc.vehicle_check_session

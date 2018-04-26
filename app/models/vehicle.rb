@@ -61,38 +61,52 @@ class Vehicle < ApplicationRecord
     end
   end
 
-  def self.update_km
+  def self.get_satellite_data
     r = Hash.new
 
     request = HTTPI::Request.new
-    request.url = 'http://85.46.53.2:8080/export.svc'
-    request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    request.headers['Accept'] = 'application/json'
+    request.url = ENV['RAILS_SELECTA_URL']
+    request.headers['Content-Type'] = 'text/xml; charset=utf-8'
     request.headers['Expect'] = '100-continue'
     request.headers['Connection'] = 'Keep-Alive'
     request.headers['SOAPAction'] = "http://selecta.ve.it/selsystem/ISelSystemExport/GetTotalsKmList"
-    request.body = '<?xml version="1.0" encoding="UTF-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><GetTotalsKmList xmlns="http://selecta.ve.it/selsystem"><request xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><SecurityToken i:type="UserNamePasswordCompanyToken"><CompanyID>8</CompanyID><Password>haqmr90!</Password><UserName>ws_chiarcosso</UserName></SecurityToken><UniqueId>00000000-0000-0000-0000-000000000000</UniqueId></request></GetTotalsKmList></s:Body></s:Envelope>'
+    request.body = '<?xml version="1.0" encoding="UTF-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><GetTotalsKmList xmlns="http://selecta.ve.it/selsystem"><request xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><SecurityToken i:type="UserNamePasswordCompanyToken"><CompanyID>'+ENV['RAILS_SELECTA_COMPANY_ID']+'</CompanyID><Password>'+ENV['RAILS_SELECTA_PASS']+'</Password><UserName>'+ENV['RAILS_SELECTA_USERNAME']+'</UserName></SecurityToken><UniqueId>'+ENV['RAILS_SELECTA_UNIQUE_ID']+'</UniqueId></request></GetTotalsKmList></s:Body></s:Envelope>'
     res = HTTPI.post(request)
     res.body.scan(/<TotalKmInfo><CC>.*?<\/CC><DV>.*?<\/DV><KM>(.*?)<\/KM><PL>(.*?)<\/PL><\/TotalKmInfo>/) do |line|
-      r[line[1]] = line[0]
-      puts "r      -> #{line[1]}      #{line[0]}"
+      r[line[1].tr(' -.','')] = line[0]
     end
-    byebug
+
     request = HTTPI::Request.new
     request.url = "#{ENV['RAILS_CVS_URL']}DataAPI/VehicleList/json?#{ENV['RAILS_CVS_AUTH_PARAMS']}"
     request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    # # request.headers['Accept'] = 'application/json'
     res = HTTPI.post(request)
-    # res.body.scan(/<TotalKmInfo><CC>.*?<\/CC><DV>.*?<\/DV><KM>(.*?)<\/KM><PL>(.*?)<\/PL><\/TotalKmInfo>/) do |line|
-    #   r[line[1]] = line[0]
-    # end
+
     JSON.parse(res.body)['data']['Vehicles']['Vehicle'].each do |v|
       r[v['VehiclePlateNumber'].tr(' -.','')] = v['Odometer']
-      puts v
     end
-      # r = Array.new res.body.match(/<TotalKmInfo><CC>.*<\/CC><DV>.*<\/DV><KM>(.*)<\/KM><PL>(.*)<\/PL><\/TotalKmInfo>/)[1].to_s
 
     r
+  end
+
+  def self.update_km
+
+    Vehicle.get_satellite_data.each do |k|
+
+      begin
+        v = Vehicle.find_by_plate(k[0])
+        v.update(mileage: k[1].to_i)
+      rescue Exception => e
+        @error = e.message+"\n\n"+k.inspect
+        puts @error
+      end
+    end
+
+  end
+
+  def update_km
+    data = Vehicle.get_satellite_data
+    self.update(mileage: data[self.plate])
+    
   end
 
   def typology

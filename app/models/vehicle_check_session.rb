@@ -18,7 +18,7 @@ class VehicleCheckSession < ApplicationRecord
   end
 
   def vehicle_ordered_performed_checks
-    self.vehicle_performed_checks.sort_by{ |vc| [ vc.mandatory ? 0 : 1, vc.performed.to_s, -vc.vehicle_check.importance, vc.vehicle_check.label ] }
+    self.vehicle_performed_checks.sort_by{ |vc| [ vc.performed.to_s, vc.mandatory ? 0 : 1, -vc.vehicle_check.importance, vc.vehicle_check.label ] }
     # self.vehicle_performed_checks.sort_by{ |vc| [ !vc.mandatory, !vc.performed.to_s, -vc.vehicle_check.importance, vc.vehicle_check.label ] }
     #.order({mandatory: :desc, performed: :asc, importance: :desc, label: :asc})
   end

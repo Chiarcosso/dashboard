@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180409084753) do
+ActiveRecord::Schema.define(version: 20180420093721) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -535,7 +535,7 @@ ActiveRecord::Schema.define(version: 20180409084753) do
     t.index ["name"], name: "vehicle_categories_unique_name", unique: true, using: :btree
   end
 
-  create_table "vehicle_check_sessions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "vehicle_check_sessions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "theoretical_km"
     t.integer  "real_km"
     t.date     "date",                 null: false
@@ -665,7 +665,7 @@ ActiveRecord::Schema.define(version: 20180409084753) do
     t.index ["manufacturer_id"], name: "index_vehicle_models_on_manufacturer_id", using: :btree
   end
 
-  create_table "vehicle_performed_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "vehicle_performed_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "vehicle_check_session_id",                            null: false
     t.integer  "vehicle_check_id",                                    null: false
     t.float    "value",                    limit: 24
@@ -678,9 +678,11 @@ ActiveRecord::Schema.define(version: 20180409084753) do
     t.integer  "vehicle_id"
     t.integer  "external_vehicle_id"
     t.boolean  "mandatory",                           default: false, null: false
+    t.integer  "user_id"
     t.index ["external_vehicle_id"], name: "index_vehicle_performed_checks_on_external_vehicle_id", using: :btree
     t.index ["is_last", "external_vehicle_id", "vehicle_check_id"], name: "vpf_external_vehicle_last_check", using: :btree
     t.index ["is_last", "vehicle_id", "vehicle_check_id"], name: "vpf_vehicle_last_check", using: :btree
+    t.index ["user_id"], name: "index_vehicle_performed_checks_on_user_id", using: :btree
     t.index ["vehicle_check_id"], name: "index_vehicle_performed_checks_on_vehicle_check_id", using: :btree
     t.index ["vehicle_check_session_id", "vehicle_check_id"], name: "vehicle_check_session_check", unique: true, using: :btree
     t.index ["vehicle_check_session_id"], name: "index_vehicle_performed_checks_on_vehicle_check_session_id", using: :btree

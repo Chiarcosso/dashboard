@@ -8,6 +8,7 @@ module AdminHelper
     res[:atc] = Company.chiarcosso
     res[:te] = Company.transest
     res[:ec] = Company.edilizia
+    res[:sw] = VehicleTypology.find_by(:name => 'Station wagon')
     res[:no_vehicle_type] = VehicleType.not_available
     res[:no_vehicle_typology] = VehicleTypology.not_available
     res[:motivo_fuori_parco] = VehicleInformationType.find_by(name: 'Motivo fuori parco')
@@ -46,6 +47,7 @@ module AdminHelper
       res['serie'] = r['model'][/(\d) serie$/,1].to_i
       r['model'] = r['model'][/^(.*) \d serie$/,1]
     end
+    
     res[:model] = VehicleModel.where(:name => r['model'], :manufacturer => res[:manufacturer]).first
     if res[:model].nil?
       @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
