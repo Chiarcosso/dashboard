@@ -14,6 +14,10 @@ class User < ApplicationRecord
     self.add_role(:base) if self.roles.blank?
   end
 
+  def mssql_code
+    self.person.mssql_references.last.remote_object_id
+  end
+
   def name
     if ! self.person.nil?
       self.person.name+' '+self.person.surname
