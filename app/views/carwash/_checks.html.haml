@@ -18,7 +18,7 @@
           =link_to k, '#tab-'+k.tr(' ','_'), data: { toggle: 'tab'}, class: 'no-loader'
 
     .col-sm-3
-      %b= "Sessione controlli nr. #{@check_session.id} - #{@check_session.destination_label} - Fatti #{@checks.map{ |k,c| c.select{ |cc| cc.performed }.size}.inject(:+)}/#{@checks.map{ |k,c| c.size}.inject(:+)} "
+      %b= "Sessione nr. #{@check_session.id} - #{@check_session.destination_label} - Fatti #{@checks.map{ |k,c| c.select{ |cc| cc.performed? }.size}.inject(:+)}/#{@checks.map{ |k,c| c.size}.inject(:+)} "
     .col-sm-1
       =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@check_session.vehicle.id), name: "infobox_vehicle_#{@check_session.vehicle.id}" }
       =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(@check_session.vehicle.id), name: "infobox_vehicle_workshop_#{@check_session.vehicle.id}" }
@@ -38,23 +38,22 @@
           - active = ' active'
         - else
           - active = ''
-        %div{style: 'height:100%', id: 'tab-'+k.tr(' ','_'), class: 'tab-pane'+active}
+        %div{style: 'height:85%', id: 'tab-'+k.tr(' ','_'), class: 'tab-pane'+active}
           .scrollable-panel#scroll-element
             = render partial: 'carwash/check_view', locals: {list: v}
 
 .row
-  .col-sm-12
-    .col-sm-2
-      = button_to 'Pausa sessione', carwash_checks_path, method: :get
-    .col-sm-2
-      = "Tempo teorico: #{@check_session.theoretical_duration_label}"
-    .col-sm-2
-      #timer{'data-time': @check_session.real_duration.to_i}
-        = "Tempo reale: #{@check_session.real_duration_label}"
-    .col-sm-2
-      = form_tag(save_check_session_path(@check_session.id), method: :post, remote: true, class: 'no-cr') do |f|
-        = hidden_field_tag :time, @check_session.real_duration.to_i
-        = submit_tag 'Concludi sessione', class: 'no-cr'
+  .col-sm-2
+    = button_to 'Pausa sessione', carwash_checks_path, method: :get
+  .col-sm-3
+    = "Tempo teorico: #{@check_session.theoretical_duration_label}"
+  .col-sm-3
+    #timer{'data-time': @check_session.real_duration.to_i}
+      = "Tempo reale: #{@check_session.real_duration_label}"
+  .col-sm-2
+    = form_tag(save_check_session_path(@check_session.id), method: :post, remote: true, class: 'no-cr') do |f|
+      = hidden_field_tag :time, @check_session.real_duration.to_i
+      = submit_tag 'Concludi sessione', class: 'no-cr'
 
 :javascript
 

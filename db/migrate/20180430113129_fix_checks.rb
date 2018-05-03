@@ -7,7 +7,7 @@ class FixChecks < ActiveRecord::Migration[5.0]
     change_column :vehicle_performed_checks, :value, :string, null: true
     VehicleCheck.all do |vc|
       if vc.max.nil? and vc.val_min.nil?
-        vc.update(options: 'Seleziona//A posto//Aggiustato//Non a posto//Non a posto bloccante//Non applicabile')
+        vc.update(options: 'Seleziona//Valore nella norma//Valore fuori norma//Rilevamento impossibile')
       else
         vc.update(datatype: 'decimal(2)')
       end

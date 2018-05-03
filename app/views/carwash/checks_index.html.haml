@@ -37,7 +37,7 @@
                 .col-sm-1
                   = cs.vehicle.plate
                 .col-sm-2
-                  = "#{cs.vehicle_performed_checks.select{ |cc| cc.performed }.size} di #{cs.vehicle_performed_checks.size} controlli eseguiti."
+                  = "#{cs.vehicle_performed_checks.select{ |cc| cc.performed? }.size} di #{cs.vehicle_performed_checks.size} controlli eseguiti."
                 .col-sm-2
                   = cs.created_at.strftime "%d/%m/%Y\n%H:%M:%S" unless cs.created_at.nil?
                 .col-sm-2

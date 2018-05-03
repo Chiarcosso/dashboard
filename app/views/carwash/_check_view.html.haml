@@ -39,4 +39,4 @@
       -# = radio_button_tag "check[#{c.id}][performed]", false, !c.performed, class: 'ajax_update', id: 'pn'+c.id.to_s, data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
       -# = 'No'
     .col-sm-2
-      =text_field_tag "check[#{c.id}][notes]", c.notes, placeholder: 'Note..', class: 'ajax_update', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
+      =text_field_tag "check[#{c.id}][notes]", c.notes, placeholder: 'Note..', class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
