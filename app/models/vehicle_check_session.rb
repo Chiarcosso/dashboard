@@ -1,13 +1,14 @@
 class VehicleCheckSession < ApplicationRecord
   resourcify
-  belongs_to :operator, class_name: Person
+  belongs_to :operator, class_name: User
   belongs_to :worksheet
   belongs_to :vehicle
   belongs_to :external_vehicle
-  has_many :vehicle_performed_checks
+  has_many :vehicle_performed_checks, :dependent => :destroy
 
   scope :opened, -> { where(finished: nil) }
   scope :closed, -> { where('finished is not null').order(finished: :desc) }
+  scope :last_week, -> { where("date > '#{(Date.today - 7).strftime('%Y-%m-%d')}'") }
 
   def actual_vehicle
     if self.vehicle.nil?
@@ -18,7 +19,12 @@ class VehicleCheckSession < ApplicationRecord
   end
 
   def vehicle_ordered_performed_checks
-    self.vehicle_performed_checks.sort_by{ |vc| [ vc.performed.to_s, vc.mandatory ? 0 : 1, -vc.vehicle_check.importance, vc.vehicle_check.label ] }
+    res = Hash.new
+    self.vehicle_performed_checks.sort_by{ |vc| [ vc.performed?.to_s, vc.mandatory ? 0 : 1, -vc.vehicle_check.importance, vc.vehicle_check.label ] }.each do |vpc|
+      res[vpc.vehicle_check.code] = Array.new if res[vpc.vehicle_check.code].nil?
+      res[vpc.vehicle_check.code] << vpc
+    end
+    res
     # self.vehicle_performed_checks.sort_by{ |vc| [ !vc.mandatory, !vc.performed.to_s, -vc.vehicle_check.importance, vc.vehicle_check.label ] }
     #.order({mandatory: :desc, performed: :asc, importance: :desc, label: :asc})
   end

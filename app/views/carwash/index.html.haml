@@ -77,4 +77,4 @@
 
 :javascript
 
-  var interval = setInterval(Window.location.reload,10000);
+  var interval = setTimeout(window.location.reload.bind(window.location),10*60*1000);

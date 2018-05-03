@@ -1,17 +1,46 @@
+.tabbable
+  .row
+    %ul.nav.nav-tabs
+      - @checks.each do |k,v|
+        -# %style
+        -#   a:visited,a:link,a:hver,a:active{ color: black; font-style: normal; font-size: +2; }
+        - if @tab.nil?
+          - if v == @checks.values.first
+            - active = 'active'
+          - else
+            - active = ''
+        - else
+          - if @tab == k
+            - active = 'active'
+          - else
+            - active = ''
+        %li{ class: active}
+          =link_to k, '#tab-'+k.tr(' ','_'), data: { toggle: 'tab'}, class: 'no-loader'
 
-.row
-  .col-sm-4
-    %b= "Sessione controlli nr. #{@check_session.id} - #{@check_session.destination_label} - Fatti #{@checks.select{ |c| c.performed }.size}/#{@checks.size} "
-  .col-sm-2
-    %b= "Ultimo valore"
-  .col-sm-2
-    %b= "Lettura"
-  .col-sm-1
-    %b= "Eseguito"
-  .col-sm-2
-    %b= "Note"
-.scrollable-panel#scroll-element
-  = render partial: 'carwash/check_view'
+    .col-sm-3
+      %b= "Sessione controlli nr. #{@check_session.id} - #{@check_session.destination_label} - Fatti #{@checks.map{ |k,c| c.select{ |cc| cc.performed }.size}.inject(:+)}/#{@checks.map{ |k,c| c.size}.inject(:+)} "
+    .col-sm-1
+      =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@check_session.vehicle.id), name: "infobox_vehicle_#{@check_session.vehicle.id}" }
+      =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(@check_session.vehicle.id), name: "infobox_vehicle_workshop_#{@check_session.vehicle.id}" }
+    .col-sm-2
+      %b= "Ultimo valore"
+    .col-sm-2
+      %b= "Lettura"
+    .col-sm-2
+      %b= "Eseguito"
+    .col-sm-2
+      %b= "Note"
+
+  .row
+    .tab-content
+      - @checks.each do |k,v|
+        - if v == @checks.values.first
+          - active = ' active'
+        - else
+          - active = ''
+        %div{style: 'height:100%', id: 'tab-'+k.tr(' ','_'), class: 'tab-pane'+active}
+          .scrollable-panel#scroll-element
+            = render partial: 'carwash/check_view', locals: {list: v}
 
 .row
   .col-sm-12

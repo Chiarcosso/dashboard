@@ -125,6 +125,7 @@ Rails.application.routes.draw do
   post '/carwash/start_session/', to: 'carwash#start_check_session', as: :start_check_session
   post '/carwash/continue_session/:id', to: 'carwash#continue_check_session', as: :continue_check_session
   post '/carwash/save_session/:id', to: 'carwash#save_check_session', as: :save_check_session
+  post '/carwash/delete_session/:id', to: 'carwash#delete_check_session', as: :delete_check_session
   post '/carwash/update_check/:id', to: 'carwash#update_vehicle_check', as: :update_vehicle_check
 
   post '/companies/new', to: 'companies#new', as: :new_company_search

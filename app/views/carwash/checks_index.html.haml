@@ -1,12 +1,12 @@
 %div{ style: 'height: 100vh, padding-top: 3em'}
-  %ul.nav.nav-tabs
-    -# %style
-    -#   a:visited,a:link,a:hover,a:active{ color: black; font-style: normal; font-size: +2; }
-    %li.active
-      =link_to 'Controlli e manutenzione:', '#tab-checks', data: { toggle: 'tab'}, class: 'no-loader'
-    - if current_user.has_role?('amministratore officina') || current_user.has_role?(:admin)
-      %li
-        =link_to 'Gestione', '#tab-checks-management', data: { toggle: 'tab'}, class: 'no-loader'
+  -# %ul.nav.nav-tabs
+  -#   -# %style
+  -#   -#   a:visited,a:link,a:hover,a:active{ color: black; font-style: normal; font-size: +2; }
+  -#   %li.active
+  -#     =link_to 'Controlli e manutenzione:', '#tab-checks', data: { toggle: 'tab'}, class: 'no-loader'
+  -#   - if current_user.has_role?('amministratore officina') || current_user.has_role?(:admin)
+  -#     %li
+  -#       =link_to 'Gestione', '#tab-checks-management', data: { toggle: 'tab'}, class: 'no-loader'
 
 .tab-content
   .tab-pane#tab-checks.active{style: 'height:100%'}
@@ -27,16 +27,23 @@
             - @check_sessions.each do |cs|
               .row.colored
                 .col-sm-1
+                  - if current_user.has_role?('amministratore lavaggio') || current_user.has_role?(:admin)
+                    = button_to 'X', delete_check_session_path(cs.id), remote: true, 'data-confirm': "Eliminare la sessione nr. #{cs.id} e tutti i controlli relativi?"
+                .col-sm-1
+                  %b= cs.id
+                .col-sm-1
                   = form_tag(continue_check_session_path(cs.id), method: :post, remote: true) do |f|
                     = submit_tag 'Continua'
                 .col-sm-1
-                  = cs.id
-                .col-sm-2
                   = cs.vehicle.plate
+                .col-sm-2
+                  = "#{cs.vehicle_performed_checks.select{ |cc| cc.performed }.size} di #{cs.vehicle_performed_checks.size} controlli eseguiti."
+                .col-sm-2
+                  = cs.created_at.strftime "%d/%m/%Y\n%H:%M:%S" unless cs.created_at.nil?
                 .col-sm-2
                   = cs.finished.strftime "%d/%m/%Y\n%H:%M:%S" unless cs.finished.nil?
 
-  - if current_user.has_role?('amministratore officina') || current_user.has_role?(:admin)
+  - if current_user.has_role?('amministratore lavaggio') || current_user.has_role?(:admin)
     .tab-pane#tab-checks-management
       .container-fluid
         Gestione
