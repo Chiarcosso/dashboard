@@ -391,6 +391,7 @@ class MdcWebservice
 
           end
         else
+          byebug
           tmp = response[/%PDF.*/m]
           # data = XMPR::XMP.new(tmp)
           File.open('tmp.pdf','w+') do |f|
@@ -739,7 +740,9 @@ class VacationRequest
         puts e.backtrace
       end
       if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
-         @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
+         # @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
+         @data[:form] = mdc.download_file(dcr.data[:description]).body[/apache\.org>\r\n\r\n(.*)\n\r\n/m,1].force_encoding("utf-8")
+         byebug
       end
 
     end
