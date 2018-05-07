@@ -23,8 +23,10 @@
         -#   = radio_button_tag "check[#{c.id}][value]", 0, c.value.nil?? nil : (c.value == 0.0 ? true : false), class: 'ajax_update', id: 'vn'+c.id.to_s, data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
         -#   = 'Non a posto '
       - when 'integer'
+        = c.vehicle_check.measure_unit
         = number_field_tag "check[#{c.id}][value]", c.value, step: 1, class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
       - when 'decimal(2)'
+        = c.vehicle_check.measure_unit
         = number_field_tag "check[#{c.id}][value]", c.value, step: :any, class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
       - when 'date'
         = date_field_tag "check[#{c.id}][value]", c.value, step: :any, class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
