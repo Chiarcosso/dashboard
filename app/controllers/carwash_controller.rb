@@ -93,7 +93,8 @@ class CarwashController < ApplicationController
 
   def save_check_session
     begin
-      @check_session = VehicleCheckSession.find(params.require(:id)).update(finished: DateTime.now, real_duration: params.require(:time), log: @check_session.log+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{Date.today.strftime('%H:%M:%S')}.")
+      @check_session = VehicleCheckSession.find(params.require(:id))
+      @check_session.update(finished: DateTime.now, real_duration: params.require(:time), log: @check_session.log+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{Date.today.strftime('%H:%M:%S')}.")
       respond_to do |format|
         # format.js { render :partial => 'carwash/checks_js' }
         format.js { render 'carwash/checks_index_js' }
