@@ -32,8 +32,9 @@
                 .col-sm-1
                   %b= cs.id
                 .col-sm-1
-                  = form_tag(continue_check_session_path(cs.id), method: :post, remote: true) do |f|
-                    = submit_tag 'Continua'
+                  - if current_user.has_role?('amministratore lavaggio') || current_user.has_role?(:admin) || cs.finished.nil?
+                    = form_tag(continue_check_session_path(cs.id), method: :post, remote: true) do |f|
+                      = submit_tag 'Continua', 'data-confirm': "Continuare la sessione nr. #{cs.id}?"
                 .col-sm-1
                   = cs.vehicle.plate
                 .col-sm-2

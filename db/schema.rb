@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180503131627) do
+ActiveRecord::Schema.define(version: 20180508131237) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -538,16 +538,17 @@ ActiveRecord::Schema.define(version: 20180503131627) do
   create_table "vehicle_check_sessions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "theoretical_km"
     t.integer  "real_km"
-    t.date     "date",                 null: false
-    t.integer  "operator_id",          null: false
-    t.integer  "theoretical_duration", null: false
+    t.date     "date",                               null: false
+    t.integer  "operator_id",                        null: false
+    t.integer  "theoretical_duration",               null: false
     t.integer  "real_duration"
     t.integer  "worksheet_id"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.integer  "vehicle_id"
     t.integer  "external_vehicle_id"
     t.datetime "finished"
+    t.text     "log",                  limit: 65535
     t.index ["external_vehicle_id"], name: "index_vehicle_check_sessions_on_external_vehicle_id", using: :btree
     t.index ["operator_id"], name: "index_vehicle_check_sessions_on_operator_id", using: :btree
     t.index ["vehicle_id"], name: "index_vehicle_check_sessions_on_vehicle_id", using: :btree
@@ -555,31 +556,32 @@ ActiveRecord::Schema.define(version: 20180503131627) do
   end
 
   create_table "vehicle_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",                                                  null: false
+    t.string   "code",                                                   null: false
     t.integer  "vehicle_id"
     t.integer  "vehicle_type_id"
     t.integer  "vehicle_typology_id"
-    t.integer  "importance",                                            null: false
-    t.integer  "duration",                                              null: false
-    t.boolean  "check_driver",                       default: true,     null: false
-    t.boolean  "check_carwash",                      default: true,     null: false
-    t.boolean  "check_workshop",                     default: true,     null: false
+    t.integer  "importance",                                             null: false
+    t.integer  "duration",                                               null: false
+    t.boolean  "check_driver",                        default: true,     null: false
+    t.boolean  "check_carwash",                       default: true,     null: false
+    t.boolean  "check_workshop",                      default: true,     null: false
     t.integer  "frequency_km"
     t.integer  "frequency_time"
     t.integer  "alert_before_km"
     t.integer  "alert_before_time"
-    t.boolean  "both_expired",                       default: false,    null: false
-    t.boolean  "generate_worksheet",                 default: true,     null: false
-    t.string   "label",                                                 null: false
-    t.decimal  "val_min",             precision: 10
-    t.decimal  "val_max",             precision: 10
+    t.boolean  "both_expired",                        default: false,    null: false
+    t.boolean  "generate_worksheet",                  default: true,     null: false
+    t.string   "label",                                                  null: false
+    t.decimal  "val_min",              precision: 10
+    t.decimal  "val_max",              precision: 10
     t.integer  "group_id"
-    t.datetime "created_at",                                            null: false
-    t.datetime "updated_at",                                            null: false
+    t.datetime "created_at",                                             null: false
+    t.datetime "updated_at",                                             null: false
     t.string   "measure_unit"
-    t.string   "datatype",                           default: "select", null: false
+    t.string   "datatype",                            default: "select", null: false
     t.string   "options"
     t.string   "notify_to"
+    t.string   "reference_value_path"
     t.index ["check_carwash"], name: "index_vehicle_checks_on_check_carwash", using: :btree
     t.index ["check_driver"], name: "index_vehicle_checks_on_check_driver", using: :btree
     t.index ["check_workshop"], name: "index_vehicle_checks_on_check_workshop", using: :btree

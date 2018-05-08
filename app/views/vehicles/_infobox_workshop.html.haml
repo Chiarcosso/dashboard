@@ -2,14 +2,13 @@
 %h3="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
 %b= "#{@vehicle.vehicle_type.name}, #{@vehicle.vehicle_typology.name}"
 %br
-.scrollable-panel
-  %b="Ultimo lavaggio: #{@vehicle.last_washing.ending_time.nil?? 'Mai' : @vehicle.last_washing.ending_time.strftime('%d/%m/%Y %H:%M:%S')}"
-  %br
-  %b="Schede officina: "
-  %br
-  .scrollable-panel
-    - @vehicle.worksheets.order(opening_date: :desc).each do |ws|
-      .floating-block
-        = button_to ws.code[/EWC\*(\d*)/,1], worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+%b="Ultimo lavaggio: #{@vehicle.last_washing.ending_time.nil?? 'Mai' : @vehicle.last_washing.ending_time.strftime('%d/%m/%Y %H:%M:%S')}"
+%br
+%b="Schede officina: "
+%br
+.scrollable-panel{style: 'height: 20em; width: 100%;'}
+  - @vehicle.worksheets.order(opening_date: :desc).each do |ws|
+    .floating-block
+      = button_to ws.code[/EWC\*(\d*)/,1], worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
 .close
   Chiudi

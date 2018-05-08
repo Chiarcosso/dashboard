@@ -4,22 +4,28 @@
 %br
 %b="Ultimo lavaggio: #{(@vehicle.last_washing.nil? or @vehicle.last_washing.ending_time.nil?)? 'Mai' : @vehicle.last_washing.ending_time.strftime('%d/%m/%Y %H:%M:%S')}"
 %br
-%b="Ultimi controlli: "
+%b="Ultimi controlli:"
 %br
-.scrollable-panel{style: 'height: 20em; width: 100%;'}
-  - oks = 0
+.scrollable-panel{style: 'height: 20em; width: 70em;'}
+  -# - oks = 0
+  -# - all_ok = true
   - @vehicle.last_checks.each do |vc|
-    - if vc.performed != 1
-      .row
-        .col-sm-8
-          = vc.vehicle_check.label
-        .col-sm-2
-          = VehiclePerformedCheck.fixvalues.key(vc.performed)
-        .col-sm-2
-          = vc.time.strftime('%d/%m/%Y') unless vc.time.nil?
-    - else
-      - oks += 1
-  %br
-  = "Gli altri #{oks} controlli sono risultati a posto."
+    -# - if vc.performed != 1
+    -#   - all_ok = false
+    .row.colored
+      .col-sm-8
+        = vc.vehicle_check.label
+      .col-sm-1
+        = vc.performed
+        = VehiclePerformedCheck.fixvalues.key(vc.performed)
+      .col-sm-2
+        = vc.time.strftime('%d/%m/%Y') unless vc.time.nil?
+  -#   - else
+  -#     - oks += 1
+  -# %br
+  -# - if all_ok
+  -#   = "Tutti i controlli sono risultati a posto."
+  -# - else
+  -#   = "Gli altri #{oks} controlli sono risultati a posto."
 .close
   Chiudi
