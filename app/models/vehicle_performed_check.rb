@@ -6,8 +6,13 @@ class VehiclePerformedCheck < ApplicationRecord
   belongs_to :user
 
   scope :performed, -> { where('performed != 0')}
-  scope :not_ok, -> { where('performed != 0 and performed != 1')}
+  scope :not_ok, -> { where('performed != 0 and performed != 1 and performed != 2')}
+  scope :not_performed, -> { where('performed = 0')}
   scope :ok, -> { where('performed = 1')}
+  scope :fixed, -> { where('performed = 2')}
+  scope :unfixed, -> { where('performed = 3')}
+  scope :blocking, -> { where('performed = 4')}
+  scope :unappliable, -> { where('performed = 5')}
   # scope :last_checks, ->(vehicle) { joins(:vehicle_check_session).where('vehicle_check_sessions.vehicle_id = ?',vehicle.id).group(:vehicle_check_id).having('vehicle_performed_checks.time = max(vehicle_performed_checks.time)') }
 
   enum fixvalues: ['Non eseguito','Ok','Aggiustato','Non ok','Non ok bloccante','Non applicabile']
