@@ -13,8 +13,10 @@
     -# - if vc.performed != 1
     -#   - all_ok = false
     .row.colored
-      .col-sm-8
+      .col-sm-6
         = vc.vehicle_check.label
+      .col-sm-2
+        = vc.operator.person.complete_name
       .col-sm-1
         = vc.performed
         = VehiclePerformedCheck.fixvalues.key(vc.performed)
