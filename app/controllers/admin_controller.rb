@@ -244,7 +244,7 @@ class AdminController < ApplicationController
       begin
         @result = eval(params.require(:comm))
       rescue Exception => e
-        @result = e.class.to_s+': '+e.message
+        @result = e.class.to_s+': '+e.message+"\n\n#{e.backtrace.join("\n<br/>")}"
       end
     end
     render 'admin/manage'

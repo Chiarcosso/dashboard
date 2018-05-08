@@ -73,7 +73,7 @@ class CarwashController < ApplicationController
       when 'notes' then
         pc.update(notes: params.require(:value), user: current_user)
       when 'performed' then
-        pc.update(performed: params.require(:value).to_i, user: current_user)
+        pc.update(performed: params.require(:value).to_i, user: current_user, time: DateTime.now)
       end
       @line = "##{pc.id}"
       @check_session = pc.vehicle_check_session

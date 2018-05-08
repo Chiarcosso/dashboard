@@ -2,15 +2,25 @@ class VehiclePerformedCheck < ApplicationRecord
   resourcify
   belongs_to :vehicle_check_session
   belongs_to :vehicle_check
+  has_one :vehicle, :through => :vehicle_check_session
   belongs_to :user
 
   scope :performed, -> { where('performed != 0')}
+  scope :not_ok, -> { where('performed != 0 and performed != 1')}
+  scope :ok, -> { where('performed = 1')}
+  # scope :last_checks, ->(vehicle) { joins(:vehicle_check_session).where('vehicle_check_sessions.vehicle_id = ?',vehicle.id).group(:vehicle_check_id).having('vehicle_performed_checks.time = max(vehicle_performed_checks.time)') }
 
   enum fixvalues: ['Non eseguito','Ok','Aggiustato','Non ok','Non ok bloccante','Non applicabile']
 
-  def self.last_reading
+  def last_reading
 
   end
+
+  # def self.last_checks(vehicle)
+  #   VehiclePerformedCheck.find_by_sql('select * from vehicle_performed_checks inner join vehicle_check_sessions on vehicle_performed_checks.vehicle_check_session_id = vehicle_check_sessions.id ')
+  # end
+
+
 
   def select_options
     self.vehicle_check.select_options

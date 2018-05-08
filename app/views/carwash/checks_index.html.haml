@@ -1,4 +1,4 @@
-%div{ style: 'height: 100vh, padding-top: 3em'}
+%div{ style: 'padding-top: 1em'}
   -# %ul.nav.nav-tabs
   -#   -# %style
   -#   -#   a:visited,a:link,a:hover,a:active{ color: black; font-style: normal; font-size: +2; }
@@ -9,9 +9,9 @@
   -#       =link_to 'Gestione', '#tab-checks-management', data: { toggle: 'tab'}, class: 'no-loader'
 
 .tab-content
-  .tab-pane#tab-checks.active{style: 'height:100%'}
+  .tab-pane#tab-checks.active{style: 'height:100%;'}
     .container-fluid
-      .row
+      .row{style: 'margin-bottom: 1em;'}
         = form_tag(start_check_session_path, method: :post, remote: true) do |f|
           .col-sm-3
             = text_field_tag 'check_session[vehicle]', nil, placeholder: 'Targa..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_external_vehicle_autocomplete_path, target: 'VehicleCheckSession' }

@@ -375,7 +375,7 @@ function activateJS() {
 
     $('#center').on('load', '.autofocus', autofocus_ready_func);
 
-    $('body').on("click", ".error,.infobox", error_click_func);
+    $('body').on("click", ".error", error_click_func);
 
     $('body').on("mouseenter", ".infobox-block", infobox_block_mouseenter_func);
 

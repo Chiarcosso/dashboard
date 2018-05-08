@@ -19,6 +19,8 @@ class Vehicle < ApplicationRecord
   has_many :carwash_usages_as_second, :foreign_key => 'vehicle_2_id', :class_name => 'CarwashUsage'
 
   has_many :vehicle_check_sessions
+  has_many :vehicle_performed_checks, :through => :vehicle_check_sessions
+  has_many :vehicle_checks, :through => :vehicle_performed_check
 
   has_many :vehicle_vehicle_equipments, :dependent => :destroy
   has_many :vehicle_equipments, through: :vehicle_vehicle_equipments
@@ -49,6 +51,8 @@ class Vehicle < ApplicationRecord
   scope :filter, ->(search) { joins("left join vehicle_informations on vehicle_informations.vehicle_id = vehicles.id").where("vehicle_type_id in (select id from vehicle_types where name like '%#{search.tr(' ','%').tr('*','%')}%') or vehicle_typology_id in (select id from vehicle_typologies where name like '%#{search.tr(' ','%').tr('*','%')}%')"\
                 " or property_id in (select id from companies where name like '%#{search.tr(' ','%').tr('*','%')}%') or model_id in (select id from vehicle_models where name like '%#{search.tr(' ','%').tr('*','%')}%' or manufacturer_id in (select id from companies where name like '%#{search.tr(' ','%').tr('*','%')}%'))"\
                 " or vehicle_informations.information like '%#{search.tr(' ','%').tr('*','%')}%' or vehicles.id in (select vehicle_id from vehicle_vehicle_equipments inner join vehicle_equipments on vehicle_vehicle_equipments.vehicle_equipment_id = vehicle_equipments.id where vehicle_equipments.name like '%#{search.tr(' ','%').tr('*','%')}%')").distinct }
+
+
   # scope :filter, ->(search) { find_by_plate(search).or(find_by_chassis(search)).or(find_by_model(search)).or(find_by_manufacturer(search)) }
 
   self.per_page = 30
@@ -106,7 +110,7 @@ class Vehicle < ApplicationRecord
   def update_km
     data = Vehicle.get_satellite_data
     self.update(mileage: data[self.plate])
-    
+
   end
 
   def typology
@@ -306,6 +310,20 @@ class Vehicle < ApplicationRecord
 
   def last_vehicle_informations
     self.vehicle_informations.select { |i| i == self.last_information(i.vehicle_information_type) }.sort_by{ |i| i.vehicle_information_type.name }
+  end
+
+  def last_checks
+    tmp = Hash.new
+    lc = Array.new
+    self.vehicle_performed_checks.performed.each do |vc|
+      tmp[vc.vehicle_check.id] = Array.new if tmp[vc.vehicle_check.label].nil?
+      tmp[vc.vehicle_check.id] << vc
+    end
+    tmp.each do |k,a|
+      a.sort { |c,d| c.time<=>d.time }
+      lc << a.last
+    end
+    lc.sort { |c,d| -c.performed<=>-d.performed}
   end
 
   def get_types

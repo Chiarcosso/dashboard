@@ -3,8 +3,13 @@
 %b= "#{@vehicle.vehicle_type.name}, #{@vehicle.vehicle_typology.name}"
 %br
 .scrollable-panel
-  %b="Lavaggi: "
-  -# -@vehicle.vehicle_information_types.pluck(:name).join(', ')
+  %b="Ultimo lavaggio: #{@vehicle.last_washing.ending_time.nil?? 'Mai' : @vehicle.last_washing.ending_time.strftime('%d/%m/%Y %H:%M:%S')}"
   %br
   %b="Schede officina: "
-  -# =@vehicle.vehicle_equipments.pluck(:name).join(', ')
+  %br
+  .scrollable-panel
+    - @vehicle.worksheets.order(opening_date: :desc).each do |ws|
+      .floating-block
+        = button_to ws.code[/EWC\*(\d*)/,1], worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+.close
+  Chiudi

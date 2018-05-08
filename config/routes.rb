@@ -222,6 +222,7 @@ Rails.application.routes.draw do
   post  '/vehicle/new_information', to: 'vehicles#new_information', as: :vehicle_new_information
   get  '/vehicle/info/:id', to: 'vehicles#get_info', as: :info_vehicle
   get  '/vehicle/info/workshop/:id', to: 'vehicles#get_workshop_info', as: :info_vehicle_workshop
+  get  '/vehicle/info/checks/:id', to: 'vehicles#get_checks_info', as: :info_vehicle_checks
   post '/vehicle/vehicle_information_type_autocomplete/:id', to: 'vehicles#vehicle_information_type_autocomplete', as: :custom_vehicle_information_type_autocomplete
   post '/vehicle/new_information', to: 'vehicles#new_information', as: :new_vehicle_vehicle_information
   post '/vehicle/create_information', to: 'vehicles#create_information', as: :vehicle_create_information

@@ -51,6 +51,12 @@ class VehiclesController < ApplicationController
     end
   end
 
+  def get_checks_info
+    respond_to do |format|
+      format.js { render :partial => 'vehicles/infobox_checks' }
+    end
+  end
+
   def index
 
     @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?#.paginate(:page => params[:page], :per_page => 30)
