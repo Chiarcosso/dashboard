@@ -741,11 +741,12 @@ class VacationRequest
       end
       if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
          # @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
-         b = mdc.download_file(dcr.data[:description]).body
-         @data[:form] = b[/%PDF.*?%%EOF/m].force_encoding("utf-8")
          # b = mdc.download_file(dcr.data[:description]).body
+         @data[:form] = b[/%PDF.*?%%EOF/m].force_encoding("utf-8")
+         b = mdc.download_file(dcr.data[:description]).body
          # @data[:form] = b[/apache\.org>\r\n\r\n(.*)\n\r\n/m,1].force_encoding("utf-8")
-         special_logger.info(b+"\n\n")
+         special_logger.info(dcr.data.[:description]+"\n"b.force_encoding("utf-8")+"\n\n")
+         # byebug
       end
 
     end
@@ -846,7 +847,7 @@ class VacationRequest
   private
 
   def special_logger
-    @@special_logger ||= Logger.new("#{Rails.root}/log/mdc_webservice.log")
+    @@special_logger ||= Logger.new("#{Rails.root}/log/mdc_webservice_files.log")
   end
 end
 
