@@ -16,9 +16,8 @@
       .col-sm-6
         = vc.vehicle_check.label
       .col-sm-2
-        = vc.operator.person.complete_name
-      .col-sm-1
-        = vc.performed
+        = vc.user.person.complete_name unless vc.user.nil?
+      .col-sm-2
         = VehiclePerformedCheck.fixvalues.key(vc.performed)
       .col-sm-2
         = vc.time.strftime('%d/%m/%Y') unless vc.time.nil?

@@ -34,7 +34,7 @@
                 .col-sm-1
                   - if current_user.has_role?('amministratore lavaggio') || current_user.has_role?(:admin) || cs.finished.nil?
                     = form_tag(continue_check_session_path(cs.id), method: :post, remote: true) do |f|
-                      = submit_tag 'Continua', 'data-confirm': "Continuare la sessione nr. #{cs.id}?"
+                      = submit_tag (cs.finished.nil?? 'Continua' : 'Riprendi'), 'data-confirm': "#{cs.finished.nil?? 'Continuare' : 'Riprendere'} la sessione nr. #{cs.id}?"
                 .col-sm-1
                   = cs.vehicle.plate
                 .col-sm-2

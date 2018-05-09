@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180508131237) do
+ActiveRecord::Schema.define(version: 20180509145658) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -549,10 +549,13 @@ ActiveRecord::Schema.define(version: 20180508131237) do
     t.integer  "external_vehicle_id"
     t.datetime "finished"
     t.text     "log",                  limit: 65535
+    t.integer  "worksheets_id",                      null: false
+    t.integer  "myofficina_reference"
     t.index ["external_vehicle_id"], name: "index_vehicle_check_sessions_on_external_vehicle_id", using: :btree
     t.index ["operator_id"], name: "index_vehicle_check_sessions_on_operator_id", using: :btree
     t.index ["vehicle_id"], name: "index_vehicle_check_sessions_on_vehicle_id", using: :btree
     t.index ["worksheet_id"], name: "index_vehicle_check_sessions_on_worksheet_id", using: :btree
+    t.index ["worksheets_id"], name: "index_vehicle_check_sessions_on_worksheets_id", using: :btree
   end
 
   create_table "vehicle_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -685,6 +688,7 @@ ActiveRecord::Schema.define(version: 20180508131237) do
     t.integer  "external_vehicle_id"
     t.boolean  "mandatory",                          default: false, null: false
     t.integer  "user_id"
+    t.integer  "myofficina_reference"
     t.index ["external_vehicle_id"], name: "index_vehicle_performed_checks_on_external_vehicle_id", using: :btree
     t.index ["is_last", "external_vehicle_id", "vehicle_check_id"], name: "vpf_external_vehicle_last_check", using: :btree
     t.index ["is_last", "vehicle_id", "vehicle_check_id"], name: "vpf_vehicle_last_check", using: :btree
