@@ -15,12 +15,13 @@
   .scrollable-panel
     -@vehicles.each do |v|
       .row.colored.no-margin.selectable
-        .col-sm-1
+        .col-sm-2
+          =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(v.id), name: "infobox_vehicle_checks_#{v.id}" }
           =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(v.id), name: "infobox_vehicle_#{v.id}" }
           =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(v.id), name: "infobox_vehicle_workshop_#{v.id}" }
         .col-sm-1
           =v.plate
-        .col-sm-3
+        .col-sm-2
           =v.model.complete_name unless v.model.nil?
         .col-sm-2
           =v.vehicle_type.name unless v.vehicle_type.nil?

@@ -30,7 +30,7 @@ class VehicleCheckSession < ApplicationRecord
   end
 
   def destination_label
-    "#{self.actual_vehicle.plate}#{self.worksheet.nil?? '' : " (ODL nr. #{self.worksheet.number}"}"
+    "#{self.actual_vehicle.plate}#{self.worksheet.nil?? '' : " (ODL nr. #{self.worksheet.number})"}"
   end
 
   def theoretical_duration_label
@@ -51,11 +51,27 @@ class VehicleCheckSession < ApplicationRecord
     # self.save
   end
 
-  def create_worksheet(user)
-    client = get_client
-    workshop = get_client.execute("select id from officine where fornitore = 'PUNTO CHECK-UP'")
+  def self.create_worksheet(user,vehicle)
 
-    operator = get_client.execute("select id from manutentori where idautista = #{user.person.mssql_references.last.remote_object_id}")
+    workshop = get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from anagrafe where ragioneSociale = 'PUNTO CHECK-UP'")
+
+    o = get_ms_client.execute("select id from manutentori where idautista = "+user.person.mssql_references.last.remote_object_id.to_s)
+
+    if o.count > 0
+      opcode = o.first['id'].to_s.rjust(4,'0')
+
+      operator = get_ew_client('common').query("select codice from operatori where codice = '#{opcode}'")
+    else
+      operator = []
+    end
+
+    unless vehicle.last_driver.nil?
+
+      opcode = get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.person.mssql_references.last.remote_object_id.to_s).first['nominativo']
+
+    end
+
+    driver = get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from autisti where ragionesociale = '#{opcode}'")
 
     payload = Hash.new
 
@@ -64,9 +80,15 @@ class VehicleCheckSession < ApplicationRecord
     payload['AnnoSGN'] = "0"
     payload['ProtocolloSGN'] = "0"
     payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d')
-    payload['CodiceManutentore'] = operator.first['id'].to_s unless operator.count == 0
-    payload['CodiceOfficina'] = 'OFF000'+workshop.first['id'].to_s
-    payload['CodiceAutomezzo'] = self.vehicle.mssql_references.last.remote_object_id.to_s
+    payload['DataEntrataVeicolo'] = Date.current.strftime('%Y-%m-%d')
+    payload['CodiceManutentore'] = operator.first['codice'].to_s unless operator.count == 0
+    payload['CodiceOfficina'] = workshop.first['codice'].to_s
+    payload['CodiceAutomezzo'] = vehicle.mssql_references.last.remote_object_id.to_s
+    payload['CodiceTarga'] = vehicle.plate
+    payload['Chilometraggio'] = vehicle.mileage.to_s
+    payload['DataLavaggio'] = vehicle.last_washing.ending_time.strftime('%Y-%m-%d') unless vehicle.last_washing.nil?
+    payload['TipoDanno'] = '55'
+    payload['Descrizione'] = 'Controlli'
     payload['FlagSvolto'] = "false"
     payload['FlagJSONType'] = "odl"
 
@@ -74,16 +96,45 @@ class VehicleCheckSession < ApplicationRecord
     request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
     request.body = payload.to_json
     request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    res = JSON.parse(HTTPI.post(request))['ProtocolloODL'].to_i
-    self.update(myofficina_reference: res, worksheet: Worksheet.create(code: "EWC*#{res}", vehicle: self.vehicle, vehicle_type: self.vehicle.class.to_s, opening_date: Date.current))
+    res = JSON.parse(HTTPI.post(request).body)['ProtocolloODL'].to_i
+    # self.update(myofficina_reference: res, worksheet: Worksheet.create(code: "EWC*#{res}", vehicle: self.vehicle, vehicle_type: self.vehicle.class.to_s, opening_date: Date.current))
 
   end
 
-  def get_client
+  def close_worksheet(user)
+
+    payload = Hash.new
+
+    payload['AnnoODL'] = self.created_at.strftime('%Y')
+    payload['ProtocolloODL'] = self.myofficina_reference.to_s
+    payload['AnnoSGN'] = "0"
+    payload['ProtocolloSGN'] = "0"
+    payload['DataIntervento'] = "0000-00-00"
+    payload['DataUscitaVeicolo'] = Date.current.strftime('%Y-%m-%d')
+    payload['CodiceOfficina'] = "0"
+    payload['CodiceAutomezzo'] = "0"
+    payload['FlagSvolto'] = "true"
+    payload['FlagJSONType'] = "odl"
+
+    request = HTTPI::Request.new
+    request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
+    request.body = payload.to_json
+    request.headers['Content-Type'] = 'application/json; charset=utf-8'
+    res = JSON.parse(HTTPI.post(request).body)['ProtocolloODL'].to_i
+    # self.update(myofficina_reference: res, worksheet: Worksheet.create(code: "EWC*#{res}", vehicle: self.vehicle, vehicle_type: self.vehicle.class.to_s, opening_date: Date.current))
+    self.worksheet.update(exit_time: DateTime.now)
+
+    self.vehicle_performed_checks.each do |vpc|
+      vpc.create_notification(user)
+    end
+
+  end
+
+  def self.get_ms_client
     TinyTds::Client.new username: ENV['RAILS_MSSQL_USER'], password: ENV['RAILS_MSSQL_PASS'], host: ENV['RAILS_MSSQL_HOST'], port: ENV['RAILS_MSSQL_PORT'], database: ENV['RAILS_MSSQL_DB']
   end
 
-  # def self.get_client
-  #   Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB']
-  # end
+  def self.get_ew_client(db)
+    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db
+  end
 end

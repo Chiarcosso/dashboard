@@ -18,7 +18,11 @@ class VehiclePerformedCheck < ApplicationRecord
   enum fixvalues: ['Non eseguito','Ok','Aggiustato','Non ok','Non ok bloccante','Non applicabile']
 
   def last_reading
-    v = VehiclePerformedCheck.find_by_sql("select * from vehicle_performed_checks where vehicle_check_session_id in (select id from vehicle_check_sessions where "+(self.vehicle.class == Vehicle ? "(vehicle_id = #{self.vehicle_check_session.vehicle.id} and vehicle_id is not null)" : "(external_vehicle_id = #{self.vehicle_check_session.external_vehicle.id} and external_vehicle_id is not null)")+") and vehicle_check_id = #{self.vehicle_check.id} and vehicle_performed_checks.id != #{self.id} order by time desc limit 1")
+    v = VehiclePerformedCheck.find_by_sql("select * from vehicle_performed_checks "\
+    "where vehicle_check_session_id in "\
+      "(select id from vehicle_check_sessions "\
+        "where "+(self.vehicle.class == Vehicle ? "(vehicle_id = #{self.vehicle_check_session.vehicle.id} and vehicle_id is not null)" : "(external_vehicle_id = #{self.vehicle_check_session.external_vehicle.id} and external_vehicle_id is not null)")+") "\
+          "and vehicle_check_id = #{self.vehicle_check.id} and vehicle_performed_checks.id != #{self.id} order by time desc limit 1")
     v.first unless v.nil?
   end
 
@@ -60,39 +64,59 @@ class VehiclePerformedCheck < ApplicationRecord
   end
 
   def create_notification(user)
-    client = get_client
-    workshop = get_client.execute("select id from officine where fornitore = 'PUNTO CHECK-UP'")
 
-    operator = get_client.execute("select id from manutentori where idautista = #{user.person.mssql_references.last.remote_object_id}")
+    unless self.performed == 0 or self.performed == 1
 
-    payload = Hash.new
+      
+      workshop = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from anagrafe where ragioneSociale = 'PUNTO CHECK-UP'")
 
-    payload['AnnoODL'] = "0"
-    payload['ProtocolloODL'] = "0"
-    payload['AnnoSGN'] = "0"
-    payload['ProtocolloSGN'] = "0"
-    payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d')
-    payload['CodiceManutentore'] = operator.first['id'].to_s unless operator.count == 0
-    payload['CodiceAutomezzo'] = self.vehicle.mssql_references.last.remote_object_id.to_s
-    payload['FlagSvolto'] = "false"
-    payload['FlagJSONType'] = "sgn"
+      opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+self.vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless self.vehicle.last_driver.nil?
 
-    request = HTTPI::Request.new
-    request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
-    request.body = payload.to_json
-    request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    res = JSON.parse(HTTPI.post(request))['ProtocolloSGN'].to_i
-    self.update(myofficina_reference: res)
+      driver = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from autisti where ragionesociale = '#{opcode}'")
+
+      payload = Hash.new
+
+      payload['AnnoODL'] = self.vehicle_check_session.created_at.strftime('%Y')
+      payload['ProtocolloODL'] = self.vehicle_check_session.myofficina_reference.to_s
+      payload['AnnoSGN'] = "0"
+      payload['ProtocolloSGN'] = "0"
+      payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d')
+      payload['DataInsert'] = Date.current.strftime('%Y-%m-%d')
+      payload['UserInsert'] = user.person.complete_name.upcase
+      payload['DataPost'] = Date.current.strftime('%Y-%m-%d')
+      payload['UserPost'] = 'PUNTO CHECKUP'
+      payload['DataUltimaManutenzione'] = "0000-00-00"
+      payload['DataUltimoControllo'] = "0000-00-00"
+      payload['CodiceOfficina'] = workshop.first['codice'].to_s
+      payload['CodiceAutista'] = driver if driver.count > 0
+      payload['CodiceAutomezzo'] = self.vehicle.mssql_references.last.remote_object_id.to_s
+      payload['CodiceTarga'] = self.vehicle.plate
+      payload['Chilometraggio'] = self.vehicle.mileage.to_s
+      payload['TipoDanno'] = '55'
+      payload['Descrizione'] = "prova -- Il controllo #{self.vehicle_check.label} non è stato passato. Risulta #{self.value} #{self.vehicle_check.measure_unit}, riferimento: #{self.last_valid_reading}."
+      payload['FlagRiparato'] = self.performed == 2 ? "true" : "false"
+      payload['FlagSvolto'] = self.performed == 2 ? "true" : "false"
+      payload['FlagJSONType'] = "sgn"
+
+      request = HTTPI::Request.new
+      request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
+      request.body = payload.to_json
+      request.headers['Content-Type'] = 'application/json; charset=utf-8'
+      res = JSON.parse(HTTPI.post(request).body)['ProtocolloSGN'].to_i
+
+      self.update(myofficina_reference: res)
+
+
+    end
 
   end
 
-  def get_client
+  def self.get_ms_client
     TinyTds::Client.new username: ENV['RAILS_MSSQL_USER'], password: ENV['RAILS_MSSQL_PASS'], host: ENV['RAILS_MSSQL_HOST'], port: ENV['RAILS_MSSQL_PORT'], database: ENV['RAILS_MSSQL_DB']
   end
 
-  # def self.get_client
-  #   Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB']
-  # end
-
+  def self.get_ew_client(db)
+    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db
+  end
 
 end

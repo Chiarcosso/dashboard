@@ -5,7 +5,7 @@
   -# %h3= 'Chiarcosso Dashboard'
   = navbar_collapse do
     = navbar_group class: 'foo', id: 'menu' do
-      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:personale) || current_user.has_role?('amministratore utenti') || current_user.has_role?(:lavaggio) || current_user.has_role?(:traffico))
+      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:personale) || current_user.has_role?('amministratore utenti') || current_user.has_role?('gestione tessere') || current_user.has_role?(:traffico))
         = navbar_dropdown "Personale" do
           -# = navbar_dropdown_header 'Personale'
           -# = navbar_dropdown_divider
@@ -13,7 +13,7 @@
             = navbar_item "Persone", people_path
           - if (current_user.has_role?('amministratore utenti') || current_user.has_role?(:admin))
             = navbar_item "Utenti", users_admin_path
-          - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin))
+          - if (current_user.has_role?('gestione tessere') || current_user.has_role?(:admin))
             = navbar_item "Badge lavaggio", codes_path
           - if (current_user.has_role?(:traffico) || current_user.has_role?(:admin))
             = navbar_item "Codici MDC", mdc_codes_path
@@ -38,11 +38,11 @@
             = navbar_item "Magazzino", storage_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
             -# = navbar_item "Gestione oli", oils_path
-      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?(:manutenzioni) || current_user.has_role?("amministratore manutenzioni"))
+      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?(:manutenzioni) || current_user.has_role?("amministratore manutenzioni") || current_user.has_role?('visione mezzi'))
         = navbar_dropdown "Manutenzioni" do
-          - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin)|| current_user.has_role?("amministratore manutenzioni") || current_user.has_role?("manutenzioni"))
-            = navbar_item "Lavaggio", carwash_path
-          - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin)|| current_user.has_role?("amministratore manutenzioni") || current_user.has_role?("manutenzioni"))
+          -# - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin)|| current_user.has_role?("amministratore manutenzioni") || current_user.has_role?("manutenzioni"))
+          -#   = navbar_item "Lavaggio", carwash_path
+          - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin)|| current_user.has_role?("amministratore manutenzioni") || current_user.has_role?("manutenzioni") || current_user.has_role?('visione mezzi'))
             = navbar_item "Mezzi", vehicles_path
           - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin)|| current_user.has_role?("amministratore manutenzioni"))
             = navbar_item "Modelli veicolo", vehicle_models_path

@@ -4,6 +4,7 @@
       - @checks.each do |k,v|
         -# %style
         -#   a:visited,a:link,a:hver,a:active{ color: black; font-style: normal; font-size: +2; }
+        - unperformed = v.reject{ |cc| cc.performed? }.size
         - if @tab.nil?
           - if v == @checks.values.first
             - active = 'active'
@@ -15,10 +16,10 @@
           - else
             - active = ''
         %li{ class: active}
-          =link_to k, '#tab-'+k.tr(' ','_'), data: { toggle: 'tab'}, class: 'no-loader'
+          =link_to "#{k}#{unperformed > 0 ? " (#{unperformed})" : ''}", '#tab-'+k.tr(' ','_'), data: { toggle: 'tab'}, class: 'no-loader'
 
     .col-sm-2
-      %b= "#{@check_session.id} - #{@check_session.destination_label} - Fatti #{@checks.map{ |k,c| c.select{ |cc| cc.performed? }.size}.inject(:+)}/#{@checks.map{ |k,c| c.size}.inject(:+)} "
+      %b= "#{@check_session.id} - Fatti #{@checks.map{ |k,c| c.select{ |cc| cc.performed? }.size}.inject(:+)}/#{@checks.map{ |k,c| c.size}.inject(:+)} #{@check_session.destination_label}"
     .col-sm-2
       =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(@check_session.vehicle.id), name: "infobox_vehicle_checks_#{@check_session.vehicle.id}" }
       =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@check_session.vehicle.id), name: "infobox_vehicle_#{@check_session.vehicle.id}" }

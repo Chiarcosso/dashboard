@@ -15,7 +15,7 @@
   -#       = p.text_field :name, placeholder: 'Nome', class: 'form-control'
   -#       = p.text_field :surname, placeholder: 'Cognome', class: 'form-control'
 
-  = f.select :person, options_from_collection_for_select(Person.order_alpha_surname, "id", "complete_name",:selected => @user.person.nil?? nil : @user.person.id), { include_blank: "- Selezionare persona -"}, {:class => 'form-control'}
+  = f.select :person, options_from_collection_for_select(Person.order_alpha_surname, "id", "list_name",:selected => @user.person.nil?? nil : @user.person.id), { include_blank: "- Selezionare persona -"}, {:class => 'form-control'}
   .form-group
     = f.label 'Nome utente'
     = f.text_field :username, :autofocus => true, class: 'form-control'

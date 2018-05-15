@@ -358,7 +358,28 @@ class Vehicle < ApplicationRecord
   end
 
   def last_washing
-    self.carwash_usages.sort_by { |cwu| cwu.starting_time }.reverse.first unless self.carwash_usages.empty?
+    cws = self.carwash_usages.reject{ |cw| cw.ending_time.nil? }
+    cws.sort_by { |cwu| cwu.ending_time }.reverse.first unless cws.empty?
+  end
+
+  def last_driver
+
+    msr = self.mssql_references
+    case msr.first.remote_object_table
+    when 'Veicoli' then
+      f = 'idtarga'
+    when 'Rimorchi1' then
+      f = 'idrimorchi'
+    end
+
+    where = msr.map{ |r| "#{f} = #{r.remote_object_id}" }.join(" or ")
+    query = "select top 1 IdAutista as id "\
+                "from giornale "\
+                "where #{where} and idAutista is not null order by data"
+    ref = MssqlReference::get_client.execute(query).first
+    
+    Person.find_by_reference(ref['id']) unless ref.nil?
+
   end
 
   def carwash_usages

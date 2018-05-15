@@ -66,6 +66,11 @@ class Person < ApplicationRecord
     Person.find(p) unless p.nil?
   end
 
+  def self.find_by_reference(id)
+    ms = MssqlReference.find_by(remote_object_id: id.to_i, remote_object_table: 'Autisti')
+    Person.find(ms.local_object_id) unless ms.nil?
+  end
+
   def complete_name
     self.name+' '+self.surname
   end
