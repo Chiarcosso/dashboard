@@ -67,7 +67,7 @@ class VehicleCheckSession < ApplicationRecord
 
     unless vehicle.last_driver.nil?
 
-      opcode = get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.person.mssql_references.last.remote_object_id.to_s).first['nominativo']
+      opcode = get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo']
 
     end
 
