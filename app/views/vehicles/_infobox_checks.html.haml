@@ -13,10 +13,12 @@
     -# - if vc.performed != 1
     -#   - all_ok = false
     .row.colored
-      .col-sm-6
+      .col-sm-5
         = vc.vehicle_check.label
       .col-sm-2
         = vc.user.person.complete_name unless vc.user.nil?
+      .col-sm-1
+        = vc.value
       .col-sm-2
         = VehiclePerformedCheck.fixvalues.key(vc.performed)
       .col-sm-2

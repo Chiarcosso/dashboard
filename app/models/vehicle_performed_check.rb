@@ -67,7 +67,7 @@ class VehiclePerformedCheck < ApplicationRecord
 
     unless self.performed == 0 or self.performed == 1
 
-      
+
       workshop = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from anagrafe where ragioneSociale = 'PUNTO CHECK-UP'")
 
       opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+self.vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless self.vehicle.last_driver.nil?
@@ -88,7 +88,7 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['DataUltimaManutenzione'] = "0000-00-00"
       payload['DataUltimoControllo'] = "0000-00-00"
       payload['CodiceOfficina'] = workshop.first['codice'].to_s
-      payload['CodiceAutista'] = driver if driver.count > 0
+      payload['CodiceAutista'] = driver.first['codice'] if driver.count > 0
       payload['CodiceAutomezzo'] = self.vehicle.mssql_references.last.remote_object_id.to_s
       payload['CodiceTarga'] = self.vehicle.plate
       payload['Chilometraggio'] = self.vehicle.mileage.to_s
