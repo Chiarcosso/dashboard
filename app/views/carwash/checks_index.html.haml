@@ -28,7 +28,7 @@
               .row.colored
                 .col-sm-1
                   - if current_user.has_role?('amministratore lavaggio') || current_user.has_role?(:admin)
-                    = button_to 'X', delete_check_session_path(cs.id), remote: true, 'data-confirm': "Eliminare la sessione nr. #{cs.id} e tutti i controlli relativi?"
+                    = button_to 'X', delete_check_session_path(cs.id), remote: true, 'data-confirm': "Eliminare la sessione nr. #{cs.myofficina_reference} e tutti i controlli relativi?"
                 .col-sm-1
                   %b= cs.myofficina_reference
                 .col-sm-1

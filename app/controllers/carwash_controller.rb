@@ -102,7 +102,7 @@ class CarwashController < ApplicationController
       @check_session = VehicleCheckSession.find(params.require(:id))
 
       if @check_session.myofficina_reference.nil?
-        
+
         odl = VehicleCheckSession.create_worksheet(current_user,@check_session.vehicle)
         @check_session.update(myofficina_reference: odl, worksheet: Worksheet.create(code: "EWC*#{odl}", vehicle: @check_session.vehicle, vehicle_type: @check_session.vehicle.class.to_s, opening_date: Date.current))
 
