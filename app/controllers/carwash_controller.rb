@@ -85,6 +85,7 @@ class CarwashController < ApplicationController
       @check_session = pc.vehicle_check_session
       @check_session.update(real_duration: params.require(:additional))
       @checks = @check_session.vehicle_ordered_performed_checks
+
       respond_to do |format|
         format.js { render :partial => 'carwash/checks_js' }
       end
@@ -112,6 +113,31 @@ class CarwashController < ApplicationController
       @check_session.update(finished: DateTime.now, real_duration: params.require(:time), log: @check_session.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
 
       @check_session.close_worksheet(current_user)
+
+      if @check_session.vehicle_performed_checks.not_ok.count > 0
+        begin
+          CarwashMailer.check_up(@check_session).deliver_now
+          puts
+          puts'Mail sent.'
+          puts
+        rescue EOFError,
+                IOError,
+                Errno::ECONNRESET,
+                Errno::ECONNABORTED,
+                Errno::EPIPE,
+                Errno::ETIMEDOUT,
+                Net::SMTPAuthenticationError,
+                Net::SMTPServerBusy,
+                Net::SMTPSyntaxError,
+                Net::SMTPUnknownError,
+                OpenSSL::SSL::SSLError => e
+          puts
+          puts 'An error occurred sending mail..'
+          puts  e.inspect
+          puts
+          self.reset_status
+        end
+      end
 
       respond_to do |format|
         # format.js { render :partial => 'carwash/checks_js' }

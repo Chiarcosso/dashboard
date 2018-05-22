@@ -6,30 +6,39 @@ class VehiclePerformedCheck < ApplicationRecord
   belongs_to :user
 
   scope :performed, -> { where('performed != 0')}
-  scope :not_ok, -> { where('performed != 0 and performed != 1 and performed != 2')}
+  scope :not_ok, -> { where('performed != 0 and performed != 1 and performed != 2 and performed != 3')}
   scope :not_performed, -> { where('performed = 0')}
   scope :ok, -> { where('performed = 1')}
   scope :fixed, -> { where('performed = 2')}
-  scope :unfixed, -> { where('performed = 3')}
-  scope :blocking, -> { where('performed = 4')}
-  scope :unappliable, -> { where('performed = 5')}
+  scope :unappliable, -> { where('performed = 3')}
+  scope :unfixed, -> { where('performed = 4')}
+  scope :blocking, -> { where('performed = 5')}
+
   # scope :last_checks, ->(vehicle) { joins(:vehicle_check_session).where('vehicle_check_sessions.vehicle_id = ?',vehicle.id).group(:vehicle_check_id).having('vehicle_performed_checks.time = max(vehicle_performed_checks.time)') }
 
-  enum fixvalues: ['Non eseguito','Ok','Aggiustato','Non ok','Non ok bloccante','Non applicabile']
+  enum fixvalues: ['Non eseguito','Ok','Aggiustato','Non applicabile','Non ok','Non ok bloccante']
 
   def last_reading
     v = VehiclePerformedCheck.find_by_sql("select * from vehicle_performed_checks "\
     "where vehicle_check_session_id in "\
       "(select id from vehicle_check_sessions "\
         "where "+(self.vehicle.class == Vehicle ? "(vehicle_id = #{self.vehicle_check_session.vehicle.id} and vehicle_id is not null)" : "(external_vehicle_id = #{self.vehicle_check_session.external_vehicle.id} and external_vehicle_id is not null)")+") "\
-          "and vehicle_check_id = #{self.vehicle_check.id} and vehicle_performed_checks.id != #{self.id} order by time desc limit 1")
+          "and vehicle_check_id = #{self.vehicle_check.id} and vehicle_performed_checks.id != #{self.id} "\
+          "order by time desc limit 1")
     v.first unless v.nil?
   end
 
   def last_valid_reading
-    unless self.last_reading.nil?
-      self.last_reading.performed == 1 ? self.last_reading : self.last_reading.last_valid_reading
-    end
+    # unless self.last_reading.nil?
+    #   self.last_reading.performed == 1 ? self.last_reading : self.last_reading.last_valid_reading
+    # end
+    v = VehiclePerformedCheck.find_by_sql("select * from vehicle_performed_checks "\
+    "where vehicle_check_session_id in "\
+      "(select id from vehicle_check_sessions "\
+        "where "+(self.vehicle.class == Vehicle ? "(vehicle_id = #{self.vehicle_check_session.vehicle.id} and vehicle_id is not null)" : "(external_vehicle_id = #{self.vehicle_check_session.external_vehicle.id} and external_vehicle_id is not null)")+") "\
+          "and vehicle_check_id = #{self.vehicle_check.id} and vehicle_performed_checks.id != #{self.id} and performed = 1 "\
+          "order by time desc limit 1")
+    v.first unless v.nil?
   end
 
   # def self.last_checks(vehicle)
@@ -63,6 +72,16 @@ class VehiclePerformedCheck < ApplicationRecord
     self.last_valid_reading.value unless self.last_valid_reading.nil?
   end
 
+  def message
+    measure_unit = self.vehicle_check.measure_unit
+    lvr = self.last_valid_reading
+    "prova -- #{self.vehicle_check.label} risulta non idoneo. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}."
+  end
+
+  def notify_to
+    self.vehicle_check.notify_to
+  end
+
   def create_notification(user)
 
     unless self.performed == 0 or self.performed == 1
@@ -93,7 +112,7 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['CodiceTarga'] = self.vehicle.plate
       payload['Chilometraggio'] = self.vehicle.mileage.to_s
       payload['TipoDanno'] = '55'
-      payload['Descrizione'] = "prova -- Il controllo #{self.vehicle_check.label} non è stato passato. Risulta #{self.value} #{self.vehicle_check.measure_unit}, riferimento: #{self.last_valid_reading}."
+      payload['Descrizione'] = self.message
       payload['FlagRiparato'] = self.performed == 2 ? "true" : "false"
       payload['FlagSvolto'] = self.performed == 2 ? "true" : "false"
       payload['FlagJSONType'] = "sgn"
@@ -102,9 +121,14 @@ class VehiclePerformedCheck < ApplicationRecord
       request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
       request.body = payload.to_json
       request.headers['Content-Type'] = 'application/json; charset=utf-8'
-      res = JSON.parse(HTTPI.post(request).body)['ProtocolloSGN'].to_i
+      special_logger.info(request)
 
-      self.update(myofficina_reference: res)
+      res = HTTPI.post(request)
+
+
+      special_logger.info(res)
+      self.update(myofficina_reference: JSON.parse(res.body)['ProtocolloSGN'].to_i)
+
 
 
     end
@@ -119,4 +143,9 @@ class VehiclePerformedCheck < ApplicationRecord
     Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db
   end
 
+  private
+
+  def special_logger
+    @@ew_logger ||= Logger.new("#{Rails.root}/log/eurowin_ws.log")
+  end
 end

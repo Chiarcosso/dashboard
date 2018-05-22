@@ -11,7 +11,7 @@
           - else
             - active = ''
         - else
-          - if @tab == k
+          - if @tab == 'tab-'+k.tr(' ','_')
             - active = 'active'
           - else
             - active = ''
@@ -36,11 +36,23 @@
   .row
     .tab-content
       - @checks.each do |k,v|
-        - if v == @checks.values.first
-          - active = ' active'
+        - if @tab.nil?
+          - if v == @checks.values.first
+            - active = 'active'
+          - else
+            - active = ''
         - else
-          - active = ''
-        %div{style: 'height:85%', id: 'tab-'+k.tr(' ','_'), class: 'tab-pane'+active}
+          - if @tab == 'tab-'+k.tr(' ','_')
+            - active = 'active'
+          - else
+            - active = ''
+
+        -#
+        -# - if v == @checks.values.first
+        -#   - active = ' active'
+        -# - else
+        -#   - active = ''
+        %div{style: 'height:85%', id: 'tab-'+k.tr(' ','_'), class: 'tab-pane '+active}
           .scrollable-panel#scroll-element{style: 'height: 98%'}
             = render partial: 'carwash/check_view', locals: {list: v}
 

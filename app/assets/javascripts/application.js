@@ -346,7 +346,7 @@ function complete_ajax_update_change_func() {
 function ajax_update_change_func() {
   "use strict";
   var target = $(this).data('target');
-  var data = {value: $(this).val(), field: $(this).attr('name'), additional: $(this).data('additional')};
+  var data = {value: $(this).val(), field: $(this).attr('name'), additional: $(this).data('additional'), tab: $(this).data('tab')};
   scroll_element = $(this).parents('.scrollable-panel').first();
   line = $(scroll_element).scrollTop();
   $.ajax({
