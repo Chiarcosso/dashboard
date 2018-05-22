@@ -9,6 +9,6 @@
 .scrollable-panel{style: 'height: 20em; width: 100%;'}
   - @vehicle.worksheets.order(opening_date: :desc).each do |ws|
     .floating-block
-      = button_to ws.code[/EWC\*(\d*)/,1], worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+      = button_to ws.code[/EWC\*(\d*)/,1]+"\n"+ws.opening_date.strftime('%d/%m/%Y'), worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
 .close
   Chiudi
