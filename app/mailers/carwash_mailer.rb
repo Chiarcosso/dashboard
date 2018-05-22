@@ -12,7 +12,7 @@ class CarwashMailer < ApplicationMailer
     "#{vehicle.plate} - #{vehicle.model.complete_name}\n\n"
 
     message += vpcs.map{ |vpc| vpc.message }.join("\n")
-    vpcs.each { |vc| notify_to << vc.notify_to.split(";")}
+    vpcs.each { |vc| notify_to << vc.notify_to.to_s.split(";")}
     notify_to = notify_to.flatten.uniq.join("\;")
     mail(body: message, subject: 'Controlli punto check-up', to: notify_to)
   #   HumanResourcesMailer::ADDRESS_LIST.each do |address|
