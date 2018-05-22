@@ -2,7 +2,7 @@
 %h3="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
 %b= "#{@vehicle.vehicle_type.name}, #{@vehicle.vehicle_typology.name}"
 %br
-%b="Ultimo lavaggio: #{@vehicle.last_washing.ending_time.nil?? 'Mai' : @vehicle.last_washing.ending_time.strftime('%d/%m/%Y %H:%M:%S')}"
+%b="Ultimo lavaggio: #{(@vehicle.last_washing.nil? or @vehicle.last_washing.ending_time.nil?)? 'Mai' : @vehicle.last_washing.ending_time.strftime('%d/%m/%Y %H:%M:%S')}"
 %br
 %b="Schede officina: "
 %br
