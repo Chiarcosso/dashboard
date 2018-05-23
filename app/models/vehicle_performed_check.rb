@@ -6,7 +6,7 @@ class VehiclePerformedCheck < ApplicationRecord
   belongs_to :user
 
   scope :performed, -> { where('performed != 0')}
-  scope :not_ok, -> { where('performed != 0 and performed != 1 and performed != 2 and performed != 3')}
+  scope :not_ok, -> { where('performed = 4 or performed = 5')}
   scope :not_performed, -> { where('performed = 0')}
   scope :ok, -> { where('performed = 1')}
   scope :fixed, -> { where('performed = 2')}
@@ -79,7 +79,7 @@ class VehiclePerformedCheck < ApplicationRecord
   def message
     measure_unit = self.vehicle_check.measure_unit
     lvr = self.last_valid_reading
-    "prova -- #{self.vehicle_check.label} risulta non idoneo. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}."
+    "#{self.blocking?? 'BLOCCANTE' : '          '} -- #{self.vehicle_check.label} risulta non idoneo. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}."
   end
 
   def notify_to
@@ -88,7 +88,7 @@ class VehiclePerformedCheck < ApplicationRecord
 
   def create_notification(user)
 
-    unless self.performed == 0 or self.performed == 1
+    unless self.performed == 0 or self.performed == 1 or self.performed == 3
       vcs = self.vehicle_check_session
       vehicle = self.vehicle
       mssql = vehicle.mssql_references.first
@@ -112,9 +112,9 @@ class VehiclePerformedCheck < ApplicationRecord
       if self.blocking?
         query = "select Protocollo from autoodl "\
                   "where DataEntrataVeicolo <= '#{vcs.created_at.strftime('%Y-%m-%d')}' "\
-                  "and CodiceTipoDanno != 15 and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
+                  "and CodiceTipoDanno != 15 and CodiceTipoDanno != 55 "\
+                  "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
                   "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
-                  "and Protocollo != #{vcs.myofficina_reference} "\
                   "and Targa = '#{plate}' and CodiceAnagrafico = 'OFF00001' "\
                   "order by DataEntrataVeicolo desc limit 1"
         odlr = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query(query)
