@@ -79,7 +79,7 @@ class VehiclePerformedCheck < ApplicationRecord
   def message
     measure_unit = self.vehicle_check.measure_unit
     lvr = self.last_valid_reading
-    "#{self.blocking?? 'BLOCCANTE' : '          '} -- #{self.vehicle_check.label} risulta non idoneo. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}."
+    "#{self.blocking?? 'BLOCCANTE' : ''} -- #{self.vehicle_check.label} risulta non idoneo. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}."
   end
 
   def notify_to
@@ -162,7 +162,7 @@ class VehiclePerformedCheck < ApplicationRecord
 
 
       VehiclePerformedCheck.special_logger.info(res)
-      self.update(myofficina_reference: JSON.parse(res.body)['ProtocolloSGN'].to_i)
+      self.update(myofficina_reference: JSON.parse(res.body)['ProtocolloSGN'].to_i,myofficina_odl_reference: JSON.parse(res.body)['ProtocolloODL'].to_i)
 
 
     end

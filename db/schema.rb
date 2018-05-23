@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180510094257) do
+ActiveRecord::Schema.define(version: 20180523150501) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -687,6 +687,7 @@ ActiveRecord::Schema.define(version: 20180510094257) do
     t.boolean  "mandatory",                          default: false, null: false
     t.integer  "user_id"
     t.integer  "myofficina_reference"
+    t.integer  "myofficina_odl_reference"
     t.index ["external_vehicle_id"], name: "index_vehicle_performed_checks_on_external_vehicle_id", using: :btree
     t.index ["is_last", "external_vehicle_id", "vehicle_check_id"], name: "vpf_external_vehicle_last_check", using: :btree
     t.index ["is_last", "vehicle_id", "vehicle_check_id"], name: "vpf_vehicle_last_check", using: :btree

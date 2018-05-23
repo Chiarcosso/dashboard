@@ -12,7 +12,7 @@ class CarwashMailer < ApplicationMailer
     message = "Sessione controlli nr. #{vcs.id} (ODL: #{vcs.myofficina_reference})\n\n"\
     "#{vehicle.plate} - #{vehicle.model.complete_name}\n\n"
 
-    message += vpcs.sort_by{ |vc| -vc.performed }.map{ |vpc| vpc.message }.join("\n")
+    message += vpcs.sort_by{ |vc| -vc.performed }.map{ |vpc| vpc.blocking?? vpc.message : '          '+" - ODL #{vpc.myofficina_odl_reference}"+vpc.message }.join("\n")
     vpcs.each { |vc| notify_to << vc.notify_to.to_s.split(";")}
     notify_to = notify_to.flatten.uniq.join("\;")
     mail(body: message, subject: 'Controlli punto check-up', to: notify_to)
