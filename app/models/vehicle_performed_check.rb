@@ -18,6 +18,10 @@ class VehiclePerformedCheck < ApplicationRecord
 
   enum fixvalues: ['Non eseguito','Ok','Aggiustato','Non applicabile','Non ok','Non ok bloccante']
 
+  def blocking?
+    self.performed == VehiclePerformedCheck.fixvalues['Non ok bloccante'].to_i
+  end
+
   def last_reading
     v = VehiclePerformedCheck.find_by_sql("select * from vehicle_performed_checks "\
     "where vehicle_check_session_id in "\
@@ -85,18 +89,44 @@ class VehiclePerformedCheck < ApplicationRecord
   def create_notification(user)
 
     unless self.performed == 0 or self.performed == 1
-
+      vcs = self.vehicle_check_session
+      vehicle = self.vehicle
+      mssql = vehicle.mssql_references.first
+      case mssql.remote_object_table
+      when 'Veicoli' then
+        field = 'idveicolo'
+      when 'Rimorchi1' then
+        field = 'idrimorchio'
+      when 'Altri Mezzi' then
+        field = 'COD'
+      end
 
       workshop = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from anagrafe where ragioneSociale = 'PUNTO CHECK-UP'")
 
-      opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+self.vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless self.vehicle.last_driver.nil?
+      opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
+
+      plate = VehiclePerformedCheck.get_ms_client.execute("select targa from #{mssql.remote_object_table} where #{field} = #{mssql.remote_object_id}").first['targa'] unless vehicle.last_driver.nil?
 
       driver = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from autisti where ragionesociale = '#{opcode}'")
+      query = "select Protocollo from autoodl "\
+                "where DataEntrataVeicolo <= '#{vcs.created_at.strftime('%Y-%m-%d')}' "\
+                "and CodiceTipoDanno != 15 and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
+                "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
+                "and Protocollo != #{vcs.myofficina_reference} "\
+                "and Targa = '#{plate}' and CodiceAnagrafico = 'OFF00001' "\
+                "order by DataEntrataVeicolo desc limit 1"
+      odlr = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query(query)
 
+      if odlr.count > 0
+        odl = odlr.first['Protocollo'].to_s
+      else
+        odl =  self.vehicle_check_session.myofficina_reference.to_i.to_s
+      end
+      
       payload = Hash.new
 
-      payload['AnnoODL'] = self.vehicle_check_session.created_at.strftime('%Y')
-      payload['ProtocolloODL'] = self.vehicle_check_session.myofficina_reference.to_s
+      payload['AnnoODL'] = vcs.created_at.strftime('%Y')
+      payload['ProtocolloODL'] = odl
       payload['AnnoSGN'] = "0"
       payload['ProtocolloSGN'] = "0"
       payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d')
@@ -108,9 +138,9 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['DataUltimoControllo'] = "0000-00-00"
       payload['CodiceOfficina'] = workshop.first['codice'].to_s
       payload['CodiceAutista'] = driver.first['codice'] if driver.count > 0
-      payload['CodiceAutomezzo'] = self.vehicle.mssql_references.last.remote_object_id.to_s
-      payload['CodiceTarga'] = self.vehicle.plate
-      payload['Chilometraggio'] = self.vehicle.mileage.to_s
+      payload['CodiceAutomezzo'] = vehicle.mssql_references.last.remote_object_id.to_s
+      payload['CodiceTarga'] = vehicle.plate
+      payload['Chilometraggio'] = vehicle.mileage.to_s
       payload['TipoDanno'] = '55'
       payload['Descrizione'] = self.message
       payload['FlagRiparato'] = self.performed == 2 ? "true" : "false"
@@ -121,14 +151,13 @@ class VehiclePerformedCheck < ApplicationRecord
       request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
       request.body = payload.to_json
       request.headers['Content-Type'] = 'application/json; charset=utf-8'
-      special_logger.info(request)
+      VehiclePerformedCheck.special_logger.info(request)
 
       res = HTTPI.post(request)
 
 
-      special_logger.info(res)
+      VehiclePerformedCheck.special_logger.info(res)
       self.update(myofficina_reference: JSON.parse(res.body)['ProtocolloSGN'].to_i)
-
 
 
     end

@@ -141,7 +141,12 @@ class VehicleCheckSession < ApplicationRecord
     self.vehicle_performed_checks.each do |vpc|
       vpc.create_notification(user)
     end
+    self.print_pdf
 
+  end
+
+  def print_pdf
+    
   end
 
   def self.get_ms_client

@@ -7,6 +7,7 @@ class CarwashMailer < ApplicationMailer
 
     vehicle = vcs.vehicle
     notify_to = ['officina@chiarcosso.it','ufficioit@chiarcosso.com']
+    vpcs.each { |vc| notify_to << ['traffico@chiarcosso.it','manutenzioni@chiarcosso.it'] if vc.blocking? }
 
     message = "Sessione controlli nr. #{vcs.id} (ODL: #{vcs.myofficina_reference})\n\n"\
     "#{vehicle.plate} - #{vehicle.model.complete_name}\n\n"
