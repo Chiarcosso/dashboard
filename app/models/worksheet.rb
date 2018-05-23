@@ -164,8 +164,18 @@ class Worksheet < ApplicationRecord
     path = nil
     list = `find #{ENV['RAILS_WS_PATH']}`
     # list.scan(/.*\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')} - .*\/.*-#{self.number}.*\.pdf/) do |line|
-    list.scan(/.*-#{self.number}-.*\.pdf/) do |line|
+    list.scan(/.*-#{self.number}-.*\.pdf/i) do |line|
       path = line
+    end
+    if path.nil?
+      list.scan(/.*-#{self.number}-.*\.lnk/i) do |line|
+        path = line
+      end
+      if path.nil?
+        raise "File non trovato."
+      else
+        raise "Il file è un collegamento."
+      end
     end
     File.open(path,'r')
   end

@@ -22,6 +22,19 @@
             = submit_tag 'Inizia controlli', class: 'form-control'
           -# = render partial: 'carwash/checks'
       .row
+        .col-sm-1
+        .col-sm-1
+          ODL
+        .col-sm-1
+        .col-sm-1
+          Targa
+        .col-sm-2
+          Controlli
+        .col-sm-2
+          Inizio
+        .col-sm-2
+          Fine
+      .row
         .col-sm-12
           .scrollable-panel
             - @check_sessions.each do |cs|
