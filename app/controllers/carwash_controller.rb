@@ -28,7 +28,7 @@ class CarwashController < ApplicationController
         if vec.size < 1
           raise "Non ci sono controlli da fare per questo mezzo (targa: #{v.plate})."
         end
-        odl = VehicleCheckSession.create_worksheet(current_user,v)
+        odl = VehicleCheckSession.create_worksheet(current_user,v,'PUNTO CHECK-UP','55','Controlli')
 
         @check_session = VehicleCheckSession.create(date: Date.today,vehicle: v, operator: current_user, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: odl, worksheet: Worksheet.create(code: "EWC*#{odl}", vehicle: v, vehicle_type: v.class.to_s, opening_date: Date.current))
       else

@@ -122,7 +122,7 @@ class VehiclePerformedCheck < ApplicationRecord
         if odlr.count > 0
           odl = odlr.first['Protocollo'].to_s
         else
-          odl =  self.vehicle_check_session.myofficina_reference.to_i.to_s
+          odl = VehicleCheckSession.create_worksheet(user,vehicle,'OFFICINA INTERNA','55',"Bloccante: #{self.vehicle_check.label}"[0..99])
         end
       else
         odl =  self.vehicle_check_session.myofficina_reference.to_i.to_s
@@ -131,7 +131,7 @@ class VehiclePerformedCheck < ApplicationRecord
       payload = Hash.new
 
       payload['AnnoODL'] = vcs.created_at.strftime('%Y')
-      payload['ProtocolloODL'] = odl
+      payload['ProtocolloODL'] = odl.to_s
       payload['AnnoSGN'] = self.myofficina_reference.nil?? "0" : vcs.created_at.strftime('%Y')
       payload['ProtocolloSGN'] = self.myofficina_reference.nil?? "0" : self.myofficina_reference.to_s
       payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d')
@@ -147,7 +147,7 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['CodiceTarga'] = vehicle.plate
       payload['Chilometraggio'] = vehicle.mileage.to_s
       payload['TipoDanno'] = '55'
-      payload['Descrizione'] = self.message
+      payload['Descrizione'] = self.message[0..199]
       payload['FlagRiparato'] = self.performed == 2 ? "true" : "false"
       payload['FlagSvolto'] = self.performed == 2 ? "true" : "false"
       payload['FlagJSONType'] = "sgn"
