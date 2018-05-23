@@ -143,9 +143,8 @@ class VehiclePerformedCheck < ApplicationRecord
     Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db
   end
 
-  private
 
-  def special_logger
+  def self.special_logger
     @@ew_logger ||= Logger.new("#{Rails.root}/log/eurowin_ws.log")
   end
 end

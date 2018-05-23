@@ -126,11 +126,11 @@ class VehicleCheckSession < ApplicationRecord
     request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
     request.body = payload.to_json
     request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    special_logger.info(request)
+    VehicleCheckSession.special_logger.info(request)
 
     res = HTTPI.post(request)
 
-    special_logger.info(res)
+    VehicleCheckSession.special_logger.info(res)
 
     odl = JSON.parse(res.body)['ProtocolloODL'].to_i
     # self.update(myofficina_reference: res, worksheet: Worksheet.create(code: "EWC*#{res}", vehicle: self.vehicle, vehicle_type: self.vehicle.class.to_s, opening_date: Date.current))
@@ -152,9 +152,7 @@ class VehicleCheckSession < ApplicationRecord
     Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db
   end
 
-  private
-
-  def special_logger
+  def self.special_logger
     @@ew_logger ||= Logger.new("#{Rails.root}/log/eurowin_ws.log")
   end
 end
