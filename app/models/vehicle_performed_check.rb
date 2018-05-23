@@ -108,27 +108,32 @@ class VehiclePerformedCheck < ApplicationRecord
       plate = VehiclePerformedCheck.get_ms_client.execute("select targa from #{mssql.remote_object_table} where #{field} = #{mssql.remote_object_id}").first['targa'] unless vehicle.last_driver.nil?
 
       driver = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from autisti where ragionesociale = '#{opcode}'")
-      query = "select Protocollo from autoodl "\
-                "where DataEntrataVeicolo <= '#{vcs.created_at.strftime('%Y-%m-%d')}' "\
-                "and CodiceTipoDanno != 15 and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
-                "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
-                "and Protocollo != #{vcs.myofficina_reference} "\
-                "and Targa = '#{plate}' and CodiceAnagrafico = 'OFF00001' "\
-                "order by DataEntrataVeicolo desc limit 1"
-      odlr = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query(query)
 
-      if odlr.count > 0
-        odl = odlr.first['Protocollo'].to_s
+      if self.blocking?
+        query = "select Protocollo from autoodl "\
+                  "where DataEntrataVeicolo <= '#{vcs.created_at.strftime('%Y-%m-%d')}' "\
+                  "and CodiceTipoDanno != 15 and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
+                  "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
+                  "and Protocollo != #{vcs.myofficina_reference} "\
+                  "and Targa = '#{plate}' and CodiceAnagrafico = 'OFF00001' "\
+                  "order by DataEntrataVeicolo desc limit 1"
+        odlr = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query(query)
+
+        if odlr.count > 0
+          odl = odlr.first['Protocollo'].to_s
+        else
+          odl =  self.vehicle_check_session.myofficina_reference.to_i.to_s
+        end
       else
         odl =  self.vehicle_check_session.myofficina_reference.to_i.to_s
       end
-      
+
       payload = Hash.new
 
       payload['AnnoODL'] = vcs.created_at.strftime('%Y')
       payload['ProtocolloODL'] = odl
-      payload['AnnoSGN'] = "0"
-      payload['ProtocolloSGN'] = "0"
+      payload['AnnoSGN'] = self.myofficina_reference.nil?? "0" : vcs.created_at.strftime('%Y')
+      payload['ProtocolloSGN'] = self.myofficina_reference.nil?? "0" : self.myofficina_reference.to_s
       payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d')
       payload['DataInsert'] = Date.current.strftime('%Y-%m-%d')
       payload['UserInsert'] = user.person.complete_name.upcase

@@ -13,7 +13,9 @@
     -# - if vc.performed != 1
     -#   - all_ok = false
     .row.colored
-      .col-sm-5
+      .col-sm-1
+        = vc.myofficina_reference
+      .col-sm-4
         = vc.vehicle_check.label
       .col-sm-2
         = vc.user.person.complete_name unless vc.user.nil?
