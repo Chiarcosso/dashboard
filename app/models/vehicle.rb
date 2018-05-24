@@ -375,9 +375,9 @@ class Vehicle < ApplicationRecord
     where = msr.map{ |r| "#{f} = #{r.remote_object_id}" }.join(" or ")
     query = "select top 1 IdAutista as id "\
                 "from giornale "\
-                "where #{where} and idAutista is not null order by data"
+                "where #{where} and idAutista is not null "\
+                "and data <= '#{Date.today.strftime('%Y-%m-%d')}' order by data desc;"
     ref = MssqlReference::get_client.execute(query).first
-    
     Person.find_by_reference(ref['id']) unless ref.nil?
 
   end

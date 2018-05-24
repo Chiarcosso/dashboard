@@ -68,8 +68,9 @@ class VehiclePerformedCheck < ApplicationRecord
   end
 
   def status_style
-    'background: #f99' if self.mandatory
-    'background: #9f9' if self.performed?
+    return 'background: #f99' if self.mandatory or self.blocking?
+    return 'background: #ff9' if self.performed == 4
+    return 'background: #9f9' if self.performed?
   end
 
   def comparation_value
@@ -112,7 +113,7 @@ class VehiclePerformedCheck < ApplicationRecord
       if self.blocking?
         query = "select Protocollo from autoodl "\
                   "where DataEntrataVeicolo <= '#{vcs.created_at.strftime('%Y-%m-%d')}' "\
-                  "and CodiceTipoDanno != 15 and CodiceTipoDanno != 55 "\
+                  "and CodiceTipoDanno != 15 "\
                   "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
                   "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
                   "and Targa = '#{plate}' and CodiceAnagrafico = 'OFF00001' "\
@@ -141,13 +142,14 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['UserPost'] = 'PUNTO CHECKUP'
       payload['DataUltimaManutenzione'] = "0000-00-00"
       payload['DataUltimoControllo'] = "0000-00-00"
+      payload['FlagStampato'] = 'False'
       payload['CodiceOfficina'] = workshop.first['codice'].to_s
       payload['CodiceAutista'] = driver.first['codice'] if driver.count > 0
       payload['CodiceAutomezzo'] = vehicle.mssql_references.last.remote_object_id.to_s
       payload['CodiceTarga'] = vehicle.plate
       payload['Chilometraggio'] = vehicle.mileage.to_s
       payload['TipoDanno'] = '55'
-      payload['Descrizione'] = self.message[0..199]
+      payload['Descrizione'] = self.message
       payload['FlagRiparato'] = self.performed == 2 ? "true" : "false"
       payload['FlagSvolto'] = self.performed == 2 ? "true" : "false"
       payload['FlagJSONType'] = "sgn"

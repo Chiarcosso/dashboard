@@ -24,7 +24,7 @@
       .col-sm-2
         = VehiclePerformedCheck.fixvalues.key(vc.performed)
       .col-sm-2
-        = vc.time.strftime('%d/%m/%Y') unless vc.time.nil?
+        = vc.time.strftime('%d/%m/%Y %H:%M:%S') unless vc.time.nil?
   -#   - else
   -#     - oks += 1
   -# %br
