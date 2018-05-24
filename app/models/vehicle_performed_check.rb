@@ -68,7 +68,8 @@ class VehiclePerformedCheck < ApplicationRecord
   end
 
   def status_style
-    return 'background: #f99' if self.mandatory or self.blocking?
+    # return 'background: #f99' if (self.mandatory and !self.performed?) or self.blocking?
+    return 'background: #f99' if self.blocking?
     return 'background: #ff9' if self.performed == 4
     return 'background: #9f9' if self.performed?
   end
