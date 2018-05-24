@@ -7,7 +7,7 @@ class CarwashMailer < ApplicationMailer
 
     vehicle = vcs.vehicle
     notify_to = ['officina@chiarcosso.it','ufficioit@chiarcosso.com']
-    vpcs.each { |vc| notify_to << 'traffico@chiarcosso.it' if vc.blocking? }
+    # vpcs.each { |vc| notify_to << 'traffico@chiarcosso.it' if vc.blocking? }
 
     message = "Sessione controlli nr. #{vcs.id} (ODL: #{vcs.myofficina_reference})\n\n"\
     "#{vehicle.plate} - #{vehicle.model.complete_name}\n\n"
@@ -15,7 +15,7 @@ class CarwashMailer < ApplicationMailer
     message += vpcs.sort_by{ |vc| -vc.performed }.map{ |vpc| vpc.blocking?? vpc.message : '          '+" - ODL #{vpc.myofficina_odl_reference}"+vpc.message }.join("\n")
     vpcs.each { |vc| notify_to << vc.notify_to.to_s.split(";")}
     notify_to = notify_to.flatten.uniq.join("\;")
-    mail(body: message, subject: 'Controlli punto check-up', to: notify_to)
+    mail(body: message, subject: "Controlli punto check-up - #{vcs.vehicle.plate}", to: notify_to)
   #   HumanResourcesMailer::ADDRESS_LIST.each do |address|
   #     m.to = address
   #     begin
