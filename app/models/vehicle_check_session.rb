@@ -58,7 +58,7 @@ class VehicleCheckSession < ApplicationRecord
     opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
 
     driver = get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from autisti where ragionesociale = '#{opcode}'")
-    
+
     o = get_ms_client.execute("select id from manutentori where idautista = "+user.person.mssql_references.last.remote_object_id.to_s)
 
     if o.count > 0
@@ -91,7 +91,7 @@ class VehicleCheckSession < ApplicationRecord
     payload['Chilometraggio'] = vehicle.mileage.to_s
     payload['DataLavaggio'] = vehicle.last_washing.ending_time.strftime('%Y-%m-%d') unless vehicle.last_washing.nil?
     payload['TipoDanno'] = damage_type.to_s
-    payload['Descrizione'] = description
+    payload['Descrizione'] = description[0..79]
     payload['FlagSvolto'] = "false"
     payload['FlagJSONType'] = "odl"
 

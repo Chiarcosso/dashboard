@@ -81,7 +81,20 @@ class VehiclePerformedCheck < ApplicationRecord
   def message
     measure_unit = self.vehicle_check.measure_unit
     lvr = self.last_valid_reading
-    "#{self.blocking?? 'BLOCCANTE' : ''} -- #{self.vehicle_check.label} risulta non idoneo. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}."
+    case self.performed
+    when 0 then
+      "#{self.vehicle_check.label} non è stato eseguito."
+    when 1 then
+      "#{self.vehicle_check.label} a posto. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}."
+    when 2 then
+      "#{self.vehicle_check.label} aggiustato.#{self.notes.nil?? '' : ' '+self.notes+'.'}"
+    when 3 then
+      "#{self.vehicle_check.label} non applicabile.#{self.notes.nil?? '' : ' '+self.notes+'.'}"
+    when 4 then
+      "#{self.vehicle_check.label} non a posto. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}..#{self.notes.nil?? '' : ' '+self.notes+'.'}"
+    when 5 then
+      "BLOCCANTE -- #{self.vehicle_check.label}: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}..#{self.notes.nil?? '' : ' '+self.notes+'.'}"
+    end
   end
 
   def notify_to
@@ -111,8 +124,9 @@ class VehiclePerformedCheck < ApplicationRecord
 
       driver = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query("select codice from autisti where ragionesociale = '#{opcode}'")
 
-      if self.blocking?
-        query = "select Protocollo from autoodl "\
+      case self.performed
+      when 5 then
+        query = "select Anno, Protocollo from autoodl "\
                   "where DataEntrataVeicolo <= '#{vcs.created_at.strftime('%Y-%m-%d')}' "\
                   "and CodiceTipoDanno != 15 "\
                   "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
@@ -123,16 +137,24 @@ class VehiclePerformedCheck < ApplicationRecord
 
         if odlr.count > 0
           odl = odlr.first['Protocollo'].to_s
+          odl_year = odlr.first['Anno'].to_s
         else
           odl = VehicleCheckSession.create_worksheet(user,vehicle,'OFFICINA INTERNA','55',"Bloccante: #{self.vehicle_check.label}"[0..99])
+          odl_year = Date.today.strftime('%Y')
         end
+      when 4 then
+        odl = "0"
+        odl_year = "0"
+      when 2 then
+        odl =  vcs.myofficina_reference.to_i.to_s
+        odl_year = vcs.created_at.strftime('%Y')
       else
-        odl =  self.vehicle_check_session.myofficina_reference.to_i.to_s
+        raise 'Questo controllo non necessita segnalazione.'
       end
 
       payload = Hash.new
 
-      payload['AnnoODL'] = vcs.created_at.strftime('%Y')
+      payload['AnnoODL'] = odl_year.to_s
       payload['ProtocolloODL'] = odl.to_s
       payload['AnnoSGN'] = self.myofficina_reference.nil?? "0" : vcs.created_at.strftime('%Y')
       payload['ProtocolloSGN'] = self.myofficina_reference.nil?? "0" : self.myofficina_reference.to_s
@@ -150,7 +172,7 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['CodiceTarga'] = vehicle.plate
       payload['Chilometraggio'] = vehicle.mileage.to_s
       payload['TipoDanno'] = '55'
-      payload['Descrizione'] = self.message
+      payload['Descrizione'] = (self.notes.nil?? self.message : self.notes)[0..79]
       payload['FlagRiparato'] = self.performed == 2 ? "true" : "false"
       payload['FlagSvolto'] = self.performed == 2 ? "true" : "false"
       payload['FlagJSONType'] = "sgn"
