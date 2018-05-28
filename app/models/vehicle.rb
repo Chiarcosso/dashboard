@@ -140,6 +140,30 @@ class Vehicle < ApplicationRecord
     VehicleCheck.where("((vehicle_type_id = #{self.vehicle_type_id} and vehicle_typology_id = #{self.vehicle_typology_id}) or (vehicle_type_id = #{self.vehicle_type_id} and vehicle_typology_id is null) or (vehicle_type_id is null and vehicle_typology_id = #{self.vehicle_typology_id}) or (vehicle_type_id is null and vehicle_typology_id is null)) #{station_check}").order({importance: :desc, label: :asc})
   end
 
+  def get_complete_open_eurowin
+    eurowin_worksheets = Array.new
+    wvehicles = Array.new
+    self.mssql_references.each do |msr|
+      wvehicles << "CodiceAutomezzo = #{msr.remote_object_id}"
+    end
+    query = "select * from autoodl where (#{wvehicles.join(' or ')}) "\
+              "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'true' "\
+              "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
+              "and DataEntrataVeicolo is not null and DataUscitaVeicolo is null "\
+              "order by DataEntrataVeicolo"
+    # byebug
+    odl = Worksheet.get_client.query(query)
+    odl.each do |o|
+      current_odl = {protocol: o['Protocollo'], description: o['Note'], date: o['DataIntervento'], plate: o['Targa'], entering_date: o['DataEntrataVeicolo'], exit_date: o['DataUscitaVeicolo'], notifications: Array.new}
+      sgn = Worksheet.get_client.query("select * from autosegnalazioni where SerialODL = #{o['Serial']}" )
+      sgn.each do |s|
+        current_odl[:notifications] << {protocol: s['Protocollo'], description: s['DescrizioneSegnalazione'], operator: "#{s['UserInsert']} (#{s['UserPost']})", date: s['DataInsert']}
+      end
+      eurowin_worksheets << current_odl
+    end
+    return eurowin_worksheets
+  end
+
   def self.get_or_create_by_reference(table, id)
     begin
       mr = MssqlReference.find_by(remote_object_table: table, remote_object_id: id.to_i)

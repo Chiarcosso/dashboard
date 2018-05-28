@@ -12,6 +12,7 @@ class MssqlReference < ApplicationRecord
     upsync_vehicles
     upsync_trailers
     upsync_other_vehicles
+    upsync_external_vehicles
     upsync_employees
     # update_employees
     # update_companies

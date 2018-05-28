@@ -1,4 +1,5 @@
 class VehiclesController < ApplicationController
+  skip_before_action :authenticate_user!, :only => :get_eurowin_worksheets
   include AdminHelper
   before_action :set_vehicle#, only: [:show, :edit, :update, :destroy, :vehicle_information_type_autocomplete, :get_info, :get_workshop_info, :new_information, :create_information]
   before_action :set_vehicle_information, only: [:delete_information]
@@ -23,6 +24,12 @@ class VehiclesController < ApplicationController
       array = @vehicle.possible_information_types.map { |it| {field: 'vehicle_information_type', model: 'Vehicle', vehicle_information_type_id: it.id, label: it.name}}
       render :json => array
     end
+  end
+
+  def get_eurowin_worksheets
+    vehicle = MssqlReference.find_by(remote_object_id: params.require(:vehicle).to_i, remote_object_table: params.require(:table).capitalize).local_object
+    @eurowin_worksheets = vehicle.get_complete_open_eurowin unless vehicle.nil?
+    render :partial => 'vehicles/eurowin_worksheets'
   end
 
   def info_for_workshop

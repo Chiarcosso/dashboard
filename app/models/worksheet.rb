@@ -217,15 +217,17 @@ class Worksheet < ApplicationRecord
     pdf
   end
 
+  def self.get_client
+    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB']
+  end
+
+
   private
 
   def self.special_logger
     @@special_logger ||= Logger.new("#{Rails.root}/log/worksheets.log")
   end
 
-  def self.get_client
-    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB']
-  end
 
 
 end

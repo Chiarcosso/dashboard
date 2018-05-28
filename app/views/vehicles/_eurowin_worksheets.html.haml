@@ -1,0 +1,59 @@
+%html
+  %body{style: 'font-family: Arial;'}
+    %table{style: 'border: 0px; border-collapse: collapse'}
+      -# %thead
+      -#   %tr
+      -#     %th
+      -#       ODL nr.
+      -#     %th
+      -#       Targa
+      -#     %th
+      -#       Data entrata
+      -#     %th
+      -#       Descrizione
+      %tbody
+        - if @eurowin_worksheets.nil?
+          = 'Nessun ODL trovato'
+        - else
+          -@eurowin_worksheets.each do |odl|
+            %tr
+              %td.odl{style: 'font-weight: bold; padding: .5em; background-color: #f90;', rowspan: odl[:notifications].size+1}
+                = odl[:plate]
+              %td.odl{style: 'font-weight: bold; border-bottom: 1px solid black; padding: .5em; background-color: #f90;'}
+                = odl[:protocol]
+              %td.odl{style: 'font-weight: bold; border-bottom: 1px solid black; padding: .5em; background-color: #f90;'}
+                = odl[:entering_date].strftime('%d/%m/%Y') unless odl[:entering_date].nil?
+              %td.odl{style: 'font-weight: bold; border-bottom: 1px solid black; padding: .5em; background-color: #f90;', colspan: 2}
+                = odl[:description]
+            - odl[:notifications].each do |sgn|
+              %tr
+                %td.sgn{style: 'padding: .5em; background-color: #ff0;'}
+                  = sgn[:protocol]
+                %td.sgn{style: 'padding: .5em; background-color: #ff0;'}
+                  = sgn[:date].strftime('%d/%m/%Y') unless sgn[:date].nil?
+                %td.sgn{style: 'padding: .5em; background-color: #ff0;'}
+                  = sgn[:description]
+                %td.sgn{style: 'padding: .5em; background-color: #ff0;'}
+                  = sgn[:operator]
+-# %b='ODL:'
+-# .container
+-#   - @eurowin_worksheets.each do |odl|
+-#     .row.colored
+-#       .row
+-#         .col-sm-1
+-#           = odl[:protocol]
+-#         .col-sm-1
+-#           = odl[:plate]
+-#         .col-sm-1
+-#           = odl[:date].strftime('%d/%m/%Y')
+-#         .col-sm-9
+-#           = odl[:description]
+-#       - odl[:notifications].each do |sgn|
+-#         .row
+-#           .col-sm-1
+-#           .col-sm-1
+-#             = sgn[:protocol]
+-#           .col-sm-1
+-#             = sgn[:date].strftime('%d/%m/%Y')
+-#           .col-sm-9
+-#             = sgn[:description]

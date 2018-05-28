@@ -214,6 +214,8 @@ Rails.application.routes.draw do
   post '/vehicles/edit', to: 'vehicles#back', as: :vehicles_back_search
   post '/vehicle/update', to: 'vehicles#update', as: :update_vehicle
 
+  get   '/public/get_eurowin_worksheets/:table/:vehicle', to: 'vehicles#get_eurowin_worksheets', as: :get_eurowin_worksheets
+
   get '/vehicle/assignation', to: 'vehicles#assignation', as: :vehicles_assignation
   post '/vehicle/massive_delete', to: 'vehicles#massive_delete', as: :massive_vehicles_delete
   post '/vehicle/massive_update', to: 'vehicles#massive_update', as: :massive_vehicles_update
