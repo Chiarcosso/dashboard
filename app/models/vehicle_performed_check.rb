@@ -165,7 +165,7 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['UserPost'] = 'PUNTO CHECKUP'
       payload['DataUltimaManutenzione'] = "0000-00-00"
       payload['DataUltimoControllo'] = "0000-00-00"
-      payload['FlagStampato'] = 'False'
+      payload['FlagStampato'] = 'false'
       payload['CodiceOfficina'] = workshop.first['codice'].to_s
       payload['CodiceAutista'] = driver.first['codice'] if driver.count > 0
       payload['CodiceAutomezzo'] = vehicle.mssql_references.last.remote_object_id.to_s

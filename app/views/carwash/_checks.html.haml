@@ -58,7 +58,7 @@
 
 .row
   .col-sm-2
-    = button_to 'Pausa sessione', carwash_checks_path, method: :get
+    = button_to 'Pausa sessione', carwash_checks_path, method: :get, class: 'loading_screen'
   .col-sm-3
     = "Tempo teorico: #{@check_session.theoretical_duration_label}"
   .col-sm-3
@@ -67,12 +67,12 @@
   .col-sm-2
     = form_tag(save_check_session_path(@check_session.id), method: :post, remote: true, class: 'no-cr') do |f|
       = hidden_field_tag :time, @check_session.real_duration.to_i
-      = submit_tag 'Concludi sessione', class: 'no-cr'
+      = submit_tag 'Concludi sessione', class: 'no-cr loading_screen'
 
 :javascript
 
   // $('#line').trigger('click');
-
+  deactivateLoadingScreen();
   var timer;
   var tm = parseInt($('#timer').data('time'));
   clearInterval(timer);

@@ -366,6 +366,10 @@ function clickbox_click_func() {
   // $(this).children('#'+$(this).data('trigger')).trigger('click');
 }
 
+function loading_screen_click_func(){
+  activateLoadingScreen();
+}
+
 function activateJS() {
     "use strict";
 
@@ -414,6 +418,8 @@ function activateJS() {
     $('body').on('change', '.ajax_update', ajax_update_change_func);
 
     $('body').on('click', '.clickbox', clickbox_click_func);
+
+    $('body').on('click', '.loading_screen', loading_screen_click_func);
 
 }
 
