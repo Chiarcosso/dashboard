@@ -210,11 +210,11 @@ function complete_ajax_link_func(data) {
 
 function ajax_link_click_func(e) {
     "use strict";
-    if (($(this).data('confirmation')) !== undefined) {
-        if (!confirm($(this).data('confirmation'))) {
-            return null;
-        }
-    }
+    // if (($(this).data('confirmation')) !== undefined) {
+    //     if (!confirm($(this).data('confirmation'))) {
+    //         return null;
+    //     }
+    // }
     activateLoadingScreen();
     e.preventDefault();
     var target, method, data, complete;
