@@ -5,6 +5,8 @@ class Person < ApplicationRecord
   has_many :companies, through: :relations
   has_many :company_relations, through: :relations
 
+  has_many :prepaid_cards
+
   has_one :carwash_driver_code, :dependent => :destroy
   has_many :mssql_references, as: :local_object
   has_many :vehicle_properties, as: :owner
@@ -16,7 +18,7 @@ class Person < ApplicationRecord
   scope :filter, ->(name) { where("name like ? or surname like ? or mdc_user like ? or ('mdc' like ? and mdc_user is not null and mdc_user != '')", "%#{name}%", "%#{name}%", "%#{name}%", "%#{name}%").order(:surname) }
   scope :mdc, -> { where("mdc_user is not null and mdc_user != ''") }
   scope :order_mdc_user, -> { order(:mdc_user)}
-
+  scope :employees, -> { joins(:companies).where("company_id = #{Company.chiarcosso.id} or company_id = #{Company.transest.id}").distinct }
 
   # scope :drivers, -> { include(:relations).where("relations.name = 'Autista'") }
   # scope :company, ->(name) { joins(:companies).where('company.name like ?',"%#{name}%") }

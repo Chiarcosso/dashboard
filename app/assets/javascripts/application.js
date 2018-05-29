@@ -370,6 +370,20 @@ function loading_screen_click_func(){
   activateLoadingScreen();
 }
 
+function click_to_submit_click_func(){
+  "use strict";
+  $(this).closest('form').submit();
+  activateLoadingScreen();
+  console.log($(this).form)
+}
+
+function data_confirmation_click_func(event){
+  if(!confirm($(this).data('confirmation'))){
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}
+
 function activateJS() {
     "use strict";
 
@@ -420,6 +434,12 @@ function activateJS() {
     $('body').on('click', '.clickbox', clickbox_click_func);
 
     $('body').on('click', '.loading_screen', loading_screen_click_func);
+
+    $('body').on('click', '.click-to-submit', click_to_submit_click_func);
+
+    $('body').on('submit', 'form', activateLoadingScreen);
+
+    $('body').on('click', '[data-confirmation]', data_confirmation_click_func);
 
 }
 

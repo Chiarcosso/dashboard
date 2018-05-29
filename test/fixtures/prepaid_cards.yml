@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  serial: MyString
+  person: one
+  pin: 1
+  dismissed: false
+  expiring_date: 2018-05-28
+
+two:
+  serial: MyString
+  person: two
+  pin: 1
+  dismissed: false
+  expiring_date: 2018-05-28

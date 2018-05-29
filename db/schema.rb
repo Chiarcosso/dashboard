@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180523150501) do
+ActiveRecord::Schema.define(version: 20180528152340) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -455,6 +455,18 @@ ActiveRecord::Schema.define(version: 20180523150501) do
     t.string   "description"
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
+  end
+
+  create_table "prepaid_cards", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.string   "serial",                        null: false
+    t.integer  "person_id"
+    t.integer  "pin",                           null: false
+    t.boolean  "dismissed",     default: false, null: false
+    t.date     "expiring_date",                 null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.index ["person_id"], name: "index_prepaid_cards_on_person_id", using: :btree
+    t.index ["serial"], name: "index_prepaid_cards_on_serial", unique: true, using: :btree
   end
 
   create_table "queries", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -924,6 +936,7 @@ ActiveRecord::Schema.define(version: 20180523150501) do
   add_foreign_key "output_order_items", "output_orders"
   add_foreign_key "output_orders", "people", column: "receiver_id"
   add_foreign_key "output_orders", "users", column: "createdBy_id"
+  add_foreign_key "prepaid_cards", "people"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
   add_foreign_key "transport_documents", "companies", column: "vector_id"

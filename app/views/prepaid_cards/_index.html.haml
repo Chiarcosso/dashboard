@@ -1,0 +1,75 @@
+- if current_user.has_role?('amministratore carte prepagate') || current_user.has_role?(:admin)
+  .row{style: 'margin-top: 1em;'}
+    = form_tag(new_prepaid_card_path, method: :post, remote: true) do |f|
+      .col-sm-2
+        = hidden_field_tag :search, @search
+        = hidden_field_tag :active, @active
+        = text_field_tag 'prepaid_card[serial]', nil, class: 'form-control', placeholder: 'Seriale'
+      .col-sm-2
+        = text_field_tag 'prepaid_card[pin]', nil, class: 'form-control', placeholder: 'PIN'
+      .col-sm-2
+        = date_field_tag 'prepaid_card[expiring_date]', Date.today + 1.year, class: 'form-control'
+      .col-sm-1
+        = 'Bloccata'
+        = check_box_tag 'prepaid_card[dismissed]', true, nil, class: ''
+      .col-sm-3
+        = select_tag 'prepaid_card[person]', options_from_collection_for_select(Person.employees.order_alpha_surname,:id,"list_name"), :include_blank => 'Seleziona il portatore', class: 'form-control'
+      .col-sm-2
+        = submit_tag 'Crea nuova', class: 'form-control'
+.row{style: 'margin-top: 1em;'}
+  = form_tag(search_prepaid_cards_path, method: :post, remote: true, class: 'ajax_link') do |f|
+    .col-sm-8
+      = text_field_tag 'search', @search, placeholder: 'Cerca..',class: 'form-control'
+    .col-sm-4
+      = "Non bloccate"
+      = radio_button_tag 'active', true, !@active.nil? && @active, class: 'click-to-submit'
+      &nbsp;
+      &nbsp;
+      = "Bloccate"
+      = radio_button_tag 'active', false, !@active.nil? && !@active, class: 'click-to-submit'
+      &nbsp;
+      &nbsp;
+      = "Tutte"
+      = radio_button_tag 'active', nil, @active.nil?, class: 'click-to-submit'
+.row
+  .col-sm-2
+    %b= 'Seriale'
+  .col-sm-2
+    %b= 'PIN'
+  .col-sm-2
+    %b= 'Scadenza'
+  .col-sm-1
+    %b= 'Bloccata'
+  .col-sm-3
+    %b= 'Portatore'
+
+.scrollable-panel
+  - @prepaid_cards.each do |pc|
+    .row
+      - if current_user.has_role?('amministratore carte prepagate') || current_user.has_role?(:admin)
+        = form_tag(edit_prepaid_card_path(pc.id), method: :post, remote: true) do |f|
+          .col-sm-2
+            = hidden_field_tag :search, @search
+            = hidden_field_tag :active, @active
+            = text_field_tag 'prepaid_card[serial]', pc.serial, class: 'form-control'
+          .col-sm-2
+            = text_field_tag 'prepaid_card[pin]', pc.pin, class: 'form-control'
+          .col-sm-2
+            = date_field_tag 'prepaid_card[expiring_date]', pc.expiring_date, class: 'form-control'
+          .col-sm-1
+            = check_box_tag 'prepaid_card[dismissed]', true, pc.dismissed, class: 'form-control'
+          .col-sm-3
+            = select_tag 'prepaid_card[person]', options_from_collection_for_select(Person.employees.order_alpha_surname,:id,"list_name", selected: pc.person.nil? ? '' : pc.person.id), :include_blank => 'Seleziona il portatore', class: 'form-control'
+          .col-sm-2
+            = submit_tag 'Modifica', class: 'form-control', data: {confirmation: "Modificare la tessera nr. #{pc.serial}, #{pc.person.nil?? 'non assegnata' : pc.person.list_name}?"}
+      - else
+        .col-sm-2
+          = pc.serial
+        .col-sm-2
+          = pc.pin
+        .col-sm-2
+          = pc.expiring_date.strftime('%d/%m/%Y')
+        .col-sm-1
+          = pc.dismissed ? 'Bloccata' : ''
+        .col-sm-3
+          = pc.person.list_name unless pc.person.nil?

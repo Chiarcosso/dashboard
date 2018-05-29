@@ -192,6 +192,10 @@ Rails.application.routes.draw do
   # get    '/output/worksheet', to: 'items#output_worksheet', as: :output_worksheet
   # get    '/output/vehicle', to: 'items#output_vehicle', as: :output_vehicle
   # get    '/output/equipment', to: 'items#output_equipment', as: :output_equipment
+  get     '/prepaid_cards/', to: 'prepaid_cards#index', as: :prepaid_cards
+  post    '/prepaid_cards/', to: 'prepaid_cards#index', as: :search_prepaid_cards
+  post    '/prepaid_cards/new', to: 'prepaid_cards#new', as: :new_prepaid_card
+  post    '/prepaid_cards/edit/:id', to: 'prepaid_cards#edit', as: :edit_prepaid_card
 
   get    '/storage', to: 'storage#home', as: :storage
   get    '/storage_reception', to: 'storage#reception', as: :storage_reception
