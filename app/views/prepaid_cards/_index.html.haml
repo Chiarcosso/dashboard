@@ -45,7 +45,7 @@
 
 .scrollable-panel
   - @prepaid_cards.each do |pc|
-    .row
+    .row.colored{style: pc.expiration_style }
       - if current_user.has_role?('amministratore carte prepagate') || current_user.has_role?(:admin)
         = form_tag(edit_prepaid_card_path(pc.id), method: :post, remote: true) do |f|
           .col-sm-2
