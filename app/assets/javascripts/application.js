@@ -52,7 +52,7 @@ function activateLoadingScreen() {
     //     activateLoadingScreen();
     //   }
     // });
-    
+
     if(!$(this).hasClass('no-loader')){
       $('.loading-screen').show();
     }
@@ -373,6 +373,15 @@ function loading_screen_click_func(){
   activateLoadingScreen();
 }
 
+function form_submit_func(event){
+  "use strict";
+  // console.log($(document.activeElement))
+  if(!$(document.activeElement).hasClass('no-loader')){
+    activateLoadingScreen();
+  }
+
+}
+
 function click_to_submit_click_func(){
   "use strict";
   $(this).closest('form').submit();
@@ -440,7 +449,7 @@ function activateJS() {
 
     $('body').on('click', '.click-to-submit', click_to_submit_click_func);
 
-    $('body').on('submit', 'form', activateLoadingScreen);
+    $('body').on('submit', 'form', form_submit_func);
 
     $('body').on('click', '[data-confirmation]', data_confirmation_click_func);
 
