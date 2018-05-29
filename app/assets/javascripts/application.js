@@ -52,8 +52,10 @@ function activateLoadingScreen() {
     //     activateLoadingScreen();
     //   }
     // });
+    if(!$(this).hasClass('no-loader')){
+      $('.loading-screen').show();
+    }
 
-    $('.loading-screen').show();
 }
 
 function deactivateLoadingScreen() {
