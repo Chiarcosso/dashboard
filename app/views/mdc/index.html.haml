@@ -26,7 +26,7 @@
               = hidden_field_tag :id, res.id
               = hidden_field_tag :user, res.user.user
               = submit_tag 'Chiudi'
-            = form_tag(mdc_download_ws_pdf_path(format: :pdf), method: :post) do |f|
+            = form_tag(mdc_download_ws_pdf_path(format: :pdf), method: :post, class: 'no-loader') do |f|
               - res.photos.each do |p|
                 = hidden_field_tag 'photos[]', p
               = button_tag 'PDF', class: 'no-loader'
