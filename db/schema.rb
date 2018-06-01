@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180528152340) do
+ActiveRecord::Schema.define(version: 20180601133949) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -457,7 +457,7 @@ ActiveRecord::Schema.define(version: 20180528152340) do
     t.datetime "updated_at",                        null: false
   end
 
-  create_table "prepaid_cards", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "prepaid_cards", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "serial",                        null: false
     t.integer  "person_id"
     t.integer  "pin",                           null: false
@@ -844,16 +844,20 @@ ActiveRecord::Schema.define(version: 20180528152340) do
   end
 
   create_table "worksheets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",                                                     null: false
+    t.string   "code",                                                                    null: false
     t.date     "closingDate"
-    t.integer  "vehicle_id",                                               null: false
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
-    t.decimal  "hours",        precision: 4, scale: 1, default: "0.0",     null: false
-    t.string   "vehicle_type",                         default: "Vehicle", null: false
+    t.integer  "vehicle_id",                                                              null: false
+    t.datetime "created_at",                                                              null: false
+    t.datetime "updated_at",                                                              null: false
+    t.decimal  "hours",                       precision: 4, scale: 1, default: "0.0",     null: false
+    t.string   "vehicle_type",                                        default: "Vehicle", null: false
     t.string   "notes"
     t.date     "opening_date"
     t.datetime "exit_time"
+    t.integer  "real_duration",                                       default: 0,         null: false
+    t.date     "creation_date"
+    t.text     "log",           limit: 65535
+    t.index ["code"], name: "index_worksheets_on_code", unique: true, using: :btree
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end
 
@@ -876,12 +880,22 @@ ActiveRecord::Schema.define(version: 20180528152340) do
   end
 
   create_table "workshop_operations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "name",                   null: false
+    t.string   "name",                                           null: false
     t.integer  "frequency"
-    t.integer  "frequency_mu", limit: 1
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.integer  "frequency_mu",         limit: 1
+    t.datetime "created_at",                                     null: false
+    t.datetime "updated_at",                                     null: false
+    t.integer  "worksheet_id",                                   null: false
+    t.integer  "user_id",                                        null: false
+    t.datetime "starting_time"
+    t.datetime "ending_time"
+    t.integer  "real_duration",                      default: 0, null: false
+    t.integer  "myofficina_reference"
+    t.string   "notes"
+    t.text     "log",                  limit: 65535
     t.index ["name"], name: "index_workshop_operations_on_name", using: :btree
+    t.index ["user_id"], name: "index_workshop_operations_on_user_id", using: :btree
+    t.index ["worksheet_id"], name: "index_workshop_operations_on_worksheet_id", using: :btree
   end
 
   add_foreign_key "article_categorizations", "article_categories", column: "article_id"
@@ -990,4 +1004,6 @@ ActiveRecord::Schema.define(version: 20180528152340) do
   add_foreign_key "worksheet_operations", "people"
   add_foreign_key "worksheet_operations", "worksheets"
   add_foreign_key "worksheet_operations", "workshop_operations"
+  add_foreign_key "workshop_operations", "users"
+  add_foreign_key "workshop_operations", "worksheets"
 end

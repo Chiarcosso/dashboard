@@ -7,7 +7,10 @@
 
   .row
     .col-sm-12
-      =@vehicle.model.complete_name unless @vehicle.model.nil?
+      -if @vehicle.class == ExternalVehicle
+        ="Mezzo esterno"
+      -else
+        =@vehicle.model.complete_name unless @vehicle.model.nil?
   .row
     .col-sm-12
       ="#{@vehicle.type} #{@vehicle.typology}"

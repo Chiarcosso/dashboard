@@ -8,6 +8,18 @@ class ExternalVehicle < ApplicationRecord
   has_many :worksheets, as: :vehicle
   has_many :mssql_references, as: :local_object, :dependent => :destroy
 
+  def type
+    self.vehicle_type
+  end
+
+  def typology
+    self.vehicle_typology
+  end
+
+  def last_washing
+    nil
+  end
+  
   def vehicle_checks
     VehicleCheck.where("vehicle_type_id = #{self.vehicle_type_id} or vehicle_typology_id = #{self.vehicle_typology_id} #{station_check}").order({importance: :desc, label: :asc})
   end

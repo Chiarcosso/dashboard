@@ -229,6 +229,7 @@ Rails.application.routes.draw do
   get  '/vehicle/info/:id', to: 'vehicles#get_info', as: :info_vehicle
   get  '/vehicle/info/workshop/:id', to: 'vehicles#get_workshop_info', as: :info_vehicle_workshop
   get  '/vehicle/info/checks/:id', to: 'vehicles#get_checks_info', as: :info_vehicle_checks
+  get  '/vehicle/info/spare_items/:id', to: 'vehicles#get_spare_items_info', as: :info_vehicle_spare_items
   post '/vehicle/vehicle_information_type_autocomplete/:id', to: 'vehicles#vehicle_information_type_autocomplete', as: :custom_vehicle_information_type_autocomplete
   post '/vehicle/new_information', to: 'vehicles#new_information', as: :new_vehicle_vehicle_information
   post '/vehicle/create_information', to: 'vehicles#create_information', as: :vehicle_create_information
@@ -245,4 +246,12 @@ Rails.application.routes.draw do
   post   '/worksheet/filter/', to: 'worksheets#filter', as: :worksheet_filter
   post   '/worksheet/pdf/:id', to: 'worksheets#print_pdf', as: :worksheet_print_pdf
   post   '/worksheet/get_pdf/:id', to: 'worksheets#get_pdf', as: :worksheet_get_pdf
+
+  post   '/worksheet/:id/open', to: 'workshop#open_worksheet',as: :open_worksheet
+  post   '/worksheet/:id/create_operation', to: 'workshop#create_operation',as: :create_workshop_operation
+  post   '/worksheet/:id/start_operation', to: 'workshop#start_operation',as: :start_workshop_operation
+  post   '/worksheet/:id/pause_operation', to: 'workshop#pause_operation',as: :pause_workshop_operation
+  post   '/worksheet/:id/finish_operation', to: 'workshop#finish_operation',as: :finish_workshop_operation
+  post   '/worksheet/:id/delete_operation/', to: 'workshop#delete_operation',as: :delete_workshop_operation
+  post   '/worksheet/:id/save', to: 'workshop#save_worksheet',as: :save_worksheet
 end

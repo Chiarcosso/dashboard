@@ -1,0 +1,36 @@
+
+%h3="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
+%b= "#{@vehicle.vehicle_type.name}, #{@vehicle.vehicle_typology.name}"
+%br
+%b="Ricambi utilizzati: "
+%br
+.row
+  .col-sm-1
+    %b= 'Quantità'
+  .col-sm-1
+    %b= 'Matricola'
+  .col-sm-10
+    %b= 'Ricambio'
+
+.scrollable-panel{style: 'height: 45vh; width: 80vw;'}
+  - @vehicle.worksheets.order(opening_date: :desc).each_with_index do |ws,idx|
+    .row{ style: 'background-color: #aaa'}
+      .col-sm-1
+      .col-sm-2
+        %b= "ODL nr. #{ws.number}"
+      .col-sm-7
+        %b= "Data entrata: #{ws.opening_date.strftime('%d/%m/%Y')}"
+      .col-sm-1
+        -# = link_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+        = button_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader small-btn'
+    - ws.spare_items.each do |key,si|
+      .row.colored
+        .col-sm-1
+          = si[:quantity]
+        .col-sm-1
+          = si[:serial]
+        .col-sm-10
+          = si[:complete_name]
+
+.close
+  Chiudi

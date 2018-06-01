@@ -218,27 +218,29 @@ function ajax_link_click_func(e) {
     //         return null;
     //     }
     // }
-    activateLoadingScreen();
-    e.preventDefault();
-    var target, method, data, complete;
-    target = $(this).data('target');
-    // var method = $(this).parents('form').first().children('input[name=_method]').val();
-    method = $(this).data('method');
-    console.log(target,method,$(this).data('data'));
-    data = $(this).data('data');
+    if(!$(document.activeElement).hasClass('no-ajax-link')){
+      activateLoadingScreen();
+      e.preventDefault();
+      var target, method, data, complete;
+      target = $(this).data('target');
+      // var method = $(this).parents('form').first().children('input[name=_method]').val();
+      method = $(this).data('method');
+      console.log(target,method,$(this).data('data'));
+      data = $(this).data('data');
 
-    ajax_link_element = $(this).data('target-element');
-    if ($(this).data('check-complete')) {
-        complete = complete_ajax_link_func;
-    } else {
-        complete = null;
+      ajax_link_element = $(this).data('target-element');
+      if ($(this).data('check-complete')) {
+          complete = complete_ajax_link_func;
+      } else {
+          complete = null;
+      }
+      $.ajax({
+          type: method,
+          url: target,
+          data: data,
+          complete: complete
+      });
     }
-    $.ajax({
-        type: method,
-        url: target,
-        data: data,
-        complete: complete
-    });
 }
 
 var json_link_element;
@@ -349,7 +351,7 @@ function complete_ajax_update_change_func() {
 function ajax_update_change_func() {
   "use strict";
   var target = $(this).data('target');
-  var data = {value: $(this).val(), field: $(this).attr('name'), additional: $(this).data('additional'), tab: $(this).data('tab')};
+  var data = {value: $(this).val(), field: $(this).attr('name'), additional: $(this).data('additional'), tab: $(this).data('tab'), station: $(this).data('station')};
   scroll_element = $(this).parents('.scrollable-panel').first();
   line = $(scroll_element).scrollTop();
   $.ajax({
@@ -394,6 +396,16 @@ function data_confirmation_click_func(event){
     event.preventDefault();
     event.stopPropagation();
   }
+}
+
+function create_popup_click_func() {
+    "use strict";
+    var popup_link_name = $(this).data('popup_id');
+     $('body').append('<div class="popup" id="'+popup_link_name+'"></div>');
+     $('#'+popup_link_name).html($(this).data('html'));
+     $('#'+popup_link_name).append('<div class="close">Chiudi</div>');
+     deactivateLoadingScreen();
+     $('#focus_element').focus();
 }
 
 function activateJS() {
@@ -453,6 +465,8 @@ function activateJS() {
 
     $('body').on('click', '[data-confirmation]', data_confirmation_click_func);
 
+    $('body').on('click', '.create_popup', create_popup_click_func);
+
 }
 
 function clearMemory() {
@@ -465,6 +479,9 @@ function clearMemory() {
 //     "use strict";
 //     // $('.error').delay(3000).fadeOut();
 // }
+function seconds_to_clock(tm){
+  return ('0'+Math.floor(tm/3600)).slice(-2)+':'+('0'+Math.floor((tm/60)%60)).slice(-2)+':'+('0'+(tm%60)).slice(-2);
+}
 
 function activateCustomAutocomplete(func) {
     "use strict";

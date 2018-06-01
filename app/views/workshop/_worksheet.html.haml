@@ -1,0 +1,225 @@
+
+.row{style: 'margin-top: 1em; margin-bottom: 1em;'}
+  .col-sm-3
+    %b= "ODL nr. #{@worksheet.number} - #{@worksheet.vehicle.plate}"
+  .col-sm-9
+    =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(@worksheet.vehicle.id), name: "infobox_vehicle_checks_#{@worksheet.vehicle.id}" }
+    =button_tag 'r', class: 'infobox-button no-loader', data: { target: info_vehicle_spare_items_path(@worksheet.vehicle.id), name: "infobox_vehicle_spare_items_#{@worksheet.vehicle.id}" }
+    =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@worksheet.vehicle.id), name: "infobox_vehicle_#{@worksheet.vehicle.id}" }
+    =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(@worksheet.vehicle.id), name: "infobox_vehicle_workshop_#{@worksheet.vehicle.id}" }
+
+.row
+  .col-sm-12
+    .scrollable-panel{style: 'height: 90%;'}
+      .panel-group#accordion{style: 'height: 80%;'}
+        - @worksheet.notifications.each do |sgn|
+          .panel.panel-default
+            .panel-heading
+              %h4.panel-title
+                %a{ href: "#collapse-#{sgn['Protocollo']}", data: { toggle: 'collapse', parent: '#accordion' }}
+                  = sgn['DescrizioneSegnalazione']
+            %div{ class: "panel-collapse collapse#{sgn['Protocollo'] == @protocol ? ' in' : ''}", id: "collapse-#{sgn['Protocollo']}"}
+              .panel-body
+                = render partial: 'workshop/notification', locals: {sgn: sgn}
+
+        .panel.panel-default
+          .panel-heading
+            %h4.panel-title
+              %a{ href: "#collapse-checks", data: { toggle: 'collapse', parent: '#accordion' }}
+                = "CONTROLLI"
+          %div{ class: "panel-collapse collapse#{@protocol == 'checks' ? ' in' : ''}", id: "collapse-checks"}
+            .panel-body
+              %ul.nav.nav-tabs
+                - @checks.each do |k,v|
+                  -# %style
+                  -#   a:visited,a:link,a:hver,a:active{ color: black; font-style: normal; font-size: +2; }
+                  - unperformed = v.reject{ |cc| cc.performed? }.size
+                  - if @tab.nil?
+                    - if v == @checks.values.first
+                      - active = 'active'
+                    - else
+                      - active = ''
+                  - else
+                    - if @tab == 'tab-'+k.tr(' ','_')
+                      - active = 'active'
+                    - else
+                      - active = ''
+                  %li{ class: active}
+                    =link_to "#{k}#{unperformed > 0 ? " (#{unperformed})" : ''}", '#tab-'+k.tr(' ','_'), data: { toggle: 'tab'}, class: 'no-loader'
+
+              .col-sm-3
+                %b= "Controllo"
+              .col-sm-3
+                %b= "Ultimo valore"
+              .col-sm-2
+                %b= "Lettura"
+              .col-sm-2
+                %b= "Eseguito"
+              .col-sm-2
+                %b= "Note"
+
+            .row
+              .col-sm-12
+                .tab-content
+                  - @checks.each do |k,v|
+                    - if @tab.nil?
+                      - if v == @checks.values.first
+                        - active = 'active'
+                      - else
+                        - active = ''
+                    - else
+                      - if @tab == 'tab-'+k.tr(' ','_')
+                        - active = 'active'
+                      - else
+                        - active = ''
+
+                    -#
+                    -# - if v == @checks.values.first
+                    -#   - active = ' active'
+                    -# - else
+                    -#   - active = ''
+                    %div{style: 'margin-left: 1em; width: 99%;', id: 'tab-'+k.tr(' ','_'), class: 'tab-pane '+active}
+                      .scrollable-panel#scroll-element
+                        = render partial: 'carwash/check_view', locals: {list: v}
+
+
+.row
+  .col-sm-2
+    -# = button_to 'Pausa scheda', worksheets_path, method: :get, class: 'loading_screen'
+    -# = form_tag(save_worksheet_path(@worksheet.id), method: :post, remote: true, class: 'no-cr') do |f|
+    -#   = hidden_field_tag :time, @worksheet.real_duration.to_i
+    -#   = submit_tag 'Chiudi scheda', class: 'no-cr loading_screen'
+    %button{ class: 'btn_small stop-worksheet loading_screen', id: "pause-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :pause } }
+      = 'Pausa scheda'
+  .col-sm-2
+    #timer{'data-time': @worksheet.real_duration.to_i}
+      = "Tempo: #{@worksheet.real_duration_label}"
+  .col-sm-5
+    -# = form_tag(save_worksheet_path(@worksheet.id), method: :post, remote: true, class: 'no-cr') do |f|
+    -#   = hidden_field_tag :time, @worksheet.real_duration.to_i
+    -#   = submit_tag 'Chiudi scheda', class: 'no-cr loading_screen'
+    %button{ class: 'btn_small stop-worksheet loading_screen', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop } }
+      = 'Chiudi scheda'
+  .col-sm-3
+    #clock{'data-clock': DateTime.now.hour*3600+DateTime.now.minute*60+DateTime.now.second}
+      = "#{DateTime.now.strftime('%d/%m/%Y %H:%M:%S')}"
+
+:javascript
+
+  // $('#line').trigger('click');
+  var active_timer = null;
+  var active_notification = null;
+
+  $('.stop-worksheet').on('click',function(){
+    var route = $(this).data('route');
+    var operation_times = [];
+    var action = $(this).data('action');
+    $.each($('.timer'),function(){
+      var id = /timer(\d*)/.exec($(this).attr('id'))[1];
+      if( id == active_notification){
+        operation_times.push({id: id, time: active_timer});
+      } else {
+        operation_times.push({id: id, time: $(this).data('time')});
+      }
+    });
+    var data = { worksheet_duration: tm, operation_times: JSON.stringify(operation_times), perform: action };
+    $.ajax({
+      url: route,
+      method: 'post',
+      data: data
+    });
+  });
+
+  $('.timer_control').on('click',function(){
+
+    var id = /start-(\d*)/.exec($(this).attr('id'))[1];
+    var protocol = $(this).data('protocol');
+
+    if($(this).hasClass('start_timer')){
+
+      if(!(active_notification === null)){
+        var route = $('#start-'+active_notification).data('route')[1];
+        var data = { operation: active_notification, time: active_timer, worksheet_duration: tm };
+        $.ajax({
+          url: route,
+          method: 'post',
+          data: data
+        });
+        $('#timer'+active_notification).data('time',active_timer);
+        $('#start-'+active_notification).html('Riprendi');
+        $('#start-'+active_notification).removeClass('pause_timer');
+        $('#start-'+active_notification).addClass('start_timer');
+      }
+
+      active_timer = $('#timer'+id).data('time');
+      active_notification = id;
+      $(this).html('Pausa');
+      $(this).removeClass('start_timer');
+      $(this).addClass('pause_timer');
+      $('#stop-'+id).attr('disabled',false);
+
+      var route = $(this).data('route')[0];
+      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol };
+      $.ajax({
+        url: route,
+        method: 'post',
+        data: data
+      });
+
+    } else if($(this).hasClass('pause_timer')){
+
+      var route = $(this).data('route')[1];
+      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol };
+      $.ajax({
+        url: route,
+        method: 'post',
+        data: data
+      });
+      $('#timer'+id).data('time',active_timer);
+      active_timer = null;
+      active_notification = null;
+      $(this).html('Riprendi');
+      $(this).removeClass('pause_timer');
+      $(this).addClass('start_timer');
+
+    }
+
+  });
+
+  $('.stop_timer').on('click',function(){
+    var id = /stop-(\d*)/.exec($(this).attr('id'))[1];
+    var route = $(this).data('route');
+    if(active_timer === null){
+      var time = $('#timer'+id).data('time');
+    } else {
+      var time = active_timer;
+    }
+    var data = { operation: id, time: time, worksheet_duration: tm, protocol: $(this).data('protocol') };
+    $.ajax({
+      url: route,
+      method: 'post',
+      data: data
+    });
+  });
+
+  deactivateLoadingScreen();
+  var timer;
+  var tm = parseInt($('#timer').data('time'));
+  var ck = parseInt($('#clock').data('clock'));
+  clearInterval(timer);
+  timer = setInterval(function(){
+    if(!(active_timer === null)){
+      active_timer++;
+      $("#timer"+active_notification).html(seconds_to_clock(active_timer));
+    }
+    tm++;
+    ck++;
+    $('[data-additional]').data('additional',tm);
+    $('input[name=time]').val(tm);
+    $('#timer').html('Tempo: '+seconds_to_clock(tm));
+    dt = new Date();
+    day = dt.getDate() > 9 ? dt.getDate() : "0"+dt.getDate();
+    month = (dt.getMonth()+1) > 9 ? (dt.getMonth()+1) : "0"+(dt.getMonth()+1);
+    year = dt.getFullYear();
+    $('#clock').html(day+'/'+month+'/'+year+' '+seconds_to_clock(ck));
+  },1000);

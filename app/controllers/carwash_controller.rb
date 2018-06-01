@@ -1,5 +1,7 @@
 class CarwashController < ApplicationController
 
+  before_action :set_station
+
   def index
     @carwash_usages = CarwashUsage.lastmonth.order(:ending_time => :desc)
   end
@@ -87,7 +89,16 @@ class CarwashController < ApplicationController
       @checks = @check_session.vehicle_ordered_performed_checks
 
       respond_to do |format|
-        format.js { render :partial => 'carwash/checks_js' }
+        case params['station']
+        when 'workshop' then
+          @worksheet = @check_session.worksheet
+          @worksheet.update(real_duration: params.require(:additional))
+          @protocol = 'checks'
+          @station = 'workshop'
+          format.js { render partial: 'workshop/worksheet_js' }
+        when 'carwash' then
+          format.js { render partial: 'carwash/checks_js' }
+        end
       end
     rescue Exception => e
       @error = e.message
@@ -169,6 +180,10 @@ class CarwashController < ApplicationController
 
   def get_vehicle
     @vehicle = Vehicle.find(params.require(:vehicle_id))
+  end
+
+  def set_station
+    @station = 'carwash'
   end
 
   def start_session_params

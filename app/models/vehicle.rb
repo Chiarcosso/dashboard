@@ -135,6 +135,8 @@ class Vehicle < ApplicationRecord
     case station
     when 'carwash' then
       station_check = 'and check_carwash != 0'
+    when 'workshop' then
+      station_check = 'and check_workshop != 0'
     end
     # VehicleCheck.where("(vehicle_type_id = #{self.vehicle_type_id} and vehicle_typology_id = #{self.vehicle_typology_id}) #{station_check}").order({importance: :desc, label: :asc})
     VehicleCheck.where("((vehicle_type_id = #{self.vehicle_type_id} and vehicle_typology_id = #{self.vehicle_typology_id}) or (vehicle_type_id = #{self.vehicle_type_id} and vehicle_typology_id is null) or (vehicle_type_id is null and vehicle_typology_id = #{self.vehicle_typology_id}) or (vehicle_type_id is null and vehicle_typology_id is null)) #{station_check}").order({importance: :desc, label: :asc})

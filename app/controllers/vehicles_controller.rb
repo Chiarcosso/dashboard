@@ -58,6 +58,12 @@ class VehiclesController < ApplicationController
     end
   end
 
+  def get_spare_items_info
+    respond_to do |format|
+      format.js { render :partial => 'vehicles/infobox_spare_items' }
+    end
+  end
+
   def get_checks_info
     respond_to do |format|
       format.js { render :partial => 'vehicles/infobox_checks' }

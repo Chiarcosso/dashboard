@@ -6,6 +6,8 @@ class Worksheet < ApplicationRecord
   has_many :output_order_items, through: :output_orders
   has_many :items, through: :output_order_items
 
+  has_many :worksheet_operations
+
   belongs_to :vehicle, polymorphic:true
 
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
@@ -19,6 +21,28 @@ class Worksheet < ApplicationRecord
     else
       return false
     end
+  end
+
+  def real_duration_label
+    "#{(self.real_duration.to_i/3600).floor.to_s.rjust(2,'0')}:#{((self.real_duration.to_i/60)%60).floor.to_s.rjust(2,'0')}:#{(self.real_duration.to_i%60).floor.to_s.rjust(2,'0')}"
+  end
+
+  def notifications
+    EurowinController::get_notifications_from_odl(self.number)
+  end
+
+  def spare_items
+    si = Hash.new
+    self.output_order_items.each do |ooi|
+      item = ooi.item
+      article = item.article
+      if si["#{article.id}-#{item.serial}"].nil?
+        si["#{article.id}-#{item.serial}"] = { quantity: ooi.quantity, complete_name: article.complete_name, serial: item.serial}
+      else
+        si["#{article.id}-#{item.serial}"][:quantity] += ooi.quantity
+      end
+    end
+    si
   end
 
   def number
@@ -89,10 +113,10 @@ class Worksheet < ApplicationRecord
   end
 
   def self.find_or_create_by_code(protocol)
-    protocol = protocol[/(EWC\*)?([0-9]+).*/,2]
+    protocol = protocol.to_s[/(EWC\*)?([0-9]+).*/,2]
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
-      res = get_client.query("select Protocollo, CodiceAutomezzo, ifnull(automezzi.Tipo,'S') as Tipo, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
+      res = get_client.query("select Protocollo, CodiceAutomezzo, ifnull(automezzi.Tipo,'S') as Tipo, DataIntervento, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.codice "\
         "where Protocollo = #{protocol} limit 1")
@@ -122,9 +146,9 @@ class Worksheet < ApplicationRecord
       # @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       raise "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       if ws.nil?
-        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'])
+        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], closingDate: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'])
       else
-        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, closingDate: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'])
+        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], closingDate: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'])
       end
     rescue Exception => e
       # @error = e.message if @error.nil?

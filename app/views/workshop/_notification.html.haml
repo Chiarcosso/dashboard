@@ -1,0 +1,33 @@
+.row
+  .col-sm-8#scroll-element
+    = sgn['DescrizioneSegnalazione']
+  .col-sm-2#scroll-element
+    = "#{sgn['UserInsert']} (#{sgn['UserPost']})"
+  .col-sm-2#scroll-element
+    = sgn['DataSegnalazione'].strftime('%d/%m/%Y')
+
+.row
+  .col-sm-1
+    %button{ class: 'create_popup no-loader', data: { popup_id: 'new_operation', html: (render partial: 'workshop/operation_popup', locals: {protocol: sgn['Protocollo']}) } }
+      +
+    = sgn['Protocollo']
+  .col-sm-11
+    - WorkshopOperation.to_notification(sgn['Protocollo']).each do |wo|
+      .row.colored
+        .col-sm-1
+          -# = button_to "-", delete_workshop_operation_path(id: @worksheet.number, operation: wo.id), remote: true, data: { confirmation: "Elminare l'operazione nr. #{wo.id}, #{wo.name}?" }
+          = form_tag( delete_workshop_operation_path(@worksheet.number), remote: true, method: :post, class: 'no-cr', data: { confirmation: "Elminare l'operazione nr. #{wo.id}, #{wo.name}?" }) do |f|
+            = hidden_field_tag :protocol, @protocol
+            = hidden_field_tag :operation, wo.id
+            = submit_tag "-", class: 'no-cr btn-small'
+
+        .col-sm-7
+          = wo.name
+        .col-sm-1
+          %button{ class: 'btn_small timer_control start_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: sgn['Protocollo'] } }
+            = wo.real_duration.to_i > 0 ? 'Riprendi' : 'Inizia'
+        .col-sm-1.timer{'data-time': wo.real_duration.to_i, id: "timer#{wo.id}"}
+          = wo.real_duration_label
+        .col-sm-1
+          %button{ class: 'btn_small stop_timer', id: "stop-#{wo.id}", data: { route: finish_workshop_operation_path(@worksheet.number), protocol: sgn['Protocollo'] }, disabled: !wo.ending_time.nil? }
+            = 'Concludi'

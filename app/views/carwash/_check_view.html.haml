@@ -1,8 +1,8 @@
 - list.each do |c|
   .row.colored{style: "#{c.status_style};border: 1px solid #666; padding: .7em; font-weight: bolder;"}
-    .col-sm-4{id: c.id}
+    .col-sm-3{id: c.id}
       = c.vehicle_check.label
-    .col-sm-1
+    .col-sm-2
       -unless c.last_reading.nil?
         = c.last_reading.time.strftime("%d/%m/%Y %H:%M:%S") unless c.last_reading.time.nil?
     .col-sm-1
@@ -13,10 +13,11 @@
       = c.vehicle_check.measure_unit unless c.last_reading.nil?
     .col-sm-2
       = hidden_field_tag :tab, "tab-#{c.vehicle_check.code.tr(' ','_')}"
+      = hidden_field_tag :station, @station
       -# - if c.vehicle_check.val_max.nil? and c.vehicle_check.val_min.nil?
       - case c.datatype
       - when 'select'
-        = select_tag "check[#{c.id}][value]", options_for_select(c.select_options,c.value), class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
+        = select_tag "check[#{c.id}][value]", options_for_select(c.select_options,c.value), class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, station: @station }
         -# .clickbox{data: {'trigger': 'vy'+c.id.to_s}}
         -#   = radio_button_tag "check[#{c.id}][value]", 1, c.value.nil?? nil : (c.value == 0.0 ? false : true), class: 'ajax_update', id: 'vy'+c.id.to_s, data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
         -#   = 'A posto '
@@ -27,18 +28,18 @@
         .inline
           -# = c.vehicle_check.measure_unit
         .inline
-          = number_field_tag "check[#{c.id}][value]", c.value, step: 1, min: c.vehicle_check.val_min, max: c.vehicle_check.val_max, class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}" }
+          = number_field_tag "check[#{c.id}][value]", c.value, step: 1, min: c.vehicle_check.val_min, max: c.vehicle_check.val_max, class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}", station: @station }
       - when 'decimal(2)'
         .inline
           -# = c.vehicle_check.measure_unit
-        .inline{style: 'margin-left: .5em; width: 10em'}
-          = number_field_tag "check[#{c.id}][value]", c.value, step: :any, min: c.vehicle_check.val_min, max: c.vehicle_check.val_max, class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}" }
+        .inline{style: 'margin-left: .5em;'}
+          = number_field_tag "check[#{c.id}][value]", c.value, step: :any, min: c.vehicle_check.val_min, max: c.vehicle_check.val_max, class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}", station: @station }
       - when 'date'
-        = date_field_tag "check[#{c.id}][value]", c.value, step: :any, class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}" }
+        = date_field_tag "check[#{c.id}][value]", c.value, step: :any, class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}", station: @station }
     .col-sm-2
       -# =check_box_tag "check[#{c.id}][performed]", true, c.performed, class: 'ajax_update', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
       -# .clickbox{data: {'trigger': 'py'+c.id.to_s}}
-      = select_tag "check[#{c.id}][performed]", options_for_select(VehiclePerformedCheck.fixvalues, selected: c.performed), class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}" }
+      = select_tag "check[#{c.id}][performed]", options_for_select(VehiclePerformedCheck.fixvalues, selected: c.performed), class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}", station: @station }
       -# = radio_button_tag "check[#{c.id}][performed]", true, c.performed, class: 'ajax_update', id: 'py'+c.id.to_s, data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
       -# = 'Si'
       -# %br
@@ -46,4 +47,4 @@
       -# = radio_button_tag "check[#{c.id}][performed]", false, !c.performed, class: 'ajax_update', id: 'pn'+c.id.to_s, data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i }
       -# = 'No'
     .col-sm-2
-      =text_field_tag "check[#{c.id}][notes]", c.notes, placeholder: 'Note..', class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}" }
+      =text_field_tag "check[#{c.id}][notes]", c.notes, placeholder: 'Note..', class: 'ajax_update form-control', data: { target: update_vehicle_check_path(c.id), additional: @check_session.real_duration.to_i, tab: "tab-#{c.vehicle_check.code.tr(' ','_')}", station: @station }

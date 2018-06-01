@@ -1,0 +1,5 @@
+%h4= "Aggiungi operazione"
+= form_tag( create_workshop_operation_path(@worksheet.number), remote: true, method: :post) do |f|
+  = text_field_tag :name, nil, placeholder: 'Descrizione..', class: 'form-control', id: 'focus_element'
+  = hidden_field_tag :protocol, protocol
+  = submit_tag :ok
