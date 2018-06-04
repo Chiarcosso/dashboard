@@ -40,6 +40,10 @@ class Company < ApplicationRecord
     Company.where("name like 'Trans Est%'").first
   end
 
+  def self.not_available
+    Company.create(name: 'N/D') if Company.find_by(name: 'N/D').first.nil?
+  end
+
   # def self.most_used_transporter
   #   Company..first
   # end

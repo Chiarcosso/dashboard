@@ -1,8 +1,8 @@
 
 .row{style: 'margin-top: 1em; margin-bottom: 1em;'}
-  .col-sm-3
-    %b= "ODL nr. #{@worksheet.number} - #{@worksheet.vehicle.plate}"
   .col-sm-9
+    %b= "ODL nr. #{@worksheet.number} - #{@worksheet.vehicle.plate} - #{@worksheet.notes}"
+  .col-sm-3
     =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(@worksheet.vehicle.id), name: "infobox_vehicle_checks_#{@worksheet.vehicle.id}" }
     =button_tag 'r', class: 'infobox-button no-loader', data: { target: info_vehicle_spare_items_path(@worksheet.vehicle.id), name: "infobox_vehicle_spare_items_#{@worksheet.vehicle.id}" }
     =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@worksheet.vehicle.id), name: "infobox_vehicle_#{@worksheet.vehicle.id}" }

@@ -246,6 +246,7 @@ Rails.application.routes.draw do
   post   '/worksheet/filter/', to: 'worksheets#filter', as: :worksheet_filter
   post   '/worksheet/pdf/:id', to: 'worksheets#print_pdf', as: :worksheet_print_pdf
   post   '/worksheet/get_pdf/:id', to: 'worksheets#get_pdf', as: :worksheet_get_pdf
+  post   '/worksheet/upsync', to: 'worksheets#upsync_all', as: :upsync_worksheets
 
   post   '/worksheet/:id/open', to: 'workshop#open_worksheet',as: :open_worksheet
   post   '/worksheet/:id/create_operation', to: 'workshop#create_operation',as: :create_workshop_operation

@@ -8,6 +8,7 @@ module AdminHelper
     res[:atc] = Company.chiarcosso
     res[:te] = Company.transest
     res[:ec] = Company.edilizia
+    res[:no_owner] = Company.not_available
     res[:sw] = VehicleTypology.find_by(:name => 'Station wagon')
     res[:no_vehicle_type] = VehicleType.not_available
     res[:no_vehicle_typology] = VehicleTypology.not_available
@@ -31,6 +32,7 @@ module AdminHelper
     res[:property] = res[:atc] if r['property'] == 'A'
     res[:property] = res[:te] if r['property'] == 'T'
     res[:property] = res[:ec] if r['property'] == 'E'
+    res[:property] = res[:no_owner] if r['property'] == '' || r['property'].nil?
     if res[:property].nil?
       @error = " #{r['plate']} (#{r['id']}) - Invalid property: #{r['property']}"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Proprietà non valida: #{r['property']}</span>\n"
@@ -47,7 +49,7 @@ module AdminHelper
       res['serie'] = r['model'][/(\d) serie$/,1].to_i
       r['model'] = r['model'][/^(.*) \d serie$/,1]
     end
-    
+
     res[:model] = VehicleModel.where(:name => r['model'], :manufacturer => res[:manufacturer]).first
     if res[:model].nil?
       @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"

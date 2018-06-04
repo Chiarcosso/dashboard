@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180601133949) do
+ActiveRecord::Schema.define(version: 20180604101914) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -857,6 +857,7 @@ ActiveRecord::Schema.define(version: 20180601133949) do
     t.integer  "real_duration",                                       default: 0,         null: false
     t.date     "creation_date"
     t.text     "log",           limit: 65535
+    t.boolean  "suspended",                                           default: false,     null: false
     t.index ["code"], name: "index_worksheets_on_code", unique: true, using: :btree
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end

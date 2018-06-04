@@ -7,6 +7,21 @@ class WorksheetsController < ApplicationController
     render 'workshop/index'
   end
 
+  def upsync_all
+    begin
+      Worksheet.upsync_all
+      respond_to do |format|
+        apply_filter
+        format.js { render partial: 'workshop/close_worksheet_js' }
+      end
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
   def set_hours
     begin
       p = params.require(:worksheet).permit(:id,:hours)

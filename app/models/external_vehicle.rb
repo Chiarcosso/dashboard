@@ -19,8 +19,18 @@ class ExternalVehicle < ApplicationRecord
   def last_washing
     nil
   end
+
+  def mandatory?(vc)
+    vc.importance == 9 ? true : false
+  end
   
-  def vehicle_checks
+  def vehicle_checks(station)
+    case station
+    when 'carwash' then
+      station_check = 'and check_carwash != 0'
+    when 'workshop' then
+      station_check = 'and check_workshop != 0'
+    end
     VehicleCheck.where("vehicle_type_id = #{self.vehicle_type_id} or vehicle_typology_id = #{self.vehicle_typology_id} #{station_check}").order({importance: :desc, label: :asc})
   end
 
