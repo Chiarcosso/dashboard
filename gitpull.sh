@@ -15,14 +15,18 @@ sudo service iptables stop
 # sudo chmod 664 log/production.log
 
 if [[ $speedy == false ]]; then
+  echo "Clear cache"
   bundle exec rake tmp:cache:clear RAILS_ENV=production
 fi
 # git pull --commit --no-edit
+echo "Fetch origin"
 git fetch origin
 
 if [[ $speedy == false ]]; then
   bundle install
+  echo "Migrate"
   bundle exec rake db:migrate RAILS_ENV=production
+  echo "Compile assets"
   bundle exec rake assets:precompile RAILS_ENV=production
 fi
 
