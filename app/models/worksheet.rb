@@ -12,7 +12,7 @@ class Worksheet < ApplicationRecord
 
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
   scope :open, -> { where(closingDate: nil, suspended: false) }
-  scope :incoming, -> { where(exit_time: nil).where(closingDate: nil).where(suspended: false) }
+  scope :incoming, -> { where(exit_time: nil).where(closingDate: nil).where(suspended: false).where('opening_date is not null').where(station: 'workshop') }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
   def opened?
@@ -116,7 +116,8 @@ class Worksheet < ApplicationRecord
     protocol = protocol.to_s[/(EWC\*)?([0-9]+).*/,2]
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
-      res = get_client.query("select Protocollo, CodiceAutomezzo, ifnull(automezzi.Tipo,'S') as Tipo, DataIntervento, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa "\
+      res = get_client.query("select Protocollo, CodiceAutomezzo, ifnull(automezzi.Tipo,'S') as Tipo, "\
+        "DataIntervento, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.codice "\
         "where Protocollo = #{protocol} limit 1")
@@ -145,10 +146,18 @@ class Worksheet < ApplicationRecord
   	  end
       # @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       raise "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
-      if ws.nil?
-        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], closingDate: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false)
+      case odl['CodiceAnagrafico']
+      when 'OFF00001' then
+        station = 'workshop'
+      when 'OFF00047' then
+        station = 'carwash'
       else
-        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], closingDate: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false)
+        station = odl['CodiceAnagrafico'].to_s
+      end
+      if ws.nil?
+        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataIntervento'] < (Date.today - 1.year) ? DateTime.now : nil)
+      else
+        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : ws.closingDate)
       end
     rescue Exception => e
       # @error = e.message if @error.nil?
@@ -159,7 +168,7 @@ class Worksheet < ApplicationRecord
 
   def self.upsync_all
     res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, "\
-      "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa "\
+      "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
       "where DataEntrataVeicolo is not null and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
@@ -167,6 +176,7 @@ class Worksheet < ApplicationRecord
     @error = ''
     res.each do |odl|
       begin
+        odl['FlagProgrammazioneSospesa'] = 'false' if odl['FlagProgrammazioneSospesa'].nil?
         Worksheet.upsync_ws(odl)
       rescue Exception => e
         @error += e.message+"\n\n"

@@ -369,7 +369,11 @@ class VehiclesController < ApplicationController
           @vehicle = Vehicle.find(params.require(:id))
 
         rescue Exception, ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound  => e
-          @error = "Impossibile trovare mezzo.\n\n#{e.message}\n\n"
+            begin
+              @vehicle = ExternalVehicle.find(params.require(:id))
+            rescue Exception, ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound  => e
+              @error = "Impossibile trovare mezzo.\n\n#{e.message}\n\n"
+            end
         end
       end
     end
