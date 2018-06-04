@@ -381,7 +381,7 @@ class ItemsController < ApplicationController
       else
         unless params[:search].nil? || params[:search] == '' || @locals[:goners].size > 0
           @locals[:search] = params.require(:search)
-          Item.firstBarcode(@locals[:search]).for_free.order(:position_code_id).each do |i|
+          Item.firstBarcode(@locals[:search]).order(:position_code_id).each do |i|
             @locals[:items] << i
           end
         end
