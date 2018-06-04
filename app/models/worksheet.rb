@@ -171,7 +171,8 @@ class Worksheet < ApplicationRecord
       "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
-      "where DataEntrataVeicolo is not null and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
+      "where DataEntrataVeicolo is not null and DataIntervento > '#{(Date.today - 1.year).strftime('%Y-%m-%d')}' "\
+      "and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
 
     @error = ''
     res.each do |odl|
