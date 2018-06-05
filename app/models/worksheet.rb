@@ -12,7 +12,7 @@ class Worksheet < ApplicationRecord
 
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
   scope :open, -> { where(closingDate: nil, suspended: false) }
-  scope :incoming, -> { where(exit_time: nil).where(closingDate: nil).where(suspended: false).where('opening_date is not null').where(station: 'workshop') }
+  scope :incoming, -> { where(exit_time: nil, closingDate: nil, suspended: false, station: 'workshop').where('opening_date is not null') }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
   def opened?
@@ -182,8 +182,7 @@ class Worksheet < ApplicationRecord
       "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
-      "where DataEntrataVeicolo is not null and DataIntervento is not null and "\
-      "(case when DataIntervento is not null then DataIntervento > '#{(Date.today - 1.year).strftime('%Y-%m-%d')}' else false end) "\
+      "where DataEntrataVeicolo is not null and DataIntervento is not null "\
       "and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
 
     @error = ''
@@ -198,7 +197,7 @@ class Worksheet < ApplicationRecord
     end
     unless @error == ''
       # special_logger(@error)
-      
+
       raise @error
     end
   end
