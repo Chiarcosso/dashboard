@@ -21,6 +21,8 @@ fi
 # git pull --commit --no-edit
 echo "Fetch origin"
 git fetch origin
+echo "Reset"
+git reset --hard origin/master
 
 if [[ $speedy == false ]]; then
   bundle install
