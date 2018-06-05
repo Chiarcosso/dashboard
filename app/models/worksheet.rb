@@ -198,7 +198,7 @@ class Worksheet < ApplicationRecord
     end
     unless @error == ''
       # special_logger(@error)
-      byebug
+      
       raise @error
     end
   end
