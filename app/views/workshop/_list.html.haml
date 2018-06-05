@@ -3,9 +3,11 @@
   .row.colored.hilight.selectable.ajax-link{ data: { method: :post, target: info_for_workshop_path(id: ws.vehicle.id) } }
     .col-sm-2
       =button_to 'Apri', open_worksheet_path(ws.number), remote: true, class: 'no-ajax-link'
-    .col-sm-3
+    .col-sm-2
       ="n. #{ws.number}"
     .col-sm-2
       =ws.vehicle.plate
-    .col-sm-4
+    .col-sm-2
       ="#{I18n.l ws.opening_date}" unless ws.opening_date.nil?
+    .col-sm-4
+      =ws.notes

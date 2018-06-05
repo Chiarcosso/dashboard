@@ -41,7 +41,9 @@ class Company < ApplicationRecord
   end
 
   def self.not_available
-    Company.create(name: 'N/D') if Company.find_by(name: 'N/D').first.nil?
+    nd = Company.find_by(name: 'N/D')
+    nd = Company.create(name: 'N/D') if nd.nil?
+    nd
   end
 
   # def self.most_used_transporter

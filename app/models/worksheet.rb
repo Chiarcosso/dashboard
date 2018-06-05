@@ -155,13 +155,24 @@ class Worksheet < ApplicationRecord
         station = odl['CodiceAnagrafico'].to_s
       end
       if ws.nil?
-        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataIntervento'] < (Date.today - 1.year) ? DateTime.now : nil)
+        if odl['DataIntervento'].nil?
+          closingDate = Date.today
+        else
+          closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : nil
+        end
+        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: closingDate)
       else
-        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : ws.closingDate)
+        if odl['DataIntervento'].nil?
+          closingDate = Date.today
+        else
+          closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : ws.closingDate
+        end
+        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: closingDate)
       end
     rescue Exception => e
       # @error = e.message if @error.nil?
-      raise "#{e.message}\n\n#{e.backtrace}"
+      @error =  "#{e.message}\n\n#{e.backtrace}"
+      # byebug
     end
     ws
   end
@@ -171,7 +182,8 @@ class Worksheet < ApplicationRecord
       "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
-      "where DataEntrataVeicolo is not null and DataIntervento > '#{(Date.today - 1.year).strftime('%Y-%m-%d')}' "\
+      "where DataEntrataVeicolo is not null and DataIntervento is not null and "\
+      "(case when DataIntervento is not null then DataIntervento > '#{(Date.today - 1.year).strftime('%Y-%m-%d')}' else false end) "\
       "and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
 
     @error = ''
@@ -180,12 +192,14 @@ class Worksheet < ApplicationRecord
         odl['FlagProgrammazioneSospesa'] = 'false' if odl['FlagProgrammazioneSospesa'].nil?
         Worksheet.upsync_ws(odl)
       rescue Exception => e
-        @error += e.message+"\n\n"
+        raise error
+        # @error += e.message+"\n\n"
       end
     end
     unless @error == ''
       # special_logger(@error)
-      # raise @error
+      byebug
+      raise @error
     end
   end
 

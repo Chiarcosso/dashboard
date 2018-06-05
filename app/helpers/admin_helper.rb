@@ -259,12 +259,17 @@ module AdminHelper
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
       mssql_reference_logger.error(@error)
     end
-    if r['owner'].nil? and r['idfornitore'].nil?
-      @error = " #{r['plate']} (#{r['id']}) - no owner id"
-      res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Id fornitore mancante</span>\n"
-      mssql_reference_logger.error(@error)
-    else
-      res[:owner] = Company.find_by(:name => r['owner'].titleize)
+    # if r['owner'].nil? and r['idfornitore'].nil?
+    #   # @error = " #{r['plate']} (#{r['id']}) - no owner id"
+    #   # res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Id fornitore mancante</span>\n"
+    #   # mssql_reference_logger.error(@error)
+    #   r['owner'] = res[:no_owner]
+    # else
+      if r['owner'].nil? and r['idfornitore'].nil?
+        res[:owner] = res[:no_owner]
+      else
+        res[:owner] = Company.find_by(:name => r['owner'].titleize)
+      end
       if res[:owner].nil?
         if update
           res[:owner] = Company.create(:name => r['owner'].titleize, transporter: true)
@@ -274,9 +279,13 @@ module AdminHelper
         res[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Creata ditta: #{res[:owner].name} (id: #{res[:owner].id})\n"
         mssql_reference_logger.error(@error)
       end
-    end
+    # end
     res[:idveicolo] = r['id']
-    res[:idfornitore] = r['idfornitore']
+    if r['idfornitore'].nil?
+      res[:idfornitore] = 0
+    else
+      res[:idfornitore] = r['idfornitore']
+    end
     if r['plate'].nil?
       @error = " #{r['plate']} (#{r['id']}) - Blank plate"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
@@ -285,7 +294,6 @@ module AdminHelper
       res[:plate] = r['plate']
       res[:vehicle] = ExternalVehicle.find_by(plate: r['plate'].tr('. *-',''))
     end
-
     res
   end
 

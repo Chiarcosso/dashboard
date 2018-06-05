@@ -19,12 +19,14 @@
           .row
             .col-sm-2
               =button_to 'Aggiorna', upsync_worksheets_path, remote: true, class: 'no-ajax-link'
-            .col-sm-3
+            .col-sm-2
               %b="Nr. ODL"
             .col-sm-2
               %b="Targa"
-            .col-sm-4
+            .col-sm-2
               %b="Data entrata"
+            .col-sm-4
+              %b="Note"
           .scrollable-panel{ style: 'padding-bottom: 7em; height: 100%;'}
             =render :partial => 'workshop/list', :locals => { :worksheets => @open_worksheets }
         .col-sm-6{ style: 'padding-bottom: 5.5em; height: 100%;'}
