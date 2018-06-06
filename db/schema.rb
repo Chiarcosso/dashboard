@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180604115215) do
+ActiveRecord::Schema.define(version: 20180606091855) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -58,20 +58,24 @@ ActiveRecord::Schema.define(version: 20180604115215) do
   end
 
   create_table "carwash_driver_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",       null: false
+    t.string   "code",                       null: false
     t.integer  "person_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.boolean  "disabled",   default: false, null: false
     t.index ["code"], name: "index_carwash_driver_codes_on_code", unique: true, using: :btree
+    t.index ["disabled"], name: "index_carwash_driver_codes_on_disabled", using: :btree
     t.index ["person_id"], name: "index_carwash_driver_codes_on_person_id", using: :btree
   end
 
   create_table "carwash_special_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "label",                    null: false
-    t.string   "code",                     null: false
-    t.integer  "carwash_code", default: 0, null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.string   "label",                        null: false
+    t.string   "code",                         null: false
+    t.integer  "carwash_code", default: 0,     null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.boolean  "disabled",     default: false, null: false
+    t.index ["disabled"], name: "index_carwash_special_codes_on_disabled", using: :btree
   end
 
   create_table "carwash_usages", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -92,11 +96,13 @@ ActiveRecord::Schema.define(version: 20180604115215) do
   end
 
   create_table "carwash_vehicle_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",       null: false
+    t.string   "code",                       null: false
     t.integer  "vehicle_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.boolean  "disabled",   default: false, null: false
     t.index ["code"], name: "index_carwash_vehicle_codes_on_code", unique: true, using: :btree
+    t.index ["disabled"], name: "index_carwash_vehicle_codes_on_disabled", using: :btree
     t.index ["vehicle_id"], name: "index_carwash_vehicle_codes_on_vehicle_id", using: :btree
   end
 
@@ -859,6 +865,7 @@ ActiveRecord::Schema.define(version: 20180604115215) do
     t.text     "log",           limit: 65535
     t.boolean  "suspended",                                           default: false,     null: false
     t.string   "station"
+    t.boolean  "closed",                                              default: false,     null: false
     t.index ["code"], name: "index_worksheets_on_code", unique: true, using: :btree
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end

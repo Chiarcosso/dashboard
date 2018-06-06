@@ -46,9 +46,27 @@ class Company < ApplicationRecord
     nd
   end
 
+  def self.find_by_reference(table,id)
+    v = MssqlReference.find_by(remote_object_table: table, remote_object_id: id)
+	  v.local_object unless v.nil?
+    # find and create new vehicle if v.nil?
+  end
   # def self.most_used_transporter
   #   Company..first
   # end
+  def has_reference?(table,id)
+    !MssqlReference.where(local_object:self,remote_object_table:table,remote_object_id:id).empty?
+  end
+  
+  def check_properties(comp)
+    if comp['name'] != self.name
+      return false
+    end
+    if comp['vat_number'] != self.vat_number
+      return false
+    end
+    return true
+  end
 
   def to_worksheet_financial_csv(options = {},year = Date.current.year)
     CSV.generate(options) do |csv|

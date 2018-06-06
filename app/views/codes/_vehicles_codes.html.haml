@@ -13,8 +13,8 @@
           -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
       .row{class: (cwdc.vehicle.dismissed ? ' error-item' : '')}
         .col-sm-12
-          = submit_tag 'Rigenera'
-          = submit_tag 'Elimina'
+          = submit_tag 'Rigenera', data: { confirmation: "Rigenerare la carta #{cwdc.code} assegnata a #{cwdc.vehicle.plate}? La tessera stampata in precedenza non sarà più valida."}
+          = submit_tag cwdc.disabled ? 'Abilita' : 'Disabilita', data: { confirmation: "#{cwdc.disabled ? 'Abilitare' : 'Disabilitare'} la carta #{cwdc.code} assegnata a #{cwdc.vehicle.plate}?"}
           = 'Stampa'
           = check_box_tag "print-vehicles[]",cwdc.id, false, class: 'print print-vehicle', data: {date: cwdc.vehicle.dismissed ? -1 : cwdc.updated_at.strftime('%Y%m%d')}
           %hr

@@ -12,7 +12,7 @@ class Worksheet < ApplicationRecord
 
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
   scope :open, -> { where(closingDate: nil, suspended: false) }
-  scope :incoming, -> { where(exit_time: nil, closingDate: nil, suspended: false, station: 'workshop').where('opening_date is not null') }
+  scope :incoming, -> { where(exit_time: nil, suspended: false, station: "workshop", closed: false).where('opening_date is not null') }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
   def opened?
@@ -160,25 +160,24 @@ class Worksheet < ApplicationRecord
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : nil
         end
-        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: closingDate)
+        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].upcase == 'TRUE' ? true : false)
       else
         if odl['DataIntervento'].nil?
           closingDate = Date.today
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : ws.closingDate
         end
-        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: closingDate)
+        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].upcase == 'TRUE' ? true : false)
       end
     rescue Exception => e
       # @error = e.message if @error.nil?
       @error =  "#{e.message}\n\n#{e.backtrace}"
-      # byebug
     end
     ws
   end
 
   def self.upsync_all
-    res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, "\
+    res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
       "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\

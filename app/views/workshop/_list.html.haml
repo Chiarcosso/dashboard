@@ -1,6 +1,6 @@
 - worksheets.each_with_index do |ws,i|
   - @vehicle = ws.vehicle if i == 0
-  .row.colored.hilight.selectable.ajax-link{ data: { method: :post, target: info_for_workshop_path(id: ws.vehicle.id) } }
+  .row.colored.hilight.selectable.ajax-link{ data: { sbox: "#sbox-#{ws.id}", method: :post, target: info_for_workshop_path(id: ws.vehicle.id) } }
     .col-sm-2
       =button_to 'Apri', open_worksheet_path(ws.number), remote: true, class: 'no-ajax-link'
     .col-sm-2
@@ -10,4 +10,9 @@
     .col-sm-2
       ="#{I18n.l ws.opening_date}" unless ws.opening_date.nil?
     .col-sm-4
-      =ws.notes
+      %b=ws.notes
+    .sbox{id: "sbox-#{ws.id}", style: "display: none;"}
+      - ws.notifications.each do |n|
+        .row
+          .col-sm-12{style: 'padding-left: 3em; padding-right: 2em;'}
+            = "- #{n['DescrizioneSegnalazione']}"

@@ -26,6 +26,10 @@ body{
   left: 1em;
 }
 
+.btn-toggle{
+  width: 100%;
+  border: 1px solid #aaa;
+}
 .close{
   margin: 1em;
   position: absolute;

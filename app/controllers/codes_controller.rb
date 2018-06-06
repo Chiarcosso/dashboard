@@ -4,6 +4,8 @@ class CodesController < ApplicationController
   before_action :special_logger
   protect_from_forgery except: [:carwash_check,:carwash_close,:carwash_authorize]
   skip_before_action :authenticate_user!, :only => [:carwash_check,:carwash_close,:carwash_authorize]
+
+  rescue_from ApplicationController, :with => :error
   # before_action :get_person, only: [:new_carwash_driver_code,:update_carwash_driver_code]
   before_action :get_action, only: [:update_carwash_driver_code,:update_carwash_vehicle_code,:update_carwash_special_code]
   before_action :get_driver_code, only: [:new_carwash_driver_code,:update_carwash_driver_code]
@@ -13,7 +15,7 @@ class CodesController < ApplicationController
   autocomplete :vehicle_information, :information, full: true, :id_element => '#vehicle_id', display_value: :information
 
   def index
-    
+
   end
 
   def autocomplete_person_surname
@@ -108,11 +110,11 @@ class CodesController < ApplicationController
       code = CarwashDriverCode.findByCode(c).first || CarwashVehicleCode.findByCode(c).first || CarwashSpecialCode.findByCode(c).first
 
       if code.is_a? CarwashDriverCode
-        driver = code.person
+        driver = code.person || code.disabled
       elsif code.is_a? CarwashSpecialCode
-        special = code
+        special = code || code.disabled
       elsif code.is_a? CarwashVehicleCode
-        vehicles << code.vehicle unless Vehicle.carwash_codes[code.vehicle.carwash_code] == 0 # and code.vehicle.vehicle_type.carwash_type == 0
+        vehicles << code.vehicle unless Vehicle.carwash_codes[code.vehicle.carwash_code] == 0 || code.disabled # and code.vehicle.vehicle_type.carwash_type == 0
       end
     end
     if special.nil?
@@ -156,7 +158,7 @@ class CodesController < ApplicationController
     code = CarwashDriverCode.findByCode(params.permit(:code)[:code]).first || CarwashVehicleCode.findByCode(params.permit(:code)[:code]).first || CarwashSpecialCode.findByCode(params.permit(:code)[:code]).first
     @@special_logger.info("Check -> #{code.inspect} ||| #{params.inspect}")
     if (code.class == CarwashVehicleCode)
-      if code.vehicle.carwash_code == 'N/D'
+      if code.vehicle.carwash_code == 'N/D' || code.disabled
         no_go = true
       end
     end
@@ -187,8 +189,10 @@ class CodesController < ApplicationController
       case @action
       when :regenerate
         @code.regenerate
-      when :delete
-        @code.destroy
+      when :disable
+        @code.update(disabled: true)
+      when :enable
+        @code.update(disabled: false)
       end
       # @msg = 'Codice creato.'
     else
@@ -223,8 +227,10 @@ class CodesController < ApplicationController
       case @action
       when :regenerate
         @code.regenerate
-      when :delete
-        @code.destroy
+      when :disable
+        @code.update(disabled: true)
+      when :enable
+        @code.update(disabled: false)
       end
       # @msg = 'Codice creato.'
     else
@@ -252,8 +258,10 @@ class CodesController < ApplicationController
       case @action
       when :regenerate
         @code.regenerate
-      when :delete
-        @code.destroy
+      when :disable
+        @code.update(disabled: true)
+      when :enable
+        @code.update(disabled: false)
       end
       # @msg = 'Codice creato.'
     else
@@ -279,7 +287,12 @@ class CodesController < ApplicationController
     end
   end
 
-
+  def error e
+    @error = e.message
+    respond_to do |format|
+      format.js { render :partial => 'layouts/error' }
+    end
+  end
 
   private
 
@@ -331,9 +344,12 @@ class CodesController < ApplicationController
     case params.permit(:commit)[:commit]
       when 'Rigenera'
         @action = :regenerate
-      when 'Elimina'
-        @action = :delete
+      when 'Disabilita'
+        @action = :disable
+      when 'Abilita'
+        @action = :enable
     end
+    
   end
 
   def get_person

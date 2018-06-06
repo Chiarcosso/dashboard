@@ -16,8 +16,8 @@
           -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
       .row
         .col-sm-12
-          = submit_tag 'Rigenera'
-          = submit_tag 'Elimina'
+          = submit_tag 'Rigenera', data: { confirmation: "Rigenerare la carta speciale #{cwdc.code} assegnata a #{cwdc.label}? La tessera stampata in precedenza non sarà più valida."}
+          = submit_tag cwdc.disabled ? 'Abilita' : 'Disabilita', data: { confirmation: "#{cwdc.disabled ? 'Abilitare' : 'Disabilitare'} la carta speciale #{cwdc.code} assegnata a #{cwdc.label}?"}
           = 'Stampa'
           = check_box_tag "print-special[]",cwdc.id, false, class: 'print print-special', data: {date: cwdc.updated_at.strftime('%Y%m%d')}
           %hr

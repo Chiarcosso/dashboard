@@ -274,8 +274,10 @@ function json_autocomplete_keyup_func() {
 
 function selectable_click_func() {
     "use strict";
+    $('.sbox').hide();
     $('.selected-row').removeClass('selected-row');
     $(this).addClass('selected-row');
+    $($(this).data('sbox')).show();
 }
 
 var popup_link_name;
@@ -408,6 +410,10 @@ function create_popup_click_func() {
      $('#focus_element').focus();
 }
 
+function toggle_click_func() {
+  $($(this).data('target')).toggle();
+}
+
 function activateJS() {
     "use strict";
 
@@ -466,6 +472,8 @@ function activateJS() {
     $('body').on('click', '[data-confirmation]', data_confirmation_click_func);
 
     $('body').on('click', '.create_popup', create_popup_click_func);
+
+    $('body').on('click', '.toggle', toggle_click_func);
 
 }
 

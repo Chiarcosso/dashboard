@@ -14,8 +14,84 @@ class MssqlReference < ApplicationRecord
     upsync_other_vehicles
     upsync_external_vehicles
     upsync_employees
-    # update_employees
+    # upsync_companies
     # update_companies
+  end
+
+  def self.upsync_companies(update)
+
+    begin
+      special_logger.info("Starting companies upsync") if update
+      response = "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - Inizio importazione #{(update ? '' : '(simulata)')}\n"
+      client = get_client
+
+      @errors = Array.new
+      query = "select 'Clienti' as table_name, c.IdCliente as id, c.RagioneSociale as name, c.PartitaIva as vat_number "\
+                  "from Clienti c "\
+                  "where RagioneSociale is not null "
+                  "order by c.RagioneSociale"
+      list = client.execute(query)
+
+      special_logger.info("#{list.count} records found")
+      special_logger.info(query)
+      response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - Trovati #{list.count} record nella tabella Clienti dove la regione sociale e' compilata.\n"
+      list.each do |r|
+        @error = nil
+
+        r['name'] = r['name'].strip.titleize
+
+        c = Company.find_by(name: r['name'])
+
+        begin
+          if @error.nil?
+            if c.nil?
+              if update
+                c = Company.create(name: r['name'], vat_number: r['vat_number'])
+              else
+                c = Company.new(name: r['name'], vat_number: r['vat_number'])
+                c.id = 0
+              end
+
+              special_logger.info(" - #{c.id} ->  #{r['RagioneSociale']} (#{r['id']}) - Created (id: #{c.id}).")
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")}  #{r['RagioneSociale']} (#{r['id']}) - Creato (id: #{c.id}).\n"
+              special_logger.info("name: #{c.name}.")
+              response += "nome: #{c.name}.\n"
+
+              mssqlref = MssqlReference.create(local_object: c, remote_object_table: 'Clienti', remote_object_id: r['id'].to_i) if update
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{c.name} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+              special_logger.info(" - #{c.id} -> #{c.name} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
+
+            elsif c.check_properties(r)
+
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:S")} #{c.name} (#{r['id']}) - A posto (id: #{c.id}).\n"
+
+            else
+              c.update(name: r['name'], vat_number: r['vat_number']) if update
+              special_logger.info(" - #{c.id} ->  #{r['RagioneSociale']} (#{r['id']}) - Created (id: #{c.id}).")
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")}  #{r['RagioneSociale']} (#{r['id']}) - Creato (id: #{c.id}).\n"
+              special_logger.info("name: #{c.name}.")
+              response += "nome: #{c.name}.\n"
+
+              unless c.has_reference?('Clienti',r['id'])
+                mssqlref = MssqlReference.create(local_object: c, remote_object_table: 'Clienti', remote_object_id: r['id'].to_i) if update
+                response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['RagioneSociale']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
+                special_logger.info(" - #{c.id} -> #{r['RagioneSociale']} (#{r['id']}) - MSSQL reference added: #{mssqlref.to_s}.")
+              end
+            end
+          end
+        rescue Exception => e
+          special_logger.error("  - #{r['RagioneSociale']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['RagioneSociale']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
+
+        end
+      end
+    rescue Exception => e
+      special_logger.error("#{e.message}\n#{e.backtrace}")
+      response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
+
+    end
+
+    return {response: response, array: [] }
   end
 
   def self.upsync_vehicles(update)

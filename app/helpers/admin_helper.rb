@@ -265,12 +265,17 @@ module AdminHelper
     #   # mssql_reference_logger.error(@error)
     #   r['owner'] = res[:no_owner]
     # else
-      if r['owner'].nil? and r['idfornitore'].nil?
+      if (r['owner'].nil? || r['owner'] == '') and r['idfornitore'].nil?
         res[:owner] = res[:no_owner]
       else
-        res[:owner] = Company.find_by(:name => r['owner'].titleize)
+        if r['owner'].nil?
+          res[:owner] = Company.find_by_reference('Clienti',r['idfornitore'].to_i)
+        else
+          res[:owner] = Company.find_by(:name => r['owner'].titleize)
+        end
       end
       if res[:owner].nil?
+        byebug
         if update
           res[:owner] = Company.create(:name => r['owner'].titleize, transporter: true)
         else
