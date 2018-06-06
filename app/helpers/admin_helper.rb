@@ -275,7 +275,6 @@ module AdminHelper
         end
       end
       if res[:owner].nil?
-        byebug
         if update
           res[:owner] = Company.create(:name => r['owner'].titleize, transporter: true)
         else

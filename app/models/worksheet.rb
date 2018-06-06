@@ -204,6 +204,11 @@ class Worksheet < ApplicationRecord
     end
   end
 
+  def close
+    # ewc = EurowinController::get_ew
+    self.update(closed: true)
+  end
+
   def self.findByCode code
     Worksheet.where(code: code).first
   end
