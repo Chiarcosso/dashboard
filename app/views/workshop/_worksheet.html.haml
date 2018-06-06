@@ -111,23 +111,28 @@
   var active_notification = null;
 
   $('.stop-worksheet').on('click',function(){
-    var route = $(this).data('route');
-    var operation_times = [];
-    var action = $(this).data('action');
-    $.each($('.timer'),function(){
-      var id = /timer(\d*)/.exec($(this).attr('id'))[1];
-      if( id == active_notification){
-        operation_times.push({id: id, time: active_timer});
-      } else {
-        operation_times.push({id: id, time: $(this).data('time')});
-      }
-    });
-    var data = { worksheet_duration: tm, operation_times: JSON.stringify(operation_times), perform: action };
-    $.ajax({
-      url: route,
-      method: 'post',
-      data: data
-    });
+    if(confirm('Chidere la scheda?')){
+      var route = $(this).data('route');
+      var operation_times = [];
+      var action = $(this).data('action');
+      $.each($('.timer'),function(){
+        var id = /timer(\d*)/.exec($(this).attr('id'))[1];
+        if( id == active_notification){
+          operation_times.push({id: id, time: active_timer});
+        } else {
+          operation_times.push({id: id, time: $(this).data('time')});
+        }
+      });
+      var data = { worksheet_duration: tm, operation_times: JSON.stringify(operation_times), perform: action };
+      $.ajax({
+        url: route,
+        method: 'post',
+        data: data
+      });
+    } else {
+      deactivateLoadingScreen();
+    }
+
   });
 
   $('.timer_control').on('click',function(){
@@ -187,19 +192,23 @@
   });
 
   $('.stop_timer').on('click',function(){
-    var id = /stop-(\d*)/.exec($(this).attr('id'))[1];
-    var route = $(this).data('route');
-    if(active_timer === null){
-      var time = $('#timer'+id).data('time');
+    if(confirm('Chiudere la segnalazione?')){
+      var id = /stop-(\d*)/.exec($(this).attr('id'))[1];
+      var route = $(this).data('route');
+      if(active_timer === null){
+        var time = $('#timer'+id).data('time');
+      } else {
+        var time = active_timer;
+      }
+      var data = { operation: id, time: time, worksheet_duration: tm, protocol: $(this).data('protocol') };
+      $.ajax({
+        url: route,
+        method: 'post',
+        data: data
+      });
     } else {
-      var time = active_timer;
+      deactivateLoadingScreen();
     }
-    var data = { operation: id, time: time, worksheet_duration: tm, protocol: $(this).data('protocol') };
-    $.ajax({
-      url: route,
-      method: 'post',
-      data: data
-    });
   });
 
   deactivateLoadingScreen();

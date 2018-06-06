@@ -2,7 +2,7 @@
   - CarwashVehicleCode.all.sort_by{ |c| c.vehicle.plate }.each do |cwdc|
     = form_tag(update_carwash_vehicle_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
       = hidden_field_tag :id, cwdc.id
-      .row{class: (cwdc.vehicle.dismissed ? ' error-item' : '')}
+      .row{class: (cwdc.vehicle.dismissed ? ' error-item' : ''), style: cwdc.disabled ? 'background-color: #999' : ''}
         .col-sm-4
           -# = text_field_tag 'carwash_vehicle_code[code]', cwdc.code, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
           %b=cwdc.code
@@ -11,7 +11,7 @@
           -# = text_field_tag 'carwash_vehicle_code[vehicle]', cwdc.vehicle.nil? ? '' : cwdc.vehicle.plate, class: 'form-control a'+cwdc.id.to_s, disabled: :disabled
           -# = text_field_tag 'carwash_driver_code[person]', cwdc.person.nil? ? '' : cwdc.person.complete_name, data: { autocomplete: autocomplete_person_surname_codes_path }, class: 'form-control autofocus', id: 'person_id'
           -# = hidden_field_tag 'carwash_driver_code[person]', '', id: :person_id
-      .row{class: (cwdc.vehicle.dismissed ? ' error-item' : '')}
+      .row{class: (cwdc.vehicle.dismissed ? ' error-item' : ''), style: cwdc.disabled ? 'background-color: #999' : ''}
         .col-sm-12
           = submit_tag 'Rigenera', data: { confirmation: "Rigenerare la carta #{cwdc.code} assegnata a #{cwdc.vehicle.plate}? La tessera stampata in precedenza non sarà più valida."}
           = submit_tag cwdc.disabled ? 'Abilita' : 'Disabilita', data: { confirmation: "#{cwdc.disabled ? 'Abilitare' : 'Disabilitare'} la carta #{cwdc.code} assegnata a #{cwdc.vehicle.plate}?"}

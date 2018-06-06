@@ -423,6 +423,8 @@ function activateJS() {
 
     $('#center').on('load', '.autofocus', autofocus_ready_func);
 
+    $('body').on('click', '[data-confirmation]', data_confirmation_click_func);
+
     $('body').on("click", ".error", error_click_func);
 
     $('body').on("mouseenter", ".infobox-block", infobox_block_mouseenter_func);
@@ -468,8 +470,6 @@ function activateJS() {
     $('body').on('click', '.click-to-submit', click_to_submit_click_func);
 
     $('body').on('submit', 'form', form_submit_func);
-
-    $('body').on('click', '[data-confirmation]', data_confirmation_click_func);
 
     $('body').on('click', '.create_popup', create_popup_click_func);
 

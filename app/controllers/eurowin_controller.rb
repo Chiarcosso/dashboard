@@ -2,12 +2,18 @@ class EurowinController < ApplicationController
 
   def self.get_notifications_from_odl(protocol)
     odl = EurowinController::get_worksheet(protocol)
-    get_ew_client.query("select * from autosegnalazioni where serialODL = #{odl['Serial']};")
+    ewc = get_ew_client
+    r = ewc.query("select * from autosegnalazioni where serialODL = #{odl['Serial']};")
+    ewc.close
+    r
   end
 
   def self.get_worksheet(protocol)
     protocol = protocol[/\d*/]
-    get_ew_client.query("select * from autoodl where protocollo = #{protocol} limit 1;").first
+    ewc = get_ew_client
+    r = ewc.query("select * from autoodl where protocollo = #{protocol} limit 1;").first
+    ewc.close
+    r
   end
 
   private

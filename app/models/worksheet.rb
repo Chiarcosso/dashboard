@@ -116,11 +116,13 @@ class Worksheet < ApplicationRecord
     protocol = protocol.to_s[/(EWC\*)?([0-9]+).*/,2]
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
-      res = get_client.query("select Protocollo, CodiceAutomezzo, ifnull(automezzi.Tipo,'S') as Tipo, "\
+      ewc = EurowinController::get_ew_client
+      res = ewc.query("select Protocollo, CodiceAutomezzo, ifnull(automezzi.Tipo,'S') as Tipo, "\
         "DataIntervento, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.codice "\
         "where Protocollo = #{protocol} limit 1")
+      ewc.close
       if res.count > 0
         ws = Worksheet.upsync_ws(res.first)
       end
@@ -177,13 +179,14 @@ class Worksheet < ApplicationRecord
   end
 
   def self.upsync_all
-    res = get_client.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
+    ewc = EurowinController::get_ew_client
+    res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
       "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
       "where DataEntrataVeicolo is not null and DataIntervento is not null "\
       "and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
-
+    ewc.close
     @error = ''
     res.each do |odl|
       begin
