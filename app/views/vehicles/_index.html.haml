@@ -11,9 +11,12 @@
         = hidden_field_tag :search, @search
         = submit_tag 'Crea nuovo mezzo', class: 'form-control', data: { name: 'edit_vehicle' }
         -# =submit_tag "Crea nuovo modello", new_vehicle_model_path, class: "btn btn-primary popup-link", remote: true
-
-= form_tag(vehicles_path, method: :get) do |f|
-  = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch autofocus', 'data-target': vehicles_path
+.row
+  = form_tag(vehicles_path, method: :get) do |f|
+    .col-sm-10
+      = text_field_tag :search, @search, placeholder: 'Targa, marca, modello etc..', class: 'form-control autosearch autofocus', 'data-target': vehicles_path
+    .col-sm-2
+      = submit_tag 'Cerca'
 
 #vehicles
   =render :partial => 'vehicles/list'

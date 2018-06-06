@@ -12,14 +12,15 @@
       +
     = sgn['Protocollo']
   .col-sm-11
-    - WorkshopOperation.to_notification(sgn['Protocollo']).each do |wo|
+    - WorkshopOperation.to_notification(sgn['Protocollo']).each_with_index do |wo,i|
       .row.colored
         .col-sm-1
           -# = button_to "-", delete_workshop_operation_path(id: @worksheet.number, operation: wo.id), remote: true, data: { confirmation: "Elminare l'operazione nr. #{wo.id}, #{wo.name}?" }
-          = form_tag( delete_workshop_operation_path(@worksheet.number), remote: true, method: :post, class: 'no-cr', data: { confirmation: "Elminare l'operazione nr. #{wo.id}, #{wo.name}?" }) do |f|
-            = hidden_field_tag :protocol, @protocol
-            = hidden_field_tag :operation, wo.id
-            = submit_tag "-", class: 'no-cr btn-small'
+          - if i > 0
+            = form_tag( delete_workshop_operation_path(@worksheet.number), remote: true, method: :post, class: 'no-cr', data: { confirmation: "Elminare l'operazione nr. #{wo.id}, #{wo.name}?" }) do |f|
+              = hidden_field_tag :protocol, @protocol
+              = hidden_field_tag :operation, wo.id
+              = submit_tag "-", class: 'no-cr btn-small'
 
         .col-sm-7
           = wo.name

@@ -13,10 +13,10 @@
     -# - if vc.performed != 1
     -#   - all_ok = false
     .row.colored
-      .col-sm-1
-        = vc.myofficina_reference
-      .col-sm-4
+      .col-sm-5
+        = "#{vc.myofficina_reference} - " unless vc.myofficina_reference.nil?
         = vc.vehicle_check.label
+        = " - #{vc.notes}" unless vc.notes.nil?
       .col-sm-2
         = vc.user.person.complete_name unless vc.user.nil?
       .col-sm-1

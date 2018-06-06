@@ -51,7 +51,7 @@
                     = form_tag(continue_check_session_path(cs.id), method: :post, remote: true) do |f|
                       = submit_tag (cs.finished.nil?? 'Continua' : 'Riapri'), 'data-confirm': "#{cs.finished.nil?? 'Continuare' : 'Riprendere'} la sessione nr. #{cs.id}?", class: 'loading_screen'
                 .col-sm-1
-                  = cs.vehicle.plate
+                  = link_to cs.vehicle.plate, vehicles_path(search: cs.vehicle.plate)
                 .col-sm-2
                   = "#{cs.vehicle_performed_checks.performed.size}/#{cs.vehicle_performed_checks.size} eseguiti."
                   - if cs.vehicle_performed_checks.fixed.size > 0

@@ -93,7 +93,7 @@ class VehicleCheckSession < ApplicationRecord
     payload['Chilometraggio'] = vehicle.mileage.to_s
     payload['DataLavaggio'] = vehicle.last_washing.ending_time.strftime('%Y-%m-%d') unless vehicle.last_washing.nil?
     payload['TipoDanno'] = damage_type.to_s
-    payload['Descrizione'] = description[0..79]
+    payload['Descrizione'] = description[0..199]
     payload['FlagSvolto'] = "false"
     payload['FlagJSONType'] = "odl"
 

@@ -172,7 +172,7 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['CodiceTarga'] = vehicle.plate
       payload['Chilometraggio'] = vehicle.mileage.to_s
       payload['TipoDanno'] = '55'
-      payload['Descrizione'] = (self.notes.nil?? self.message : self.notes)[0..79]
+      payload['Descrizione'] = "#{self.vehicle_check.label}#{self.notes.nil? ? '' : " - #{self.notes}"}"[0..199]
       payload['FlagRiparato'] = self.performed == 2 ? "true" : "false"
       payload['FlagSvolto'] = self.performed == 2 ? "true" : "false"
       payload['FlagJSONType'] = "sgn"

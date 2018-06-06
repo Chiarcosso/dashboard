@@ -8,6 +8,11 @@ class WorkshopController < ApplicationController
   def open_worksheet
 
     begin
+      @worksheet.notifications.each do |sgn|
+        if WorkshopOperation.to_notification(sgn['Protocollo']).count < 1
+          WorkshopOperation.create(name: "Lavorazione", worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+        end
+      end
       v = @worksheet.vehicle
       vec = v.vehicle_checks('workshop')
       if vec.size < 1
@@ -51,7 +56,7 @@ class WorkshopController < ApplicationController
 
   def create_operation
     begin
-      WorkshopOperation.create(name: params.require('name'), worksheet: @worksheet, myofficina_reference: params.require('protocol'), user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      WorkshopOperation.create(name: params.require('name'), worksheet: @worksheet, myofficina_reference: params.require('protocol'), user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
