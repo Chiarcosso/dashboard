@@ -109,12 +109,12 @@ class CodesController < ApplicationController
     codes.uniq.each do |c|
       code = CarwashDriverCode.findByCode(c).first || CarwashVehicleCode.findByCode(c).first || CarwashSpecialCode.findByCode(c).first
 
-      if code.is_a? CarwashDriverCode
-        driver = code.person || code.disabled
-      elsif code.is_a? CarwashSpecialCode
-        special = code || code.disabled
-      elsif code.is_a? CarwashVehicleCode
-        vehicles << code.vehicle unless Vehicle.carwash_codes[code.vehicle.carwash_code] == 0 || code.disabled # and code.vehicle.vehicle_type.carwash_type == 0
+      if !code.disabled && code.is_a?(CarwashDriverCode)
+        driver = code.person
+      elsif !code.disabled && code.is_a?(CarwashSpecialCode)
+        special = code
+      elsif !code.disabled && code.is_a?(CarwashVehicleCode)
+        vehicles << code.vehicle unless Vehicle.carwash_codes[code.vehicle.carwash_code] == 0 # and code.vehicle.vehicle_type.carwash_type == 0
       end
     end
     if special.nil?
@@ -158,11 +158,11 @@ class CodesController < ApplicationController
     code = CarwashDriverCode.findByCode(params.permit(:code)[:code]).first || CarwashVehicleCode.findByCode(params.permit(:code)[:code]).first || CarwashSpecialCode.findByCode(params.permit(:code)[:code]).first
     @@special_logger.info("Check -> #{code.inspect} ||| #{params.inspect}")
     if (code.class == CarwashVehicleCode)
-      if code.vehicle.carwash_code == 'N/D' || code.disabled
+      if code.vehicle.carwash_code == 'N/D'
         no_go = true
       end
     end
-    if(code.nil? or no_go)
+    if(code.nil? || no_go || code.disabled)
       render :json => 0
     else
       render :json => 1
@@ -349,7 +349,7 @@ class CodesController < ApplicationController
       when 'Abilita'
         @action = :enable
     end
-    
+
   end
 
   def get_person
