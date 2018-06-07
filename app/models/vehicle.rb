@@ -151,7 +151,7 @@ class Vehicle < ApplicationRecord
     query = "select * from autoodl where (#{wvehicles.join(' or ')}) "\
               "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'true' "\
               "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
-              "and DataEntrataVeicolo is not null and DataUscitaVeicolo is null "\
+              "and DataUscitaVeicolo is null "\
               "order by DataEntrataVeicolo"
     # byebug
     ewc = EurowinController.get_ew_client

@@ -194,12 +194,12 @@ class Worksheet < ApplicationRecord
         odl['FlagProgrammazioneSospesa'] = 'false' if odl['FlagProgrammazioneSospesa'].nil?
         Worksheet.upsync_ws(odl)
       rescue Exception => e
-        raise error
-        # @error += e.message+"\n\n"
+        # raise error
+        @error += e.message+"\n\n"
       end
     end
     unless @error == ''
-      # special_logger(@error)
+      special_logger.error(@error)
 
       raise @error
     end
