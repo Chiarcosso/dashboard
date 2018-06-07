@@ -117,11 +117,12 @@ class Worksheet < ApplicationRecord
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
     if ws.nil?
       ewc = EurowinController::get_ew_client
-      res = ewc.query("select Protocollo, CodiceAutomezzo, ifnull(automezzi.Tipo,'S') as Tipo, "\
-        "DataIntervento, DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
+      res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
+        "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
         "from autoodl "\
-        "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.codice "\
-        "where Protocollo = #{protocol} limit 1")
+        "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
+        "where DataEntrataVeicolo is not null and DataIntervento is not null "\
+        "and Protocollo = #{protocol} limit 1")
       ewc.close
       if res.count > 0
         ws = Worksheet.upsync_ws(res.first)
