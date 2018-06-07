@@ -154,10 +154,14 @@ class Vehicle < ApplicationRecord
               "and DataEntrataVeicolo is not null and DataUscitaVeicolo is null "\
               "order by DataEntrataVeicolo"
     # byebug
-    odl = Worksheet.get_client.query(query)
+    ewc = EurowinController.get_ew_client
+    odl = ewc.query(query)
+    ewc.close
     odl.each do |o|
       current_odl = {protocol: o['Protocollo'], description: o['Note'], date: o['DataIntervento'], plate: o['Targa'], entering_date: o['DataEntrataVeicolo'], exit_date: o['DataUscitaVeicolo'], notifications: Array.new}
-      sgn = Worksheet.get_client.query("select * from autosegnalazioni where SerialODL = #{o['Serial']}" )
+      ewc = EurowinController.get_ew_client
+      sgn = ewc.query("select * from autosegnalazioni where SerialODL = #{o['Serial']}" )
+      ewc.close
       sgn.each do |s|
         current_odl[:notifications] << {protocol: s['Protocollo'], description: s['DescrizioneSegnalazione'], operator: "#{s['UserInsert']} (#{s['UserPost']})", date: s['DataInsert']}
       end
