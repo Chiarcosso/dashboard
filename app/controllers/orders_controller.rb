@@ -57,7 +57,7 @@ class OrdersController < ApplicationController
 
   def edit_output
     # @order = OutputOrder.find_by_recipient(params.require(:search))
-
+    
     worksheet_params unless params[:search].nil? or params[:destination] != 'Worksheet'
     @order = OutputOrder.find_by_recipient(@recipient) if @order.nil?
     @search = search_params.nil?? '' : search_params

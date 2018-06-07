@@ -115,13 +115,13 @@ class Worksheet < ApplicationRecord
   def self.find_or_create_by_code(protocol)
     protocol = protocol.to_s[/(EWC\*)?([0-9]+).*/,2]
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
+    byebug
     if ws.nil?
       ewc = EurowinController::get_ew_client
       res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
         "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
-        "where DataEntrataVeicolo is not null and DataIntervento is not null "\
         "and Protocollo = #{protocol} limit 1")
       ewc.close
       if res.count > 0
