@@ -115,7 +115,7 @@ class Worksheet < ApplicationRecord
   def self.find_or_create_by_code(protocol)
     protocol = protocol.to_s[/(EWC\*)?([0-9]+).*/,2]
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
-    byebug
+
     if ws.nil?
       ewc = EurowinController::get_ew_client
       res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
