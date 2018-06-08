@@ -227,13 +227,12 @@ class Worksheet < ApplicationRecord
     end
     if path.nil?
       list.scan(/.*-#{self.number}-.*\.lnk/i) do |line|
-        path = line
+        url = "http://10.0.0.101/linkexplode/default.asp?strPath=\\\\10.0.0.99\\Comune\\#{line[/\/mnt\/wshare\/(.*)$/,1]}"
+        path = HTTPI.get(url).raw_body.gsub('Z:\\','/mnt/wshare/').tr('\\','/')
       end
-      if path.nil?
-        raise "File non trovato."
-      else
-        raise "Il file è un collegamento."
-      end
+    end
+    if path.nil?
+      raise "File non trovato."
     end
     File.open(path,'r')
   end
