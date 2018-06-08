@@ -310,9 +310,14 @@ class MssqlReference < ApplicationRecord
 
         company_relation = CompanyRelation.find_by(:name => r['role'])
         if company_relation.nil?
-          @error = " #{r['cognome']} #{r['nome']} (#{r['id']}) - Invalid company relation: #{r['role']}"
-          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")}  #{r['cognome']} #{r['nome']} (#{r['id']}) - Mansione non valida: #{r['role']}</span>\n"
-          special_logger.error(@error)
+          if update
+            company_relation = CompanyRelation.create(:name => r['role'])
+          else
+            company_relation = CompanyRelation.new(:name => r['role'])
+          end
+
+          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")}  #{r['cognome']} #{r['nome']} (#{r['id']}) - Creata mansione: #{r['role']}</span>\n"
+          special_logger.info("Company realtion created: #{company_relation.name}")
         end
 
         p = Person.find_by(name: r['name'], surname: r['surname'])
