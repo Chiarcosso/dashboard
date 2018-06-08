@@ -1,7 +1,7 @@
 - worksheets.each do |ws|
   .row.colored
     .col-sm-2
-      =button_tag "PDF"
+      =button_to "PDF", worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
     .col-sm-3
       ="N. #{ws.number}"
     .col-sm-7

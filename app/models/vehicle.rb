@@ -148,17 +148,19 @@ class Vehicle < ApplicationRecord
     self.mssql_references.each do |msr|
       wvehicles << "CodiceAutomezzo = #{msr.remote_object_id}"
     end
-    query = "select * from autoodl where (#{wvehicles.join(' or ')}) "\
+    query = "select autoodl.*, (select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as descrizione "\
+              "from autoodl "\
+              "where (#{wvehicles.join(' or ')}) "\
               "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'true' "\
               "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
               "and DataUscitaVeicolo is null "\
               "order by DataEntrataVeicolo"
-    # byebug
+
     ewc = EurowinController.get_ew_client
     odl = ewc.query(query)
     ewc.close
     odl.each do |o|
-      current_odl = {protocol: o['Protocollo'], description: o['Note'], date: o['DataIntervento'], plate: o['Targa'], entering_date: o['DataEntrataVeicolo'], exit_date: o['DataUscitaVeicolo'], notifications: Array.new}
+      current_odl = {protocol: o['Protocollo'], description: "#{o['descrizione'].nil?? '' : o['descrizione']+' - ' }#{o['Note']}", date: o['DataIntervento'], plate: o['Targa'], entering_date: o['DataEntrataVeicolo'], exit_date: o['DataUscitaVeicolo'], notifications: Array.new}
       ewc = EurowinController.get_ew_client
       sgn = ewc.query("select * from autosegnalazioni where SerialODL = #{o['Serial']}" )
       ewc.close
