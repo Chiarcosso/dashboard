@@ -170,7 +170,7 @@ class CodesController < ApplicationController
   end
 
   def new_carwash_driver_code
-    unless @person.nil? or !@code.nil?
+    unless @person.nil? || !@code.nil? 
       CarwashDriverCode.create(code: 'A'+SecureRandom.hex(2).upcase, person: @person)
     end
     # if @code.nil?
