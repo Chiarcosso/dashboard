@@ -117,6 +117,7 @@ Rails.application.routes.draw do
   get  '/codes/carwash_check/:code', to: 'codes#carwash_check', as: :carwash_check
   get  '/codes/carwash_authorize/:codes', to: 'codes#carwash_authorize', as: :carwash_authorize
   get  '/codes/carwash_close/:sessionid', to: 'codes#carwash_close', as: :carwash_close
+  post  '/codes/carwash_close/:id', to: 'codes#carwash_force_close', as: :carwash_force_close
 
   post '/codes/carwash_print/', to: 'codes#carwash_print', as: :carwash_print
   get  '/codes/mdc', to: 'codes#mdc_index'
@@ -241,6 +242,7 @@ Rails.application.routes.draw do
   post   '/vehicle/info_for_workshop', to: 'vehicles#info_for_workshop', as: :info_for_workshop
 
   get    '/worksheets/', to: 'worksheets#index', as: :worksheets
+  post   '/worksheet/search', to: 'worksheets#index',as: :search_worksheets
   post   '/worksheet/hours', to: 'worksheets#set_hours', as: :worksheet_hours
   post   "/worksheet/toogle_closure", to: 'worksheets#toggle_closure', as: :worksheet_closure_toggle
   post   '/worksheet/filter/', to: 'worksheets#filter', as: :worksheet_filter
@@ -250,6 +252,7 @@ Rails.application.routes.draw do
 
   post   '/worksheet/:id/open', to: 'workshop#open_worksheet',as: :open_worksheet
   post   '/worksheet/:id/create_operation', to: 'workshop#create_operation',as: :create_workshop_operation
+  post   '/worksheet/:id/create_notification', to: 'workshop#create_notification',as: :create_workshop_notification
   post   '/worksheet/:id/start_operation', to: 'workshop#start_operation',as: :start_workshop_operation
   post   '/worksheet/:id/pause_operation', to: 'workshop#pause_operation',as: :pause_workshop_operation
   post   '/worksheet/:id/finish_operation', to: 'workshop#finish_operation',as: :finish_workshop_operation

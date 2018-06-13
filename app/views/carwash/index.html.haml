@@ -27,12 +27,14 @@
         .col-sm-3
           = c.vehicle_1.plate unless c.vehicle_1.nil?
           = c.vehicle_2.plate unless c.vehicle_2.nil?
-        .col-sm-2
+        .col-sm-1
           = c.row
         .col-sm-2
           = c.starting_time.strftime('%d/%m/%Y %H:%M:%S')
         .col-sm-2
           = c.session_id
+        .col-sm-1
+          = button_to 'Chiudi', carwash_force_close_path(c.id, format: :js), class: 'btn-small', remote: true
 
 %h3='Lavaggi ultimo mese'
 .container{style: 'height: 90%'}

@@ -234,7 +234,7 @@ class MssqlReference < ApplicationRecord
       posti_a_sedere = VehicleInformationType.find_by(name: 'Posti a sedere') if posti_a_sedere.nil?
       @vehicles = Array.new
       @errors = Array.new
-      query = "select 'Altri mezzi' as table_name, convert(int,cod) as id, targa as plate, telaio as chassis, "\
+      query = "select '[Altri mezzi]' as table_name, convert(int,cod) as id, targa as plate, telaio as chassis, "\
                   "tipo.tipodiveicolo as type, ditta as property, numero_posti as posti_a_sedere, "\
                   "marca as manufacturer, modello as model, modello as registration_model, "\
                   "codice_lavaggio as carwash_code, circola as notdismissed, "\

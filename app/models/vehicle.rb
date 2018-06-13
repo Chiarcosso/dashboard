@@ -402,12 +402,16 @@ class Vehicle < ApplicationRecord
       f = 'idtarga'
     when 'Rimorchi1' then
       f = 'idrimorchi'
+    else
+      f = nil
     end
 
-    where = msr.map{ |r| "#{f} = #{r.remote_object_id}" }.join(" or ")
+    unless f.nil?
+      where = msr.map{ |r| "#{f} = #{r.remote_object_id} and " }.join(" or ")
+    end
     query = "select top 1 IdAutista as id "\
                 "from giornale "\
-                "where #{where} and idAutista is not null "\
+                "where #{where} idAutista is not null "\
                 "and data <= '#{Date.today.strftime('%Y-%m-%d')}' order by data desc;"
     ref = MssqlReference::get_client.execute(query).first
     Person.find_by_reference(ref['id']) unless ref.nil?

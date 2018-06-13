@@ -59,6 +59,25 @@ function activateLoadingScreen() {
 
 }
 
+var leave_page_message = null;
+function before_leave_event(e){
+  alert('message');
+  if(leave_page_message != null){
+    if(!confirm(leave_page_message)){
+      e.stopPropagation();
+      e.preventDefault();
+
+    } else {
+      leave_page_message = null;
+    }
+  } else {
+    leave_page_message = null;
+  }
+  deactivateLoadingScreen();
+}
+
+
+
 function deactivateLoadingScreen() {
     "use strict";
     $('.loading-screen').hide();

@@ -143,8 +143,8 @@ class VehiclePerformedCheck < ApplicationRecord
           odl_year = Date.today.strftime('%Y')
         end
       when 4 then
-        odl = "0"
-        odl_year = "0"
+        odl = "-1"
+        odl_year = "-1"
       when 2 then
         odl =  vcs.myofficina_reference.to_i.to_s
         odl_year = vcs.created_at.strftime('%Y')
@@ -177,17 +177,10 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['FlagSvolto'] = self.performed == 2 ? "true" : "false"
       payload['FlagJSONType'] = "sgn"
 
-      request = HTTPI::Request.new
-      request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
-      request.body = payload.to_json
-      request.headers['Content-Type'] = 'application/json; charset=utf-8'
-      VehiclePerformedCheck.special_logger.info(request)
-
-      res = HTTPI.post(request)
-
+      res = EurowinController::create_notification(payload)
 
       VehiclePerformedCheck.special_logger.info(res)
-      self.update(myofficina_reference: JSON.parse(res.body)['ProtocolloSGN'].to_i,myofficina_odl_reference: JSON.parse(res.body)['ProtocolloODL'].to_i)
+      self.update(myofficina_reference: res['Protocollo'].to_i,myofficina_odl_reference: res['SchedaInterventoProtocollo'].to_i)
 
 
     end

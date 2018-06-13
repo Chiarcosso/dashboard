@@ -154,6 +154,22 @@ class CodesController < ApplicationController
     end
   end
 
+  def carwash_force_close
+    begin
+      cwu = CarwashUsage.find(params.require(:id))
+      @@special_logger.info("Close -> #{cwu.inspect} ||| #{params.inspect} ||| #{current_user.person.complete_name}")
+      cwu.update(:ending_time => DateTime.now)
+      respond_to do |format|
+        format.js { render partial: 'carwash/index_js' }
+      end
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
   def carwash_check
     code = CarwashDriverCode.findByCode(params.permit(:code)[:code]).first || CarwashVehicleCode.findByCode(params.permit(:code)[:code]).first || CarwashSpecialCode.findByCode(params.permit(:code)[:code]).first
     @@special_logger.info("Check -> #{code.inspect} ||| #{params.inspect}")
@@ -170,7 +186,7 @@ class CodesController < ApplicationController
   end
 
   def new_carwash_driver_code
-    unless @person.nil? || !@code.nil? 
+    unless @person.nil? || !@code.nil?
       CarwashDriverCode.create(code: 'A'+SecureRandom.hex(2).upcase, person: @person)
     end
     # if @code.nil?

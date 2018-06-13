@@ -3,8 +3,18 @@ class WorksheetsController < ApplicationController
   before_action :search_params
 
   def index
-    apply_filter
-    render 'workshop/index'
+    begin
+      apply_filter
+      respond_to do |format|
+        format.html { render 'workshop/index' }
+        format.js { render partial: 'workshop/index_js' }
+      end
+    rescue Exception => e
+      respond_to do |format|
+        @error = e.message
+        format.js { render partial: 'layouts/error' }
+      end
+    end
   end
 
   def upsync_all
@@ -147,6 +157,10 @@ class WorksheetsController < ApplicationController
     end
     @worksheets = Worksheet.where(filter.join(' and ')).limit(100).order(:code => :asc)
 
+    unless(params['list'].nil?)
+      @search_list = params.require('list')['search']
+      @opened_list = params.require('list')['opened'] == 'on' ? true : false
+    end
   end
 
   def set_hours_params

@@ -94,7 +94,7 @@
   .col-sm-2
     #timer{'data-time': @worksheet.real_duration.to_i}
       = "Tempo: #{@worksheet.real_duration_label}"
-  .col-sm-5
+  .col-sm-2
     -# = form_tag(save_worksheet_path(@worksheet.id), method: :post, remote: true, class: 'no-cr') do |f|
     -#   = hidden_field_tag :time, @worksheet.real_duration.to_i
     -#   = submit_tag 'Chiudi scheda', class: 'no-cr loading_screen'
@@ -103,18 +103,25 @@
   .col-sm-3
     #clock{'data-clock': DateTime.now.hour*3600+DateTime.now.minute*60+DateTime.now.second}
       = "#{DateTime.now.strftime('%d/%m/%Y %H:%M:%S')}"
+  .col-sm-3
+    %button{ class: 'create_popup no-loader', data: { popup_id: 'new_notification', html: (render partial: 'workshop/notification_popup', locals: {protocol: @worksheet.number}) } }
+      Nuova segnalazione
 
 :javascript
 
   // $('#line').trigger('click');
   var active_timer = null;
   var active_notification = null;
+  leave_page_message = 'Uscire dalla scheda?';
+  window.onbeforeunload = before_leave_event;
 
   $('.stop-worksheet').on('click',function(){
     if($(this).attr('id') == 'stop-worksheet'){
       if(!confirm('Chiudere la scheda?')){
         deactivateLoadingScreen();
         return;
+      } else {
+        window.onbeforeunload = null;
       }
     }
 
@@ -136,7 +143,7 @@
       method: 'post',
       data: data
     });
-    
+
   });
 
   $('.timer_control').on('click',function(){
