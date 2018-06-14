@@ -125,6 +125,10 @@
       }
     }
 
+    if($(this).attr('id') == 'pause-worksheet'){
+      window.onbeforeunload = null;
+    }
+
     activateLoadingScreen();
     var route = $(this).data('route');
     var operation_times = [];

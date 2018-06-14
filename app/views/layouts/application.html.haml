@@ -10,7 +10,7 @@
     -# /[if lt IE 9]
     -#   <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.min.js">
     -#   </script>
-  %body
+  %body{ style: ENV['RAILS_ENV'] == 'development' ? 'background-color: #efe' : ''}
     = render 'layouts/header'
     -# - flash.each do |name, msg|
     -#   = content_tag(:div, msg, class: "alert alert-info")

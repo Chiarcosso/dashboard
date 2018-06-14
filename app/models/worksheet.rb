@@ -28,7 +28,11 @@ class Worksheet < ApplicationRecord
   end
 
   def notifications
-    EurowinController::get_notifications_from_odl(self.number)
+    n = EurowinController::get_notifications_from_odl(self.number)
+    if n.nil?
+      n = []
+    end
+    n
   end
 
   def ew_operator

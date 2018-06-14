@@ -11,7 +11,8 @@ class WorksheetsController < ApplicationController
       end
     rescue Exception => e
       respond_to do |format|
-        @error = e.message
+        @error = e.message+"\n"+e.backtrace.join("\n")
+        format.html { render partial: 'layouts/error_html' }
         format.js { render partial: 'layouts/error' }
       end
     end
