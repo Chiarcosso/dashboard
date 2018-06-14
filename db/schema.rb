@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180606091855) do
+ActiveRecord::Schema.define(version: 20180614125242) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -471,6 +471,8 @@ ActiveRecord::Schema.define(version: 20180606091855) do
     t.date     "expiring_date",                 null: false
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.integer  "company_id",                    null: false
+    t.index ["company_id"], name: "index_prepaid_cards_on_company_id", using: :btree
     t.index ["person_id"], name: "index_prepaid_cards_on_person_id", using: :btree
     t.index ["serial"], name: "index_prepaid_cards_on_serial", unique: true, using: :btree
   end
@@ -959,6 +961,7 @@ ActiveRecord::Schema.define(version: 20180606091855) do
   add_foreign_key "output_order_items", "output_orders"
   add_foreign_key "output_orders", "people", column: "receiver_id"
   add_foreign_key "output_orders", "users", column: "createdBy_id"
+  add_foreign_key "prepaid_cards", "companies"
   add_foreign_key "prepaid_cards", "people"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"

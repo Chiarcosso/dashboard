@@ -5,14 +5,20 @@
         = hidden_field_tag :search, @search
         = hidden_field_tag :active, @active
         = text_field_tag 'prepaid_card[serial]', nil, class: 'form-control', placeholder: 'Seriale'
-      .col-sm-2
+      .col-sm-1
         = text_field_tag 'prepaid_card[pin]', nil, class: 'form-control', placeholder: 'PIN'
       .col-sm-2
         = date_field_tag 'prepaid_card[expiring_date]', Date.today + 1.year, class: 'form-control'
+      .col-sm-2
+        = radio_button_tag 'prepaid_card[company]', Company.chiarcosso.id
+        Chiarcosso s.r.l.
+        %br
+        = radio_button_tag 'prepaid_card[company]', Company.transest.id
+        Trans Est s.r.l.
       .col-sm-1
         = 'Bloccata'
         = check_box_tag 'prepaid_card[dismissed]', true, nil, class: ''
-      .col-sm-3
+      .col-sm-2
         = select_tag 'prepaid_card[person]', options_from_collection_for_select(Person.employees.order_alpha_surname,:id,"list_name"), :include_blank => 'Seleziona il portatore', class: 'form-control'
       .col-sm-2
         = submit_tag 'Crea nuova', class: 'form-control'
@@ -34,13 +40,15 @@
 .row
   .col-sm-2
     %b= 'Seriale'
-  .col-sm-2
+  .col-sm-1
     %b= 'PIN'
   .col-sm-2
     %b= 'Scadenza'
+  .col-sm-2
+    %b="Ditta"
   .col-sm-1
     %b= 'Bloccata'
-  .col-sm-3
+  .col-sm-2
     %b= 'Portatore'
 
 .scrollable-panel
@@ -52,24 +60,32 @@
             = hidden_field_tag :search, @search
             = hidden_field_tag :active, @active
             = text_field_tag 'prepaid_card[serial]', pc.serial, class: 'form-control'
-          .col-sm-2
+          .col-sm-1
             = text_field_tag 'prepaid_card[pin]', pc.pin, class: 'form-control'
           .col-sm-2
             = date_field_tag 'prepaid_card[expiring_date]', pc.expiring_date, class: 'form-control'
+          .col-sm-2
+            = radio_button_tag 'prepaid_card[company]', Company.chiarcosso.id, pc.company == Company.chiarcosso
+            Chiarcosso s.r.l.
+            %br
+            = radio_button_tag 'prepaid_card[company]', Company.transest.id, pc.company == Company.transest
+            Trans Est s.r.l.
           .col-sm-1
             = check_box_tag 'prepaid_card[dismissed]', true, pc.dismissed, class: 'form-control'
-          .col-sm-3
+          .col-sm-2
             = select_tag 'prepaid_card[person]', options_from_collection_for_select(Person.employees.order_alpha_surname,:id,"list_name", selected: pc.person.nil? ? '' : pc.person.id), :include_blank => 'Seleziona il portatore', class: 'form-control'
           .col-sm-2
             = submit_tag 'Modifica', class: 'form-control', data: {confirmation: "Modificare la tessera nr. #{pc.serial}, #{pc.person.nil?? 'non assegnata' : pc.person.list_name}?"}
       - else
         .col-sm-2
           = pc.serial
-        .col-sm-2
+        .col-sm-1
           = pc.pin
         .col-sm-2
           = pc.expiring_date.strftime('%d/%m/%Y')
+        .col-sm-2
+          = pc.company.complete_name
         .col-sm-1
           = pc.dismissed ? 'Bloccata' : ''
-        .col-sm-3
+        .col-sm-2
           = pc.person.list_name unless pc.person.nil?
