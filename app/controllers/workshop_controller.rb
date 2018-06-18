@@ -77,7 +77,7 @@ class WorkshopController < ApplicationController
         'AnnoODL': Date.current.strftime('%Y'),
         'UserInsert': current_user.person.complete_name.upcase,
         'UserPost': 'OFFICINA',
-        'CodiceAutista': vehicle_refs['CodiceAutista'].to_s,
+        'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
         'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
         'Targa': vehicle_refs['Targa'],
         'Km': vehicle_refs['Km'].to_s,
@@ -86,6 +86,58 @@ class WorkshopController < ApplicationController
 
       sgn = EurowinController::create_notification(payload)
       WorkshopOperation.create(name: 'Lavorazione', worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+      respond_to do |format|
+        format.js { render partial: 'workshop/worksheet_js' }
+      end
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def deassociate_notification
+    begin
+      vehicle_refs = EurowinController::get_vehicle(@worksheet.vehicle)
+
+      if params['external_workshop'].nil?
+        odl = EurowinController::last_open_odl_not(@worksheet.number)
+
+        odl = EurowinController::create_worksheet({
+          'Descrizione': params.require('description'),
+          'ProtocolloODL': "0",
+          'AnnoODL': "0",
+          'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
+          'CodiceAutista': vehicle_refs['CodiceAutista'],
+          'CodiceTarga': vehicle_refs['Targa'],
+          'Chilometraggio': vehicle_refs['Km'].to_s,
+          'TipoDanno': params.require('damage_type').to_s,
+          'CodiceOfficina': EurowinController::get_workshop(:workshop)
+          }) if odl.nil?
+        protocollo_odl = odl['Protocollo'].to_s
+        anno_odl = odl['Anno'].to_s
+      else
+        odl = "-1"
+        anno_odl = "-1"
+      end
+
+      sgn = EurowinController::create_notification({
+        'Descrizione': params.require('description'),
+        'ProtocolloODL': protocollo_odl,
+        'AnnoODL': anno_odl,
+        'ProtocolloSGN': params.require('protocol'),
+        'AnnoSGN': params.require('year'),
+        'UserInsert': current_user.person.complete_name.upcase,
+        'UserPost': 'OFFICINA',
+        'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
+        'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
+        'CodiceTarga': vehicle_refs['Targa'],
+        'Chilometraggio': vehicle_refs['Km'].to_s,
+        'TipoDanno': params.require('damage_type').to_s,
+        'CodiceOfficina': EurowinController::get_workshop(:workshop)
+      })
+
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end

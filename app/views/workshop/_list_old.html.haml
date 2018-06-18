@@ -1,8 +1,16 @@
 - worksheets.each do |ws|
-  .row.colored
+  .row.colored.selectable{ data: { sbox: "#sbox-#{ws.id}" }}
     .col-sm-2
       =button_to "PDF", worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
-    .col-sm-3
+    .col-sm-2
       ="N. #{ws.number}"
-    .col-sm-7
+    .col-sm-3
       ="Chiuso il: #{I18n.l ws.closingDate}"
+    .col-sm-5
+      %b=ws.notes
+    .sbox{id: "sbox-#{ws.id}", style: "display: none;"}
+      - ws.notifications.each do |n|
+        .row
+          .col-sm-12{style: 'padding-left: 3em; padding-right: 2em;'}
+            %b=n['TipoDanno']
+            = " - #{n['DescrizioneSegnalazione']}"

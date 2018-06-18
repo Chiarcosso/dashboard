@@ -269,7 +269,7 @@ module AdminHelper
         res[:owner] = res[:no_owner]
       else
         if r['owner'].nil?
-          res[:owner] = Company.find_by_reference('Clienti',r['idfornitore'].to_i)
+          res[:owner] = Company.find_or_create_by_reference('Clienti',r['idfornitore'].to_i)
         else
           res[:owner] = Company.find_by(:name => r['owner'].titleize)
         end

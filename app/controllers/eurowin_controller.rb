@@ -4,7 +4,9 @@ class EurowinController < ApplicationController
     odl = EurowinController::get_worksheet(protocol)
     unless odl.nil?
       ewc = get_ew_client
-      r = ewc.query("select * from autosegnalazioni where serialODL = #{odl['Serial']};")
+      r = ewc.query("select *, "\
+      "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
+      "from autosegnalazioni where serialODL = #{odl['Serial']};")
       ewc.close
       r
     end
@@ -28,7 +30,21 @@ class EurowinController < ApplicationController
     ewc = get_ew_client
     r = ewc.query("select * from autoodl where protocollo = #{protocol} limit 1;").first
     ewc.close
-    
+
+    r
+  end
+
+  def self.last_open_odl_not(protocol)
+    odl = get_worksheet(protocol)
+
+    ewc = get_ew_client
+    r = ewc.query("select * from autoodl where protocollo = "\
+    "(select protocollo from autoodl where codiceautomezzo = '#{odl['CodiceAutomezzo']}' and protocollo != #{odl['Protocollo']} "\
+    "and DataUscitaVeicolo is null and FlagSchedaChiusa like 'false' "\
+    "and CodiceAnagrafico = '#{get_workshop(:workshop)}' "\
+    "order by dataintervento desc limit 1)").first
+    ewc.close
+
     r
   end
 
@@ -57,11 +73,14 @@ class EurowinController < ApplicationController
     request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
     request.body = payload.to_json
     request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    VehiclePerformedCheck.special_logger.info(request)
-    res = JSON.parse(HTTPI.post(request).raw_body)['ProtocolloSGN']
+
+    special_logger.info(request)
+    response = HTTPI.post(request)
+    special_logger.info(response)
+    res = JSON.parse(response.raw_body)['ProtocolloSGN']
 
     c = get_ew_client
-    sgn = c.query("select * from autosegnalazioni where protocollo = #{res}")
+    sgn = c.query("select * from autosegnalazioni where protocollo = '#{res}'")
     c.close
 
     return sgn.first unless sgn.count < 1
@@ -87,14 +106,17 @@ class EurowinController < ApplicationController
     request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
     request.body = payload.to_json
     request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    VehiclePerformedCheck.special_logger.info(request)
-    res = JSON.parse(HTTPI.post(request).raw_body)['ProtocolloSGN']
+    special_logger.info(request)
+    response = HTTPI.post(request)
+    special_logger.info(response)
+
+    res = JSON.parse(response.raw_body)['ProtocolloODL']
 
     c = get_ew_client
-    sgn = c.query("select * from autosegnalazioni where protocollo = #{res}")
+    odl = c.query("select * from autoodl where protocollo = #{res}")
     c.close
 
-    return sgn.first unless sgn.count < 1
+    return odl.first unless odl.count < 1
 
   end
 
@@ -139,5 +161,9 @@ class EurowinController < ApplicationController
 
   def self.get_ew_client(db = ENV['RAILS_EUROS_DB'])
     Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db
+  end
+
+  def self.special_logger
+    @@ew_logger ||= Logger.new("#{Rails.root}/log/eurowin_ws.log")
   end
 end

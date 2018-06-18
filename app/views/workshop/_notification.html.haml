@@ -6,6 +6,7 @@
   .col-sm-2#scroll-element
     = sgn['DataSegnalazione'].strftime('%d/%m/%Y')
 
+
 .row
   .col-sm-1
     %button{ class: 'create_popup no-loader', data: { popup_id: 'new_operation', html: (render partial: 'workshop/operation_popup', locals: {protocol: sgn['Protocollo']}) } }
@@ -24,11 +25,14 @@
 
         .col-sm-7
           = wo.name
+          = " - #{wo.notes}" unless wo.notes.nil?
         .col-sm-1
           %button{ class: 'btn_small timer_control start_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: sgn['Protocollo'] } }
             = wo.real_duration.to_i > 0 ? 'Riprendi' : 'Inizia'
         .col-sm-1.timer{'data-time': wo.real_duration.to_i, id: "timer#{wo.id}"}
           = wo.real_duration_label
         .col-sm-1
-          %button{ class: 'btn_small stop_timer', id: "stop-#{wo.id}", data: { route: finish_workshop_operation_path(@worksheet.number), protocol: sgn['Protocollo'] }, disabled: !wo.ending_time.nil? }
-            = 'Concludi'
+          %button{ class: 'create_popup no-loader', id: "stop-#{wo.id}", data: { popup_id: 'close_operation', html: (render partial: 'workshop/close_operation_popup', locals: {protocol: @worksheet.number}, time: wo.real_duration.to_i), protocol: sgn['Protocollo'] }, disabled: !wo.ending_time.nil? }
+            Nuova segnalazione
+          -# %button{ class: 'btn_small stop_timer', id: "stop-#{wo.id}", data: { route: finish_workshop_operation_path(@worksheet.number), protocol: sgn['Protocollo'] }, disabled: !wo.ending_time.nil? }
+          -#   = 'Concludi'

@@ -10,6 +10,10 @@ class MdcUser < ApplicationRecord
     self.assigned_to_person.nil?? self.assigned_to_company : self.assigned_to_person
   end
 
+  def mdc_user
+    self.user
+  end
+
   def complete_name
     if self.assigned_to_person.nil?
       self.assigned_to_company.complete_name

@@ -253,6 +253,7 @@ Rails.application.routes.draw do
   post   '/worksheet/:id/open', to: 'workshop#open_worksheet',as: :open_worksheet
   post   '/worksheet/:id/create_operation', to: 'workshop#create_operation',as: :create_workshop_operation
   post   '/worksheet/:id/create_notification', to: 'workshop#create_notification',as: :create_workshop_notification
+  post   '/worksheet/:id/deassociate_notification', to: 'workshop#deassociate_notification',as: :deassociate_workshop_notification
   post   '/worksheet/:id/start_operation', to: 'workshop#start_operation',as: :start_workshop_operation
   post   '/worksheet/:id/pause_operation', to: 'workshop#pause_operation',as: :pause_workshop_operation
   post   '/worksheet/:id/finish_operation', to: 'workshop#finish_operation',as: :finish_workshop_operation

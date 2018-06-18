@@ -23,6 +23,16 @@ class Worksheet < ApplicationRecord
     end
   end
 
+  #filter operator from incoming worksheets from eurowin
+  def self.incoming_operator(search)
+    # ewc = EurowinController::get_ew_client
+  end
+
+  #filter plate and operator's name from incoming worksheets
+  def self.incoming_plate_operator_filter(search)
+    Worksheet.incoming(search,true) + Worksheet.incoming_operator(search)
+  end
+
   def real_duration_label
     "#{(self.real_duration.to_i/3600).floor.to_s.rjust(2,'0')}:#{((self.real_duration.to_i/60)%60).floor.to_s.rjust(2,'0')}:#{(self.real_duration.to_i%60).floor.to_s.rjust(2,'0')}"
   end
@@ -127,7 +137,8 @@ class Worksheet < ApplicationRecord
     if ws.nil?
       ewc = EurowinController::get_ew_client
       res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
-        "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
+        "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico, "\
+        "(select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
         "and Protocollo = #{protocol} limit 1")
@@ -155,8 +166,8 @@ class Worksheet < ApplicationRecord
   	  else
   		    vehicle = Vehicle.new
   	  end
-      # @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
-      raise "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
+      @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
+      # raise "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       case odl['CodiceAnagrafico']
       when 'OFF00001' then
         station = 'workshop'
@@ -171,14 +182,14 @@ class Worksheet < ApplicationRecord
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : nil
         end
-        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].upcase == 'TRUE' ? true : false)
+        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: "#{odl['TipoDanno']} - #{odl['Note']}", suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].upcase == 'TRUE' ? true : false)
       else
         if odl['DataIntervento'].nil?
           closingDate = Date.today
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : ws.closingDate
         end
-        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: odl['Note'], suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].upcase == 'TRUE' ? true : false)
+        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: "#{odl['TipoDanno']} - #{odl['Note']}", suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].upcase == 'TRUE' ? true : false)
       end
     rescue Exception => e
       # @error = e.message if @error.nil?
@@ -190,7 +201,8 @@ class Worksheet < ApplicationRecord
   def self.upsync_all
     ewc = EurowinController::get_ew_client
     res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
-      "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico "\
+      "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico, "\
+      "(select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
       "where DataEntrataVeicolo is not null and DataIntervento is not null "\

@@ -131,6 +131,10 @@ class WorksheetsController < ApplicationController
         @search = params.require(:search).permit(:opened,:closed,:plate,:number,:date_since,:date_to,:mechanic)
       end
     end
+
+    if(params['commit'] == 'Aggiorna')
+      upsync_all
+    end
   end
 
   def apply_filter
@@ -160,7 +164,7 @@ class WorksheetsController < ApplicationController
 
     unless(params['list'].nil?)
       @search_list = params.require('list')['search']
-      @opened_list = params.require('list')['opened'] == 'on' ? true : false
+      # @opened_list = params.require('list')['opened'] == 'on' ? true : false
     end
   end
 

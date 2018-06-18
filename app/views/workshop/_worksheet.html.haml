@@ -15,9 +15,14 @@
         - @worksheet.notifications.each do |sgn|
           .panel.panel-default
             .panel-heading
-              %h4.panel-title
-                %a{ href: "#collapse-#{sgn['Protocollo']}", data: { toggle: 'collapse', parent: '#accordion' }}
-                  = sgn['DescrizioneSegnalazione']
+              .row
+                .col-sm-8
+                  %h4.panel-title
+                    %a{ href: "#collapse-#{sgn['Protocollo']}", data: { toggle: 'collapse', parent: '#accordion' }}
+                      = sgn['DescrizioneSegnalazione']
+                .col-sm-2
+                  %button{ class: 'btn_small create_popup', id: "deassociate-#{sgn['Protocollo']}", data: { route: deassociate_workshop_notification_path, html: (render partial: 'workshop/deassociate_notification_popup', locals: {protocol: sgn['Protocollo'], year: sgn['Anno'], damage_type: sgn['TipoDanno'], description: sgn['DescrizioneSegnalazione'] }) } }
+                    = 'Rimanda'
             %div{ class: "panel-collapse collapse#{sgn['Protocollo'] == @protocol ? ' in' : ''}", id: "collapse-#{sgn['Protocollo']}"}
               .panel-body
                 = render partial: 'workshop/notification', locals: {sgn: sgn}
@@ -109,9 +114,20 @@
 
 :javascript
 
+  function check_disabled_close(){
+
+    $('#stop-worksheet').prop('disabled',false);
+    $.each($('.stop_timer'),function(){
+      if(!$(this).prop('disabled')){
+        $('#stop-worksheet').prop('disabled',true);
+        return;
+      }
+    });
+  }
   // $('#line').trigger('click');
   var active_timer = null;
   var active_notification = null;
+  check_disabled_close();
   leave_page_message = 'Uscire dalla scheda?';
   window.onbeforeunload = before_leave_event;
 
@@ -177,6 +193,7 @@
       $(this).removeClass('start_timer');
       $(this).addClass('pause_timer');
       $('#stop-'+id).attr('disabled',false);
+      check_disabled_close();
 
       var route = $(this).data('route')[0];
       var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol };

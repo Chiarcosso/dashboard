@@ -46,6 +46,35 @@ class Company < ApplicationRecord
     nd
   end
 
+  def self.find_or_create_by_reference(table,id)
+    begin
+      c = Company.find_by_reference(table,id)
+      if c.nil?
+        client = MssqlReference::get_client
+
+        query = "select '#{table}' as table_name, c.IdCliente as id, c.RagioneSociale as name, c.PartitaIva as vat_number "\
+                    "from #{table} c "\
+                    "where IdCliente =#{id}"
+        r = client.execute(query).first
+
+        unless r.nil?
+          r['name'] = r['name'].strip.titleize
+
+          c = Company.find_by(name: r['name'])
+
+          if c.nil?
+            c = Company.create(name: r['name'], vat_number: r['vat_number'])
+          end
+
+          mssqlref = MssqlReference.create(local_object: c, remote_object_table: 'Clienti', remote_object_id: r['id'].to_i)
+        end
+      end
+      c
+    rescue Exception => e
+      raise e.message
+    end
+  end
+
   def self.find_by_reference(table,id)
     v = MssqlReference.find_by(remote_object_table: table, remote_object_id: id)
 	  v.local_object unless v.nil?
@@ -57,7 +86,7 @@ class Company < ApplicationRecord
   def has_reference?(table,id)
     !MssqlReference.where(local_object:self,remote_object_table:table,remote_object_id:id).empty?
   end
-  
+
   def check_properties(comp)
     if comp['name'] != self.name
       return false

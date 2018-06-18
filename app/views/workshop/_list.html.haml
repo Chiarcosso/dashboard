@@ -7,7 +7,7 @@
       - op = ws.ew_operator
       = op['Descrizione'] unless op.nil?
     .col-sm-2
-      =ws.vehicle.plate
+      = link_to ws.vehicle.plate, vehicles_path(search: ws.vehicle.plate), class: 'no-ajax-link'
     .col-sm-2
       ="#{I18n.l ws.opening_date}" unless ws.opening_date.nil?
     .col-sm-4
@@ -16,4 +16,5 @@
       - ws.notifications.each do |n|
         .row
           .col-sm-12{style: 'padding-left: 3em; padding-right: 2em;'}
-            = "- #{n['DescrizioneSegnalazione']}"
+            %b=n['TipoDanno']
+            = " - #{n['DescrizioneSegnalazione']}"
