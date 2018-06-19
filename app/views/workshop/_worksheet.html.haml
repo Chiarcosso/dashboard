@@ -181,13 +181,13 @@
           method: 'post',
           data: data
         });
-        $('#timer'+active_notification).data('time',active_timer);
+        $('#timer-'+active_notification).data('time',active_timer);
         $('#start-'+active_notification).html('Riprendi');
         $('#start-'+active_notification).removeClass('pause_timer');
         $('#start-'+active_notification).addClass('start_timer');
       }
 
-      active_timer = $('#timer'+id).data('time');
+      active_timer = $('#timer-'+id).data('time');
       active_notification = id;
       $(this).html('Pausa');
       $(this).removeClass('start_timer');
@@ -212,7 +212,7 @@
         method: 'post',
         data: data
       });
-      $('#timer'+id).data('time',active_timer);
+      $('#timer-'+id).data('time',active_timer);
       active_timer = null;
       active_notification = null;
       $(this).html('Riprendi');
@@ -223,24 +223,35 @@
 
   });
 
+  var load = null;
   $('.stop_timer').on('click',function(){
-    if(confirm('Chiudere la segnalazione?')){
+    // if(confirm('Chiudere la segnalazione?')){
       var id = /stop-(\d*)/.exec($(this).attr('id'))[1];
       var route = $(this).data('route');
       if(active_timer === null){
-        var time = $('#timer'+id).data('time');
+        var time = parseInt($('#timer-'+id).data('time'));
       } else {
         var time = active_timer;
       }
-      var data = { operation: id, time: time, worksheet_duration: tm, protocol: $(this).data('protocol') };
-      $.ajax({
-        url: route,
-        method: 'post',
-        data: data
-      });
-    } else {
-      deactivateLoadingScreen();
-    }
+
+      // $('input#worksheet-duration-op-'+id).val(tm);
+      // $('input#timesend-'+id).val(parseInt($('#timer-'+id).data('time')));
+      setTimeout(function(){
+        new_elements['#worksheet-duration-op-'+id].val(tm);
+        new_elements['#timesend-'+id].val(time);
+        // $(document).filter('#worksheet-duration-op-'+id).val(tm);
+        // $(document).filter('#timesend-'+id).val(time);
+      },1000);
+
+      // var data = { operation: id, time: time, worksheet_duration: tm, protocol: $(this).data('protocol') };
+      // $.ajax({
+      //   url: route,
+      //   method: 'post',
+      //   data: data
+      // });
+    // } else {
+    //   deactivateLoadingScreen();
+    // }
   });
 
   deactivateLoadingScreen();
@@ -251,7 +262,8 @@
   timer = setInterval(function(){
     if(!(active_timer === null)){
       active_timer++;
-      $("#timer"+active_notification).html(seconds_to_clock(active_timer));
+      $('#timer-'+active_notification).data('time',active_timer);
+      $("#timer-"+active_notification).html(seconds_to_clock(active_timer));
     }
     tm++;
     ck++;

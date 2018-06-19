@@ -206,6 +206,7 @@ body{
   background-color: #fff;
   padding: 2em;
   overflow: hidden;
+  z-index: 1500;
   /* white-space: pre-line; */
 }
 
@@ -341,6 +342,7 @@ body{
   background-color: #fff;
   padding: 2em;
   overflow: hidden;
+  z-index: 1500;
 }
 
 .popup .scrollable-panel {

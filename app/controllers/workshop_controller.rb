@@ -183,7 +183,7 @@ class WorkshopController < ApplicationController
 
   def finish_operation
     begin
-      WorkshopOperation.find(params.require(:operation).to_i).update(ending_time: DateTime.now, real_duration: params.require('time').to_i, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      WorkshopOperation.find(params.require(:operation).to_i).update(ending_time: DateTime.now, real_duration: params.require('timesend').to_i, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
