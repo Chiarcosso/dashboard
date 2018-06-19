@@ -2,6 +2,7 @@ class WorkshopController < ApplicationController
 
   before_action :get_worksheet
   before_action :get_check_session
+  before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation]
   before_action :set_protocol
   before_action :set_station
 
@@ -152,8 +153,8 @@ class WorkshopController < ApplicationController
   def start_operation
     begin
       wo = WorkshopOperation.find(params.require(:operation).to_i)
-      wo.update(ending_time: nil, real_duration: params.require('time').to_i, log: "Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
-      wo.update(starting_time: DateTime.now) if wo.starting_time.nil?
+      @workshop_operation.update(ending_time: nil, real_duration: params.require('time').to_i, log: "Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      @workshop_operation.update(starting_time: DateTime.now) if wo.starting_time.nil?
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       # respond_to do |format|
       #   format.js { render partial: 'workshop/worksheet_js' }
@@ -168,7 +169,7 @@ class WorkshopController < ApplicationController
 
   def pause_operation
     begin
-      WorkshopOperation.find(params.require(:operation).to_i).update(real_duration: params.require('time').to_i, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      @worksop_operation.update(real_duration: params.require('time').to_i, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       # respond_to do |format|
       #   format.js { render partial: 'workshop/worksheet_js' }
@@ -183,8 +184,18 @@ class WorkshopController < ApplicationController
 
   def finish_operation
     begin
-      WorkshopOperation.find(params.require(:operation).to_i).update(ending_time: DateTime.now, real_duration: params.require('timesend').to_i, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+      @workshop_operation.update(ending_time: DateTime.now, real_duration: params.require('timesend').to_i, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
+      #close notification if name == 'Lavorazione'
+      EurowinController::create_notification({
+        'ProtocolloODL': @workshop_operation.ew_notification['SchedaInterventoProtocollo'].to_s,
+        'AnnoODL': @workshop_operation.ew_notification['SchedaInterventoAnno'].to_s,
+        'ProtocolloSGN': @workshop_operation.ew_notification['Protocollo'].to_s,
+        'AnnoSGN': @workshop_operation.ew_notification['Anno'].to_s,
+        'DataIntervento': @workshop_operation.ew_notification['DataSegnalazione'].to_s,
+        'FlagRiparato': 'true',
+        'CodiceOfficina': "0"
+      }) if @workshop_operation.name == 'Lavorazione'
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
@@ -198,9 +209,8 @@ class WorkshopController < ApplicationController
 
   def delete_operation
     begin
-      wo = WorkshopOperation.find(params.require(:operation).to_i)
       @worksheet.update(log: "Operazione nr. #{wo.id}, '#{wo.name}', eliminata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
-      wo.destroy
+      @workshop_operation.destroy
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
@@ -243,6 +253,10 @@ class WorkshopController < ApplicationController
   def get_check_session
     @check_session = VehicleCheckSession.find_by(worksheet: @worksheet)
     @checks = @check_session.vehicle_ordered_performed_checks unless @check_session.nil?
+  end
+
+  def get_workshop_operation
+    @workshop_operation = WorkshopOperation.find(params.require(:operation).to_i)
   end
 
   def set_protocol

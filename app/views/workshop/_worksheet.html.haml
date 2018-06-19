@@ -150,7 +150,7 @@
     var operation_times = [];
     var action = $(this).data('action');
     $.each($('.timer'),function(){
-      var id = /timer(\d*)/.exec($(this).attr('id'))[1];
+      var id = /timer-(\d*)/.exec($(this).attr('id'))[1];
       if( id == active_notification){
         operation_times.push({id: id, time: active_timer});
       } else {

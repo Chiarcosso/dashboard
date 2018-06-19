@@ -427,6 +427,7 @@ function create_popup_click_func() {
      $('#'+popup_link_name).html($(this).data('html'));
      $('#'+popup_link_name).append('<div class="close">Chiudi</div>');
 
+     //if are there elements to update in the popup in the future put them in new_elements
      if(!($(this).data('new-elements') == undefined)){
        var ne = $(this).data('new-elements');
        var c = ne.length;
@@ -434,7 +435,7 @@ function create_popup_click_func() {
        for(var i = 0; i < c; i++){
          new_elements[ne[i]] = $(ne[i]);
        }
-       
+
      }
 
      deactivateLoadingScreen();

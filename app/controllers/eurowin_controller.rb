@@ -1,5 +1,14 @@
 class EurowinController < ApplicationController
 
+  def self.get_notification(protocol)
+    ewc = get_ew_client
+    r = ewc.query("select *, "\
+    "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
+    "from autosegnalazioni where Protocollo = #{protocol};")
+    ewc.close
+    r.first
+  end
+
   def self.get_notifications_from_odl(protocol)
     odl = EurowinController::get_worksheet(protocol)
     unless odl.nil?
@@ -56,17 +65,18 @@ class EurowinController < ApplicationController
     payload['ProtocolloODL'] = "-1" if payload['ProtocolloODL'].nil?
     payload['AnnoSGN'] = "0" if payload['AnnoSGN'].nil?
     payload['ProtocolloSGN'] = "0" if payload['ProtocolloSGN'].nil?
-    payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
-    payload['DataInsert'] = Date.current.strftime('%Y-%m-%d') if payload['DataInsert'].nil?
+    payload['DataIntervento'] = "null" if payload['DataIntervento'].nil?
+    payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
+    payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
     # payload['UserInsert'] = current_user.person.complete_name.upcase if payload['UserInsert'].nil?
-    payload['DataPost'] = Date.current.strftime('%Y-%m-%d') if payload['DataPost'].nil?
-    payload['UserPost'] = 'Sconosciuto' if payload['UserPost'].nil?
-    payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
-    payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
-    payload['FlagStampato'] = 'false'
-    payload['TipoDanno'] = '55' if payload['TipoDanno'].nil?
-    payload['FlagRiparato'] = "false" if payload['FlagRiparato'].nil?
-    payload['FlagSvolto'] = "false" if payload['FlagSvolto'].nil?
+    # payload['DataPost'] = "0" if payload['DataPost'].nil?
+    # payload['UserPost'] = "0" if payload['UserPost'].nil?
+    # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
+    # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
+    # payload['FlagStampato'] = "0"
+    # payload['TipoDanno'] = "0" if payload['TipoDanno'].nil?
+    # payload['FlagRiparato'] = "0" if payload['FlagRiparato'].nil?
+    payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
     payload['FlagJSONType'] = "sgn"
 
     request = HTTPI::Request.new
