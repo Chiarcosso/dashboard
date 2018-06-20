@@ -230,12 +230,10 @@ class WorkshopController < ApplicationController
       if params.require('perform') == 'stop'
         @worksheet.update(real_duration: params.require('worksheet_duration').to_i, exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
         EurowinController::create_worksheet({
-          'ProtocolloODL': @workshop_operation.ew_notification['SchedaInterventoProtocollo'].to_s,
-          'AnnoODL': @workshop_operation.ew_notification['SchedaInterventoAnno'].to_s,
-          'ProtocolloSGN': @workshop_operation.ew_notification['Protocollo'].to_s,
-          'AnnoSGN': @workshop_operation.ew_notification['Anno'].to_s,
-          'DataIntervento': @workshop_operation.ew_notification['DataSegnalazione'].to_s,
-          'FlagRiparato': 'true',
+          'ProtocolloODL': @worksheet.ew_worksheet['Protocollo'].to_s,
+          'AnnoODL': @worksheet.ew_worksheet['Anno'].to_s,
+          'DataIntervento': @worksheet.ew_worksheet['DataIntervento'].to_s,
+          'FlagSvolto': 'true',
           'CodiceOfficina': "0"
         })
       else

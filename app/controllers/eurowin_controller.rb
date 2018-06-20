@@ -65,7 +65,7 @@ class EurowinController < ApplicationController
     payload['ProtocolloODL'] = "-1" if payload['ProtocolloODL'].nil?
     payload['AnnoSGN'] = "0" if payload['AnnoSGN'].nil?
     payload['ProtocolloSGN'] = "0" if payload['ProtocolloSGN'].nil?
-    payload['DataIntervento'] = "null" if payload['DataIntervento'].nil?
+    payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
     payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
     payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
     # payload['UserInsert'] = current_user.person.complete_name.upcase if payload['UserInsert'].nil?
@@ -106,10 +106,12 @@ class EurowinController < ApplicationController
     payload['AnnoSGN'] = "0" if payload['AnnoSGN'].nil?
     payload['ProtocolloSGN'] = "0" if payload['ProtocolloSGN'].nil?
     payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
-    payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
-    payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
-    payload['TipoDanno'] = '55' if payload['TipoDanno'].nil?
-    payload['FlagSvolto'] = "false" if payload['FlagSvolto'].nil?
+    payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
+    payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
+    # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
+    # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
+    # payload['TipoDanno'] = '55' if payload['TipoDanno'].nil?
+    payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
     payload['FlagJSONType'] = "odl"
 
     request = HTTPI::Request.new

@@ -45,8 +45,12 @@ class Worksheet < ApplicationRecord
     n
   end
 
+  def ew_worksheet
+    EurowinController::get_worksheet(self.number)
+  end
+
   def ew_operator
-    op = EurowinController::get_operator_from_odl(self.number)
+    EurowinController::get_operator_from_odl(self.number)
   end
 
   def spare_items
