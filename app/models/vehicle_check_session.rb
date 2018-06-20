@@ -114,30 +114,39 @@ class VehicleCheckSession < ApplicationRecord
 
   def close_worksheet(user)
 
-    payload = Hash.new
-
-    payload['AnnoODL'] = self.created_at.strftime('%Y')
-    payload['ProtocolloODL'] = self.myofficina_reference.to_s
-    payload['AnnoSGN'] = "0"
-    payload['ProtocolloSGN'] = "0"
-    payload['DataIntervento'] = "0000-00-00"
-    payload['DataUscitaVeicolo'] = Date.current.strftime('%Y-%m-%d')
-    payload['CodiceOfficina'] = "0"
-    payload['CodiceAutomezzo'] = "0"
-    payload['FlagSvolto'] = "true"
-    payload['FlagJSONType'] = "odl"
-
-    request = HTTPI::Request.new
-    request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
-    request.body = payload.to_json
-    request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    VehicleCheckSession.special_logger.info(request)
-
-    res = HTTPI.post(request)
-
-    VehicleCheckSession.special_logger.info(res)
-
-    odl = JSON.parse(res.body)['ProtocolloODL'].to_i
+    ew_worksheet = self.worksheet.ew_worksheet
+    EurowinController::create_worksheet({
+      'ProtocolloODL': ew_worksheet['Protocollo'].to_s,
+      'AnnoODL': ew_worksheet['Anno'].to_s,
+      'DataIntervento': ew_worksheet['DataIntervento'].to_s,
+      'DataUscitaVeicolo': Date.current.strftime('%Y-%m-%d'),
+      'FlagSvolto': 'true',
+      'CodiceOfficina': "0"
+    })
+    # payload = Hash.new
+    #
+    # payload['AnnoODL'] = self.created_at.strftime('%Y')
+    # payload['ProtocolloODL'] = self.myofficina_reference.to_s
+    # payload['AnnoSGN'] = "0"
+    # payload['ProtocolloSGN'] = "0"
+    # payload['DataIntervento'] = "0000-00-00"
+    # payload['DataUscitaVeicolo'] = Date.current.strftime('%Y-%m-%d')
+    # payload['CodiceOfficina'] = "0"
+    # payload['CodiceAutomezzo'] = "0"
+    # payload['FlagSvolto'] = "true"
+    # payload['FlagJSONType'] = "odl"
+    #
+    # request = HTTPI::Request.new
+    # request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
+    # request.body = payload.to_json
+    # request.headers['Content-Type'] = 'application/json; charset=utf-8'
+    # VehicleCheckSession.special_logger.info(request)
+    #
+    # res = HTTPI.post(request)
+    #
+    # VehicleCheckSession.special_logger.info(res)
+    #
+    # odl = JSON.parse(res.body)['ProtocolloODL'].to_i
     # self.update(myofficina_reference: res, worksheet: Worksheet.create(code: "EWC*#{res}", vehicle: self.vehicle, vehicle_type: self.vehicle.class.to_s, opening_date: Date.current))
     self.worksheet.update(exit_time: DateTime.now)
 
