@@ -32,5 +32,6 @@ if [[ $speedy == false ]]; then
   bundle exec rake assets:precompile RAILS_ENV=production
 fi
 
+chmod u=rwx $RAILS_BASE/bin/rails
 sudo service iptables start
 sudo service nginx restart
