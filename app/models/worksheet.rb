@@ -210,6 +210,7 @@ class Worksheet < ApplicationRecord
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
       "where DataEntrataVeicolo is not null and DataIntervento is not null "\
+      "and Anno > #{Date.today.strftime('%Y').to_i - 2} "\
       "and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
     ewc.close
     @error = ''
@@ -242,7 +243,7 @@ class Worksheet < ApplicationRecord
     Worksheet.find_by_sql("SELECT DISTINCT w.* FROM worksheets w LEFT JOIN vehicle_informations i ON w.vehicle_id = i.vehicle_id WHERE w.code LIKE '%#{search}%' OR i.information LIKE '%#{search}%'")
   end
 
-  def get_pdf
+  def get_pdf_path
     path = nil
     list = `find #{ENV['RAILS_WS_PATH']}`
     # list.scan(/.*\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')} - .*\/.*-#{self.number}.*\.pdf/) do |line|
@@ -255,10 +256,11 @@ class Worksheet < ApplicationRecord
         path = HTTPI.get(url).raw_body.gsub('Z:\\','/mnt/wshare/').tr('\\','/')
       end
     end
-    if path.nil?
-      raise "File non trovato."
-    end
-    File.open(path,'r')
+    path
+  end
+
+  def get_pdf
+    File.open(self.get_pdf_path,'r')
   end
 
   def print

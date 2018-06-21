@@ -1,7 +1,7 @@
 - worksheets.each do |ws|
   .row.colored.selectable{ data: { sbox: "#sbox-#{ws.id}" }}
     .col-sm-2
-      =button_to "PDF", worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+      =button_to "PDF", worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader' #unless ws.get_pdf_path.nil?
     .col-sm-2
       ="N. #{ws.number}"
     .col-sm-3

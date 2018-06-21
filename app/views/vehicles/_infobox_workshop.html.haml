@@ -6,9 +6,38 @@
 %br
 %b="Schede officina: "
 %br
-.scrollable-panel{style: 'height: 20em; width: 100%;'}
-  - @vehicle.worksheets.order(opening_date: :desc).each do |ws|
-    .floating-block
-      = button_to ws.code[/EWC\*(\d*)/,1]+"\n"+ws.opening_date.strftime('%d/%m/%Y'), worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+
+
+.row
+  .col-sm-1
+    %b= "ODL nr."
+  .col-sm-2
+    %b= "Data entrata"
+  .col-sm-8
+    %b= "Descrizione"
+  .col-sm-1
+    %b= "PDF"
+.scrollable-panel{style: 'height: 45vh; width: 80vw;'}
+  - @vehicle.worksheets.order(opening_date: :desc).each_with_index do |ws,idx|
+    .row{ style: 'background-color: #aaa'}
+      .col-sm-1
+        %b= "#{ws.number}"
+      .col-sm-2
+        %b= "#{ws.opening_date.strftime('%d/%m/%Y')}" unless ws.opening_date.nil?
+      .col-sm-8
+        %b="#{ws.notes}"
+      .col-sm-1
+        = button_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader btn-small'
+    - ws.notifications.each do |n|
+      .row.colored
+        .col-sm-2
+          %b=n['TipoDanno']
+        .col-sm-10
+          = "#{n['DescrizioneSegnalazione']}"
+      - WorkshopOperation.where(myofficina_reference: n['Protocollo'].to_i).each do |wo|
+        .row
+          .col-sm-1
+          .col-sm-11
+            = wo.name
 .close
   Chiudi
