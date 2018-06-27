@@ -20,10 +20,16 @@ class ExternalVehicle < ApplicationRecord
     nil
   end
 
+  def last_check_session
+    VehicleCheckSession.find_by_sql("select * from vehicle_check_sessions where id in "\
+              "(select id from vehicle_check_sessions where external_vehicle_id = #{self.id}) "\
+              "order by finished desc limit 1").first
+  end
+
   def mandatory?(vc)
     vc.importance == 9 ? true : false
   end
-  
+
   def vehicle_checks(station)
     case station
     when 'carwash' then

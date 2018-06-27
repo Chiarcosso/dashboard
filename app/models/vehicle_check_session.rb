@@ -54,18 +54,18 @@ class VehicleCheckSession < ApplicationRecord
   def self.create_worksheet(user,vehicle,workshop_name,damage_type,description)
 
     ewc = EurowinController.get_ew_client(ENV['RAILS_EUROS_DB'])
-    workshop = ewc.query("select codice from anagrafe where ragioneSociale = '#{workshop_name}'")
+    workshop = ewc.query("select codice from anagrafe where ragioneSociale = '#{workshop_name.gsub("'","''")}'")
     ewc.close
     opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
     ewc = EurowinController.get_ew_client(ENV['RAILS_EUROS_DB'])
-    driver = ewc.query("select codice from autisti where ragionesociale = '#{opcode}'")
+    driver = ewc.query("select codice from autisti where ragionesociale = '#{opcode.gsub("'","''")}'")
     ewc.close
     o = get_ms_client.execute("select id from manutentori where idautista = "+user.person.mssql_references.last.remote_object_id.to_s)
 
     if o.count > 0
       opcode = o.first['id'].to_s.rjust(4,'0')
       ewc = EurowinController.get_ew_client('common')
-      operator = ewc.query("select codice from operatori where codice = '#{opcode}'")
+      operator = ewc.query("select codice from operatori where codice = '#{opcode.gsub("'","''")}'")
       ewc.close
     else
       operator = []

@@ -1,14 +1,31 @@
 class WorkshopController < ApplicationController
 
-  before_action :get_worksheet
+  before_action :get_worksheet, except: [:get_sheet]
   before_action :get_check_session
   before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation]
   before_action :set_protocol
   before_action :set_station
 
+  def get_sheet
+    respond_to do |format|
+      format.pdf do
+        ws = Worksheet.find(params.require(:id))
+        pdf = ws.sheet
+        send_data pdf.render, filename:
+        "odl_nr_#{ws.number}.pdf",
+        type: "application/pdf"
+      end
+    end
+  end
+
   def open_worksheet
 
     begin
+      if @worksheet.opening_date.nil?
+        @worksheet.update(opening_date: Date.today)
+        odl = EurowinController::get_worksheet(@worksheet.number)
+        EurowinController::create_worksheet('DataEntrataVeicolo': Date.today.strftime('%Y-%m-%d'),'AnnoODL': odl['Anno'].to_s, 'ProtocolloODL': odl['Protocollo'].to_s, 'DataIntervento': odl['DataIntervento'])
+      end
       @worksheet.notifications.each do |sgn|
         if WorkshopOperation.to_notification(sgn['Protocollo']).count < 1
           WorkshopOperation.create(name: "Lavorazione", worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
@@ -46,6 +63,20 @@ class WorkshopController < ApplicationController
 
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
+      end
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def info_worksheet
+    begin
+      @vehicle = @worksheet.vehicle
+      respond_to do |format|
+        format.js { render partial: 'workshop/infobox_worksheet' }
       end
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"

@@ -9,7 +9,7 @@
 
 .row
   .col-sm-1
-    %button{ class: 'create_popup no-loader', data: { popup_id: 'new_operation', html: (render partial: 'workshop/operation_popup', locals: {protocol: sgn['Protocollo']}) } }
+    %button{ class: 'create_popup no-loader', data: { alt: 'Aggiungi operazione', popup_id: 'new_operation', html: (render partial: 'workshop/operation_popup', locals: {protocol: sgn['Protocollo']}) } }
       +
     = sgn['Protocollo']
   .col-sm-11
@@ -21,7 +21,7 @@
             = form_tag( delete_workshop_operation_path(@worksheet.number), remote: true, method: :post, class: 'no-cr', data: { confirmation: "Elminare l'operazione nr. #{wo.id}, #{wo.name}?" }) do |f|
               = hidden_field_tag :protocol, @protocol
               = hidden_field_tag :operation, wo.id
-              = submit_tag "-", class: 'no-cr btn-small'
+              = submit_tag "-", class: 'no-cr btn-small', data: {alt: 'Elimina operazione'}
 
         .col-sm-7
           = wo.name

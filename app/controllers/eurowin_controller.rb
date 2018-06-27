@@ -9,13 +9,22 @@ class EurowinController < ApplicationController
     r.first
   end
 
-  def self.get_notifications_from_odl(protocol)
+  def self.get_notifications_from_odl(protocol,mod = :opened)
     odl = EurowinController::get_worksheet(protocol)
+    case mod
+    when :all then
+      w = ""
+    when :opened then
+      w = " and FlagRiparato like 'false' and FlagChiuso like 'false' "
+    when :closed then
+      w = " and FlagRiparato like 'true' and FlagChiuso like 'true' "
+    end
     unless odl.nil?
       ewc = get_ew_client
       r = ewc.query("select *, "\
+      "(select RagioneSociale from anagrafe where codice = CodiceAutista) as NomeAutista, "\
       "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
-      "from autosegnalazioni where serialODL = #{odl['Serial']};")
+      "from autosegnalazioni where serialODL = #{odl['Serial']}#{w};")
       ewc.close
       r
     end
@@ -34,10 +43,57 @@ class EurowinController < ApplicationController
     end
   end
 
+  def self.get_operators(search)
+    ewc = get_ew_client('common')
+    op = ewc.query("select * from operatori where Descrizione like #{ActiveRecord::Base::sanitize("%#{search}%")};")
+    ewc.close
+    op
+  end
+
+  def self.get_worksheets(opts)
+
+    #set deafults
+    opts[:opened] = :opened if opts[:opened].nil?
+    opts[:search] = nil if opts[:search].nil?
+    opts[:station] = :workshop if opts[:station].nil?
+
+    #build where conditions
+    case opts[:opened]
+    when :all then
+      w = "1 = 1"
+    when :opened then
+      w = "lower(FlagSchedaChiusa) = 'false'"
+    when :closed then
+      w = "lower(FlagSchedaChiusa) = 'true'"
+    else
+      w = "1 = -1"
+    end
+
+    wstation = " and CodiceAnagrafico = '#{get_workshop(opts[:station])}'" unless opts[:station].nil?
+
+    unless opts[:search].nil?
+      ops = EurowinController::get_operators(opts[:search])
+      if ops.count > 0
+        wops = " or codicemanutentore in (#{ops.map{ |o| "'#{o['Codice']}'" }.join(',')}))"
+      else
+        wops = ")"
+      end
+      w += " and (targa like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")} "\
+      "or protocollo like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")}#{wops}"
+    end
+    #send query
+    q = "select * from autoodl where #{w}#{wstation};"
+
+    ewc = get_ew_client
+    r = ewc.query(q)
+    ewc.close
+    r
+  end
+
   def self.get_worksheet(protocol)
     protocol = protocol[/\d*/]
     ewc = get_ew_client
-    r = ewc.query("select * from autoodl where protocollo = #{protocol} limit 1;").first
+    r = ewc.query("select * from autoodl where CodiceAutomezzo is not null and protocollo = #{protocol} limit 1;").first
     ewc.close
 
     r
@@ -103,8 +159,8 @@ class EurowinController < ApplicationController
 
     payload['AnnoODL'] = "0" if payload['AnnoODL'].nil?
     payload['ProtocolloODL'] = "0" if payload['ProtocolloODL'].nil?
-    payload['AnnoSGN'] = "0" if payload['AnnoSGN'].nil?
-    payload['ProtocolloSGN'] = "0" if payload['ProtocolloSGN'].nil?
+    payload['AnnoSGN'] = "-1" if payload['AnnoSGN'].nil?
+    payload['ProtocolloSGN'] = "-1" if payload['ProtocolloSGN'].nil?
     payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
     payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
     payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?

@@ -394,6 +394,12 @@ class Vehicle < ApplicationRecord
     cws.sort_by { |cwu| cwu.ending_time }.reverse.first unless cws.empty?
   end
 
+  def last_check_session
+    VehicleCheckSession.find_by_sql("select * from vehicle_check_sessions where id in "\
+              "(select id from vehicle_check_sessions where vehicle_id = #{self.id}) "\
+              "order by finished desc limit 1").first
+  end
+
   def last_driver
 
     msr = self.mssql_references

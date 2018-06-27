@@ -250,6 +250,8 @@ Rails.application.routes.draw do
   post   '/worksheet/get_pdf/:id', to: 'worksheets#get_pdf', as: :worksheet_get_pdf
   post   '/worksheet/upsync', to: 'worksheets#upsync_all', as: :upsync_worksheets
 
+  get   '/worksheet/:id/info', to: 'workshop#info_worksheet',as: :info_worksheet
+  post   '/worksheet/:id/get_sheet', to: 'workshop#get_sheet',as: :worksheet_get_sheet
   post   '/worksheet/:id/open', to: 'workshop#open_worksheet',as: :open_worksheet
   post   '/worksheet/:id/create_operation', to: 'workshop#create_operation',as: :create_workshop_operation
   post   '/worksheet/:id/create_notification', to: 'workshop#create_notification',as: :create_workshop_notification

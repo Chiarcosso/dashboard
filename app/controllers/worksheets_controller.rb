@@ -99,7 +99,7 @@ class WorksheetsController < ApplicationController
       format.pdf do
         pdf = ws.print
         send_data pdf.render, filename:
-        "odl_nr_#{ws.number}.pdf",
+        "lista_odl_nr_#{ws.number}.pdf",
         type: "application/pdf"
       end
     end

@@ -13,8 +13,9 @@
     .col-sm-4
       %b=ws.notes
     .sbox{id: "sbox-#{ws.id}", style: "display: none;"}
-      - ws.notifications.each do |n|
+      - ws.notifications(:all).each do |n|
         .row
           .col-sm-12{style: 'padding-left: 3em; padding-right: 2em;'}
-            %b=n['TipoDanno']
-            = " - #{n['DescrizioneSegnalazione']}"
+            %span{style: "#{n['FlagRiparato'].to_s.downcase == 'true' ? 'text-decoration: line-through;' : ''}"}
+              %b=n['TipoDanno']
+              = " - #{n['DescrizioneSegnalazione']}"

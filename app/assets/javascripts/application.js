@@ -414,6 +414,7 @@ function click_to_submit_click_func(){
 
 function data_confirmation_click_func(event){
   if(!confirm($(this).data('confirmation'))){
+    setTimeout(deactivateLoadingScreen,200);
     event.preventDefault();
     event.stopPropagation();
   }
@@ -446,6 +447,17 @@ function toggle_click_func() {
   $($(this).data('target')).toggle();
 }
 
+function data_alt_mouseenter_func(){
+  "use strict";
+  $('.cst-alt').remove();
+  var el = $('<div class="cst-alt" style="position: absolute; background-color: #ffc; white-space: nowrap; top: -1.7em; left 2em; z-index: 2500; border: 1px solid black; padding: .2em;">'+$(this).data('alt')+'</div>');
+  $(this).append(el);
+}
+
+function data_alt_mouseleave_func(){
+  "use strict";
+  $('.cst-alt').remove();
+}
 function activateJS() {
     "use strict";
 
@@ -506,6 +518,10 @@ function activateJS() {
     $('body').on('click', '.create_popup', create_popup_click_func);
 
     $('body').on('click', '.toggle', toggle_click_func);
+
+    $('body').on('mouseenter', '[data-alt]', data_alt_mouseenter_func);
+
+    $('body').on('mouseleave', '[data-alt]', data_alt_mouseleave_func);
 
 }
 

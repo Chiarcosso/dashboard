@@ -1,0 +1,48 @@
+
+%h3="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
+%b= "#{@vehicle.vehicle_type.name}, #{@vehicle.vehicle_typology.name}"
+.row
+  .col-sm-2
+    %b= "ODL nr. #{@worksheet.number}"
+  .col-sm-2
+    %b= "#{@worksheet.opening_date.strftime('%d/%m/%Y')}" unless @worksheet.opening_date.nil?
+  .col-sm-7
+    %b="#{@worksheet.notes}"
+  .col-sm-1
+    = button_to 'Scheda', worksheet_get_sheet_path(@worksheet.id,format: :pdf), class: 'no-loader btn-small'
+.row
+  .col-sm-2
+    %b="Ultimo lavaggio:"
+  .col-sm-10
+    ="#{(@vehicle.last_washing.nil? or @vehicle.last_washing.ending_time.nil?)? 'Mai' : @vehicle.last_washing.ending_time.strftime('%d/%m/%Y %H:%M:%S')}"
+%br
+.row
+  .col-sm-1
+    %b= "SGN nr."
+  .col-sm-2
+    %b= "Segnalata da"
+  .col-sm-9
+    %b= "Descrizione"
+
+.scrollable-panel{style: 'height: 45vh; width: 80vw;'}
+  - @worksheet.notifications(:all).each do |n|
+    .row.colored{style: n['FlagSvolto'].to_s.downcase == 'false' ? 'background-color: #ff9' : ''}
+      .col-sm-1
+        =n['Protocollo']
+      .col-sm-2
+        =n['NomeAutista']
+      .col-sm-9
+        %b=n['TipoDanno']
+        = "#{n['DescrizioneSegnalazione']}"
+    - WorkshopOperation.where(myofficina_reference: n['Protocollo'].to_i).each do |wo|
+      .row
+        .col-sm-1
+        .col-sm-2
+          = wo.name
+        .col-sm-7
+          = wo.notes
+        .col-sm-2
+          = wo.real_time
+
+.close
+  Chiudi

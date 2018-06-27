@@ -1,6 +1,11 @@
 class Worksheet < ApplicationRecord
   resourcify
   include ErrorHelper
+  include BarcodeUtility
+  require 'barby/outputter/cairo_outputter'
+  # require 'barby/outputter/png_outputter'
+  require 'barby/barcode/ean_13'
+  require 'barby/barcode/ean_8'
   belongs_to :vehicle
   has_many :output_orders, -> { where("output_orders.destination_type = 'Worksheet'") }, class_name: 'OutputOrder', foreign_key: :destination_id
   has_many :output_order_items, through: :output_orders
@@ -12,7 +17,7 @@ class Worksheet < ApplicationRecord
 
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
   scope :open, -> { where(closingDate: nil, suspended: false) }
-  scope :incoming, ->(search,opened) { where(exit_time: nil, suspended: false, station: "workshop", closed: false).where(opened ? '1' : 'opening_date is not null').where(search.nil?? '1' : "(case worksheets.vehicle_type when 'Vehicle' then worksheets.vehicle_id in (select vehicle_informations.vehicle_id from vehicle_informations where information like '%#{search}%') when 'ExternalVehicle' then worksheets.vehicle_id in (select external_vehicles.id from external_vehicles where external_vehicles.plate like '%#{search}%') end)") }
+  # scope :incoming, ->(search,opened) { where(exit_time: nil, suspended: false, station: "workshop", closed: false).where(opened ? '1' : 'opening_date is not null').where(search.nil?? '1' : "(case worksheets.vehicle_type when 'Vehicle' then worksheets.vehicle_id in (select vehicle_informations.vehicle_id from vehicle_informations where information like '%#{search}%') when 'ExternalVehicle' then worksheets.vehicle_id in (select external_vehicles.id from external_vehicles where external_vehicles.plate like '%#{search}%') end) or code like '%#{search}%'") }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
   def opened?
@@ -23,6 +28,19 @@ class Worksheet < ApplicationRecord
     end
   end
 
+  #get ew worksheets and update or create ws
+  def self.get_incoming(search)
+    ws = Array.new
+    EurowinController::get_worksheets({opened: :opened, search: search}).each do |odl|
+      new_ws = Worksheet.find_or_create_by_code(odl['Protocollo'])
+      if new_ws.nil?
+        special_logger.error("EW retrieval error: \n\n#{odl.inspect}\n\n")
+      else
+        ws << new_ws
+      end
+    end
+    ws
+  end
   #filter operator from incoming worksheets from eurowin
   def self.incoming_operator(search)
     # ewc = EurowinController::get_ew_client
@@ -37,8 +55,8 @@ class Worksheet < ApplicationRecord
     "#{(self.real_duration.to_i/3600).floor.to_s.rjust(2,'0')}:#{((self.real_duration.to_i/60)%60).floor.to_s.rjust(2,'0')}:#{(self.real_duration.to_i%60).floor.to_s.rjust(2,'0')}"
   end
 
-  def notifications
-    n = EurowinController::get_notifications_from_odl(self.number)
+  def notifications(mod = :opened)
+    n = EurowinController::get_notifications_from_odl(self.number,mod)
     if n.nil?
       n = []
     end
@@ -244,23 +262,177 @@ class Worksheet < ApplicationRecord
   end
 
   def get_pdf_path
-    path = nil
-    list = `find #{ENV['RAILS_WS_PATH']}`
-    # list.scan(/.*\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')} - .*\/.*-#{self.number}.*\.pdf/) do |line|
-    list.scan(/.*-#{self.number}-.*\.pdf/i) do |line|
-      path = line
-    end
-    if path.nil?
-      list.scan(/.*-#{self.number}-.*\.lnk/i) do |line|
-        url = "http://10.0.0.101/linkexplode/default.asp?strPath=\\\\10.0.0.99\\Comune\\#{line[/\/mnt\/wshare\/(.*)$/,1]}"
-        path = HTTPI.get(url).raw_body.gsub('Z:\\','/mnt/wshare/').tr('\\','/')
+    if self.pdf_path.nil?
+      path = nil
+      list = `find #{ENV['RAILS_WS_PATH']}`
+      # list.scan(/.*\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')} - .*\/.*-#{self.number}.*\.pdf/) do |line|
+      list.scan(/.*-#{self.number}-.*\.pdf/i) do |line|
+        path = line
       end
+      if path.nil?
+        list.scan(/.*-#{self.number}-.*\.lnk/i) do |line|
+          url = "http://10.0.0.101/linkexplode/default.asp?strPath=\\\\10.0.0.99\\Comune\\#{line[/\/mnt\/wshare\/(.*)$/,1]}"
+          path = HTTPI.get(url).raw_body.gsub('Z:\\','/mnt/wshare/').tr('\\','/')
+        end
+      end
+      self.update(pdf_path: path) unless path.nil?
     end
-    path
+    self.pdf_path
   end
 
   def get_pdf
     File.open(self.get_pdf_path,'r')
+  end
+
+  def sheet
+    vehicle = self.vehicle
+
+    #get various dates
+    unless self.opening_date.nil?
+      opening_year = self.opening_date.strftime('%Y')
+      opening_date = self.opening_date.strftime('%d/%m/%Y')
+    end
+
+    unless self.closingDate.nil?
+      closing_date = self.closingDate.strftime('%d/%m/%Y')
+    end
+
+    unless vehicle.last_washing.nil?
+      last_washing_date = vehicle.last_washing.ending_time.strftime('%d/%m/%Y')
+    end
+
+    last_check_session = vehicle.last_check_session
+    unless last_check_session.nil?
+      if last_check_session.finished.nil?
+        last_checking_date = last_check_session.date.strftime('%d/%m/%Y')
+      else
+        last_checking_date = last_check_session.finished.strftime('%d/%m/%Y')
+      end
+    end
+
+    last_mantainance_date = nil
+
+    ld = vehicle.last_driver
+    if ld.nil?
+      last_driver = nil
+    else
+      last_driver = vehicle.last_driver.complete_name
+    end
+
+    odl = EurowinController::get_worksheet(self.number)
+
+    pdf = Prawn::Document.new
+
+    pdf.image Rails.root.join('app','assets','images','logo.png'),
+      fit: [230,50],
+      align: :left
+
+    pdf.text_box "ODL nr. #{self.number} - #{self.vehicle.plate}",
+      align: :left,
+      style: :bold,
+      font_size: 20,
+      at: [250,705]
+
+    @blob = Barby::CairoOutputter.new(Barby::Code128B.new(self.code)).to_png #Raw PNG data
+    File.write("public/images/#{self.code}.png", @blob)
+    pdf.image "public/images/#{self.code}.png",
+      fit: [230,50],
+      align: :right,
+      at: [400,725]
+
+    pdf.move_down 20
+
+    pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Codice',size: 7)],[pdf.make_cell(content: odl['CodiceAutomezzo'],size: 13, font_style: :bold)]],width: 40),
+            pdf.make_table([[pdf.make_cell(content: 'Mezzo',size: 7)],[pdf.make_cell(content: vehicle.complete_name,size: 13, font_style: :bold)]],width: 250),
+            pdf.make_table([[pdf.make_cell(content: 'Anno',size: 7)],[pdf.make_cell(content: opening_year,size: 13, font_style: :bold)]],width: 40),
+            pdf.make_table([[pdf.make_cell(content: 'Proprietà',size: 7)],[pdf.make_cell(content: vehicle.property.complete_name,size: 13, font_style: :bold)]],width: 210)]],
+      :position => :center,
+      :width => 540
+      # :column_widths => { 0 => 210, 1 => 223, 2 => 107}
+
+      pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Entrata',size: 7)],[pdf.make_cell(content: opening_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+              pdf.make_table([[pdf.make_cell(content: 'Uscita',size: 7)],[pdf.make_cell(content: closing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+              pdf.make_table([[pdf.make_cell(content: 'Ultima manutenzione',size: 7)],[pdf.make_cell(content: last_mantainance_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+              pdf.make_table([[pdf.make_cell(content: 'Ultimo controllo',size: 7)],[pdf.make_cell(content: last_checking_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+              pdf.make_table([[pdf.make_cell(content: 'Ultimo lavaggio',size: 7)],[pdf.make_cell(content: last_washing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+              pdf.make_table([[pdf.make_cell(content: 'Ultimo autista',size: 7)],[pdf.make_cell(content: last_driver,size: 13, font_style: :bold,height: 25)]],width: 165),]],
+        :position => :center,
+        :width => 540
+
+    pdf.move_down 20
+    pdf.text 'Segnalazioni:'
+
+    table = [['Nr.','Descrizione','Autista','Esito']]
+    # table =
+    self.notifications(:all).each do |n|
+
+      if n['FlagRiparato'].to_s.downcase == 'true'
+        result = 'Agg.'
+      elsif n['FlagSvolto'].to_s.downcase == 'true'
+        result = 'Ch.'
+      else
+        result = 'Ap.'
+      end
+
+      ops = Array.new
+      WorkshopOperation.find_by(myofficina_reference: n['Protocollo'].to_i).to_a.each do |wo|
+        ops << [wo.name,wo.operator.complete_name,wo.real_time]
+      end
+      ops = [['','','']] if ops.count < 1
+
+      pdf.table [[n['Protocollo'],n['DescrizioneSegnalazione'],n['NomeAutista'],result]],
+            :column_widths => { 0 => 45, 1 => 365, 2 => 90, 3 => 40}
+
+      pdf.table ops,
+            :column_widths => { 0 => 130, 1 => 350, 2 => 60}
+
+      pdf.move_down 5
+      # subtable = pdf.make_table([[sub1],[sub2]])
+      # table << [n['Protocollo'],subtable]
+
+    end
+
+    # pdf.table table,
+    #   # :border_style => :grid,
+    #   # :font_size => 11,
+    #   :position => :center,
+    #   # :column_widths => { 0 => 45, 1 => 365, 2 => 90, 3 => 40},
+    #   # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+    #   :row_colors => ["d2e3ed", "FFFFFF"]
+
+    pdf.move_down 20
+    pdf.text 'Materiali:'
+
+    table = [['Articolo','Seriale/matricola','Costo']]
+    total = 0.0
+    self.output_orders.each do |oo|
+      oo.output_order_items.each do |i|
+        table << ["#{i.item.article.complete_name} (#{i.quantity}/#{i.item.article.containedAmount})","#{i.item.serial}","#{i.complete_price}"]
+      end
+      total += oo.total.to_f
+    end
+
+
+    table << ["Ore di lavoro","","#{self.hours_complete_price}"]
+    table << ["Materiale di consumo","","#{self.materials_complete_price}"]
+    total += self.hours_price
+    total += self.materials_price
+
+    table << ["Totale","","#{"%.2f" % total} €".tr('.',',')]
+
+    pdf.table table,
+      # :border_style => :grid,
+      # :font_size => 11,
+      :position => :center,
+      :column_widths => { 0 => 210, 1 => 223, 2 => 107},
+      # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+      :row_colors => ["d2e3ed", "FFFFFF"]
+
+    pdf.bounding_box([pdf.bounds.right - 50,pdf.bounds.bottom], :width => 60, :height => 20) do
+    	count = pdf.page_count
+    	pdf.text "Page #{count}"
+    end
+    pdf
   end
 
   def print

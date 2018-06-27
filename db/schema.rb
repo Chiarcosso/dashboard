@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180614125242) do
+ActiveRecord::Schema.define(version: 20180626065109) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -868,6 +868,7 @@ ActiveRecord::Schema.define(version: 20180614125242) do
     t.boolean  "suspended",                                           default: false,     null: false
     t.string   "station"
     t.boolean  "closed",                                              default: false,     null: false
+    t.string   "pdf_path"
     t.index ["code"], name: "index_worksheets_on_code", unique: true, using: :btree
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end
@@ -961,7 +962,6 @@ ActiveRecord::Schema.define(version: 20180614125242) do
   add_foreign_key "output_order_items", "output_orders"
   add_foreign_key "output_orders", "people", column: "receiver_id"
   add_foreign_key "output_orders", "users", column: "createdBy_id"
-  add_foreign_key "prepaid_cards", "companies"
   add_foreign_key "prepaid_cards", "people"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
