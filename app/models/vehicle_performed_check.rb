@@ -118,7 +118,7 @@ class VehiclePerformedCheck < ApplicationRecord
       ewc = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB'])
       workshop = ewc.query("select codice from anagrafe where ragioneSociale = 'PUNTO CHECK-UP'")
       ewc.close
-      opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
+      opcode = ActiveRecord::Base::sanitize(VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo']) unless vehicle.last_driver.nil?
 
       plate = VehiclePerformedCheck.get_ms_client.execute("select targa from #{mssql.remote_object_table} where #{field} = #{mssql.remote_object_id}").first['targa'] unless vehicle.last_driver.nil?
       ewc = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB'])
