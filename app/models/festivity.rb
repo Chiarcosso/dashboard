@@ -1,0 +1,2 @@
+class Festivity < ApplicationRecord
+end

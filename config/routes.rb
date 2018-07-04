@@ -221,6 +221,10 @@ Rails.application.routes.draw do
 
   get   '/public/get_eurowin_worksheets/:table/:vehicle', to: 'vehicles#get_eurowin_worksheets', as: :get_eurowin_worksheets
 
+  get   '/presence/manage/', to: 'presence#manage', as: :manage_presence
+  post   '/presence/manage/', to: 'presence#manage', as: :manage_presence_post
+  post   '/presence/add_schedule/', to: 'presence#add_working_schedule', as: :add_working_schedule
+
   get '/vehicle/assignation', to: 'vehicles#assignation', as: :vehicles_assignation
   post '/vehicle/massive_delete', to: 'vehicles#massive_delete', as: :massive_vehicles_delete
   post '/vehicle/massive_update', to: 'vehicles#massive_update', as: :massive_vehicles_update

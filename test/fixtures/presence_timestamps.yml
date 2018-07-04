@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  badge: one
+  time: 2018-06-28 15:38:12
+  sensor: 1
+  deleted: false
+  added: false
+
+two:
+  badge: two
+  time: 2018-06-28 15:38:12
+  sensor: 1
+  deleted: false
+  added: false

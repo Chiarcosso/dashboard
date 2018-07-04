@@ -163,8 +163,8 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['UserInsert'] = user.person.complete_name.upcase
       payload['DataPost'] = Date.current.strftime('%Y-%m-%d')
       payload['UserPost'] = 'PUNTO CHECKUP'
-      payload['DataUltimaManutenzione'] = "0000-00-00"
-      payload['DataUltimoControllo'] = "0000-00-00"
+      # payload['DataUltimaManutenzione'] = "0000-00-00"
+      # payload['DataUltimoControllo'] = "0000-00-00"
       payload['FlagStampato'] = 'false'
       payload['CodiceOfficina'] = workshop.first['codice'].to_s
       payload['CodiceAutista'] = driver.first['codice'] if driver.count > 0

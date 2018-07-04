@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  leave_code: one
+  person: one
+  from: 2018-07-03 11:03:47
+  to: 2018-07-03 11:03:47
+
+two:
+  leave_code: two
+  person: two
+  from: 2018-07-03 11:03:47
+  to: 2018-07-03 11:03:47

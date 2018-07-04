@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  badge: 
+  person: 
+  from: 2018-06-28
+  to: 2018-06-28
+
+two:
+  badge: 
+  person: 
+  from: 2018-06-28
+  to: 2018-06-28

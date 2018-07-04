@@ -1,0 +1,51 @@
+%h3="Orari: #{@person.complete_name}"
+= @person.mssql_references.map{|ref| remote_object_id}.join(', ')
+
+.row
+  =form_tag add_working_schedule_path, method: :post, remote: true do |f|
+    = hidden_field_tag 'person', @person.id
+    .col-sm-2
+      Giorno
+      =select_tag 'weekday', options_for_select(WorkingSchedule.weekdays), class: 'form-control'
+    .col-sm-3
+      .row
+        .col-sm-5
+          Accordo dalle
+        .col-sm-7
+          =time_select 'agreement', 'from', {minute_step: 30, default: {hour: '08',minute:'00'}}, class: 'form-control', style: 'display: inline; width: auto;'
+      .row
+        .col-sm-5
+          Contratto dalle
+        .col-sm-7
+          =time_select 'contract', 'from', {minute_step: 30, default: {hour: '08',minute:'00'}}, class: 'form-control', style: 'display: inline; width: auto;'
+    .col-sm-3
+      .row
+        .col-sm-5
+          Accordo alle
+        .col-sm-7
+          =time_select 'agreement', 'to', {minute_step: 30, default: {hour: '08',minute:'00'}}, class: 'form-control', style: 'display: inline; width: auto;'
+      .row
+        .col-sm-5
+          Contratto alle
+        .col-sm-7
+          =time_select 'contract', 'from', {minute_step: 30, default: {hour: '08',minute:'00'}}, class: 'form-control', style: 'display: inline; width: auto;'
+
+    .col-sm-2
+      .row
+        .col-sm-6
+          Pausa
+        .col-sm-6
+          =number_field_tag 'break', 60, class: 'form-control'
+      .row
+        .col-sm-6
+          gg/mese non pagati
+        .col-sm-6
+          =number_field_tag 'months_unpaid_days', 0, class: 'form-control'
+    .col-sm-1
+      &nbsp
+      =submit_tag 'Inserisci', class: 'form-control'
+
+- @person.working_schedules.order(weekday: :asc).each do |ws|
+  .row
+    .col-sm-2
+      = ws.weekday

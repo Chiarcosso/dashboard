@@ -1,0 +1,2 @@
+class LeaveCode < ApplicationRecord
+end

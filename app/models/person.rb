@@ -6,6 +6,11 @@ class Person < ApplicationRecord
   has_many :company_relations, through: :relations
 
   has_many :prepaid_cards
+  has_many :badge_assignations
+  has_many :badges, through: :badge_assignations
+  has_many :presence_timestamps, through: :badges
+  has_many :working_schedules
+
 
   has_one :carwash_driver_code, :dependent => :destroy
   has_many :mssql_references, as: :local_object
@@ -68,8 +73,59 @@ class Person < ApplicationRecord
     Person.find(p) unless p.nil?
   end
 
-  def self.find_by_reference(id)
-    ms = MssqlReference.find_by(remote_object_id: id.to_i, remote_object_table: 'Autisti')
+  def self.find_or_create(person)
+
+    #person -> id: dashboard person id
+    #          mssql_id: sql srver id
+    #          table: sql server table
+    #          data: { name, surname }
+
+    if !person[:id].nil?
+      p = Person.find(person[:id].to_i)
+      person[:table] = 'Autisti' if person[:table].nil?
+      if p.nil? and !person[:data].nil?
+        p = Person.create(person[:data])
+      end
+      unless person[:mssql_id].nil?
+        ref = MssqlReference.query({table: person[:table], where: {id: person[:mssql_id], nome: :not_null}}).first
+        MssqlReference.create(local_object: p, remote_object_table: person[:table], remote_object_id: person[:mssql_id].to_i)
+      end
+      return p
+    end
+
+    if !person[:mssql_id].nil?
+      p = Person.find_by_reference(person[:mssql_id].to_i, person[:table])
+
+      if p.nil?
+        case person[:table]
+        when 'Autisti' then
+          where = {IdAutista: person[:mssql_id].to_i}
+        when 'Clienti' then
+          where = {IdCliente: person[:mssql_id].to_i}
+        end
+        ref = MssqlReference.query({table: person[:table], where: where}).first
+
+        case person[:table]
+        when 'Autisti' then
+          if ref['nome'].nil?
+            tmp = ref['Nominativo'].split(/ */,2)
+            ref['nome'] = tmp[0]
+            ref['cognome'] = tmp[1]
+          end
+          p = Person.create(name: ref['nome'], surname: ref['cognome'])
+        when 'Clienti' then
+          tmp = ref['RagioneSociale'].split(/ */,2)
+          p = Person.create(name: tmp[0], surname: tmp[1])
+        end
+
+        MssqlReference.create(local_object: p, remote_object_table: person[:table], remote_object_id: person[:mssql_id].to_i)
+      end
+      return p
+    end
+  end
+
+  def self.find_by_reference(id,table = 'Autisti')
+    ms = MssqlReference.find_by(remote_object_id: id.to_i, remote_object_table: table)
     Person.find(ms.local_object_id) unless ms.nil?
   end
 

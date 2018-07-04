@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180626065109) do
+ActiveRecord::Schema.define(version: 20180703090844) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -55,6 +55,24 @@ ActiveRecord::Schema.define(version: 20180626065109) do
     t.integer  "measure_unit",     limit: 3,                                              null: false
     t.index ["created_by_id"], name: "index_articles_on_created_by_id", using: :btree
     t.index ["manufacturer_id"], name: "index_articles_on_manufacturer_id", using: :btree
+  end
+
+  create_table "badge_assignments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "badge_id",   null: false
+    t.integer  "person_id",  null: false
+    t.date     "from",       null: false
+    t.date     "to"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["badge_id"], name: "index_badge_assignments_on_badge_id", using: :btree
+    t.index ["person_id"], name: "index_badge_assignments_on_person_id", using: :btree
+  end
+
+  create_table "badges", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.string   "code",       null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_badges_on_code", using: :btree
   end
 
   create_table "carwash_driver_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -255,6 +273,18 @@ ActiveRecord::Schema.define(version: 20180626065109) do
     t.index ["vehicle_typology_id"], name: "index_external_vehicles_on_vehicle_typology_id", using: :btree
   end
 
+  create_table "festivities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "day",        null: false
+    t.integer  "month",      null: false
+    t.integer  "year"
+    t.string   "name",       null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["day", "month", "year"], name: "index_festivities_on_day_and_month_and_year", unique: true, using: :btree
+    t.index ["month"], name: "index_festivities_on_month", using: :btree
+    t.index ["year"], name: "index_festivities_on_year", using: :btree
+  end
+
   create_table "gears", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name",              null: false
     t.string   "serial",            null: false
@@ -308,6 +338,18 @@ ActiveRecord::Schema.define(version: 20180626065109) do
     t.index ["name"], name: "index_geo_states_on_name", unique: true, using: :btree
   end
 
+  create_table "granted_leaves", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "leave_code_id", null: false
+    t.integer  "person_id",     null: false
+    t.datetime "from",          null: false
+    t.datetime "to",            null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.index ["leave_code_id", "person_id", "from", "to"], name: "granted_leaves_uniqs", unique: true, using: :btree
+    t.index ["leave_code_id"], name: "index_granted_leaves_on_leave_code_id", using: :btree
+    t.index ["person_id"], name: "index_granted_leaves_on_person_id", using: :btree
+  end
+
   create_table "item_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "office_id"
     t.integer  "vehicle_id"
@@ -352,6 +394,14 @@ ActiveRecord::Schema.define(version: 20180626065109) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_languages_on_name", unique: true, using: :btree
+  end
+
+  create_table "leave_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.string   "code",                       null: false
+    t.boolean  "afterhours", default: false, null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.index ["code"], name: "index_leave_codes_on_code", using: :btree
   end
 
   create_table "mdc_users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -475,6 +525,21 @@ ActiveRecord::Schema.define(version: 20180626065109) do
     t.index ["company_id"], name: "index_prepaid_cards_on_company_id", using: :btree
     t.index ["person_id"], name: "index_prepaid_cards_on_person_id", using: :btree
     t.index ["serial"], name: "index_prepaid_cards_on_serial", unique: true, using: :btree
+  end
+
+  create_table "presence_timestamps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "badge_id",                   null: false
+    t.datetime "time"
+    t.integer  "sensor",                     null: false
+    t.boolean  "deleted",    default: false
+    t.boolean  "added",      default: false
+    t.string   "file",                       null: false
+    t.integer  "row",                        null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.index ["badge_id", "time", "sensor"], name: "index_presence_timestamps_on_badge_id_and_time_and_sensor", unique: true, using: :btree
+    t.index ["badge_id"], name: "index_presence_timestamps_on_badge_id", using: :btree
+    t.index ["sensor"], name: "index_presence_timestamps_on_sensor", using: :btree
   end
 
   create_table "queries", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -838,6 +903,24 @@ ActiveRecord::Schema.define(version: 20180626065109) do
     t.index ["vehicle_typology_id"], name: "index_vehicles_on_vehicle_typology_id", using: :btree
   end
 
+  create_table "working_schedules", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "person_id",                          null: false
+    t.time     "agreement_from"
+    t.time     "agreement_to"
+    t.time     "contract_from"
+    t.time     "contract_to"
+    t.integer  "weekday",                            null: false
+    t.boolean  "contractor",         default: false, null: false
+    t.integer  "break",                              null: false
+    t.integer  "months_unpaid_days", default: 0,     null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.index ["contractor"], name: "index_working_schedules_on_contractor", using: :btree
+    t.index ["person_id", "weekday"], name: "index_working_schedules_on_person_id_and_weekday", unique: true, using: :btree
+    t.index ["person_id"], name: "index_working_schedules_on_person_id", using: :btree
+    t.index ["weekday"], name: "index_working_schedules_on_weekday", using: :btree
+  end
+
   create_table "worksheet_operations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "worksheet_id"
     t.integer  "workshop_operation_id"
@@ -914,6 +997,8 @@ ActiveRecord::Schema.define(version: 20180626065109) do
   add_foreign_key "article_compatibilities", "articles"
   add_foreign_key "articles", "companies", column: "manufacturer_id"
   add_foreign_key "articles", "users", column: "created_by_id"
+  add_foreign_key "badge_assignments", "badges"
+  add_foreign_key "badge_assignments", "people"
   add_foreign_key "carwash_driver_codes", "people"
   add_foreign_key "carwash_usages", "carwash_special_codes"
   add_foreign_key "carwash_usages", "people"
@@ -942,6 +1027,8 @@ ActiveRecord::Schema.define(version: 20180626065109) do
   add_foreign_key "geo_localities", "geo_cities"
   add_foreign_key "geo_provinces", "geo_states"
   add_foreign_key "geo_states", "languages"
+  add_foreign_key "granted_leaves", "leave_codes"
+  add_foreign_key "granted_leaves", "people"
   add_foreign_key "item_relations", "items"
   add_foreign_key "item_relations", "offices"
   add_foreign_key "item_relations", "people"
@@ -963,6 +1050,7 @@ ActiveRecord::Schema.define(version: 20180626065109) do
   add_foreign_key "output_orders", "people", column: "receiver_id"
   add_foreign_key "output_orders", "users", column: "createdBy_id"
   add_foreign_key "prepaid_cards", "people"
+  add_foreign_key "presence_timestamps", "badges"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
   add_foreign_key "transport_documents", "companies", column: "vector_id"
@@ -1013,6 +1101,7 @@ ActiveRecord::Schema.define(version: 20180626065109) do
   add_foreign_key "vehicles", "vehicle_models", column: "model_id"
   add_foreign_key "vehicles", "vehicle_types"
   add_foreign_key "vehicles", "vehicle_typologies"
+  add_foreign_key "working_schedules", "people"
   add_foreign_key "worksheet_operations", "people"
   add_foreign_key "worksheet_operations", "worksheets"
   add_foreign_key "worksheet_operations", "workshop_operations"

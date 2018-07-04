@@ -429,6 +429,32 @@ class MssqlReference < ApplicationRecord
     "id: #{self.id}, local_object_id: #{self.local_object_id}, local_object_type: #{self.local_object_type}, remote_object_id: #{self.remote_object_id}, remote_object_table: #{self.remote_object_table}"
   end
 
+  def self.query(query,db = ENV['RAILS_MSSQL_DB'])
+    c = TinyTds::Client.new username: ENV['RAILS_MSSQL_USER'], password: ENV['RAILS_MSSQL_PASS'], host: ENV['RAILS_MSSQL_HOST'], port: ENV['RAILS_MSSQL_PORT'], database: db
+
+    q = "select * from [#{query[:table].gsub("'","''")}]"
+
+    #check conditions
+    unless query[:where].nil?
+      w = Array.new
+      query[:where].each do |field,condition|
+
+        #build where condition
+        condition = "= '#{condition.gsub("'","''")}'" if condition.class == String
+        condition = "= #{condition}" if condition.class == Fixnum
+        condition = "is not null" if condition == :not_null
+        condition = "is null" if condition == :null
+
+        w << "[#{field.to_s}] #{condition}"
+      end
+      q += " where #{w.join(' and ')};"
+    end
+    
+    res = c.execute(q)
+
+    res
+  end
+
   def self.get_client
     TinyTds::Client.new username: ENV['RAILS_MSSQL_USER'], password: ENV['RAILS_MSSQL_PASS'], host: ENV['RAILS_MSSQL_HOST'], port: ENV['RAILS_MSSQL_PORT'], database: ENV['RAILS_MSSQL_DB']
   end
