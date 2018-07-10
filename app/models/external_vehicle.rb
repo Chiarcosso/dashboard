@@ -9,7 +9,7 @@ class ExternalVehicle < ApplicationRecord
   has_many :mssql_references, as: :local_object, :dependent => :destroy
 
   def complete_name
-    "#{self.plate+} - #{self.type.name} #{self.typology.name} (#{self.owner.name})"
+    "#{self.plate} - #{self.type.name} #{self.typology.name} (#{self.owner.name})"
   end
 
   def type
