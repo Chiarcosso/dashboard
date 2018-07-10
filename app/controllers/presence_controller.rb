@@ -17,7 +17,7 @@ class PresenceController < ApplicationController
     end
   end
 
-  def self.read_timestamps(opts)
+  def self.read_timestamps(opts = {:get_all => true})
     #set starting date
     if opts[:get_all]
       year = 2014

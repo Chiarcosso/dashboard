@@ -200,7 +200,7 @@ class WorkshopController < ApplicationController
 
   def pause_operation
     begin
-      @worksop_operation.update(real_duration: params.require('time').to_i, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      @workshop_operation.update(real_duration: params.require('time').to_i, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       # respond_to do |format|
       #   format.js { render partial: 'workshop/worksheet_js' }
