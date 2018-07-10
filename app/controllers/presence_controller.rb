@@ -44,7 +44,7 @@ class PresenceController < ApplicationController
       end
     end
     fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
-    byebug
+    # byebug
     while File.exist?("#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto") do
       rf = File.read(fname).force_encoding('iso-8859-1')
       row = 1
