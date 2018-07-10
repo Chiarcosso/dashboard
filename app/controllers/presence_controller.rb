@@ -44,12 +44,16 @@ class PresenceController < ApplicationController
       end
     end
     fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
+    byebug
     while File.exist?("#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto") do
       rf = File.read(fname).force_encoding('iso-8859-1')
-      byebug
-      rf.scan(/.*\((.*)\)\t(.*)\t(.*)/) do |badge,timestamp,sensor|
-        byebug
-        puts line
+      row = 1
+      # rf.scan(/.*\((.*)\)[\x01](\d*)[\x01]([\d \:\/]*)[\x01]/) do |badge,sensor,timestamp|
+      rf.scan(/\d+\x01+\d+\x01\D*([A-Za-z]?\d)\D*\x01+(\d*)\x01+([\d \:\/]*)\x01+/) do |badge,sensor,timestamp|
+        b = Badge.find_or_create(badge.gsub(/\s+/,''))
+        ts = PresenceTimestamp.find_or_create(badge: b, sensor: sensor, time: DateTime.strptime(timestamp,"%d/%m/%y %H:%M:%S"),row: row, file: fname)
+        puts ts
+        row += 1
       end
       month += 1
       if month > 12
