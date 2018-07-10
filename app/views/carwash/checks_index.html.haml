@@ -47,11 +47,12 @@
                   %br
                   = 'Segnalazioni: '+cs.vehicle_performed_checks.reject{ |vc| vc.myofficina_odl_reference.nil? }.map{ |vc| vc.myofficina_odl_reference }.uniq.join(",")
                 .col-sm-1
+                  -# - byebug if cs.actual_vehicle.nil?
                   - if current_user.has_role?('amministratore lavaggio') || current_user.has_role?(:admin) || cs.finished.nil?
                     = form_tag(continue_check_session_path(cs.id), method: :post, remote: true) do |f|
-                      = submit_tag (cs.finished.nil?? 'Continua' : 'Riapri'), 'data-confirmation': "#{cs.finished.nil?? 'Continuare' : 'Riprendere'} la sessione nr. #{cs.myofficina_reference} (#{cs.vehicle.complete_name})?", class: 'loading_screen'
+                      = submit_tag (cs.finished.nil?? 'Continua' : 'Riapri'), 'data-confirmation': "#{cs.finished.nil?? 'Continuare' : 'Riprendere'} la sessione nr. #{cs.myofficina_reference} (#{cs.actual_vehicle.complete_name})?", class: 'loading_screen'
                 .col-sm-1
-                  = link_to cs.vehicle.plate, vehicles_path(search: cs.vehicle.plate)
+                  = link_to cs.actual_vehicle.plate, vehicles_path(search: cs.actual_vehicle.plate)
                 .col-sm-2
                   = "#{cs.vehicle_performed_checks.performed.size}/#{cs.vehicle_performed_checks.size} eseguiti."
                   - if cs.vehicle_performed_checks.fixed.size > 0
