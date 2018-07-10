@@ -224,6 +224,8 @@ Rails.application.routes.draw do
   get   '/presence/manage/', to: 'presence#manage', as: :manage_presence
   post   '/presence/manage/', to: 'presence#manage', as: :manage_presence_post
   post   '/presence/add_schedule/', to: 'presence#add_working_schedule', as: :add_working_schedule
+  post   '/presence/edit_schedule/:id', to: 'presence#edit_working_schedule', as: :edit_working_schedule
+  delete   '/presence/delete_schedule/:id', to: 'presence#delete_working_schedule', as: :delete_working_schedule
 
   get '/vehicle/assignation', to: 'vehicles#assignation', as: :vehicles_assignation
   post '/vehicle/massive_delete', to: 'vehicles#massive_delete', as: :massive_vehicles_delete

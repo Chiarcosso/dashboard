@@ -108,13 +108,13 @@ class Person < ApplicationRecord
         case person[:table]
         when 'Autisti' then
           if ref['nome'].nil?
-            tmp = ref['Nominativo'].split(/ */,2)
+            tmp = ref['Nominativo'].split(' ',2)
             ref['nome'] = tmp[0]
             ref['cognome'] = tmp[1]
           end
           p = Person.create(name: ref['nome'], surname: ref['cognome'])
         when 'Clienti' then
-          tmp = ref['RagioneSociale'].split(/ */,2)
+          tmp = ref['RagioneSociale'].split(' ',2)
           p = Person.create(name: tmp[0], surname: tmp[1])
         end
 

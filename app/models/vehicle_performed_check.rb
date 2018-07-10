@@ -126,18 +126,19 @@ class VehiclePerformedCheck < ApplicationRecord
       ewc.close
       case self.performed
       when 5 then
-        query = "select Anno, Protocollo from autoodl "\
-                  "where DataEntrataVeicolo <= '#{vcs.created_at.strftime('%Y-%m-%d')}' "\
-                  "and CodiceTipoDanno != 15 "\
-                  "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
-                  "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
-                  "and Targa = '#{plate}' and CodiceAnagrafico = 'OFF00001' "\
-                  "order by DataEntrataVeicolo desc limit 1"
-        odlr = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query(query)
+        # query = "select Anno, Protocollo from autoodl "\
+        #           "where DataEntrataVeicolo <= '#{vcs.created_at.strftime('%Y-%m-%d')}' "\
+        #           "and CodiceTipoDanno != 15 "\
+        #           "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
+        #           "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
+        #           "and Targa = '#{plate}' and CodiceAnagrafico = 'OFF00001' "\
+        #           "order by DataEntrataVeicolo desc limit 1"
+        # odlr = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query(query)
+        odlr = EurowinController::last_open_odl_not(self.vehicle_check_session.myofficina_reference)
 
-        if odlr.count > 0
-          odl = odlr.first['Protocollo'].to_s
-          odl_year = odlr.first['Anno'].to_s
+        if !odlr.nil? && odlr.count > 0
+          odl = odlr['Protocollo'].to_s
+          odl_year = odlr['Anno'].to_s
         else
           odl = VehicleCheckSession.create_worksheet(user,vehicle,'OFFICINA INTERNA','55',"Bloccante: #{self.vehicle_check.label}"[0..99])
           odl_year = Date.today.strftime('%Y')

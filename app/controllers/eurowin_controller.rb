@@ -91,7 +91,7 @@ class EurowinController < ApplicationController
   end
 
   def self.get_worksheet(protocol)
-    protocol = protocol[/\d*/]
+    protocol = protocol.to_s[/\d*/]
     ewc = get_ew_client
     r = ewc.query("select * from autoodl where CodiceAutomezzo is not null and protocollo = #{protocol} limit 1;").first
     ewc.close
