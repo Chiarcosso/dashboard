@@ -262,7 +262,8 @@ class Worksheet < ApplicationRecord
   end
 
   def get_pdf_path
-    if self.pdf_path.nil?
+    
+    if self.pdf_path.nil? || self.pdf_path == ''
       path = nil
       list = `find #{ENV['RAILS_WS_PATH']}`
       # list.scan(/.*\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')} - .*\/.*-#{self.number}.*\.pdf/) do |line|
@@ -271,7 +272,7 @@ class Worksheet < ApplicationRecord
       end
       if path.nil?
         list.scan(/.*-#{self.number}-.*\.lnk/i) do |line|
-          url = "http://10.0.0.101/linkexplode/default.asp?strPath=\\\\10.0.0.99\\Comune\\#{line[/\/mnt\/wshare\/(.*)$/,1]}"
+          url = "http://10.0.0.101/linkexplode/default.asp?strPath=\\\\10.0.0.99\\Comune\\#{line[/\/mnt\/wshare\/(.*)$/,1].gsub("\/","\\")}"
           path = HTTPI.get(url).raw_body.gsub('Z:\\','/mnt/wshare/').tr('\\','/')
         end
       end

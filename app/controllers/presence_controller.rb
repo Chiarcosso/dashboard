@@ -21,7 +21,7 @@ class PresenceController < ApplicationController
     #set starting date
     if opts[:get_all]
       year = 2014
-      month = 1
+      month = 4
     elsif !opts[:month].nil? && !opts[:year].nil?
       if opts[:year] < 2014
         year = 2014
@@ -37,29 +37,37 @@ class PresenceController < ApplicationController
       last_timestamp = PresenceTimestamp.real_timestamps.order(timestamp: :desc).first
       if last_timestamp.nil?
         year = 2014
-        month = 1
+        month = 4
       else
         year = last_timestamp.timestamp.strftime("%Y").to_i
         month = last_timestamp.timestamp.strftime("%m").to_i
       end
     end
+
+    #first filename
     fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
-    # byebug
-    while File.exist?("#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto") do
+
+    #while the next file exists read it and store information
+    while File.exist?(fname) do
       rf = File.read(fname).force_encoding('iso-8859-1')
       row = 1
-      # rf.scan(/.*\((.*)\)[\x01](\d*)[\x01]([\d \:\/]*)[\x01]/) do |badge,sensor,timestamp|
-      rf.scan(/\d+\x01+\d+\x01\D*([A-Za-z]?\d)\D*\x01+(\d*)\x01+([\d \:\/]*)\x01+/) do |badge,sensor,timestamp|
+
+      rf.scan(/\d+\x01+\d+\x01+.*\( *([A-Za-z]?\d*) *\).*\x01+(\d*)\x01+([\d \:\/]*)\x01+/) do |badge,sensor,timestamp|
         b = Badge.find_or_create(badge.gsub(/\s+/,''))
         ts = PresenceTimestamp.find_or_create(badge: b, sensor: sensor, time: DateTime.strptime(timestamp,"%d/%m/%y %H:%M:%S"),row: row, file: fname)
         puts ts
         row += 1
       end
+
+      #increment month and year
       month += 1
       if month > 12
         month = 1
         year += 1
       end
+
+      #next filename
+      fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
     end
   end
 
