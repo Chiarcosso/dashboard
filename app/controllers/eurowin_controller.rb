@@ -124,6 +124,8 @@ class EurowinController < ApplicationController
     payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
     payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
     payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
+    payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
+    payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
     # payload['UserInsert'] = current_user.person.complete_name.upcase if payload['UserInsert'].nil?
     # payload['DataPost'] = "0" if payload['DataPost'].nil?
     # payload['UserPost'] = "0" if payload['UserPost'].nil?
@@ -135,6 +137,8 @@ class EurowinController < ApplicationController
     payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
     payload['FlagJSONType'] = "sgn"
 
+    payload.each { |k,v| payload.delete(k) if v.nil? }
+    
     request = HTTPI::Request.new
     request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
     request.body = payload.to_json
@@ -164,12 +168,16 @@ class EurowinController < ApplicationController
     payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
     payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
     payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
+    payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
+    payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
+    # payload.delete('CodiceAutista') if payload['CodiceAutista'].nil?
     # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
     # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
     # payload['TipoDanno'] = '55' if payload['TipoDanno'].nil?
     payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
     payload['FlagJSONType'] = "odl"
 
+    payload.each { |k,v| payload.delete(k) if v.nil? }
     request = HTTPI::Request.new
     request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
     request.body = payload.to_json
@@ -223,6 +231,20 @@ class EurowinController < ApplicationController
     vehicle_refs['Targa'] = vehicle.plate
     vehicle_refs['Km'] = vehicle.mileage
     return vehicle_refs
+  end
+
+  def self.get_tipo_danno(tipodanno)
+
+    if tipodanno.to_i > 0
+      query = "select * from tabdesc where codice = #{tipodanno.gsub("'","''")} and gruppo = 'AUTOTIPD'"
+    else
+      query = "select * from tabdesc where gruppo = 'AUTOTIPD' and Descrizione = '#{tipodanno.gsub("'","''")}'"
+    end
+    ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
+    dt = ewc.query(query)
+    ewc.close
+
+    return dt.first['Codice'] unless dt.count < 1
   end
 
   private
