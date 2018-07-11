@@ -111,11 +111,14 @@ class WorkshopController < ApplicationController
         'UserPost': 'OFFICINA',
         'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
         'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
-        'Targa': vehicle_refs['Targa'],
-        'Km': vehicle_refs['Km'].to_s,
-        'CodiceOfficina': EurowinController::get_workshop(:workshop)
+        'CodiceTarga': vehicle_refs['Targa'],
+        'Chilometraggio': vehicle_refs['Km'].to_s,
+        'CodiceOfficina': EurowinController::get_workshop(:workshop),
+        'FlagRiparato': 'false',
+        'FlagStampato': 'false',
+        'FlagChiuso': 'false'
       }
-
+      
       sgn = EurowinController::create_notification(payload)
       WorkshopOperation.create(name: 'Lavorazione', worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       respond_to do |format|

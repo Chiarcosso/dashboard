@@ -449,8 +449,11 @@ class MssqlReference < ApplicationRecord
       end
       q += " where #{w.join(' and ')};"
     end
-    
-    res = c.execute(q)
+
+    res = []
+    c.execute(q).each do |r|
+      res << r
+    end
 
     res
   end

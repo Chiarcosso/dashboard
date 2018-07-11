@@ -15,7 +15,10 @@ class EurowinController < ApplicationController
     when :all then
       w = ""
     when :opened then
-      w = " and FlagRiparato like 'false' and FlagChiuso like 'false' "
+      w = " and ((FlagRiparato like 'false' and FlagChiuso like 'false') "\
+          "or (FlagChiuso is null and FlagRiparato is null) "\
+          "or (FlagRiparato like 'false' and FlagChiuso is null) "\
+          "or (FlagRiparato is null and FlagChiuso like 'false'))"
     when :closed then
       w = " and FlagRiparato like 'true' and FlagChiuso like 'true' "
     end
@@ -134,11 +137,13 @@ class EurowinController < ApplicationController
     # payload['FlagStampato'] = "0"
     # payload['TipoDanno'] = "0" if payload['TipoDanno'].nil?
     # payload['FlagRiparato'] = "0" if payload['FlagRiparato'].nil?
+    payload['FlagRiparato'] = "null" if payload['FlagRiparato'].nil?
+    payload['FlagStampato'] = "null" if payload['FlagStampato'].nil?
     payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
     payload['FlagJSONType'] = "sgn"
-
-    payload.each { |k,v| payload.delete(k) if v.nil? }
     
+    payload.each { |k,v| payload.delete(k) if v.nil? }
+
     request = HTTPI::Request.new
     request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
     request.body = payload.to_json

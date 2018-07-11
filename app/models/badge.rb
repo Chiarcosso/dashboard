@@ -10,7 +10,7 @@ class Badge < ApplicationRecord
   def self.find_or_create(badge)
 
     b = Badge.find_by(code: badge.to_s)
-    ref = MssqlReference.query({table: 'badge', where: {badge: badge}},'chiarcosso_test')
+    ref = MssqlReference.query({table: 'badge', where: {badge: badge.to_s}},'chiarcosso_test')
     if b.nil?
       b = Badge.create(code: badge)
     end

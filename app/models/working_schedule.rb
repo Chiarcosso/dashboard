@@ -49,7 +49,7 @@ class WorkingSchedule < ApplicationRecord
       else
         breaktime = ((ws['inizio2']-ws['fine1'])/60).to_i
       end
-      byebug if person.name == 'Clara'
+      
       #create every missing daily schedule
       wd.each do |d|
         schedule = WorkingSchedule.find_by(weekday: d, person: person)
