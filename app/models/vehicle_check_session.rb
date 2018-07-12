@@ -18,6 +18,10 @@ class VehicleCheckSession < ApplicationRecord
     end
   end
 
+  def close
+    self.update(finished: DateTime.now)
+  end
+
   def vehicle_ordered_performed_checks
     res = Hash.new
     self.vehicle_performed_checks.sort_by{ |vc| [ vc.performed?.to_s, vc.mandatory ? 0 : 1, -vc.vehicle_check.importance, vc.vehicle_check.label ] }.each do |vpc|

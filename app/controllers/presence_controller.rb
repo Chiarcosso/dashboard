@@ -55,7 +55,6 @@ class PresenceController < ApplicationController
       rf.scan(/\d+\x01+\d+\x01+.*\( *([A-Za-z]?\d*) *\).*\x01+(\d*)\x01+([\d \:\/]*)\x01+/) do |badge,sensor,timestamp|
         b = Badge.find_or_create(badge.gsub(/\s+/,''))
         ts = PresenceTimestamp.find_or_create(badge: b, sensor: sensor, time: DateTime.strptime(timestamp,"%d/%m/%y %H:%M:%S"),row: row, file: fname)
-        puts ts
         row += 1
       end
 

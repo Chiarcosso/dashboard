@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180703090844) do
+ActiveRecord::Schema.define(version: 20180712081612) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -57,7 +57,7 @@ ActiveRecord::Schema.define(version: 20180703090844) do
     t.index ["manufacturer_id"], name: "index_articles_on_manufacturer_id", using: :btree
   end
 
-  create_table "badge_assignments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "badge_assignments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "badge_id",   null: false
     t.integer  "person_id",  null: false
     t.date     "from",       null: false
@@ -68,7 +68,7 @@ ActiveRecord::Schema.define(version: 20180703090844) do
     t.index ["person_id"], name: "index_badge_assignments_on_person_id", using: :btree
   end
 
-  create_table "badges", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "badges", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "code",       null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -273,7 +273,7 @@ ActiveRecord::Schema.define(version: 20180703090844) do
     t.index ["vehicle_typology_id"], name: "index_external_vehicles_on_vehicle_typology_id", using: :btree
   end
 
-  create_table "festivities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "festivities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "day",        null: false
     t.integer  "month",      null: false
     t.integer  "year"
@@ -338,7 +338,7 @@ ActiveRecord::Schema.define(version: 20180703090844) do
     t.index ["name"], name: "index_geo_states_on_name", unique: true, using: :btree
   end
 
-  create_table "granted_leaves", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "granted_leaves", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "leave_code_id", null: false
     t.integer  "person_id",     null: false
     t.datetime "from",          null: false
@@ -396,7 +396,7 @@ ActiveRecord::Schema.define(version: 20180703090844) do
     t.index ["name"], name: "index_languages_on_name", unique: true, using: :btree
   end
 
-  create_table "leave_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "leave_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "code",                       null: false
     t.boolean  "afterhours", default: false, null: false
     t.datetime "created_at",                 null: false
@@ -527,7 +527,7 @@ ActiveRecord::Schema.define(version: 20180703090844) do
     t.index ["serial"], name: "index_prepaid_cards_on_serial", unique: true, using: :btree
   end
 
-  create_table "presence_timestamps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "presence_timestamps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "badge_id",                   null: false
     t.datetime "time"
     t.integer  "sensor",                     null: false
@@ -623,18 +623,19 @@ ActiveRecord::Schema.define(version: 20180703090844) do
   create_table "vehicle_check_sessions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "theoretical_km"
     t.integer  "real_km"
-    t.date     "date",                               null: false
-    t.integer  "operator_id",                        null: false
-    t.integer  "theoretical_duration",               null: false
+    t.date     "date",                                                   null: false
+    t.integer  "operator_id",                                            null: false
+    t.integer  "theoretical_duration",                                   null: false
     t.integer  "real_duration"
     t.integer  "worksheet_id"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
+    t.datetime "created_at",                                             null: false
+    t.datetime "updated_at",                                             null: false
     t.integer  "vehicle_id"
     t.integer  "external_vehicle_id"
     t.datetime "finished"
     t.text     "log",                  limit: 65535
     t.integer  "myofficina_reference"
+    t.string   "station",                            default: "carwash", null: false
     t.index ["external_vehicle_id"], name: "index_vehicle_check_sessions_on_external_vehicle_id", using: :btree
     t.index ["operator_id"], name: "index_vehicle_check_sessions_on_operator_id", using: :btree
     t.index ["vehicle_id"], name: "index_vehicle_check_sessions_on_vehicle_id", using: :btree
@@ -903,7 +904,7 @@ ActiveRecord::Schema.define(version: 20180703090844) do
     t.index ["vehicle_typology_id"], name: "index_vehicles_on_vehicle_typology_id", using: :btree
   end
 
-  create_table "working_schedules", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "working_schedules", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "person_id",                          null: false
     t.time     "agreement_from"
     t.time     "agreement_to"

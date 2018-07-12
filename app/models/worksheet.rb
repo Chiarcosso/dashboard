@@ -12,6 +12,7 @@ class Worksheet < ApplicationRecord
   has_many :items, through: :output_order_items
 
   has_many :worksheet_operations
+  has_one :vehicle_check_session
 
   belongs_to :vehicle, polymorphic:true
 
@@ -262,7 +263,7 @@ class Worksheet < ApplicationRecord
   end
 
   def get_pdf_path
-    
+
     if self.pdf_path.nil? || self.pdf_path == ''
       path = nil
       list = `find #{ENV['RAILS_WS_PATH']}`
