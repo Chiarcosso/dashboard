@@ -29,9 +29,9 @@
     .col-sm-1
       %b= "Note"
     .col-sm-2
-      =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(@check_session.vehicle.id), name: "infobox_vehicle_checks_#{@check_session.vehicle.id}" }
-      =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@check_session.vehicle.id), name: "infobox_vehicle_#{@check_session.vehicle.id}" }
-      =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(@check_session.vehicle.id), name: "infobox_vehicle_workshop_#{@check_session.vehicle.id}" }
+      =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(@check_session.actual_vehicle.id), name: "infobox_vehicle_checks_#{@check_session.actual_vehicle.id}" }
+      =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@check_session.actual_vehicle.id), name: "infobox_vehicle_#{@check_session.actual_vehicle.id}" }
+      =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(@check_session.actual_vehicle.id), name: "infobox_vehicle_workshop_#{@check_session.actual_vehicle.id}" }
 
   .row
     .tab-content
