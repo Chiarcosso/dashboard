@@ -1,0 +1,53 @@
+%h3="Festività: "
+
+.row
+  =form_tag add_festivity_path, method: :post, remote: true do |f|
+    = hidden_field_tag :tab, 'festivities'
+    .col-sm-3
+      Nome
+      =text_field_tag 'festivity[name]', nil, class: 'form-control'
+    .col-sm-2
+      Giorno
+      =number_field_tag 'festivity[day]', nil, class: 'form-control'
+    .col-sm-2
+      Mese
+      =number_field_tag 'festivity[month]', nil, class: 'form-control'
+    .col-sm-2
+      Anno
+      =number_field_tag 'festivity[year]', nil, class: 'form-control'
+      (lasciare vuoto se ricorrente)
+    .col-sm-1
+      &nbsp
+      =submit_tag 'Inserisci', class: 'form-control'
+%br
+%br
+.row
+  .col-sm-3
+    %b='Nome'
+  .col-sm-2
+    %b='Giorno'
+  .col-sm-2
+    %b='Mese'
+  .col-sm-2
+    %b='Anno'
+  .col-sm-1
+
+.scrollable-panel
+  - Festivity.order(month: :asc, year: :desc, day: :asc).each do |fs|
+    .row.colored
+      =form_tag edit_festivity_path(fs.id), method: :post, remote: true do |f|
+        = hidden_field_tag :tab, 'festivities'
+        .col-sm-3{style: 'margin-top: 1em;'}
+          =text_field_tag 'festivity[name]', fs.name, class: 'form-control'
+        .col-sm-2{style: 'margin-top: 1em;'}
+          =number_field_tag 'festivity[day]', fs.day, class: 'form-control'
+        .col-sm-2{style: 'margin-top: 1em;'}
+          =number_field_tag 'festivity[month]', fs.month, class: 'form-control'
+        .col-sm-2{style: 'margin-top: 1em;'}
+          =number_field_tag 'festivity[year]', fs.year, class: 'form-control'
+        .col-sm-1{style: 'margin-top: 1em;'}
+          =submit_tag 'Modifica', class: 'form-control', data: {confirmation: "Modifcare la data di #{fs.name}#{fs.year.nil? ? '' : " (#{fs.year})"}?"}
+      .col-sm-1
+        =form_tag delete_festivity_path(fs.id), method: :delete, remote: true do |f|
+          = hidden_field_tag :tab, 'festivities'
+          =submit_tag 'Elimina', class: 'form-control', data: {confirmation: "Eliminare #{fs.name}#{fs.year.nil? ? '' : " (#{fs.year})"}?"}

@@ -221,8 +221,22 @@ Rails.application.routes.draw do
 
   get   '/public/get_eurowin_worksheets/:table/:vehicle', to: 'vehicles#get_eurowin_worksheets', as: :get_eurowin_worksheets
 
-  get   '/presence/manage/', to: 'presence#manage', as: :manage_presence
-  post   '/presence/manage/', to: 'presence#manage', as: :manage_presence_post
+  get   '/festivities/manage', to: 'presence#manage_festivities', as: :manage_festivities
+
+  post   '/presence/add_badge_assignment/', to: 'presence#add_badge_assignment', as: :add_badge_assignment
+  post   '/presence/edit_badge_assignment/:id', to: 'presence#edit_badge_assignment', as: :edit_badge_assignment
+  delete   '/presence/delete_badge_assignment/:id', to: 'presence#delete_badge_assignment', as: :delete_badge_assignment
+
+  post   '/presence/add_festivity/', to: 'presence#add_festivity', as: :add_festivity
+  post   '/presence/edit_festivity/:id', to: 'presence#edit_festivity', as: :edit_festivity
+  delete   '/presence/delete_festvity/:id', to: 'presence#delete_festivity', as: :delete_festivity
+
+  post   '/presence/add_leave_code/', to: 'presence#add_leave_code', as: :add_leave_code
+  post   '/presence/edit_leave_code/:id', to: 'presence#edit_leave_code', as: :edit_leave_code
+  delete   '/presence/delete_leave_code/:id', to: 'presence#delete_leave_code', as: :delete_leave_code
+
+  get   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence
+  post   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence_post
   post   '/presence/add_schedule/', to: 'presence#add_working_schedule', as: :add_working_schedule
   post   '/presence/edit_schedule/:id', to: 'presence#edit_working_schedule', as: :edit_working_schedule
   delete   '/presence/delete_schedule/:id', to: 'presence#delete_working_schedule', as: :delete_working_schedule

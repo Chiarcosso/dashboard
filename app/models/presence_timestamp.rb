@@ -2,10 +2,11 @@ class PresenceTimestamp < ApplicationRecord
   belongs_to :badge
 
   scope :real_timestamps, -> { where(added: false, deleted: false) }
-
+  belongs_to :sensor
+  
   def self.find_or_create(opts)
     #opts = badge: Badge,
-          # sensor: int
+          # sensor: Sensor,
           # time: Datetime
           # file: sting
           # row: int

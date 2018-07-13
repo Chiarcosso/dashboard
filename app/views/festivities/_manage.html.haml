@@ -1,0 +1,20 @@
+
+.row
+  %ul.nav.nav-tabs
+    %li{class: @tab.nil? || @tab == 'badges' ? 'active' : ''}
+      =link_to "Badge", '#tab-badges', data: { toggle: 'tab'}, class: 'no-loader'
+    %li{class: @tab == 'leave-codes' ? 'active' : ''}
+      =link_to "Codici permessi", '#tab-leave-codes', data: { toggle: 'tab'}, class: 'no-loader'
+    %li{class: @tab == 'festivities' ? 'active' : ''}
+      =link_to "Festività", '#tab-festivities', data: { toggle: 'tab'}, class: 'no-loader'
+
+.row
+  .tab-content
+    %div{style: 'height:85%; padding: 1em;', id: 'tab-badges', class: @tab.nil? || @tab == 'badges' ? 'tab-pane active' : 'tab-pane'}
+      = render partial: 'festivities/badges'
+
+    %div{style: 'height:85%; padding: 1em;', id: 'tab-leave-codes', class: @tab == 'leave-codes' ? 'tab-pane active' : 'tab-pane'}
+      = render partial: 'festivities/leave_codes'
+
+    %div{style: 'height:85%; padding: 1em;', id: 'tab-festivities', class: @tab == 'festivities' ? 'tab-pane active' : 'tab-pane'}
+      = render partial: 'festivities/festivities'

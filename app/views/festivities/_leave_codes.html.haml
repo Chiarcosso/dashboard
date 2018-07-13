@@ -1,0 +1,53 @@
+%h3="Codici permessi: "
+
+.row
+  =form_tag add_leave_code_path, method: :post, remote: true do |f|
+    = hidden_field_tag :tab, 'leave-codes'
+    .col-sm-2
+      =text_field_tag 'leave_code[code]', nil, class: 'form-control', placeholder: 'Codice'
+    .col-sm-3
+      .row
+        .col-sm-5
+          Straordinario
+        .col-sm-7
+          = radio_button_tag 'leave_code[afterhours]', 1, false
+      .row
+        .col-sm-5
+          Permesso
+        .col-sm-7
+          = radio_button_tag 'leave_code[afterhours]', 0, true
+    .col-sm-1
+      =submit_tag 'Inserisci', class: 'form-control'
+
+%br
+.row
+  .col-sm-2
+    %b='Codice'
+  .col-sm-3
+    %b='Straordinario'
+  .col-sm-1
+
+.scrollable-panel
+  - LeaveCode.order(code: :asc).each do |lc|
+    .row.colored
+      =form_tag edit_leave_code_path(lc.id), method: :post, remote: true do |f|
+        = hidden_field_tag :tab, 'leave-codes'
+        .col-sm-2{style: 'margin: 1em;'}
+          =text_field_tag 'leave_code[code]', lc.code, class: 'form-control'
+        .col-sm-3{style: 'margin: 1em;'}
+          .row
+            .col-sm-5
+              Straordinario
+            .col-sm-7
+              = radio_button_tag 'leave_code[afterhours]', 1, lc.afterhours
+          .row
+            .col-sm-5
+              Permesso
+            .col-sm-7
+              = radio_button_tag 'leave_code[afterhours]', 0, !lc.afterhours
+        .col-sm-1{style: 'margin: 1em;'}
+          =submit_tag 'Modifica', class: 'form-control', data: {confirmation: "Modifcare il codice #{lc.code}?"}
+      .col-sm-1
+        =form_tag delete_leave_code_path(lc.id), method: :delete, remote: true do |f|
+          = hidden_field_tag :tab, 'leave-codes'
+          =submit_tag 'Elimina', class: 'form-control', data: {confirmation: "Eliminare il codice #{lc.code}?"}

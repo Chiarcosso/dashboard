@@ -3,10 +3,14 @@
   %ul.nav.nav-tabs
     %li
       =select_tag :person, options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, include_blank: 'Selezionare dipendente', selected: @person.id), class: 'form-control changing-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id}}
-    %li.active
+    %li{class: (@tab.nil? || @tab == 'presence') ? 'active' : ''}
+      =link_to "Presenze", '#tab-presence', data: { toggle: 'tab'}, class: 'no-loader'
+    %li{class: @tab == 'schedules' ? 'active' : ''}
       =link_to "Orari", '#tab-schedules', data: { toggle: 'tab'}, class: 'no-loader'
 
 .row
   .tab-content
-    %div{style: 'height:85%', id: 'tab-schedules', class: 'tab-pane active'}
+    %div{style: 'height:85%', id: 'tab-presence', class: @tab.nil? || @tab == 'presence' ? 'tab-pane active' : 'tab-pane'}
+      = render partial: 'presence/presence'
+    %div{style: 'height:85%', id: 'tab-schedules', class: @tab == 'schedules' ? 'tab-pane active' : 'tab-pane'}
       = render partial: 'presence/schedules'

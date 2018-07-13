@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180712081612) do
+ActiveRecord::Schema.define(version: 20180713121245) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -527,19 +527,19 @@ ActiveRecord::Schema.define(version: 20180712081612) do
     t.index ["serial"], name: "index_prepaid_cards_on_serial", unique: true, using: :btree
   end
 
-  create_table "presence_timestamps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "presence_timestamps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer  "badge_id",                   null: false
     t.datetime "time"
-    t.integer  "sensor",                     null: false
+    t.integer  "sensor_id",                  null: false
     t.boolean  "deleted",    default: false
     t.boolean  "added",      default: false
     t.string   "file",                       null: false
     t.integer  "row",                        null: false
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
-    t.index ["badge_id", "time", "sensor"], name: "index_presence_timestamps_on_badge_id_and_time_and_sensor", unique: true, using: :btree
+    t.index ["badge_id", "time", "sensor_id"], name: "index_presence_timestamps_on_badge_id_and_time_and_sensor_id", unique: true, using: :btree
     t.index ["badge_id"], name: "index_presence_timestamps_on_badge_id", using: :btree
-    t.index ["sensor"], name: "index_presence_timestamps_on_sensor", using: :btree
+    t.index ["sensor_id"], name: "index_presence_timestamps_on_sensor_id", using: :btree
   end
 
   create_table "queries", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -567,6 +567,14 @@ ActiveRecord::Schema.define(version: 20180712081612) do
     t.datetime "updated_at"
     t.index ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id", using: :btree
     t.index ["name"], name: "index_roles_on_name", using: :btree
+  end
+
+  create_table "sensors", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "number"
+    t.string   "name"
+    t.boolean  "presence_relevant"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
   end
 
   create_table "transport_documents", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -1052,6 +1060,7 @@ ActiveRecord::Schema.define(version: 20180712081612) do
   add_foreign_key "output_orders", "users", column: "createdBy_id"
   add_foreign_key "prepaid_cards", "people"
   add_foreign_key "presence_timestamps", "badges"
+  add_foreign_key "presence_timestamps", "sensors"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
   add_foreign_key "transport_documents", "companies", column: "vector_id"

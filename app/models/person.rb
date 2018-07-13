@@ -36,6 +36,10 @@ class Person < ApplicationRecord
     return true
   end
 
+  def current_badges
+    Badge.where("id in (select badge_id from badge_assignments where person_id = #{self.id} and to = '1900-01-01')")
+  end
+
   def has_reference?(table,id)
     !MssqlReference.where(local_object:self,remote_object_table:table,remote_object_id:id).empty?
   end

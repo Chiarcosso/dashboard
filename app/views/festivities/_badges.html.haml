@@ -1,0 +1,53 @@
+%h3="Badge:"
+-# = @person.mssql_references.map{|ref| ref.remote_object_id}.join(', ')
+
+.row
+  =form_tag add_badge_assignment_path, method: :post, remote: true do |f|
+    = hidden_field_tag :tab, 'badges'
+    .col-sm-1
+      Codice
+      =select_tag 'badge_assignment[badge]', options_for_select(Badge.order(code: :asc).collect{|b| [b.code,b.id]}, include_blank: 'Selezionare badge'), class: 'form-control'
+    .col-sm-3
+      Persona
+      =select_tag 'badge_assignment[person]', options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, include_blank: 'Selezionare dipendente'), class: 'form-control'
+    .col-sm-2
+      Dal
+      =date_field_tag 'badge_assignment[from]', Date.today, class: 'form-control'
+    .col-sm-2
+      Al
+      =date_field_tag 'badge_assignment[to]', nil, class: 'form-control'
+    .col-sm-1
+      &nbsp
+      =submit_tag 'Inserisci', class: 'form-control'
+%br
+%br
+.row
+  .col-sm-1
+    %b='Codice'
+  .col-sm-3
+    %b='Persona'
+  .col-sm-2
+    %b='Dal'
+  .col-sm-2
+    %b='Al'
+  .col-sm-1
+
+.scrollable-panel
+  - BadgeAssignment.all.sort{|a,b| a.to == Date.strptime('1900-01-01',"%Y-%m-%d") ? -1 : b.to == Date.strptime('1900-01-01',"%Y-%m-%d") ? 1 : b.to <=> a.to}.sort_by{ |ba| ba.person.list_name}.each do |ba|
+    .row.colored
+      =form_tag edit_badge_assignment_path(ba.id), method: :post, remote: true do |f|
+        = hidden_field_tag :tab, 'badges'
+        .col-sm-1{style: 'padding: 1em;'}
+          -# =select_tag 'badge_assignment[badge]', options_for_select(Badge.order(code: :asc).collect{|b| [b.code,b.id]}, include_blank: 'Selezionare badge'), class: 'form-control'
+          =ba.badge.code
+        .col-sm-3{style: 'padding: 1em;'}
+          -# =select_tag 'badge_assignment[person]', options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, include_blank: 'Selezionare dipendente'), class: 'form-control'
+          =ba.person.list_name
+        .col-sm-2{style: 'padding: 1em;'}
+          =date_field_tag 'badge_assignment[from]', ba.from, class: 'form-control'
+        .col-sm-2{style: 'padding: 1em;'}
+          =date_field_tag 'badge_assignment[to]', ba.to == Date.strptime('1900-01-01',"%Y-%m-%d") ? nil : ba.to, class: 'form-control'
+        .col-sm-1{style: 'padding: 1em;'}
+          =submit_tag 'Modifica', class: 'form-control'
+      .col-sm-1
+        -# =form_tag delete_badge_assignment_path(ba.id), method: :delete, remote: true do |f|
