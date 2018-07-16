@@ -235,6 +235,8 @@ Rails.application.routes.draw do
   post   '/presence/edit_leave_code/:id', to: 'presence#edit_leave_code', as: :edit_leave_code
   delete   '/presence/delete_leave_code/:id', to: 'presence#delete_leave_code', as: :delete_leave_code
 
+  post   '/presence/manage/update', to: 'presence#manage_presence', as: :update_presence
+  post   '/presence/manage/', to: 'presence#manage_presence', as: :reload_presence
   get   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence
   post   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence_post
   post   '/presence/add_schedule/', to: 'presence#add_working_schedule', as: :add_working_schedule

@@ -3,7 +3,8 @@ class PresenceTimestamp < ApplicationRecord
 
   scope :real_timestamps, -> { where(added: false, deleted: false) }
   belongs_to :sensor
-  
+
+  enum months: ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']
   def self.find_or_create(opts)
     #opts = badge: Badge,
           # sensor: Sensor,

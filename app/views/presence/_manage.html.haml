@@ -2,7 +2,7 @@
 .row
   %ul.nav.nav-tabs
     %li
-      =select_tag :person, options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, include_blank: 'Selezionare dipendente', selected: @person.id), class: 'form-control changing-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id}}
+      =select_tag :person, options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control changing-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id}}
     %li{class: (@tab.nil? || @tab == 'presence') ? 'active' : ''}
       =link_to "Presenze", '#tab-presence', data: { toggle: 'tab'}, class: 'no-loader'
     %li{class: @tab == 'schedules' ? 'active' : ''}

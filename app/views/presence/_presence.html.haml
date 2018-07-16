@@ -1,10 +1,17 @@
 #presence
   .row
-    .col-sm-4
-      %h3="Presenze: #{@person.list_name}"
-    .col-sm-2
-      Mese
-      = select_tag :month, options_for_select(['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'], {selected: (Date.today - 20.days).strftime("%m").to_i}), class: 'form-control'
-    .col-sm-2
-      Anno
-      = number_field_tag :year, (Date.today - 20.days).strftime("%Y").to_i, class: 'form-control'
+    =form_tag reload_presence_path, method: :post, remote: true do |f|
+      .col-sm-4
+        %h3="Presenze: #{@person.list_name}"
+      .col-sm-2
+        Mese
+        = select_tag :month, options_for_select(PresenceTimestamp.months, (Date.today - 20.days).strftime("%m").to_i-1), class: 'form-control submitter'
+      .col-sm-2
+        Anno
+        = number_field_tag :year, (Date.today - 20.days).strftime("%Y").to_i, class: 'form-control submitter'
+      .col-sm-1
+        %br
+        = submit_tag 'Ricarica', class: 'form-control submitter'
+    =form_tag update_presence_path, method: :post, remote: true do |f|
+      .col-sm-1
+        = submit_tag 'Aggiorna', class: 'form-control submitter'

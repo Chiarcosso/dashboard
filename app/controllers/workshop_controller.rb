@@ -269,6 +269,7 @@ class WorkshopController < ApplicationController
           'ProtocolloODL': @worksheet.ew_worksheet['Protocollo'].to_s,
           'AnnoODL': @worksheet.ew_worksheet['Anno'].to_s,
           'DataIntervento': @worksheet.ew_worksheet['DataIntervento'].to_s,
+          'DataUscitaVeicolo': Date.today.strftime("%Y-%m-%d"),
           'FlagSvolto': 'true',
           'CodiceOfficina': "0"
         })
