@@ -37,7 +37,17 @@ class Person < ApplicationRecord
   end
 
   def current_badges
-    Badge.where("id in (select badge_id from badge_assignments where person_id = #{self.id} and to = '1900-01-01')")
+    # Badge.where("id in (select badge_id from badge_assignments where person_id = #{self.id} and badge_assignments.to = '1900-01-01')")
+    self.badges
+  end
+
+  def badges(date = nil)
+    if date.nil?
+      where = "badge_assignments.to = '1900-01-01'"
+    else
+      where = "(case when badge_assignments.to is null or badge_assignments.to = '1900-01-01' then '#{date.strftime("%Y-%m-%d")}' >= badge_assignments.from else '#{date.strftime("%Y-%m-%d")}' between badge_assignments.from and badge_assignments.to end)"
+    end
+    Badge.where("id in (select badge_id from badge_assignments where person_id = #{self.id} and #{where})")
   end
 
   def has_reference?(table,id)

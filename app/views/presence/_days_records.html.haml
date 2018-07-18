@@ -1,0 +1,16 @@
+.row.colored
+  .col-sm-2
+    = "#{PresenceRecord.weekdays.key(day.strftime("%w").to_i)} #{day.strftime("%d/%m/%Y")}"
+  - PresenceRecord.where(date: day, person: @person).each do |r|
+    .col-sm-2
+      .row
+        .col-sm-12
+          = r.break ? 'Pausa' : 'Lavoro'
+          = "#{r.duration_label} (#{r.duration_label(false)})"
+      .row
+        .col-sm-6
+          = r.start_ts.time.strftime("%H:%M:%S")
+          = r.calculated_start.time.strftime("%H:%M:%S")
+        .col-sm-6
+          = r.end_ts.time.strftime("%H:%M:%S") unless r.end_ts.nil?
+          = r.calculated_end.time.strftime("%H:%M:%S") unless r.calculated_end.nil?

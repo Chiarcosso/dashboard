@@ -1,17 +1,24 @@
 #presence
   .row
     =form_tag reload_presence_path, method: :post, remote: true do |f|
-      .col-sm-4
-        %h3="Presenze: #{@person.list_name}"
+      -# =hidden_field_tag :person, @person.id
+      =hidden_field_tag :tab, 'presence'
+      .col-sm-2
+        %h3="Presenze: "#{@person.list_name}"
+      .col-sm-2
+        %br
+        =select_tag :person, options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
       .col-sm-2
         Mese
-        = select_tag :month, options_for_select(PresenceTimestamp.months, (Date.today - 20.days).strftime("%m").to_i-1), class: 'form-control submitter'
+        = select_tag :month, options_for_select(PresenceTimestamp.months, @month-1), class: 'form-control submitting-select'
       .col-sm-2
         Anno
-        = number_field_tag :year, (Date.today - 20.days).strftime("%Y").to_i, class: 'form-control submitter'
+        -# = number_field_tag :year, @year, class: 'form-control submitter'
+        = select_tag :year, options_for_select(PresenceTimestamp.years, @year), class: 'form-control submitting-select'
       .col-sm-1
         %br
         = submit_tag 'Ricarica', class: 'form-control submitter'
-    =form_tag update_presence_path, method: :post, remote: true do |f|
-      .col-sm-1
-        = submit_tag 'Aggiorna', class: 'form-control submitter'
+
+  .scrollable-panel{style: 'height: 80vh;'}
+    - for day in 1..Time.days_in_month(@month,@year)
+      = render partial: 'presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{day}","%Y-%m-%d")}

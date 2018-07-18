@@ -103,10 +103,15 @@ class VehiclePerformedCheck < ApplicationRecord
 
   def create_notification(user)
 
+    #if the result is 'Aggiustato', 'Non ok' o 'Bloccante'
     unless self.performed == 0 or self.performed == 1 or self.performed == 3
+
+      #get some info and ids
       vcs = self.vehicle_check_session
       vehicle = self.vehicle
       mssql = vehicle.mssql_references.first
+
+      #differentiate tables for the query
       case mssql.remote_object_table
       when 'Veicoli' then
         field = 'idveicolo'
@@ -115,27 +120,27 @@ class VehiclePerformedCheck < ApplicationRecord
       when 'Altri Mezzi' then
         field = 'COD'
       end
+
+      #get the workshop from eurowin
       ewc = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB'])
       workshop = ewc.query("select codice from anagrafe where ragioneSociale = 'PUNTO CHECK-UP'")
       ewc.close
-      opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'].to_s.gsub("'","''") unless vehicle.last_driver.nil?
 
-      plate = VehiclePerformedCheck.get_ms_client.execute("select targa from #{mssql.remote_object_table} where #{field} = #{mssql.remote_object_id}").first['targa'] unless vehicle.last_driver.nil?
+      #get the operator code
+      opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+user.person.mssql_references.last.remote_object_id.to_s).first['nominativo'].to_s.gsub("'","''") unless vehicle.last_driver.nil?
+
+      # plate = VehiclePerformedCheck.get_ms_client.execute("select targa from #{mssql.remote_object_table} where #{field} = #{mssql.remote_object_id}").first['targa'] unless vehicle.last_driver.nil?
       ewc = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB'])
       driver = ewc.query("select codice from autisti where ragionesociale = '#{opcode}'")
       ewc.close
+
+
       case self.performed
-      when 5 then
-        # query = "select Anno, Protocollo from autoodl "\
-        #           "where DataEntrataVeicolo <= '#{vcs.created_at.strftime('%Y-%m-%d')}' "\
-        #           "and CodiceTipoDanno != 15 "\
-        #           "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'True' "\
-        #           "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
-        #           "and Targa = '#{plate}' and CodiceAnagrafico = 'OFF00001' "\
-        #           "order by DataEntrataVeicolo desc limit 1"
-        # odlr = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB']).query(query)
+      when 5 then     #blocking damage
+        #get the last open odl
         odlr = EurowinController::last_open_odl_not(self.vehicle_check_session.myofficina_reference)
 
+        #if there aren't create one
         if !odlr.nil? && odlr.count > 0
           odl = odlr['Protocollo'].to_s
           odl_year = odlr['Anno'].to_s
@@ -143,10 +148,12 @@ class VehiclePerformedCheck < ApplicationRecord
           odl = VehicleCheckSession.create_worksheet(user,vehicle,'OFFICINA INTERNA','55',"Bloccante: #{self.vehicle_check.label}"[0..99])
           odl_year = Date.today.strftime('%Y')
         end
-      when 4 then
+      when 4 then   #damaged
+        #bind to no odl
         odl = "-1"
         odl_year = "-1"
-      when 2 then
+      when 2 then   #repaired
+        #bind to same odl as the session
         odl =  vcs.myofficina_reference.to_i.to_s
         odl_year = vcs.created_at.strftime('%Y')
       else

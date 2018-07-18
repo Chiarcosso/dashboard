@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  date: 2018-07-16
+  start_ts: one
+  end_ts: one
+  person: one
+  actual_duration: 
+  calculated_duration: 1
+  break: false
+
+two:
+  date: 2018-07-16
+  start_ts: two
+  end_ts: two
+  person: two
+  actual_duration: 
+  calculated_duration: 1
+  break: false

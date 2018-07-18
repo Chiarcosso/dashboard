@@ -1,6 +1,7 @@
 class PresenceController < ApplicationController
 
   before_action :get_person
+  before_action :get_month_year, only: [:manage_presence]
   before_action :get_tab
   before_action :get_working_schedule, only: [:edit_working_schedule, :delete_working_schedule]
   before_action :get_festivity, only: [:edit_festivity, :delete_festivity]
@@ -14,7 +15,6 @@ class PresenceController < ApplicationController
       end
     rescue Exception => e
       @error = e.message
-      byebug
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
       end
@@ -29,7 +29,6 @@ class PresenceController < ApplicationController
       end
     rescue Exception => e
       @error = e.message
-      byebug
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
       end
@@ -37,17 +36,28 @@ class PresenceController < ApplicationController
   end
 
   def self.read_timestamps(opts = {:get_current => true})
+
     #set starting date
     if opts[:get_all]
-      year = 2014
-      month = 4
+      #if get_all start from january 2015
+      year = 2015
+      month = 1
     elsif opts[:get_current]
+      #if get_current (default) start from now and get last_timestamp
       last_timestamp = PresenceTimestamp.real_timestamps.order(time: :desc).first
-      year = last_timestamp.time.strftime("%Y").to_i
-      month = last_timestamp.time.strftime("%m").to_i
+      year = Date.today.strftime("%Y").to_i
+      month = Date.today.strftime('%m').to_i
+      # if last_timestamp.nil?
+      #   year = Date.today.strftime("%Y").to_i
+      #   month = Date.today.strftime('%m').to_i
+      # else
+      #   year = last_timestamp.time.strftime("%Y").to_i
+      #   month = last_timestamp.time.strftime("%m").to_i
+      # end
     elsif !opts[:month].nil? && !opts[:year].nil?
-      if opts[:year] < 2014
-        year = 2014
+      #if incorret opts rebuild them
+      if opts[:year] < 2015
+        year = 2015
       else
         year = opts[:year]
       end
@@ -57,22 +67,19 @@ class PresenceController < ApplicationController
         month = 12
       end
     else
+      #default start from last timestamp
       last_timestamp = PresenceTimestamp.real_timestamps.order(time: :desc).first
       if last_timestamp.nil?
-        year = 2014
-        month = 4
+        year = 2015
+        month = 1
       else
-        year = last_timestamp.times.strftime("%Y").to_i
+        year = last_timestamp.time.strftime("%Y").to_i
         month = last_timestamp.time.strftime("%m").to_i
       end
     end
 
     #first filename
     fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
-    # fname = "Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
-    # smbc = Rsmbclient.new(host: 'AC83',share: 'Rbm84', user: ENV['RAILS_SMB_USER'], password: ENV['RAILS_SMB_PASS'])
-    # smbc.cd('Rbm84\Storico')
-    # byebug
 
     #while the next file exists read it and store information
     if File.exist?(fname)
@@ -80,12 +87,41 @@ class PresenceController < ApplicationController
       fh = File.open(fname)
       rf = fh.read.force_encoding('iso-8859-1')
       row = 1
+      last_date = nil
+      people = Hash.new
 
+      #scan the line
       rf.scan(/\d+\x01+\d+\x01+.*\( *([A-Za-z]?\d*) *\).*\x01+(\d*)\x01+([\d \:\/]*)\x01+/) do |badge,sensor,timestamp|
+
+        #if we are over the last recorded timestamp start recording
         if last_timestamp.nil? || (opts[:get_current] && last_timestamp.time < DateTime.strptime(timestamp,"%d/%m/%y %H:%M:%S"))
-          b = Badge.find_or_create(badge.gsub(/\s+/,''))
-          s = Sensor.find_by(number: sensor.to_i)
-          ts = PresenceTimestamp.find_or_create(badge: b, sensor: s, time: DateTime.strptime(timestamp,"%d/%m/%y %H:%M:%S"),row: row, file: fname)
+
+          #get badge and sensor
+          badge = Badge.find_or_create(badge.gsub(/\s+/,''))
+          sensor = Sensor.find_by(number: sensor.to_i)
+
+          #record timestamp
+          time = DateTime.strptime(timestamp+' UTC',"%d/%m/%y %H:%M:%S %Z")-2.hours
+          ts = PresenceTimestamp.find_or_create(badge: badge, sensor: sensor, time: time,row: row, file: fname)
+
+          #set last_date and person
+          last_date = time if last_date.nil?
+          person = badge.person(last_date)
+
+          #add person if exists and the sensor is relevant
+          people[person.id.to_s] = person unless person.nil? || !sensor.presence_relevant
+
+          #if the day changed
+          if time.strftime("%Y-%m-%d") != last_date.strftime("%Y-%m-%d")
+            # calculate PresenceRecords for all people
+            people.each do |k,p|
+              PresenceRecord.recalculate(last_date,p)
+            end
+            #and reset people
+            people = Hash.new
+          end
+          last_date = time
+
         end
         row += 1
       end
@@ -232,10 +268,27 @@ class PresenceController < ApplicationController
   private
 
   def get_person
-    if params['person'].nil?
-      @person = Person.order(:surname).first
+    if params['person-select'].nil?
+      if params['person'].nil?
+        @person = Person.order(:surname).first
+      else
+        @person = Person.find(params.require(:person).to_i)
+      end
     else
-      @person = Person.find(params.require(:person).to_i)
+      @person = Person.find(params.require('person-select').to_i)
+    end
+  end
+
+  def get_month_year
+    if params[:month].nil?
+      @month = (Date.today-20.days).strftime("%m").to_i
+    else
+      @month = params.require('month').to_i+1
+    end
+    if params[:year].nil?
+      @year = (Date.today-20.days).strftime("%Y").to_i
+    else
+      @year = params.require('year').to_i
     end
   end
 

@@ -4,7 +4,11 @@ class Badge < ApplicationRecord
   has_many :peole, through: :badge_assignments
 
   def current_holder
-    Person.find_by_sql("select * from People where id = (select person_id from badge_assignments where to is null and badge_id = #{self.id} order by from desc limit 1) limit 1")
+    Person.find_by_sql("select * from people where id = (select person_id from badge_assignments where to is null and badge_id = #{self.id} order by from desc limit 1) limit 1")
+  end
+
+  def person(date = Date.today)
+    Person.find_by_sql("select * from people where id = (select person_id from badge_assignments where ((badge_assignments.to = '1900-01-01' and '#{date.strftime("%Y-%m-%d")}' >= badge_assignments.from) or ('#{date.strftime("%Y-%m-%d")}' between badge_assignments.from and badge_assignments.to)) and badge_id = #{self.id} order by badge_assignments.from desc limit 1) limit 1").first
   end
 
   def self.find_or_create(badge)

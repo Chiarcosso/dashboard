@@ -1,5 +1,7 @@
-%h3="Orari: #{@person.list_name}"
-
+%h3="Orari: "#{@person.list_name}"
+=form_tag reload_presence_path, method: :post, remote: true do |f|
+  =select_tag :person, options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
+  = hidden_field_tag :tab, 'schedules'
 .row
   =form_tag add_working_schedule_path, method: :post, remote: true do |f|
     = hidden_field_tag 'person', @person.id

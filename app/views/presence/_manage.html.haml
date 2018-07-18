@@ -1,12 +1,12 @@
 
 .row
   %ul.nav.nav-tabs
-    %li
-      =select_tag :person, options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control changing-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id}}
+    -# %li
+    -#   =select_tag :person, options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control changing-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
     %li{class: (@tab.nil? || @tab == 'presence') ? 'active' : ''}
-      =link_to "Presenze", '#tab-presence', data: { toggle: 'tab'}, class: 'no-loader'
+      =link_to "Presenze", '#tab-presence', data: { toggle: 'tab'}, class: 'no-loader change-tab'
     %li{class: @tab == 'schedules' ? 'active' : ''}
-      =link_to "Orari", '#tab-schedules', data: { toggle: 'tab'}, class: 'no-loader'
+      =link_to "Orari", '#tab-schedules', data: { toggle: 'tab'}, class: 'no-loader change-tab'
 
 .row
   .tab-content
@@ -14,3 +14,15 @@
       = render partial: 'presence/presence'
     %div{style: 'height:85%', id: 'tab-schedules', class: @tab == 'schedules' ? 'tab-pane active' : 'tab-pane'}
       = render partial: 'presence/schedules'
+
+:javascript
+
+  $('.change-tab').on('click',function(){
+    var tab = $(this).attr('href').substring(5);
+    var data = $('.person-select').data('data');
+    data['tab'] = tab;
+    data['month'] = $('select[name=month]');
+    data['year'] = $('input[name=year]');
+
+    $('#person-select').data('data',data);
+  })

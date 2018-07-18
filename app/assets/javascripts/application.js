@@ -409,7 +409,6 @@ function click_to_submit_click_func(){
   "use strict";
   $(this).closest('form').submit();
   activateLoadingScreen();
-  console.log($(this).form)
 }
 
 function data_confirmation_click_func(event){
@@ -512,6 +511,8 @@ function activateJS() {
     $('body').on('click', '.loading_screen', loading_screen_click_func);
 
     $('body').on('click', '.click-to-submit', click_to_submit_click_func);
+
+    $('body').on('change', '.submitting-select', click_to_submit_click_func);
 
     $('body').on('submit', 'form', form_submit_func);
 
