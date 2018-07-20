@@ -104,8 +104,11 @@ class PresenceRecord < ApplicationRecord
           calculated_start = pts.time.to_datetime
 
           # #end will be the next timetamp
-          # calculated_end = next_pts.time.to_datetime
-          calculated_end = pts.time+working_schedule.break.minutes
+          if working_schedule.nil?
+            calculated_end = next_pts.time.to_datetime
+          else
+            calculated_end = pts.time+working_schedule.break.minutes
+          end
 
           PresenceRecord.create(date: date,
                               person: person,
