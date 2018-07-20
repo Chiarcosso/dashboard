@@ -8,14 +8,19 @@
     .col-sm-3
       .row
         .col-sm-5
-          Straordinario
+          Da sommare
         .col-sm-7
           = radio_button_tag 'leave_code[afterhours]', 1, false
       .row
         .col-sm-5
-          Permesso
+          Ininfluente
         .col-sm-7
           = radio_button_tag 'leave_code[afterhours]', 0, true
+      .row
+        .col-sm-5
+          Da sottrarre
+        .col-sm-7
+          = radio_button_tag 'leave_code[afterhours]', -1, false
     .col-sm-1
       =submit_tag 'Inserisci', class: 'form-control'
 
@@ -24,7 +29,7 @@
   .col-sm-2
     %b='Codice'
   .col-sm-3
-    %b='Straordinario'
+    %b='Tipologia'
   .col-sm-1
 
 .scrollable-panel
@@ -37,14 +42,19 @@
         .col-sm-3{style: 'margin: 1em;'}
           .row
             .col-sm-5
-              Straordinario
+              Da sommare
             .col-sm-7
-              = radio_button_tag 'leave_code[afterhours]', 1, lc.afterhours
+              = radio_button_tag 'leave_code[afterhours]', 1, lc.afterhours.to_i == 1
           .row
             .col-sm-5
-              Permesso
+              Ininfluente
             .col-sm-7
-              = radio_button_tag 'leave_code[afterhours]', 0, !lc.afterhours
+              = radio_button_tag 'leave_code[afterhours]', 0, lc.afterhours.to_i == 0
+          .row
+            .col-sm-5
+              Da sottrarre
+            .col-sm-7
+              = radio_button_tag 'leave_code[afterhours]', -1, lc.afterhours.to_i == -1
         .col-sm-1{style: 'margin: 1em;'}
           =submit_tag 'Modifica', class: 'form-control', data: {confirmation: "Modifcare il codice #{lc.code}?"}
       .col-sm-1

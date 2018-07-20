@@ -1,0 +1,14 @@
+%h3="Aggiungi codice permesso / straordinario: #{@person.list_name}"
+
+=form_tag add_long_leave_path, method: :post, remote: true do |f|
+  = hidden_field_tag :person, @person.id
+  = hidden_field_tag :month, @month-1
+  = hidden_field_tag :year, @year
+  -# = hidden_field_tag :date, date.strftime("%Y-%m-%d")
+  Dal
+  = date_field_tag :date_from, nil, class: "form-control", id: 'focus_element'
+  Al
+  = date_field_tag :date_to, nil, class: "form-control"
+  Codice
+  =select_tag :leave_code, options_for_select(LeaveCode.order(code: :asc).collect{|c| [c.code,c.id]}), include_blank: 'Selezionare un codice', class: "form-control"
+  = submit_tag 'Aggiungi', class: "form-control"

@@ -11,4 +11,4 @@ then
 fi
 
 #unmount the folder
-# umount $RAILS_CAME_LOCAL
+umount $RAILS_CAME_LOCAL

@@ -3,6 +3,15 @@ class WorkingSchedule < ApplicationRecord
 
   enum weekdays: ['Lunedi', 'Martedi', 'Mercoledi', 'Giovedi', 'Venerdi', 'Sabato', 'Domenica']
 
+  def self.get_schedule(date,person)
+    weekday = date.strftime('%u').to_i-1
+    working_schedule = WorkingSchedule.find_by(person: person, weekday: weekday)
+  end
+
+  def contract_duration
+    (self.contract_to - self.contract_from).to_i - self.break * 60
+  end
+
   def self.upsync_all
     #for every found schedule transpose it in dashboard
     MssqlReference.query({table: 'orari_personale'},'chiarcosso_test').each do |ws|
@@ -49,7 +58,7 @@ class WorkingSchedule < ApplicationRecord
       else
         breaktime = ((ws['inizio2']-ws['fine1'])/60).to_i
       end
-      
+
       #create every missing daily schedule
       wd.each do |d|
         schedule = WorkingSchedule.find_by(weekday: d, person: person)

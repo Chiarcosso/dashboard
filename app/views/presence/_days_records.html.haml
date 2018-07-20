@@ -1,16 +1,61 @@
+- presence_records = PresenceRecord.where(date: day, person: @person)
+- actual_total = 0
+- calculated_total = 0
 .row.colored
-  .col-sm-2
-    = "#{PresenceRecord.weekdays.key(day.strftime("%w").to_i)} #{day.strftime("%d/%m/%Y")}"
-  - PresenceRecord.where(date: day, person: @person).each do |r|
-    .col-sm-2
-      .row
-        .col-sm-12
-          = r.break ? 'Pausa' : 'Lavoro'
-          = "#{r.duration_label} (#{r.duration_label(false)})"
-      .row
-        .col-sm-6
-          = r.start_ts.time.strftime("%H:%M:%S")
-          = r.calculated_start.time.strftime("%H:%M:%S")
-        .col-sm-6
-          = r.end_ts.time.strftime("%H:%M:%S") unless r.end_ts.nil?
-          = r.calculated_end.time.strftime("%H:%M:%S") unless r.calculated_end.nil?
+  .col-sm-1{style: 'padding-right: 0px;'}
+    = "#{PresenceRecord.weekdays.key(day.strftime("%w").to_i)} #{day.strftime("%d/%m/%y")}"
+  .col-sm-8{style: 'padding-right: 0px; padding-left: 0px;'}
+    - presence_records.each do |r|
+      - unless r.break
+        - actual_total += r.actual_duration
+        - calculated_total += r.calculated_duration
+      .col-sm-3
+        .row
+          .col-sm-12
+            %b= r.break ? 'Pausa' : 'Lavoro'
+            %b= " -> #{r.duration_label}"
+            = " (#{r.duration_label(false)})"
+        .row
+          .col-sm-6
+            - unless r.start_ts.nil?
+              =form_tag delete_timestamp_path, method: :delete, remote: true do |f|
+                = hidden_field_tag :person, @person.id
+                = hidden_field_tag :month, @month-1
+                = hidden_field_tag :year, @year
+                = hidden_field_tag :id, r.start_ts.id
+                = submit_tag "#{r.start_ts.added ? '*' : ''}#{r.start_ts.time.strftime("%H:%M:%S")} X", class: 'small-btn', data: {confirmation: "Rimouvere la timbratura delle #{r.start_ts.time.strftime("%H:%M:%S")} di #{@person.list_name}?"}
+            = r.calculated_start.time.strftime("%H:%M:%S")
+          .col-sm-6
+            - unless r.end_ts.nil?
+              =form_tag delete_timestamp_path, method: :delete, remote: true do |f|
+                = hidden_field_tag :person, @person.id
+                = hidden_field_tag :month, @month-1
+                = hidden_field_tag :year, @year
+                = hidden_field_tag :id, r.end_ts.id
+                = submit_tag "#{r.end_ts.added ? '*' : ''}#{r.end_ts.time.strftime("%H:%M:%S")} X",class: 'small-btn', data: {confirmation: "Rimouvere la timbratura delle #{r.end_ts.time.strftime("%H:%M:%S")} di #{@person.list_name}?"}
+            = r.calculated_end.time.strftime("%H:%M:%S") unless r.calculated_end.nil?
+  .col-sm-1
+    .row
+      .col-sm-12
+        %b='Totali'
+    .row
+      .col-sm-12
+        -# - calculated_total = calculated_total-calculated_total%(60*30)
+        = "#{actual_total/3600}:#{((actual_total%3600)/60).to_s.rjust(2,'0')}:#{(((actual_total%3600)%60)).to_s.rjust(2,'0')}"
+        %br
+        %br
+        %b="#{calculated_total/3600}:#{((calculated_total%3600)/60).to_s.rjust(2,'0')}:#{(((calculated_total%3600)%60)).to_s.rjust(2,'0')}"
+  .col-sm-1
+    - GrantedLeave.where(person: @person).select{|gl| day.strftime("%Y-%m-%d") >= gl.from.strftime("%Y-%m-%d") && day.strftime("%Y-%m-%d") <= gl.to.strftime("%Y-%m-%d") }.each do |gl|
+      =form_tag delete_leave_path, method: :delete, remote: true do |f|
+        = hidden_field_tag :person, @person.id
+        = hidden_field_tag :month, @month-1
+        = hidden_field_tag :year, @year
+        = hidden_field_tag :date, day
+        = hidden_field_tag :id, gl.id
+        = submit_tag "#{gl.leave_code.code} (#{gl.duration_label(day)}) X", class: 'small-btn', data: {confirmation: "Rimouvere il codice #{gl.leave_code.code} di #{@person.list_name}?"}
+  .col-sm-1
+    %button{ class: "small-btn create_popup", id: "add_timestamp", data: { popup_id: 'add_timestamp', route: add_timestamp_path, html: (render partial: "presence/add_timestamp_popup", locals: {person: @person, date: day }) } }
+      Agg. timbratura
+    %button{ class: 'small-btn create_popup', id: "add_leave", data: { popup_id: 'add_leave', route: add_leave_path, html: (render partial: 'presence/add_leave_code_popup', locals: {person: @person, date: day }) } }
+      Agg. codice

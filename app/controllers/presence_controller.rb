@@ -1,7 +1,7 @@
 class PresenceController < ApplicationController
 
   before_action :get_person
-  before_action :get_month_year, only: [:manage_presence]
+  before_action :get_month_year
   before_action :get_tab
   before_action :get_working_schedule, only: [:edit_working_schedule, :delete_working_schedule]
   before_action :get_festivity, only: [:edit_festivity, :delete_festivity]
@@ -139,6 +139,165 @@ class PresenceController < ApplicationController
     end
   end
 
+  def add_timestamp
+    begin
+      begin
+        timestamp = DateTime.strptime("#{params.require(:date)} #{params.require(:time)}:00 CEST", "%Y-%m-%d %H:%M:%S %Z")
+      rescue
+        @error = 'Ora non valida.'
+      end
+      begin
+        sensor = Sensor.find(params.require(:sensor).to_i)
+        raise 'Selezionare il sensore' if sensor.nil?
+      rescue
+        @error = 'Selezionare il sensore' if sensor.nil?
+      end
+      person = Person.find(params.require(:person).to_i)
+      badge = person.badges(Date.strptime("#{params.require(:date)}", "%Y-%m-%d")).first
+      if PresenceTimestamp.find_by(time: timestamp, badge: badge, sensor: sensor).nil?
+        PresenceTimestamp.create(time: timestamp, badge: badge, added: true, file: nil, row: nil, sensor: sensor)
+      else
+        PresenceTimestamp.find_by(time: timestamp, badge: badge, sensor: sensor).update(deleted: false)
+      end
+
+      PresenceRecord.recalculate(timestamp,person)
+      respond_to do |format|
+        format.js { render partial: 'presence/manage_js' }
+        format.html { render 'presence/index' }
+      end
+    rescue Exception => e
+      @error = e.message+e.backtrace.join("\n") if @error.nil?
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
+  def delete_timestamp
+    begin
+      pr = PresenceTimestamp.find(params.require(:id))
+      date = pr.time
+      person = pr.badge.person(date)
+      pr.update(deleted: true)
+      PresenceRecord.recalculate(date,person)
+      respond_to do |format|
+        format.js { render partial: 'presence/manage_js' }
+        format.html { render 'presence/index' }
+      end
+    rescue Exception => e
+      @error = e.message+e.backtrace.join("\n")
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
+  def actual_timezone(date = Time.zone.today)
+    date.dst? ? 'CEST' : 'CET'
+  end
+
+  def actual_offset(date = Time.zone.today)
+    date.dst? ? -2 : -1
+  end
+
+  def self.actual_timezone(date = Time.zone.today)
+    date.dst? ? 'CEST' : 'CET'
+  end
+
+  def self.actual_offset(date = Time.zone.today)
+    date.dst? ? -2 : -1
+  end
+
+  def add_long_leave
+    begin
+      begin
+        #get the working schedule for that day and set from timestamp
+        date_from =Time.strptime(params.require(:date_from),"%Y-%m-%d")
+        ws = WorkingSchedule.get_schedule(date_from,@person)
+        from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.strftime("%H:%M:%S")} #{self.actual_timezone(date_from)}", "%Y-%m-%d %H:%M:%S %Z")
+      rescue
+        @error = 'Data inizio non valida.'
+      end
+      begin
+        #get the working schedule for that day and set from timestamp
+        date_to = Time.strptime(params.require(:date_to),"%Y-%m-%d")
+        ws = WorkingSchedule.get_schedule(date_to,@person)
+        to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.strftime("%H:%M:%S")} #{self.actual_timezone(date_to)}", "%Y-%m-%d %H:%M:%S %Z")
+      rescue
+        @error = 'Data fine non valida.'
+      end
+      person = Person.find(params.require(:person).to_i)
+      leave_code = LeaveCode.find(params.require(:leave_code).to_i)
+      # date = Date.strptime(params.require(:date),"%Y-%m-%d")
+
+      if GrantedLeave.find_by(from: from, to: to, person: person, leave_code: leave_code).nil?
+        GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code)
+      end
+
+      # PresenceRecord.recalculate(date,@person)
+      respond_to do |format|
+        format.js { render partial: 'presence/manage_js' }
+        format.html { render 'presence/index' }
+      end
+    rescue Exception => e
+      @error = e.message+e.backtrace.join("\n") if @error.nil?
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
+  def add_leave
+    begin
+      begin
+        from = DateTime.strptime("#{params.require(:date)} #{params.require(:time_from)}:00 CEST", "%Y-%m-%d %H:%M:%S %Z")
+      rescue
+        @error = 'Ora inizio valida.'
+      end
+      begin
+        to = DateTime.strptime("#{params.require(:date)} #{params.require(:time_to)}:00 CEST", "%Y-%m-%d %H:%M:%S %Z")
+      rescue
+        @error = 'Ora fine non valida.'
+      end
+      person = Person.find(params.require(:person).to_i)
+      leave_code = LeaveCode.find(params.require(:leave_code).to_i)
+      date = Date.strptime(params.require(:date),"%Y-%m-%d")
+
+      if GrantedLeave.find_by(from: from, to: to, person: person, leave_code: leave_code).nil?
+        GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code)
+      end
+
+      # PresenceRecord.recalculate(date,@person)
+      respond_to do |format|
+        format.js { render partial: 'presence/manage_js' }
+        format.html { render 'presence/index' }
+      end
+    rescue Exception => e
+      @error = e.message+e.backtrace.join("\n") if @error.nil?
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
+  def delete_leave
+    begin
+      gl = GrantedLeave.find(params.require(:id))
+      date  = Date.strptime(params.require(:date),"%Y-%m-%d")
+      gl.delete
+      # PresenceRecord.recalculate(date,@person)
+      respond_to do |format|
+        format.js { render partial: 'presence/manage_js' }
+        format.html { render 'presence/index' }
+      end
+    rescue Exception => e
+      @error = e.message+e.backtrace.join("\n")
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
   def add_festivity
     begin
       Festivity.create(festivity_params)
@@ -269,7 +428,7 @@ class PresenceController < ApplicationController
 
   def get_person
     if params['person-select'].nil?
-      if params['person'].nil?
+      if params['person'].nil? || params['person'] == ''
         @person = Person.order(:surname).first
       else
         @person = Person.find(params.require(:person).to_i)

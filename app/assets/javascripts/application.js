@@ -149,10 +149,12 @@ function infobox_button_click_func() {
 var popup_name;
 function complete_popup_link_func(data) {
     "use strict";
-    $('.popup#' + popup_name).remove();
+    $('.popup #' + popup_name).remove();
+
     $('body').append('<div class="popup" id="' + popup_name + '"></div>');
     $('#' + popup_name).html(data.responseText);
     $('#' + popup_name).append('<div class="close">Chiudi</div>');
+    $('#' + popup_name + ' #autofocus').focus();
     // //clearMemory();
 }
 
@@ -160,6 +162,7 @@ function popup_link_func(e) {
     "use strict";
     var method, action, data;
     popup_name = $(this).data('name').replace(' ', '_');
+
     if (this.nodeName === 'INPUT' && $(this).attr('type') === 'submit') {
         action = $(this).form().attr('action');
         method = $(this).form().attr('method');
@@ -439,7 +442,7 @@ function create_popup_click_func() {
      }
 
      deactivateLoadingScreen();
-     $('#focus_element').focus();
+     $('#'+popup_link_name+' #focus_element').focus();
 }
 
 function toggle_click_func() {

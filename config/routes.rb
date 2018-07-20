@@ -239,6 +239,14 @@ Rails.application.routes.draw do
   post   '/presence/manage/', to: 'presence#manage_presence', as: :reload_presence
   get   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence
   post   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence_post
+
+  post   '/presence/add_timestamp/', to: 'presence#add_timestamp', as: :add_timestamp
+  delete   '/presence/delete_timestamp/', to: 'presence#delete_timestamp', as: :delete_timestamp
+
+  post   '/presence/add_leave/', to: 'presence#add_leave', as: :add_leave
+  post   '/presence/add_long_leave/', to: 'presence#add_long_leave', as: :add_long_leave
+  delete   '/presence/delete_leave/', to: 'presence#delete_leave', as: :delete_leave
+
   post   '/presence/add_schedule/', to: 'presence#add_working_schedule', as: :add_working_schedule
   post   '/presence/edit_schedule/:id', to: 'presence#edit_working_schedule', as: :edit_working_schedule
   delete   '/presence/delete_schedule/:id', to: 'presence#delete_working_schedule', as: :delete_working_schedule

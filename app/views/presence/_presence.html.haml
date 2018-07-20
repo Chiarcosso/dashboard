@@ -9,16 +9,17 @@
         %br
         =select_tag :person, options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
       .col-sm-2
-        Mese
+        %br
         = select_tag :month, options_for_select(PresenceTimestamp.months, @month-1), class: 'form-control submitting-select'
       .col-sm-2
-        Anno
-        -# = number_field_tag :year, @year, class: 'form-control submitter'
+        %br
         = select_tag :year, options_for_select(PresenceTimestamp.years, @year), class: 'form-control submitting-select'
       .col-sm-1
         %br
         = submit_tag 'Ricarica', class: 'form-control submitter'
-
+    .col-sm-2{style: 'margin_top: 1em;'}
+      %button{ class: 'form-control create_popup', id: "add_leave", data: { popup_id: 'add_leave', route: add_leave_path, html: (render partial: 'presence/add_long_leave_code_popup', locals: {person: @person }) } }
+        Ferie e malattia
   .scrollable-panel{style: 'height: 80vh;'}
     - for day in 1..Time.days_in_month(@month,@year)
       = render partial: 'presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{day}","%Y-%m-%d")}

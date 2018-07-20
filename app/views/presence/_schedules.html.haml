@@ -5,6 +5,7 @@
 .row
   =form_tag add_working_schedule_path, method: :post, remote: true do |f|
     = hidden_field_tag 'person', @person.id
+    = hidden_field_tag :tab, 'schedules'
     .col-sm-2
       Giorno
       =select_tag 'working_schedule[weekday]', options_for_select(WorkingSchedule.weekdays), class: 'form-control'
@@ -61,6 +62,7 @@
 - @person.working_schedules.order(weekday: :asc).each do |ws|
   .row.colored
     =form_tag edit_working_schedule_path(ws.id), method: :post, remote: true do |f|
+      = hidden_field_tag :tab, 'schedules'
       .col-sm-2
         =select_tag 'working_schedule[weekday]', options_for_select(WorkingSchedule.weekdays, selected:ws.weekday), class: 'form-control'
       .col-sm-3

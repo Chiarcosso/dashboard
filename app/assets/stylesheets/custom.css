@@ -406,6 +406,11 @@ body{
   background-color: #0f0;
 }
 
+.small-btn{
+    font-size: smaller;
+    padding: 0px;
+}
+
 .small-button{
   width: 70px;
   font-size: smaller;

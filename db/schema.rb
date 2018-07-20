@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180716105008) do
+ActiveRecord::Schema.define(version: 20180719135152) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -338,14 +338,15 @@ ActiveRecord::Schema.define(version: 20180716105008) do
     t.index ["name"], name: "index_geo_states_on_name", unique: true, using: :btree
   end
 
-  create_table "granted_leaves", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "granted_leaves", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer  "leave_code_id", null: false
     t.integer  "person_id",     null: false
+    t.date     "date"
     t.datetime "from",          null: false
     t.datetime "to",            null: false
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
-    t.index ["leave_code_id", "person_id", "from", "to"], name: "granted_leaves_uniqs", unique: true, using: :btree
+    t.index ["date"], name: "index_granted_leaves_on_date", using: :btree
     t.index ["leave_code_id"], name: "index_granted_leaves_on_leave_code_id", using: :btree
     t.index ["person_id"], name: "index_granted_leaves_on_person_id", using: :btree
   end
@@ -397,10 +398,10 @@ ActiveRecord::Schema.define(version: 20180716105008) do
   end
 
   create_table "leave_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",                       null: false
-    t.boolean  "afterhours", default: false, null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.string   "code",                             null: false
+    t.integer  "afterhours", limit: 2, default: 0, null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
     t.index ["code"], name: "index_leave_codes_on_code", using: :btree
   end
 
@@ -551,8 +552,8 @@ ActiveRecord::Schema.define(version: 20180716105008) do
     t.integer  "sensor_id",                  null: false
     t.boolean  "deleted",    default: false
     t.boolean  "added",      default: false
-    t.string   "file",                       null: false
-    t.integer  "row",                        null: false
+    t.string   "file"
+    t.integer  "row"
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
     t.boolean  "entering"
