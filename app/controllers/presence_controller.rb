@@ -80,63 +80,68 @@ class PresenceController < ApplicationController
 
     #first filename
     fname = "#{ENV['RAILS_CAME_LOCAL_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
-    @@presence_logger.info("Start importing #{fname}")
+    special_logger.info("Start importing #{fname}\n")
 
-    #while the next file exists read it and store information
-    if File.exist?(fname)
+    begin
+      #while the next file exists read it and store information
+      if File.exist?(fname)
 
-      fh = File.open(fname)
-      rf = fh.read.force_encoding('iso-8859-1')
-      row = 1
-      last_date = nil
-      people = Hash.new
+        fh = File.open(fname)
+        rf = fh.read.force_encoding('iso-8859-1')
+        row = 1
+        last_date = nil
+        people = Hash.new
 
-      #scan the line
-      rf.scan(/\d+\x01+\d+\x01+.*\( *([A-Za-z]?\d*) *\).*\x01+(\d*)\x01+([\d \:\/]*)\x01+/) do |badge,sensor,timestamp|
+        #scan the line
+        rf.scan(/\d+\x01+\d+\x01+.*\( *([A-Za-z]?\d*) *\).*\x01+(\d*)\x01+([\d \:\/]*)\x01+/) do |badge,sensor,timestamp|
 
-        #if we are over the last recorded timestamp start recording
-        if last_timestamp.nil? || (opts[:get_current] && last_timestamp.time < DateTime.strptime(timestamp,"%d/%m/%y %H:%M:%S"))
+          #if we are over the last recorded timestamp start recording
+          if last_timestamp.nil? || (opts[:get_current] && last_timestamp.time < DateTime.strptime(timestamp,"%d/%m/%y %H:%M:%S"))
 
-          #get badge and sensor
-          badge = Badge.find_or_create(badge.gsub(/\s+/,''))
-          sensor = Sensor.find_by(number: sensor.to_i)
+            #get badge and sensor
+            badge = Badge.find_or_create(badge.gsub(/\s+/,''))
+            sensor = Sensor.find_by(number: sensor.to_i)
 
-          #record timestamp
-          time = DateTime.strptime(timestamp+' UTC',"%d/%m/%y %H:%M:%S %Z")-2.hours
-          ts = PresenceTimestamp.find_or_create(badge: badge, sensor: sensor, time: time,row: row, file: fname)
+            #record timestamp
+            time = DateTime.strptime(timestamp+' UTC',"%d/%m/%y %H:%M:%S %Z")-2.hours
+            ts = PresenceTimestamp.find_or_create(badge: badge, sensor: sensor, time: time,row: row, file: fname)
+            special_logger.info(tc.inspect)
+            
+            #set last_date and person
+            last_date = time if last_date.nil?
+            person = badge.person(last_date)
 
-          #set last_date and person
-          last_date = time if last_date.nil?
-          person = badge.person(last_date)
+            #add person if exists and the sensor is relevant
+            people[person.id.to_s] = person unless person.nil? || !sensor.presence_relevant
 
-          #add person if exists and the sensor is relevant
-          people[person.id.to_s] = person unless person.nil? || !sensor.presence_relevant
-
-          #if the day changed
-          if time.strftime("%Y-%m-%d") != last_date.strftime("%Y-%m-%d")
-            # calculate PresenceRecords for all people
-            people.each do |k,p|
-              PresenceRecord.recalculate(last_date,p)
+            #if the day changed
+            if time.strftime("%Y-%m-%d") != last_date.strftime("%Y-%m-%d")
+              # calculate PresenceRecords for all people
+              people.each do |k,p|
+                PresenceRecord.recalculate(last_date,p)
+              end
+              #and reset people
+              people = Hash.new
             end
-            #and reset people
-            people = Hash.new
+            last_date = time
+
           end
-          last_date = time
-
+          row += 1
         end
-        row += 1
-      end
 
-      # #increment month and year
-      # month += 1
-      # if month > 12
-      #   month = 1
-      #   year += 1
-      # end
-      fh.close
-      # sleep 1
-      # #next filename
-      # fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
+        # #increment month and year
+        # month += 1
+        # if month > 12
+        #   month = 1
+        #   year += 1
+        # end
+        fh.close
+        # sleep 1
+        # #next filename
+        # fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
+      end
+    rescue Exception e
+      special_logger.info("#{e.message}\n\n#{e.backtrace.join("\n")}\n")
     end
   end
 
