@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180719135152) do
+ActiveRecord::Schema.define(version: 20180720095905) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -398,10 +398,11 @@ ActiveRecord::Schema.define(version: 20180719135152) do
   end
 
   create_table "leave_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",                             null: false
-    t.integer  "afterhours", limit: 2, default: 0, null: false
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
+    t.string   "code",                              null: false
+    t.integer  "afterhours",  limit: 2, default: 0, null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.string   "description"
     t.index ["code"], name: "index_leave_codes_on_code", using: :btree
   end
 

@@ -469,7 +469,7 @@ class PresenceController < ApplicationController
   end
 
   def leave_code_params
-    params.require(:leave_code).permit(:code, :afterhours)
+    params.require(:leave_code).permit(:code, :afterhours, :description)
   end
 
   def working_schedule_params

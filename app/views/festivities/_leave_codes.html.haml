@@ -21,6 +21,8 @@
           Da sottrarre
         .col-sm-7
           = radio_button_tag 'leave_code[afterhours]', -1, false
+    .col-sm-3
+      =text_field_tag 'leave_code[description]', nil, class: 'form-control', placeholder: 'Descrizione'
     .col-sm-1
       =submit_tag 'Inserisci', class: 'form-control'
 
@@ -55,6 +57,8 @@
               Da sottrarre
             .col-sm-7
               = radio_button_tag 'leave_code[afterhours]', -1, lc.afterhours.to_i == -1
+        .col-sm-3
+          =text_field_tag 'leave_code[description]', lc.description, class: 'form-control', placeholder: 'Descrizione'
         .col-sm-1{style: 'margin: 1em;'}
           =submit_tag 'Modifica', class: 'form-control', data: {confirmation: "Modifcare il codice #{lc.code}?"}
       .col-sm-1
