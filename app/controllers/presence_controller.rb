@@ -79,7 +79,7 @@ class PresenceController < ApplicationController
     end
 
     #first filename
-    fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
+    fname = "#{ENV['RAILS_CAME_LOCAL_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
     @@presence_logger.info("Start importing #{fname}")
 
     #while the next file exists read it and store information
