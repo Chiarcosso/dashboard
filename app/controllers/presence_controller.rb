@@ -106,7 +106,7 @@ class PresenceController < ApplicationController
             time = DateTime.strptime(timestamp+' UTC',"%d/%m/%y %H:%M:%S %Z")-2.hours
             ts = PresenceTimestamp.find_or_create(badge: badge, sensor: sensor, time: time,row: row, file: fname)
             special_logger.info(tc.inspect)
-            
+
             #set last_date and person
             last_date = time if last_date.nil?
             person = badge.person(last_date)
@@ -140,7 +140,7 @@ class PresenceController < ApplicationController
         # #next filename
         # fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
       end
-    rescue Exception e
+    rescue Exception => e
       special_logger.info("#{e.message}\n\n#{e.backtrace.join("\n")}\n")
     end
   end
