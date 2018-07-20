@@ -403,7 +403,7 @@ ActiveRecord::Schema.define(version: 20180720095905) do
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
     t.string   "description"
-    t.index ["code"], name: "index_leave_codes_on_code", using: :btree
+    t.index ["code"], name: "index_leave_codes_on_code", unique: true, using: :btree
   end
 
   create_table "mdc_users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
