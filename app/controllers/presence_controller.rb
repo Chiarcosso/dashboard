@@ -80,7 +80,7 @@ class PresenceController < ApplicationController
 
     #first filename
     fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
-    @special_logger.info("Start importing #{fname}")
+    @presence_logger.info("Start importing #{fname}")
 
     #while the next file exists read it and store information
     if File.exist?(fname)
@@ -501,6 +501,6 @@ class PresenceController < ApplicationController
   end
 
   def self.special_logger
-    @@mssql_reference_logger ||= Logger.new("#{Rails.root}/log/presence.log")
+    @@presence_logger ||= Logger.new("#{Rails.root}/log/presence.log")
   end
 end

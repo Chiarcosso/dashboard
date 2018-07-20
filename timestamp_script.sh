@@ -11,6 +11,7 @@ mount.cifs $RAILS_CAME_HOST $RAILS_CAME_LOCAL -o user=$RAILS_CAME_USER,pass=$RAI
 #if succedes call the read_timestamps method
 if [ $? -eq 0 ]
 then
+  cd $RAILS_BASE
   chmod u+x bin/bundle
   su -lc "cd $RAILS_BASE && bin/bundle exec bin/rails runner -e production 'PresenceController::read_timestamps'" dashboard
   chmod u-x bin/bundle
