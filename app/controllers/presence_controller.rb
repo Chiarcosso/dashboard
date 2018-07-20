@@ -105,7 +105,7 @@ class PresenceController < ApplicationController
             #record timestamp
             time = DateTime.strptime(timestamp+' UTC',"%d/%m/%y %H:%M:%S %Z")-2.hours
             ts = PresenceTimestamp.find_or_create(badge: badge, sensor: sensor, time: time,row: row, file: fname)
-            special_logger.info(tc.inspect)
+            special_logger.info(ts.inspect)
 
             #set last_date and person
             last_date = time if last_date.nil?
