@@ -46,7 +46,8 @@ class PresenceRecord < ApplicationRecord
 
     #get delay leave
     delay_leave = LeaveCode.find_by(code: 'ORIT')
-    GrantedLeave.where(person: person, leave_code: delay_leave).where("#{date.strftime("%Y-%m-%d")} between granted_leaves.from and granted_leaves.to").each do |gl|
+    no_delay_leave = LeaveCode.find_by(code: 'Ritardo avvisato')
+    GrantedLeave.where(person: person, leave_code: delay_leave, date: date).each do |gl|
       gl.delete
     end
 
@@ -80,6 +81,7 @@ class PresenceRecord < ApplicationRecord
           #if there's a delay create a leave
           if pts.time.utc.strftime('%H:%M') > (working_schedule.transform_to_date(pts.time,:agreement_from) + working_schedule.start_flexibility.minutes).strftime('%H:%M')
             #calculate delay fine
+            unless GrantedLeave.where(date: date, person: person, leave_code: no_delay_leave).count > 0
               delay = PresenceRecord.round_delay(pts.time - working_schedule.transform_to_date(pts.time,:agreement_from))
               GrantedLeave.create(person: person,
                                   leave_code: delay_leave,
@@ -87,7 +89,7 @@ class PresenceRecord < ApplicationRecord
                                   from: working_schedule.transform_to_date(pts.time,:agreement_from),
                                   to: working_schedule.transform_to_date(pts.time,:agreement_from)+delay.minutes
                                   )
-
+            end
           end
 
           #check delay

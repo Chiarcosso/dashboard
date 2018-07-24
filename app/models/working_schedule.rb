@@ -8,6 +8,22 @@ class WorkingSchedule < ApplicationRecord
     working_schedule = WorkingSchedule.find_by(person: person, weekday: weekday)
   end
 
+  def duration_agreement
+    self.agreement_to.to_i - self.agreement_from.to_i - self.break * 60
+  end
+
+  def duration_agreement_label
+    "#{self.duration_agreement/3600}:#{((self.duration_agreement%3600)/60).to_s.rjust(2,'0')}"
+  end
+
+  def duration_contract
+    self.contract_to.to_i - self.contract_from.to_i - self.break * 60
+  end
+
+  def duration_contract_label
+    "#{self.duration_contract/3600}:#{((self.duration_contract%3600)/60).to_s.rjust(2,'0')}"
+  end
+
   def contract_duration
     (self.contract_to - self.contract_from).to_i - self.break * 60
   end

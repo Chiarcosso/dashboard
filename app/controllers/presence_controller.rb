@@ -272,10 +272,14 @@ class PresenceController < ApplicationController
       # date = Date.strptime(params.require(:date),"%Y-%m-%d")
 
       if GrantedLeave.find_by(from: from, to: to, person: person, leave_code: leave_code).nil?
-        GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code)
+        GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code, date: from.strftime("%Y-%m-%d") == to.strftime("%Y-%m-%d") ? date : nil)
       end
 
-      # PresenceRecord.recalculate(date,@person)
+      date = from
+      while date <= to do
+        PresenceRecord.recalculate(date,@person)
+        date += 1.days
+      end
       respond_to do |format|
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
@@ -305,10 +309,10 @@ class PresenceController < ApplicationController
       date = Date.strptime(params.require(:date),"%Y-%m-%d")
 
       if GrantedLeave.find_by(from: from, to: to, person: person, leave_code: leave_code).nil?
-        GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code)
+        gl = GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code, date: date)
       end
 
-      # PresenceRecord.recalculate(date,@person)
+      PresenceRecord.recalculate(date,@person)
       respond_to do |format|
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
@@ -324,9 +328,13 @@ class PresenceController < ApplicationController
   def delete_leave
     begin
       gl = GrantedLeave.find(params.require(:id))
-      date  = Date.strptime(params.require(:date),"%Y-%m-%d")
+      date = gl.from
       gl.delete
-      # PresenceRecord.recalculate(date,@person)
+      date = from
+      while date <= to do
+        PresenceRecord.recalculate(date,@person)
+        date += 1.days
+      end
       respond_to do |format|
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }

@@ -1,4 +1,5 @@
 - presence_records = PresenceRecord.where(date: day, person: @person)
+- ws = WorkingSchedule.find_by(weekday: day.strftime("%w").to_i, person: @person)
 - actual_total = 0
 - calculated_total = 0
 
@@ -45,7 +46,7 @@
 
         = "#{actual_total/3600}:#{((actual_total%3600)/60).to_s.rjust(2,'0')}:#{(((actual_total%3600)%60)).to_s.rjust(2,'0')}"
         %br
-        %br
+        = "#{ws.duration_agreement_label} (#{ws.duration_contract_label})" unless ws.nil?
         =form_tag change_presence_time_path, method: :post, remote: true do |f|
           = hidden_field_tag :person, @person.id
           = hidden_field_tag :month, @month-1
