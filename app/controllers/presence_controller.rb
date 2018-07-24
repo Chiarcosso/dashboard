@@ -45,7 +45,6 @@ class PresenceController < ApplicationController
     rescue Exception => e
       @error = e.message
       respond_to do |format|
-        byebug
         format.js { render partial: 'layouts/error' }
       end
     end
