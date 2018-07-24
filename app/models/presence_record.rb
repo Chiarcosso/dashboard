@@ -38,7 +38,7 @@ class PresenceRecord < ApplicationRecord
   end
 
   def self.recalculate(date,person)
-    begin
+    
     #remove previously recorded data
     PresenceRecord.where(date: date, person: person).each do |pr|
       pr.delete
@@ -171,7 +171,5 @@ class PresenceRecord < ApplicationRecord
       pr.update(set_day_time: round_interval(c_total))
     end
   end
-  rescue Exception => e
-    byebug
-  end
+
 end
