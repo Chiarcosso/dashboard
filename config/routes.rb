@@ -235,12 +235,14 @@ Rails.application.routes.draw do
   post   '/presence/edit_leave_code/:id', to: 'presence#edit_leave_code', as: :edit_leave_code
   delete   '/presence/delete_leave_code/:id', to: 'presence#delete_leave_code', as: :delete_leave_code
 
+  post    '/presence/info_timestamps', to: 'presence#info_timestamps', as: :info_timestamps
   post   '/presence/manage/update', to: 'presence#manage_presence', as: :update_presence
   post   '/presence/manage/', to: 'presence#manage_presence', as: :reload_presence
   get   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence
   post   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence_post
 
   post   '/presence/add_timestamp/', to: 'presence#add_timestamp', as: :add_timestamp
+  post   '/presence/change_presence/', to: 'presence#change_presence_time', as: :change_presence_time
   delete   '/presence/delete_timestamp/', to: 'presence#delete_timestamp', as: :delete_timestamp
 
   post   '/presence/add_leave/', to: 'presence#add_leave', as: :add_leave

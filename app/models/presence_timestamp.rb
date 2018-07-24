@@ -4,13 +4,15 @@ class PresenceTimestamp < ApplicationRecord
   has_one :ending_record, class_name: 'PresenceRecord', foreign_key: :end_ts_id
 
   scope :real_timestamps, -> { where(added: false, deleted: false) }
+  scope :date, ->(date) {where("year(time) = #{date.strftime("%Y")} and month(time) = #{date.strftime("%-m")} and day(time) = #{date.strftime("%e")}")}
+  scope :badges, ->(badges) {where("badge_id in (select #{badges.map{|b| b.id}.join(',')})")}
   belongs_to :sensor
 
   enum months: ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']
 
   def self.years
     years = Array.new
-    
+
     for i in 2015..Date.today.strftime("%Y").to_i
       years << i
     end

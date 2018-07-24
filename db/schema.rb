@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180720095905) do
+ActiveRecord::Schema.define(version: 20180724112540) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -114,13 +114,15 @@ ActiveRecord::Schema.define(version: 20180720095905) do
   end
 
   create_table "carwash_vehicle_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",                       null: false
+    t.string   "code",                                 null: false
     t.integer  "vehicle_id"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.boolean  "disabled",   default: false, null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.boolean  "disabled",             default: false, null: false
+    t.integer  "external_vehicles_id"
     t.index ["code"], name: "index_carwash_vehicle_codes_on_code", unique: true, using: :btree
     t.index ["disabled"], name: "index_carwash_vehicle_codes_on_disabled", using: :btree
+    t.index ["external_vehicles_id"], name: "index_carwash_vehicle_codes_on_external_vehicles_id", using: :btree
     t.index ["vehicle_id"], name: "index_carwash_vehicle_codes_on_vehicle_id", using: :btree
   end
 
@@ -398,11 +400,12 @@ ActiveRecord::Schema.define(version: 20180720095905) do
   end
 
   create_table "leave_codes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",                              null: false
-    t.integer  "afterhours",  limit: 2, default: 0, null: false
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.string   "code",                                     null: false
+    t.integer  "afterhours",      limit: 2, default: 0,    null: false
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
     t.string   "description"
+    t.boolean  "studio_relevant",           default: true, null: false
     t.index ["code"], name: "index_leave_codes_on_code", unique: true, using: :btree
   end
 
@@ -541,6 +544,7 @@ ActiveRecord::Schema.define(version: 20180720095905) do
     t.datetime "updated_at",          null: false
     t.datetime "calculated_start",    null: false
     t.datetime "calculated_end"
+    t.integer  "set_day_time"
     t.index ["date"], name: "index_presence_records_on_date", using: :btree
     t.index ["end_ts_id"], name: "index_presence_records_on_end_ts_id", using: :btree
     t.index ["person_id"], name: "index_presence_records_on_person_id", using: :btree
@@ -945,6 +949,8 @@ ActiveRecord::Schema.define(version: 20180720095905) do
     t.integer  "months_unpaid_days", default: 0,     null: false
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
+    t.integer  "start_flexibility",  default: 0,     null: false
+    t.integer  "break_flexibility",  default: 15,    null: false
     t.index ["contractor"], name: "index_working_schedules_on_contractor", using: :btree
     t.index ["person_id", "weekday"], name: "index_working_schedules_on_person_id_and_weekday", unique: true, using: :btree
     t.index ["person_id"], name: "index_working_schedules_on_person_id", using: :btree
@@ -1034,6 +1040,7 @@ ActiveRecord::Schema.define(version: 20180720095905) do
   add_foreign_key "carwash_usages", "people"
   add_foreign_key "carwash_usages", "vehicles", column: "vehicle_1_id"
   add_foreign_key "carwash_usages", "vehicles", column: "vehicle_2_id"
+  add_foreign_key "carwash_vehicle_codes", "external_vehicles", column: "external_vehicles_id"
   add_foreign_key "carwash_vehicle_codes", "vehicles"
   add_foreign_key "companies", "company_addresses", column: "main_company_address_id"
   add_foreign_key "companies", "company_mail_addresses", column: "main_mail_address_id"

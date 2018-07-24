@@ -317,7 +317,9 @@ class Vehicle < ApplicationRecord
   end
 
   def self.find_by_plate(plate)
-    Vehicle.where("id in (select vehicle_id from vehicle_informations where vehicle_information_type_id = #{VehicleInformationType.plate.id} and upper(information) = '#{plate.upcase}')").last
+    v = Vehicle.where("id in (select vehicle_id from vehicle_informations where vehicle_information_type_id = #{VehicleInformationType.plate.id} and upper(information) = '#{plate.upcase}')").last
+    v = ExternalVehicle.where(plate: plate).last if v.nil?
+    v
   end
 
   def possible_information_types

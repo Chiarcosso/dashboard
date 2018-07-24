@@ -21,6 +21,21 @@ class PresenceController < ApplicationController
     end
   end
 
+  def info_timestamps
+    begin
+      @day = Date.strptime(params.require(:date),"%Y-%m-%d")
+      @person = Person.find(params.require(:person).to_i)
+      respond_to do |format|
+        format.js { render partial: 'presence/infobox_timestamps' }
+      end
+    rescue Exception => e
+      @error = e.message
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
   def manage_presence
     begin
       respond_to do |format|
@@ -30,6 +45,7 @@ class PresenceController < ApplicationController
     rescue Exception => e
       @error = e.message
       respond_to do |format|
+        byebug
         format.js { render partial: 'layouts/error' }
       end
     end
@@ -113,7 +129,6 @@ class PresenceController < ApplicationController
 
             #add person if exists and the sensor is relevant
             people[person.id.to_s] = person unless person.nil? || !sensor.presence_relevant
-
             #if the day changed
             if time.strftime("%Y-%m-%d") != last_date.strftime("%Y-%m-%d")
               # calculate PresenceRecords for all people
@@ -129,6 +144,10 @@ class PresenceController < ApplicationController
           row += 1
         end
 
+        #last recalculation round
+        people.each do |k,p|
+          PresenceRecord.recalculate(last_date,p)
+        end
         # #increment month and year
         # month += 1
         # if month > 12
@@ -142,6 +161,22 @@ class PresenceController < ApplicationController
       end
     rescue Exception => e
       special_logger.info("#{e.message}\n\n#{e.backtrace.join("\n")}\n")
+    end
+  end
+
+  def change_presence_time
+    begin
+      time = Time.strptime("#{params.require(:date)} #{params.require(:set_total)}","%Y-%m-%d %H:%M") - Time.strptime("#{params.require(:date)} 00:00","%Y-%m-%d %H:%M")
+      PresenceRecord.where(date: Date.strptime(params.require(:date),"%Y-%m-%d"),person: @person).each { |pr| pr.update(set_day_time: time)}
+      respond_to do |format|
+        format.js { render partial: 'presence/manage_js' }
+        format.html { render 'presence/index' }
+      end
+    rescue Exception => e
+      @error = e.message+e.backtrace.join("\n") if @error.nil?
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
     end
   end
 

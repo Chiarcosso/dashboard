@@ -126,23 +126,31 @@ function complete_infobox_link_func(data) {
 
 function infobox_button_click_func() {
     "use strict";
-    if ($(this).parents('.row').hasClass('selectable')) {
-        $('.selected-row').removeClass('selected-row');
-        $(this).parents('.row').first().addClass('selected-row');
-    }
-    var target;
-    infobox_name = $(this).data('name');
-    target = $(this).data('target');
-    if ($('#' + infobox_name).length === 0) {
-        $('.infobox').remove();
-        $('body').append('<div class="infobox" id="' + infobox_name + '"></div>');
-        $.ajax({
-            method: 'GET',
-            url: target,
-            complete: complete_infobox_link_func
-        });
-    } else {
-        $('#' + infobox_name).remove();
+    if(!$(document.activeElement).hasClass('no-infobox-link')){
+      if ($(this).parents('.row').hasClass('selectable')) {
+          $('.selected-row').removeClass('selected-row');
+          $(this).parents('.row').first().addClass('selected-row');
+      }
+      var target;
+      infobox_name = $(this).data('name');
+      target = $(this).data('target');
+      var method = $(this).data('method');
+      var data = $(this).data('data');
+      if(method == undefined ){
+        method = 'get';
+      }
+      if ($('#' + infobox_name).length === 0) {
+          $('.infobox').remove();
+          $('body').append('<div class="infobox" id="' + infobox_name + '"></div>');
+          $.ajax({
+              method: method,
+              url: target,
+              data: data,
+              complete: complete_infobox_link_func
+          });
+      } else {
+          $('#' + infobox_name).remove();
+      }
     }
 }
 

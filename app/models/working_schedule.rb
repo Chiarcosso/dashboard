@@ -12,6 +12,20 @@ class WorkingSchedule < ApplicationRecord
     (self.contract_to - self.contract_from).to_i - self.break * 60
   end
 
+  def transform_to_date(date,time = :agreement_from)
+    case time
+    when :agreement_from then
+      selected_time = self.agreement_from
+    when :agreement_to then
+      selected_time = self.agreement_to
+    when :contract_from then
+      selected_time = self.contract_from
+    when :contract_to then
+      selected_time = self.contract_to
+    end
+    DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{selected_time.strftime("%H:%M")} UTC","%Y-%m-%d %H:%M %Z")
+  end
+
   def self.upsync_all
     #for every found schedule transpose it in dashboard
     MssqlReference.query({table: 'orari_personale'},'chiarcosso_test').each do |ws|

@@ -1,0 +1,26 @@
+
+%h3="#{@day.strftime("%d/%m/%Y")}"
+%br
+%b="Timbrature rilevate: "
+%br
+.row
+  .col-sm-2
+    %b= 'Ora'
+  .col-sm-2
+    %b= 'Sensore'
+  .col-sm-7
+    %b= 'Badge (persona)'
+
+.scrollable-panel{style: 'height: 45vh; width: 80vw;'}
+  - PresenceTimestamp.date(@day).badges(@person.badges(@day)).each do |ts|
+    .row.colored
+      .col-sm-2
+        = ts.time.strftime("%d/%m/%Y %H:%M:%S")
+      .col-sm-2
+        = ts.sensor.name
+      .col-sm-7
+        = "#{ts.badge.code} (#{@person.list_name})"
+
+
+.close
+  Chiudi
