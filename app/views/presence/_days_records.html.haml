@@ -1,11 +1,12 @@
 - presence_records = PresenceRecord.where(date: day, person: @person)
 - ws = WorkingSchedule.find_by(weekday: day.strftime("%u").to_i-1, person: @person)
+- saturday = day.strftime("%u").to_i-1 == 5 ? true : false
 - actual_total = 0
 - calculated_total = 0
 
 .row.colored.infobox-button.no-loader{ data: { method: :post, target: info_timestamps_path, name: "infobox_timestamps_#{day.strftime("%y%m%d")}_#{@person.id}", data: {date: day, person: @person.id}.to_json }}
   .col-sm-1{style: 'padding-right: 0px;'}
-    = "#{PresenceRecord.weekdays.key(day.strftime("%w").to_i)} #{day.strftime("%d/%m/%y")}"
+    = "#{PresenceRecord.weekdays.key(day.strftime("%w").to_i)} #{ws.nil? ? '' : ws.weekday} #{day.strftime("%d/%m/%y")}"
   .col-sm-8{style: 'padding-right: 0px; padding-left: 0px;'}
     - presence_records.each do |r|
       - unless r.break
@@ -45,6 +46,21 @@
         -# - calculated_total = PresenceRecord.round_interval(actual_total)
 
         = "#{actual_total/3600}:#{((actual_total%3600)/60).to_s.rjust(2,'0')}:#{(((actual_total%3600)%60)).to_s.rjust(2,'0')}"
+        - @total_calculated_hours += calculated_total
+        - @total_actual_hours += actual_total
+        - if ws.nil?
+          - @total_calculated_afterhours += calculated_total
+          - @total_actual_afterhours += actual_total
+        - elsif calculated_total > 0
+          - @total_calculated_afterhours += calculated_total - ws.duration_agreement
+          - @total_actual_afterhours += actual_total - ws.duration_agreement
+          - @unpayed_saturdays = ws.unpayed_days if saturday
+
+        - if calculated_total > 0 && saturday
+          - @total_saturdays += 1
+          - @total_calculated_saturday_hours += calculated_total
+          - @total_actual_saturday_hours += actual_total
+          
         %br
         = "#{ws.duration_agreement_label} (#{ws.duration_contract_label})" unless ws.nil?
         =form_tag change_presence_time_path, method: :post, remote: true do |f|
