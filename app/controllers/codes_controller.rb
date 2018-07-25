@@ -259,7 +259,11 @@ class CodesController < ApplicationController
 
   def new_carwash_vehicle_code
     unless @vehicle.nil? or !@code.nil?
-      CarwashVehicleCode.create(code: 'M'+SecureRandom.hex(2).upcase, vehicle: @vehicle)
+      if @vehicle.class == Vehicle
+        CarwashVehicleCode.create(code: 'M'+SecureRandom.hex(2).upcase, vehicle: @vehicle)
+      else
+        # CarwashVehicleCode.create(code: 'M'+SecureRandom.hex(2).upcase, external_vehicle: @vehicle)
+      end
       # @msg = 'Codice creato.'
     else
       # @msg = 'Codice esistente.'
@@ -374,7 +378,7 @@ class CodesController < ApplicationController
 
   def get_vehicle
     @vehicle = Vehicle.find_by_plate(params.require(:carwash_vehicle_code).permit(:plate)[:plate]).first
-    # @vehicle = Vehicle.filter(@params[:vehicle]).first
+    @vehicle = ExternalVehicle.find_by(plate: params.require(:carwash_vehicle_code).permit(:plate)[:plate]) if @vehicle.nil?
   end
 
 

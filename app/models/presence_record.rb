@@ -21,24 +21,34 @@ class PresenceRecord < ApplicationRecord
     15*(2**((((interval.to_i/60)-1)/15)/2))
   end
 
-  def self.round_interval(interval)
-    interval-interval%(30*60)
+  def self.round_interval(interval,direction = :-)
+    if direction == :-
+      interval-interval%(30*60)
+    else
+      interval-interval%(30*60)+30*60
+    end
   end
 
-  def self.round_timestamp(timestamp)
+  def self.round_timestamp(timestamp,direction = :-)
     #find the time from the beginning of the day
-    d = DateTime.strptime(timestamp.strftime("%Y-%m-%d 00:00:00"),"%Y-%m-%d %H:%M:%S")
+    d = DateTime.strptime(timestamp.strftime("%Y-%m-%d 00:00:00 #{PresenceController.actual_timezone(timestamp)}"),"%Y-%m-%d %H:%M:%S %Z")
 
     #round it to the last half an hour
-    d2 = (timestamp.to_i - d.to_i)%(60*30)
+    if direction == :-
+      d2 = (timestamp.to_i - d.to_i)%(60*30)
+    else
+      d2 = (timestamp.to_i - d.to_i)%(60*30)-30*60
+    end
 
     #rebuild the timestamp
     # DateTime.strptime("#{timestamp.strftime("%Y-%m-%d")} #{"#{d2/3600}:#{((d2%3600)/60).to_s.rjust(2,'0')}:#{(((d2%3600)%60)).to_s.rjust(2,'0')}"}", "%Y-%m-%d %H:%M:%S")
+
     DateTime.strptime("#{timestamp.strftime("%Y-%m-%d")} #{(timestamp-d2).strftime("%H:%M:%S")} #{PresenceController.actual_timezone(timestamp)}", "%Y-%m-%d %H:%M:%S %Z")
+
   end
 
   def self.recalculate(date,person)
-    
+
     #remove previously recorded data
     PresenceRecord.where(date: date, person: person).each do |pr|
       pr.delete
@@ -75,8 +85,15 @@ class PresenceRecord < ApplicationRecord
         if index == 0 && !working_schedule.nil?
           #if it's the first timestamp of the day compare starting time with agreed schedule
           # calculated_start = DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{working_schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
-          calculated_start = PresenceRecord.round_timestamp(pts.time)
-
+          begin
+          if pts.time.utc.strftime('%H:%M') < working_schedule.agreement_from.strftime('%H:%M')
+            calculated_start = PresenceRecord.round_timestamp(pts.time,:+)
+          else
+            calculated_start = working_schedule.transform_to_date(pts.time.utc,:agreement_from)
+          end
+        rescue Exception => e
+          byebug
+        end
 
           #if there's a delay create a leave
           if pts.time.utc.strftime('%H:%M') > (working_schedule.transform_to_date(pts.time,:agreement_from) + working_schedule.start_flexibility.minutes).strftime('%H:%M')
@@ -162,7 +179,7 @@ class PresenceRecord < ApplicationRecord
 
     c_total = 0
     PresenceRecord.where(date: date, person: person, break: false).each do |pr|
-      c_total += pr.calculated_duration
+      c_total += pr.actual_duration
     end
     GrantedLeave.where(date: date, person: person).each do |gl|
       c_total += gl.duration(date) * gl.leave_code.afterhours

@@ -1,5 +1,5 @@
 - presence_records = PresenceRecord.where(date: day, person: @person)
-- ws = WorkingSchedule.find_by(weekday: day.strftime("%w").to_i, person: @person)
+- ws = WorkingSchedule.find_by(weekday: day.strftime("%u").to_i-1, person: @person)
 - actual_total = 0
 - calculated_total = 0
 

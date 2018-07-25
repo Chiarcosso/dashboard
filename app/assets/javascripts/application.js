@@ -468,6 +468,14 @@ function data_alt_mouseleave_func(){
   "use strict";
   $('.cst-alt').remove();
 }
+
+function scrollable_form_submit_func(e){
+    "use strict";
+    e.preventDefault();
+    console.log($(this).parents('.scrollable-panel').first().scrollTop());
+    console.log($(this));
+}
+
 function activateJS() {
     "use strict";
 
@@ -534,6 +542,8 @@ function activateJS() {
     $('body').on('mouseenter', '[data-alt]', data_alt_mouseenter_func);
 
     $('body').on('mouseleave', '[data-alt]', data_alt_mouseleave_func);
+
+    $('body').on('submit','.scrollable-panel form', scrollable_form_submit_func)
 
 }
 

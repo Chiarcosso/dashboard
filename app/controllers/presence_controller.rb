@@ -182,7 +182,7 @@ class PresenceController < ApplicationController
   def add_timestamp
     begin
       begin
-        timestamp = DateTime.strptime("#{params.require(:date)} #{params.require(:time)}:00 CEST", "%Y-%m-%d %H:%M:%S %Z")
+        timestamp = DateTime.strptime("#{params.require(:date)} #{params.require(:time)}:00 #{self.actual_timezone(Date.strptime(params.require(:date),"%Y-%m-%d"))}", "%Y-%m-%d %H:%M:%S %Z")
       rescue
         @error = 'Ora non valida.'
       end
@@ -233,19 +233,19 @@ class PresenceController < ApplicationController
   end
 
   def actual_timezone(date = Time.zone.today)
-    date.dst? ? 'CEST' : 'CET'
+    Time.parse(date.to_s).dst? ? 'CEST' : 'CET'
   end
 
   def actual_offset(date = Time.zone.today)
-    date.dst? ? -2 : -1
+    Time.parse(date.to_s).dst? ? -2 : -1
   end
 
   def self.actual_timezone(date = Time.zone.today)
-    date.dst? ? 'CEST' : 'CET'
+    Time.parse(date.to_s).dst? ? 'CEST' : 'CET'
   end
 
   def self.actual_offset(date = Time.zone.today)
-    date.dst? ? -2 : -1
+    Time.parse(date.to_s).dst? ? -2 : -1
   end
 
   def add_long_leave

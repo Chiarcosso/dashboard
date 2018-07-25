@@ -4,6 +4,7 @@ class CarwashVehicleCode < ApplicationRecord
   require 'barby/outputter/cairo_outputter'
 
   belongs_to :vehicle
+  belongs_to :external_vehicle
   has_many :vehicle_informations, :through => :vehicle
   # has_many :carwash_usages_as_first, :foreign_key => 'vehicle_1_id', :class_name => 'CarwashUsage'
   # has_many :carwash_usages_as_second, :foreign_key => 'vehicle_2_id', :class_name => 'CarwashUsage'
@@ -20,6 +21,14 @@ class CarwashVehicleCode < ApplicationRecord
   #   self.carwash_usages_as_first + self.carwash_usages_as_second
   # end
 
+  def actual_vehicle
+    if self.vehicle.nil?
+      self.external_vehicle
+    else
+      self.vehicle
+    end
+  end
+
   def to_s
     self.code
   end
@@ -30,7 +39,12 @@ class CarwashVehicleCode < ApplicationRecord
       while !CarwashVehicleCode.where(code: code).empty?
         code = 'M'+SecureRandom.hex(2).upcase
       end
-      CarwashVehicleCode.create(code: code, vehicle: vehicle)
+      if vehicle.class == Vehicle
+        CarwashVehicleCode.create(code: code, vehicle: vehicle)
+      else
+        # CarwashVehicleCode.create(code: code, external_vehicle: vehicle)
+      end
+
     end
   end
 
