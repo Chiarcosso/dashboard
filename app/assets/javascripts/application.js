@@ -469,10 +469,20 @@ function data_alt_mouseleave_func(){
   $('.cst-alt').remove();
 }
 
-function scrollable_form_submit_func(e){
+function remember_scroll_form_submit_func(e){
     "use strict";
-    console.log($(this).parents('.scrollable-panel').first().scrollTop());
-    console.log($(this));
+
+    $('<input>').attr({
+      type: 'hidden',
+      name: 'scroll',
+      value: $($(this).data('scroll-element')).first().scrollTop()
+    }).appendTo(this);
+    $('<input>').attr({
+      type: 'hidden',
+      name: 'scroll_element',
+      value: $(this).data('scroll-element')
+    }).appendTo(this);
+    
 }
 
 function activateJS() {
@@ -542,7 +552,7 @@ function activateJS() {
 
     $('body').on('mouseleave', '[data-alt]', data_alt_mouseleave_func);
 
-    $('body').on('submit','.scrollable-panel form', scrollable_form_submit_func)
+    $('body').on('submit','.remember_scroll_form', remember_scroll_form_submit_func)
 
 }
 

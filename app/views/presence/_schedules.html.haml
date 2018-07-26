@@ -104,4 +104,5 @@
         =submit_tag 'Modifica', class: 'form-control', data: {confirmation: "Modifcare l'orario del #{WorkingSchedule.weekdays.key(ws.weekday)} per #{@person.complete_name}?"}
     .col-sm-1
       =form_tag delete_working_schedule_path(ws.id), method: :delete, remote: true do |f|
+        = hidden_field_tag :tab, 'schedules'
         =submit_tag 'Elimina', class: 'form-control', data: {confirmation: "Eliminare l'orario del #{WorkingSchedule.weekdays.key(ws.weekday)} per #{@person.complete_name}?"}

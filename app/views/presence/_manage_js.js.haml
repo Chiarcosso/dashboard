@@ -1,4 +1,5 @@
 $('#manage_presence').html("#{escape_javascript(render 'presence/manage'  )} ");
 $('.popup').remove();
 $('.infobox').remove();
+$("#{@scroll_element}").scrollTop("#{@scroll}");
 deactivateLoadingScreen();

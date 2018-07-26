@@ -3,6 +3,7 @@ class PresenceController < ApplicationController
   before_action :get_person
   before_action :get_month_year
   before_action :get_tab
+  before_action :get_scroll
   before_action :get_working_schedule, only: [:edit_working_schedule, :delete_working_schedule]
   before_action :get_festivity, only: [:edit_festivity, :delete_festivity]
   before_action :get_leave_code, only: [:edit_leave_code, :delete_leave_code]
@@ -43,7 +44,7 @@ class PresenceController < ApplicationController
         format.html { render 'presence/index' }
       end
     rescue Exception => e
-      @error = e.message
+      @error = e.message+e.backtrace.join('<br>')
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
       end
@@ -545,6 +546,11 @@ class PresenceController < ApplicationController
 
   def get_tab
     @tab = params['tab']
+  end
+
+  def get_scroll
+    @scroll = params['scroll']
+    @scroll_element = params['scroll_element']
   end
 
   def self.special_logger

@@ -4,9 +4,12 @@
 - actual_total = 0
 - calculated_total = 0
 
-.row.colored.infobox-button.no-loader{ data: { method: :post, target: info_timestamps_path, name: "infobox_timestamps_#{day.strftime("%y%m%d")}_#{@person.id}", data: {date: day, person: @person.id}.to_json }}
+.row.colored
+  -# .infobox-button.no-loader{ data: { method: :post, target: info_timestamps_path, name: "infobox_timestamps_#{day.strftime("%y%m%d")}_#{@person.id}", data: {date: day, person: @person.id}.to_json }}
   .col-sm-1{style: 'padding-right: 0px;'}
-    = "#{PresenceRecord.weekdays.key(day.strftime("%w").to_i)} #{ws.nil? ? '' : ws.weekday} #{day.strftime("%d/%m/%y")}"
+    = "#{PresenceRecord.weekdays.key(day.strftime("%w").to_i)} #{day.strftime("%d/%m/%y")}"
+    .infobox-button.form-control.no-loader{data: { method: :post, target: info_timestamps_path, name: "infobox_timestamps_#{day.strftime("%y%m%d")}_#{@person.id}", data: {date: day, person: @person.id}.to_json }}
+      Listato
   .col-sm-8{style: 'padding-right: 0px; padding-left: 0px;'}
     - presence_records.each do |r|
       - unless r.break
@@ -21,7 +24,7 @@
         .row
           .col-sm-6
             - unless r.start_ts.nil?
-              =form_tag delete_timestamp_path, method: :delete, remote: true do |f|
+              =form_tag delete_timestamp_path, method: :delete, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#presence_list'} do |f|
                 = hidden_field_tag :person, @person.id
                 = hidden_field_tag :month, @month-1
                 = hidden_field_tag :year, @year
@@ -30,7 +33,7 @@
             = r.calculated_start.time.strftime("%H:%M:%S")
           .col-sm-6
             - unless r.end_ts.nil?
-              =form_tag delete_timestamp_path, method: :delete, remote: true do |f|
+              =form_tag delete_timestamp_path, method: :delete, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#presence_list'} do |f|
                 = hidden_field_tag :person, @person.id
                 = hidden_field_tag :month, @month-1
                 = hidden_field_tag :year, @year
@@ -60,10 +63,10 @@
           - @total_saturdays += 1
           - @total_calculated_saturday_hours += calculated_total
           - @total_actual_saturday_hours += actual_total
-          
+
         %br
         = "#{ws.duration_agreement_label} (#{ws.duration_contract_label})" unless ws.nil?
-        =form_tag change_presence_time_path, method: :post, remote: true do |f|
+        =form_tag change_presence_time_path, method: :post, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#presence_list'} do |f|
           = hidden_field_tag :person, @person.id
           = hidden_field_tag :month, @month-1
           = hidden_field_tag :year, @year
@@ -73,7 +76,7 @@
         -# %b="#{calculated_total/3600}:#{((calculated_total%3600)/60).to_s.rjust(2,'0')}:#{(((calculated_total%3600)%60)).to_s.rjust(2,'0')}"
   .col-sm-1
     - GrantedLeave.where(person: @person).select{|gl| day.strftime("%Y-%m-%d") >= gl.from.strftime("%Y-%m-%d") && day.strftime("%Y-%m-%d") <= gl.to.strftime("%Y-%m-%d") }.each do |gl|
-      =form_tag delete_leave_path, method: :delete, remote: true do |f|
+      =form_tag delete_leave_path, method: :delete, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#presence_list'} do |f|
         = hidden_field_tag :person, @person.id
         = hidden_field_tag :month, @month-1
         = hidden_field_tag :year, @year

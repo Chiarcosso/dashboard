@@ -1,6 +1,6 @@
 %h3="Aggiungi codice permesso / straordinario: #{@person.list_name} - #{date.strftime("%d/%m/%Y")}"
 
-=form_tag add_leave_path, method: :post, remote: true do |f|
+=form_tag add_leave_path, method: :post, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#presence_list'} do |f|
   = hidden_field_tag :person, @person.id
   = hidden_field_tag :month, @month-1
   = hidden_field_tag :year, @year

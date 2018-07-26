@@ -1,7 +1,7 @@
 %b="Ordini aperti"
 %br
 .scrollable-panel#output-list
-  - OutputOrder.unprocessed.each do |oo|
+  - OutputOrder.unprocessed.order(created_at: :asc).each do |oo|
     .row.colored.hover-hilight.ajax-link{'data-target': edit_output_path(oo.destination.class), 'data-name': 'ouput-exit', 'data-method': 'post', 'data-data': "{\"order_id\": #{oo.id}}"}
       .col-sm-1
         = oo.id
