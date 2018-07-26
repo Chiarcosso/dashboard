@@ -471,7 +471,6 @@ function data_alt_mouseleave_func(){
 
 function scrollable_form_submit_func(e){
     "use strict";
-    e.preventDefault();
     console.log($(this).parents('.scrollable-panel').first().scrollTop());
     console.log($(this));
 }
