@@ -477,7 +477,7 @@ class PresenceController < ApplicationController
 
   def download_csv
     csv = ''
-    studio_codes = LeaveCode.where(studio_relevant: true)
+    studio_codes = LeaveCode.where(studio_relevant: 1)
     for day in 1..Time.days_in_month(@month-1,@year)
       date = Time.strptime("#{@year}-#{(@month-1).to_s.rjust(2,'0')}-#{day.to_s.rjust(2,'0')} 00:00:00","%Y-%m-%d %H:%M:%S")
       csv += "#{@person.list_name};#{date.strftime("%d/%m/%Y")};"
