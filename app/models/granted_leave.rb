@@ -40,8 +40,12 @@ class GrantedLeave < ApplicationRecord
     end
   end
 
-  def duration_label(comparison_date)
-    "#{self.duration(comparison_date)/3600}:#{((self.duration(comparison_date)%3600)/60).to_s.rjust(2,'0')}:#{(((self.duration(comparison_date)%3600)%60)).to_s.rjust(2,'0')}"
+  def duration_label(comparison_date,seconds = true)
+    string = "#{self.duration(comparison_date)/3600}:#{((self.duration(comparison_date)%3600)/60).to_s.rjust(2,'0')}"
+    if seconds
+      string += ":#{(((self.duration(comparison_date)%3600)%60)).to_s.rjust(2,'0')}"
+    end
+    string
   end
 
   def complete_duration_label

@@ -61,8 +61,9 @@
 
         - if calculated_total > 0 && saturday
           - @total_saturdays += 1
-          - @total_calculated_saturday_hours += calculated_total
-          - @total_actual_saturday_hours += actual_total
+          - if ws.nil? || ws.months_unpaid_days < @total_saturdays
+            - @total_calculated_saturday_hours += calculated_total
+            - @total_actual_saturday_hours += actual_total
 
         %br
         = "#{ws.duration_agreement_label} (#{ws.duration_contract_label})" unless ws.nil?

@@ -18,7 +18,8 @@ class PresenceRecord < ApplicationRecord
   end
 
   def self.round_delay(interval)
-    15*(2**((((interval.to_i/60)-1)/15)/2))
+    delay = 15*(2**((((interval.to_i/60)-1)/15)/2))
+    delay = 2 * 60 if delay > 2 * 60
   end
 
   def self.round_interval(interval,direction = :-)
@@ -97,7 +98,7 @@ class PresenceRecord < ApplicationRecord
             #calculate delay fine
             unless GrantedLeave.where(date: date, person: person, leave_code: no_delay_leave).count > 0
               delay = PresenceRecord.round_delay(pts.time - working_schedule.transform_to_date(pts.time,:agreement_from))
-              
+
               GrantedLeave.create(person: person,
                                   leave_code: delay_leave,
                                   date: date,

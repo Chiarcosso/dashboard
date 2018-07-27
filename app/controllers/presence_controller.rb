@@ -475,13 +475,34 @@ class PresenceController < ApplicationController
     end
   end
 
+  def download_csv
+    csv = ''
+    studio_codes = LeaveCode.where(studio_relevant: true)
+    for day in 1..Time.days_in_month(@month-1,@year)
+      date = Time.strptime("#{@year}-#{(@month-1).to_s.rjust(2,'0')}-#{day.to_s.rjust(2,'0')} 00:00:00","%Y-%m-%d %H:%M:%S")
+      csv += "#{@person.list_name};#{date.strftime("%d/%m/%Y")};"
+      GrantedLeave.where(person: @person).where("'#{date.strftime("%Y-%m-%d")}' = granted_leaves.date or '#{date.strftime("%Y-%m-%d")}' between granted_leaves.from and granted_leaves.to and leave_code_id in (#{studio_codes.map{|sc| sc.id}.join(',')})").each do |gl|
+        csv += "#{gl.duration_label(date,false)};#{gl.leave_code.code};" if gl.duration(date) > 0
+      end
+      csv += "\n"
+    end
+    respond_to do |format|
+      format.csv  do
+        send_data csv, filename:
+        "#{@person.list_name}_#{date.strftime("%Y_%m")}.csv",
+        type: "text/csv"
+      end
+    end
+  end
+
   def print_absences
     pdf = Prawn::Document.new
     date = Date.strptime(params.require(:date),"%Y-%m-%d")
-    pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}"
+    pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}",size: 26, font_style: :bold, align: :center
+    pdf.move_down 40
     codes = LeaveCode.where(afterhours: 1)
 
-    leaves = GrantedLeave.where("'#{date.strftime("%Y-%m-%d")}' between granted_leaves.from and granted_leaves.to and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
+    leaves = GrantedLeave.where("'#{date.strftime("%Y-%m-%d")}' = granted_leaves.date or '#{date.strftime("%Y-%m-%d")}' between granted_leaves.from and granted_leaves.to and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
     driver_role = CompanyRelation.find_by(name: 'Autista')
     mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
     roaming_mechanic_role = CompanyRelation.find_by(name: 'Meccanico trasfertista')
@@ -491,62 +512,74 @@ class PresenceController < ApplicationController
     mechanics = drivers = leaves.select{ |gl| gl.person.company_relations.include?(mechanic_role) || gl.person.company_relations.include?(roaming_mechanic_role) || gl.person.company_relations.include?(chief_mechanic_role)}
     office_workers = leaves.reject{ |gl| gl.person.company_relations.include?(mechanic_role) || gl.person.company_relations.include?(roaming_mechanic_role) || gl.person.company_relations.include?(chief_mechanic_role) || gl.person.company_relations.include?(driver_role)}
 
-    pdf.text "Autisti"
-
-    # drivers.each_with_index do |d,i|
-    #   table = [['','Ne','Da','Mo']]
-    #   # table << [pdf.make_table([[pdf.make_cell(content: (i+1).to_s,size: 26)],[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)]],width: 75),
-    #   #         pdf.make_table([[pdf.make_cell(content: 'Uscita',size: 7)],[pdf.make_cell(content: closing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-    #   #         pdf.make_table([[pdf.make_cell(content: 'Ultima manutenzione',size: 7)],[pdf.make_cell(content: last_mantainance_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-    #   #         pdf.make_table([[pdf.make_cell(content: 'Ultimo controllo',size: 7)],[pdf.make_cell(content: last_checking_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-    #   #         pdf.make_table([[pdf.make_cell(content: 'Ultimo lavaggio',size: 7)],[pdf.make_cell(content: last_washing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-    #   #         pdf.make_table([[pdf.make_cell(content: 'Ultimo autista',size: 7)],[pdf.make_cell(content: last_driver,size: 13, font_style: :bold,height: 25)]],width: 165),]
-    #   table << [(i+1).to_s,d.person.list_name,d.from.strftime("%d/%m/%Y"),d.leave_code.description]
-    # end
-    #
-    # pdf.table table,
-    #   # :border_style => :grid,
-    #   # :font_size => 11,
-    #   :position => :center,
-    #   :column_widths => { 0 => 50, 1 => 223, 2 => 107, 3 => 160},
-    #   # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
-    #   :row_colors => ["d2e3ed", "FFFFFF"]
-
-
-    # pdf.text "Meccanici"
-    # table = [['','Nome','Data','Motivo']]
-    # mechanics.each_with_index do |d,i|
-    #   table << [(i+1).to_s,d.person.list_name,d.from,d.leave_code.description]
-    # end
-    #
-    # pdf.table table,
-    #   # :border_style => :grid,
-    #   # :font_size => 11,
-    #   :position => :center,
-    #   :column_widths => { 0 => 210, 1 => 223, 2 => 107},
-    #   # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
-    #   :row_colors => ["d2e3ed", "FFFFFF"]
-    #
-    #
-    pdf.text "Impiegati"
+    pdf.text "Impiegati",size: 20, font_style: :bold
     office_workers.each_with_index do |d,i|
-        pdf.table [[(i+1).to_s],pdf.make_table([[d.person.list_name],[d.complete_duration_label],[d.leave_code.description]])],
+      pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 25, align: :center, valign: :center),
+        pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25,borders: [])],
+          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [])],
+          [pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [])]],width: 490)]],
+        # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
+        # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name)],[pdf.make_cell(content: d.complete_duration_label)],[pdf.make_cell(content: d.leave_code.description)]])],
+        # [pdf.make_cell(content: (i+1).to_s)],
         # :border_style => :grid,
         # :font_size => 11,
         :position => :center,
-        :column_widths => { 0 => 210, 1 => 223, 2 => 107},
+        :column_widths => { 0 => 50, 1 => 490},
         # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
-        :row_colors => ["d2e3ed", "FFFFFF"]
+        :row_colors => ["FFFFFF"]
     end
 
+    pdf.move_down 20
 
+    pdf.text "Operai",size: 20, font_style: :bold
+    mechanics.each_with_index do |d,i|
+      pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 25, align: :center, valign: :center),
+        pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25,borders: [])],
+          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [])],
+          [pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [])]],width: 490)]],
+        # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
+        # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name)],[pdf.make_cell(content: d.complete_duration_label)],[pdf.make_cell(content: d.leave_code.description)]])],
+        # [pdf.make_cell(content: (i+1).to_s)],
+        # :border_style => :grid,
+        # :font_size => 11,
+        :position => :center,
+        :column_widths => { 0 => 50, 1 => 490},
+        # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+        :row_colors => ["FFFFFF"]
+    end
 
+    pdf.move_down 20
+
+    pdf.text "Autisti",size: 20, font_style: :bold
+    drivers.each_with_index do |d,i|
+      pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
+        pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 18, font_style: :bold,height: 27,borders: [])],
+          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [])],
+          [pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [])]],width: 490)]],
+        # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
+        # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name)],[pdf.make_cell(content: d.complete_duration_label)],[pdf.make_cell(content: d.leave_code.description)]])],
+        # [pdf.make_cell(content: (i+1).to_s)],
+        # :border_style => :grid,
+        # :font_size => 11,
+        :position => :center,
+        :column_widths => { 0 => 50, 1 => 490},
+        # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+        :row_colors => ["FFFFFF"]
+    end
 
     pdf.bounding_box([pdf.bounds.right - 50,pdf.bounds.bottom], :width => 60, :height => 20) do
     	count = pdf.page_count
     	pdf.text "Page #{count}"
     end
-    pdf
+
+    respond_to do |format|
+      format.pdf do
+        pdf = pdf
+        send_data pdf.render, filename:
+        "assenze_#{date.strftime("%Y_%m_%d")}.pdf",
+        type: "application/pdf"
+      end
+    end
   end
 
   private
