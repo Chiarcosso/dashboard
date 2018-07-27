@@ -57,7 +57,7 @@
         - elsif calculated_total > 0
           - @total_calculated_afterhours += calculated_total - ws.duration_agreement
           - @total_actual_afterhours += actual_total - ws.duration_agreement
-          - @unpayed_saturdays = ws.unpayed_days if saturday
+          - @unpayed_saturdays = ws.months_unpaid_days if saturday
 
         - if calculated_total > 0 && saturday
           - @total_saturdays += 1
