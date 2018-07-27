@@ -255,6 +255,7 @@ class PresenceController < ApplicationController
         #get the working schedule for that day and set from timestamp
         date_from =Time.strptime(params.require(:date_from),"%Y-%m-%d")
         ws = WorkingSchedule.get_schedule(date_from,@person)
+        raise 'Orario di inizio non presente' if ws.nil?
         from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.strftime("%H:%M:%S")} #{self.actual_timezone(date_from)}", "%Y-%m-%d %H:%M:%S %Z")
       rescue
         @error = 'Data inizio non valida.'
@@ -263,6 +264,7 @@ class PresenceController < ApplicationController
         #get the working schedule for that day and set from timestamp
         date_to = Time.strptime(params.require(:date_to),"%Y-%m-%d")
         ws = WorkingSchedule.get_schedule(date_to,@person)
+        raise 'Orario di fine non presente' if ws.nil?
         to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.strftime("%H:%M:%S")} #{self.actual_timezone(date_to)}", "%Y-%m-%d %H:%M:%S %Z")
       rescue
         @error = 'Data fine non valida.'
@@ -473,6 +475,80 @@ class PresenceController < ApplicationController
     end
   end
 
+  def print_absences
+    pdf = Prawn::Document.new
+    date = Date.strptime(params.require(:date),"%Y-%m-%d")
+    pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}"
+    codes = LeaveCode.where(afterhours: 1)
+
+    leaves = GrantedLeave.where("'#{date.strftime("%Y-%m-%d")}' between granted_leaves.from and granted_leaves.to and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
+    driver_role = CompanyRelation.find_by(name: 'Autista')
+    mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
+    roaming_mechanic_role = CompanyRelation.find_by(name: 'Meccanico trasfertista')
+    chief_mechanic_role = CompanyRelation.find_by(name: 'Capo officina')
+
+    drivers = leaves.select{ |gl| gl.person.company_relations.include?(driver_role)}
+    mechanics = drivers = leaves.select{ |gl| gl.person.company_relations.include?(mechanic_role) || gl.person.company_relations.include?(roaming_mechanic_role) || gl.person.company_relations.include?(chief_mechanic_role)}
+    office_workers = leaves.reject{ |gl| gl.person.company_relations.include?(mechanic_role) || gl.person.company_relations.include?(roaming_mechanic_role) || gl.person.company_relations.include?(chief_mechanic_role) || gl.person.company_relations.include?(driver_role)}
+
+    pdf.text "Autisti"
+
+    # drivers.each_with_index do |d,i|
+    #   table = [['','Ne','Da','Mo']]
+    #   # table << [pdf.make_table([[pdf.make_cell(content: (i+1).to_s,size: 26)],[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)]],width: 75),
+    #   #         pdf.make_table([[pdf.make_cell(content: 'Uscita',size: 7)],[pdf.make_cell(content: closing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+    #   #         pdf.make_table([[pdf.make_cell(content: 'Ultima manutenzione',size: 7)],[pdf.make_cell(content: last_mantainance_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+    #   #         pdf.make_table([[pdf.make_cell(content: 'Ultimo controllo',size: 7)],[pdf.make_cell(content: last_checking_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+    #   #         pdf.make_table([[pdf.make_cell(content: 'Ultimo lavaggio',size: 7)],[pdf.make_cell(content: last_washing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+    #   #         pdf.make_table([[pdf.make_cell(content: 'Ultimo autista',size: 7)],[pdf.make_cell(content: last_driver,size: 13, font_style: :bold,height: 25)]],width: 165),]
+    #   table << [(i+1).to_s,d.person.list_name,d.from.strftime("%d/%m/%Y"),d.leave_code.description]
+    # end
+    #
+    # pdf.table table,
+    #   # :border_style => :grid,
+    #   # :font_size => 11,
+    #   :position => :center,
+    #   :column_widths => { 0 => 50, 1 => 223, 2 => 107, 3 => 160},
+    #   # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+    #   :row_colors => ["d2e3ed", "FFFFFF"]
+
+
+    # pdf.text "Meccanici"
+    # table = [['','Nome','Data','Motivo']]
+    # mechanics.each_with_index do |d,i|
+    #   table << [(i+1).to_s,d.person.list_name,d.from,d.leave_code.description]
+    # end
+    #
+    # pdf.table table,
+    #   # :border_style => :grid,
+    #   # :font_size => 11,
+    #   :position => :center,
+    #   :column_widths => { 0 => 210, 1 => 223, 2 => 107},
+    #   # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+    #   :row_colors => ["d2e3ed", "FFFFFF"]
+    #
+    #
+    pdf.text "Impiegati"
+    office_workers.each_with_index do |d,i|
+        pdf.table [[(i+1).to_s],pdf.make_table([[d.person.list_name],[d.complete_duration_label],[d.leave_code.description]])],
+        # :border_style => :grid,
+        # :font_size => 11,
+        :position => :center,
+        :column_widths => { 0 => 210, 1 => 223, 2 => 107},
+        # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+        :row_colors => ["d2e3ed", "FFFFFF"]
+    end
+
+
+
+
+    pdf.bounding_box([pdf.bounds.right - 50,pdf.bounds.bottom], :width => 60, :height => 20) do
+    	count = pdf.page_count
+    	pdf.text "Page #{count}"
+    end
+    pdf
+  end
+
   private
 
   def get_person
@@ -518,6 +594,7 @@ class PresenceController < ApplicationController
   end
 
   def leave_code_params
+    params.require(:leave_code)['afterhours'] = false if params.require(:leave_code)['afterhours'].nil?
     params.require(:leave_code).permit(:code, :afterhours, :description)
   end
 

@@ -43,4 +43,13 @@ class GrantedLeave < ApplicationRecord
   def duration_label(comparison_date)
     "#{self.duration(comparison_date)/3600}:#{((self.duration(comparison_date)%3600)/60).to_s.rjust(2,'0')}:#{(((self.duration(comparison_date)%3600)%60)).to_s.rjust(2,'0')}"
   end
+
+  def complete_duration_label
+    if self.from.strftime("%Y-%m-%d") == self.to.strftime("%Y-%m-%d")
+      "Dalle #{self.from.strftime("%H:%M")} alle #{self.to.strftime("%H:%M")}"
+    else
+      "Dal #{self.from.strftime("%d/%m/%Y")} al #{self.to.strftime("%d/%m/%Y")}"
+    end
+  end
+
 end

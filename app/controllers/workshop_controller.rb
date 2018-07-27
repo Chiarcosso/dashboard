@@ -273,6 +273,9 @@ class WorkshopController < ApplicationController
           'FlagSvolto': 'true',
           'CodiceOfficina': "0"
         })
+        # @worksheet.output_orders.each do |oo|
+        #   oo.update(processed: true)
+        # end
       else
         @worksheet.update(real_duration: params.require('worksheet_duration').to_i, log: "Scheda sospesa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       end

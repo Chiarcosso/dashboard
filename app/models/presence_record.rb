@@ -85,21 +85,19 @@ class PresenceRecord < ApplicationRecord
         if index == 0 && !working_schedule.nil?
           #if it's the first timestamp of the day compare starting time with agreed schedule
           # calculated_start = DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{working_schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
-          begin
+
           if pts.time.utc.strftime('%H:%M') < working_schedule.agreement_from.strftime('%H:%M')
             calculated_start = PresenceRecord.round_timestamp(pts.time,:+)
           else
             calculated_start = working_schedule.transform_to_date(pts.time.utc,:agreement_from)
           end
-        rescue Exception => e
-          byebug
-        end
 
           #if there's a delay create a leave
           if pts.time.utc.strftime('%H:%M') > (working_schedule.transform_to_date(pts.time,:agreement_from) + working_schedule.start_flexibility.minutes).strftime('%H:%M')
             #calculate delay fine
             unless GrantedLeave.where(date: date, person: person, leave_code: no_delay_leave).count > 0
               delay = PresenceRecord.round_delay(pts.time - working_schedule.transform_to_date(pts.time,:agreement_from))
+              
               GrantedLeave.create(person: person,
                                   leave_code: delay_leave,
                                   date: date,
