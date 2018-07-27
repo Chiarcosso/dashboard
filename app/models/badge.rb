@@ -3,6 +3,13 @@ class Badge < ApplicationRecord
   has_many :badge_assignments
   has_many :peole, through: :badge_assignments
 
+  scope :assigned, -> { where("id in (select badge_id from badge_assignments where badge_assignments.to = '1900-01-01')") }
+  scope :unassigned, -> { where("id not in (select badge_id from badge_assignments where badge_assignments.to = '1900-01-01')") }
+
+  def assigned?
+    self.badge_asssignments.reject{ |ba| ba.to == Date.strptime("1900-01-01","%Y-%m-%d")}.count > 0
+  end
+
   def current_holder
     Person.find_by_sql("select * from people where id = (select person_id from badge_assignments where to is null and badge_id = #{self.id} order by from desc limit 1) limit 1")
   end
