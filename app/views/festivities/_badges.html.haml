@@ -6,7 +6,7 @@
     = hidden_field_tag :tab, 'badges'
     .col-sm-1
       Codice
-      =select_tag 'badge_assignment[badge]', options_for_select(Badge.order(code: :asc).collect{|b| [b.code,b.id]}, include_blank: 'Selezionare badge'), class: 'form-control'
+      =select_tag 'badge_assignment[badge]', options_for_select(Badge.unassigned.order(code: :asc).collect{|b| [b.code,b.id]}, include_blank: 'Selezionare badge'), class: 'form-control'
     .col-sm-3
       Persona
       =select_tag 'badge_assignment[person]', options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, include_blank: 'Selezionare dipendente'), class: 'form-control'
