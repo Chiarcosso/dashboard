@@ -1,6 +1,6 @@
 class WorkshopController < ApplicationController
 
-  before_action :get_worksheet, except: [:get_sheet]
+  before_action :get_worksheet, except: [:get_sheet,:create_worksheet]
   before_action :get_check_session
   before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation]
   before_action :set_protocol
@@ -121,6 +121,59 @@ class WorkshopController < ApplicationController
 
       sgn = EurowinController::create_notification(payload)
       WorkshopOperation.create(name: 'Lavorazione', worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+      respond_to do |format|
+        format.js { render partial: 'workshop/worksheet_js' }
+      end
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def create_worksheet
+    begin
+      vehicle = params.require('Worksheet').permit(:model_name) == 'ExternalVehicle' ? ExternalVehicle.find(params.require('Worksheet').permit(:vehicle)['vehicle'].to_i) : Vehicle.find(params.require('Worksheet').permit(:vehicle)['vehicle'].to_i)
+      vehicle_refs = EurowinController::get_vehicle(vehicle)
+
+      payload = {
+        'Descrizione': params.require('Worksheet').permit('description')['description'],
+        'ProtocolloODL': '0',
+        'AnnoODL': '0',
+        'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
+        'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
+        'CodiceTarga': vehicle_refs['Targa'],
+        'Chilometraggio': vehicle_refs['Km'].to_s,
+        'CodiceOfficina': EurowinController::get_workshop(:workshop),
+        'FlagSvolto': 'false'
+      }
+
+      odl = EurowinController::create_worksheet(payload)
+      @worksheet  = Worksheet.create(code: "EWC*#{odl['Protocollo']}",vehicle: vehicle, notes: params.require('Worksheet').permit('description')['description'], opening_date: Date.current, log: "Scheda creata da #{current_user.person.list_name}.\n")
+
+
+      vec = vehicle.vehicle_checks('workshop')
+      if vec.size < 1
+        raise "Non ci sono controlli da fare per questo mezzo (targa: #{v.plate})."
+      end
+
+      if vehicle.class == ExternalVehicle
+
+        @check_session = VehicleCheckSession.create(date: Date.today,external_vehicle: vehicle, operator: current_user, theoretical_duration: vehicle.vehicle_checks('workshop').map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: @worksheet.number.to_i, worksheet: @worksheet, station: @station)
+
+      elsif vehicle.class == Vehicle
+
+        @check_session = VehicleCheckSession.create(date: Date.today,vehicle: vehicle, operator: current_user, theoretical_duration: vehicle.vehicle_checks('workshop').map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: @worksheet.number.to_i, worksheet: @worksheet, station: @station)
+
+      end
+      @checks = Hash.new
+      vec.each do |vc|
+        @checks[vc.code] = Array.new if @checks[vc.code].nil?
+        @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: vehicle.mandatory?(vc) )
+      end
+
+
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end

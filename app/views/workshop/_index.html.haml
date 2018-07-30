@@ -45,6 +45,10 @@
         .col-sm-6{ style: 'padding-bottom: 5.5em; height: 100%;'}
           #worksheet_side
             =render :partial => 'workshop/worksheet_side'
+      .row
+        .col-sm-6
+          %button{ class: 'create_popup no-loader', data: { popup_id: 'new_worksheet', html: (render partial: 'workshop/worksheet_popup') } }
+            Nuovo ODL
 
   .tab-pane#tab-ws-list
     .container-fluid
