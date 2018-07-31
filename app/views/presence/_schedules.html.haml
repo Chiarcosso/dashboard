@@ -7,12 +7,11 @@
     = hidden_field_tag 'person', @person.id
     = hidden_field_tag :tab, 'schedules'
     .col-sm-2
-      Giorno
       =select_tag 'working_schedule[weekday]', options_for_select(WorkingSchedule.weekdays), class: 'form-control'
     .col-sm-3
       .row
         .col-sm-5
-          Accordo dalle
+          Acorrdo. dalle
         .col-sm-7
           = time_field 'working_schedule', 'agreement_from', value: '08:00'
       .row
@@ -31,7 +30,9 @@
           Contratto alle
         .col-sm-7
           = time_field 'working_schedule', 'contract_to', value: '18:00'
-
+    .col-sm-1
+      Ore previste
+      = number_field_tag 'working_schedule[expected_hours]', 9,  min: 0, max: 24, step: 1, width: 2, style: 'width: 5em;'
     .col-sm-2
       .row
         .col-sm-6
@@ -87,7 +88,9 @@
             Contratto alle
           .col-sm-7
             = time_field 'working_schedule', 'contract_to', value: (ws.contract_to.nil?? nil : (ws.contract_to+2.hours).strftime('%H:%M'))
-
+      .col-sm-1
+        Ore previste
+        = number_field_tag 'working_schedule[expected_hours]', ws.expected_hours,  min: 0, max: 24, step: 1, width: 2, style: 'width: 5em;'
       .col-sm-2
         .row
           .col-sm-6

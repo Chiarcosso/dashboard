@@ -16,7 +16,7 @@ class VehiclePerformedCheck < ApplicationRecord
 
   # scope :last_checks, ->(vehicle) { joins(:vehicle_check_session).where('vehicle_check_sessions.vehicle_id = ?',vehicle.id).group(:vehicle_check_id).having('vehicle_performed_checks.time = max(vehicle_performed_checks.time)') }
 
-  enum fixvalues: ['Non eseguito','Ok','Aggiustato','Non applicabile','Non ok','Non ok bloccante']
+  enum fixvalues: ['Non eseguito','Ok','Eseguito/Aggiustato','Non applicabile','Non ok','Non ok bloccante']
 
   def blocking?
     self.performed == VehiclePerformedCheck.fixvalues['Non ok bloccante'].to_i

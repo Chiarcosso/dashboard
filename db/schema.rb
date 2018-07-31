@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180724112540) do
+ActiveRecord::Schema.define(version: 20180731145536) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -951,6 +951,7 @@ ActiveRecord::Schema.define(version: 20180724112540) do
     t.datetime "updated_at",                         null: false
     t.integer  "start_flexibility",  default: 0,     null: false
     t.integer  "break_flexibility",  default: 15,    null: false
+    t.integer  "expected_hours",     default: 9,     null: false
     t.index ["contractor"], name: "index_working_schedules_on_contractor", using: :btree
     t.index ["person_id", "weekday"], name: "index_working_schedules_on_person_id_and_weekday", unique: true, using: :btree
     t.index ["person_id"], name: "index_working_schedules_on_person_id", using: :btree

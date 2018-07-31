@@ -46,7 +46,7 @@
           #worksheet_side
             =render :partial => 'workshop/worksheet_side'
       .row
-        .col-sm-6
+        .col-sm-6{ style: 'bottom: 1.5em; text-align: right'}
           %button{ class: 'create_popup no-loader', data: { popup_id: 'new_worksheet', html: (render partial: 'workshop/worksheet_popup') } }
             Nuovo ODL
 

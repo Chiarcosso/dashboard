@@ -633,7 +633,7 @@ class PresenceController < ApplicationController
 
   def working_schedule_params
     p = Hash.new
-    params.require(:working_schedule).permit(:weekday, :agreement_from, :agreement_to, :contract_from, :contract_to, :break, :months_unpaid_days)
+    params.require(:working_schedule).permit(:weekday, :agreement_from, :agreement_to, :contract_from, :contract_to, :break, :months_unpaid_days, :expected_hours)
     p[:person] = @person
     p[:weekday] = params[:working_schedule][:weekday]
     p[:agreement_from] = params[:working_schedule][:agreement_from] == ''? nil :Time.strptime(params[:working_schedule][:agreement_from],"%H:%M")
@@ -642,6 +642,7 @@ class PresenceController < ApplicationController
     p[:contract_to] = params[:working_schedule][:contract_to] == ''? nil :Time.strptime(params[:working_schedule][:contract_to],"%H:%M")
     p[:break] = params[:working_schedule][:break]
     p[:months_unpaid_days] = params[:working_schedule][:months_unpaid_days]
+    p[:expected_hours] = params[:working_schedule][:expected_hours]
     if p[:agreement_from].nil? ^ p[:agreement_to].nil?
       raise "L'orario concordato non e' completo."
     end

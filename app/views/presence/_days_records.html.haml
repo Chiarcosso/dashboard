@@ -47,16 +47,23 @@
     .row
       .col-sm-12{style: 'white-space: nowrap'}
         -# - calculated_total = PresenceRecord.round_interval(actual_total)
+        -if ws.nil?
+          - afterhours = actual_total
+          - calculated_afterhours = calculated_total
+        -else
+          - afterhours = actual_total - ws.expected_hours * 3600
+          - calculated_afterhours = calculated_total - ws.expected_hours * 3600
 
-        = "#{actual_total/3600}:#{((actual_total%3600)/60).to_s.rjust(2,'0')}:#{(((actual_total%3600)%60)).to_s.rjust(2,'0')}"
+        = "#{actual_total/3600}:#{((actual_total%3600)/60).to_s.rjust(2,'0')}:#{(((actual_total%3600)%60)).to_s.rjust(2,'0')} (#{afterhours > 0 ? '+' : ''}#{(afterhours/3600).to_s.rjust(1,'0')}:#{((afterhours%3600)/60).to_s.rjust(2,'0')})"
+
         - @total_calculated_hours += calculated_total
         - @total_actual_hours += actual_total
         - if ws.nil?
           - @total_calculated_afterhours += calculated_total
           - @total_actual_afterhours += actual_total
         - elsif calculated_total > 0
-          - @total_calculated_afterhours += calculated_total - ws.duration_agreement
-          - @total_actual_afterhours += actual_total - ws.duration_agreement
+          - @total_calculated_afterhours += calculated_total - ws.expected_hours * 3600
+          - @total_actual_afterhours += afterhours
           - @unpayed_saturdays = ws.months_unpaid_days if saturday
 
         - if calculated_total > 0 && saturday
@@ -66,7 +73,7 @@
             - @total_actual_saturday_hours += actual_total
 
         %br
-        = "#{ws.duration_agreement_label} (#{ws.duration_contract_label})" unless ws.nil?
+        = "#{ws.duration_agreement_label}/#{ws.duration_contract_label} (#{afterhours > 0 ? '+' : ''}#{(calculated_afterhours/3600).to_s.rjust(1,'0')}:#{((calculated_afterhours%3600)/60).to_s.rjust(2,'0')})" unless ws.nil?
         =form_tag change_presence_time_path, method: :post, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#presence_list'} do |f|
           = hidden_field_tag :person, @person.id
           = hidden_field_tag :month, @month-1
