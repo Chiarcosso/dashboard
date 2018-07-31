@@ -1,6 +1,7 @@
 %h4= "Aggiungi ODL"
 = form_tag( create_workshop_worksheet_path, remote: true, method: :post) do |f|
   = text_field_tag 'Worksheet[vehicle_plate]', nil, placeholder: 'Targa..', id: 'focus_element', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_external_vehicle_autocomplete_path, target: 'Worksheet' }
+  = select_tag 'Worksheet[damage_type]', options_for_select(EurowinController::get_tipi_danno.collect{|dt| [dt['Descrizione'],dt['Codice']]}), class: 'form-control'
   = text_field_tag 'Worksheet[description]', nil, placeholder: 'Descrizione..', class: 'form-control', style: 'width: 80vw;'
   = hidden_field_tag 'Worksheet[vehicle_id]', nil, data: { target: 'Worksheet' }, class: 'autocomplete-field ac-VehicleCheckSession-vehicle'
   = hidden_field_tag 'Worksheet[vehicle_table]', nil, data: { target: 'Worksheet' }, class: 'autocomplete-field ac-VehicleCheckSession-vehicle'

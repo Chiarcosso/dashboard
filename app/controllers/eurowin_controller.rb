@@ -141,7 +141,7 @@ class EurowinController < ApplicationController
     payload['FlagStampato'] = "null" if payload['FlagStampato'].nil?
     payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
     payload['FlagJSONType'] = "sgn"
-    
+
     payload.each { |k,v| payload.delete(k) if v.nil? }
 
     request = HTTPI::Request.new
@@ -238,7 +238,15 @@ class EurowinController < ApplicationController
     return vehicle_refs
   end
 
-  def self.get_tipo_danno(tipodanno)
+  def self.get_tipi_danno
+    query = "select * from tabdesc where gruppo = 'AUTOTIPD' order by Descrizione"
+    ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
+    dt = ewc.query(query)
+    ewc.close
+    return dt
+  end
+
+  def self.get_tipo_danno(tipodanno, whole = false)
 
     if tipodanno.to_i > 0
       query = "select * from tabdesc where codice = #{tipodanno.gsub("'","''")} and gruppo = 'AUTOTIPD'"
@@ -248,8 +256,11 @@ class EurowinController < ApplicationController
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
     dt = ewc.query(query)
     ewc.close
-
-    return dt.first['Codice'] unless dt.count < 1
+    if whole
+      return dt.first
+    else
+      return dt.first['Codice'] unless dt.count < 1
+    end
   end
 
   private

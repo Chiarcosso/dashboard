@@ -146,11 +146,14 @@ class WorkshopController < ApplicationController
         'CodiceTarga': vehicle_refs['Targa'],
         'Chilometraggio': vehicle_refs['Km'].to_s,
         'CodiceOfficina': EurowinController::get_workshop(:workshop),
+        'TipoDanno': params.require('Worksheet').permit(:damage_type)['damage_type'],
         'FlagSvolto': 'false'
       }
 
       odl = EurowinController::create_worksheet(payload)
-      @worksheet  = Worksheet.create(code: "EWC*#{odl['Protocollo']}",vehicle: vehicle, notes: params.require('Worksheet').permit('description')['description'], opening_date: Date.current, log: "Scheda creata da #{current_user.person.list_name}.\n")
+
+      damage_type = EurowinController::get_tipo_danno(params.require('Worksheet').permit(:damage_type)['damage_type'],true)
+      @worksheet  = Worksheet.create(code: "EWC*#{odl['Protocollo']}",vehicle: vehicle, notes: damage_type['Descrizione']+" - "+params.require('Worksheet').permit('description')['description'], opening_date: Date.current, log: "Scheda creata da #{current_user.person.list_name}.\n")
 
 
       vec = vehicle.vehicle_checks('workshop')
