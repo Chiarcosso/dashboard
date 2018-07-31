@@ -32,7 +32,7 @@
           = time_field 'working_schedule', 'contract_to', value: '18:00'
     .col-sm-1
       Ore previste
-      = number_field_tag 'working_schedule[expected_hours]', 9,  min: 0, max: 24, step: 1, width: 2, style: 'width: 5em;'
+      = number_field_tag 'working_schedule[expected_hours]', 9,  min: 0, max: 24, step: 0.5, width: 2, style: 'width: 5em;'
     .col-sm-2
       .row
         .col-sm-6
@@ -48,7 +48,6 @@
       &nbsp
       =submit_tag 'Inserisci', class: 'form-control'
 %br
-%br
 .row
   .col-sm-2
     %b='Giorno'
@@ -59,53 +58,53 @@
   .col-sm-2
     %b='Dettagli'
   .col-sm-1
-
-- @person.working_schedules.order(weekday: :asc).each do |ws|
-  .row.colored
-    =form_tag edit_working_schedule_path(ws.id), method: :post, remote: true do |f|
-      = hidden_field_tag :tab, 'schedules'
-      .col-sm-2
-        =select_tag 'working_schedule[weekday]', options_for_select(WorkingSchedule.weekdays, selected:ws.weekday), class: 'form-control'
-      .col-sm-3
-        .row
-          .col-sm-5
-            Accordo dalle
-          .col-sm-7
-            = time_field 'working_schedule', 'agreement_from', value: (ws.agreement_from.nil?? nil : (ws.agreement_from+2.hours).strftime('%H:%M'))
-        .row
-          .col-sm-5
-            Contratto dalle
-          .col-sm-7
-            = time_field 'working_schedule', 'contract_from', value: (ws.contract_from.nil?? nil : (ws.contract_from+2.hours).strftime('%H:%M'))
-      .col-sm-3
-        .row
-          .col-sm-5
-            Accordo alle
-          .col-sm-7
-            = time_field 'working_schedule', 'agreement_to', value: (ws.agreement_to.nil?? nil : (ws.agreement_to+2.hours).strftime('%H:%M'))
-        .row
-          .col-sm-5
-            Contratto alle
-          .col-sm-7
-            = time_field 'working_schedule', 'contract_to', value: (ws.contract_to.nil?? nil : (ws.contract_to+2.hours).strftime('%H:%M'))
-      .col-sm-1
-        Ore previste
-        = number_field_tag 'working_schedule[expected_hours]', ws.expected_hours,  min: 0, max: 24, step: 1, width: 2, style: 'width: 5em;'
-      .col-sm-2
-        .row
-          .col-sm-6
-            Minuti pausa
-          .col-sm-6
-            =number_field_tag 'working_schedule[break]', ws.break, style: 'width: 3.5em'
-        .row
-          .col-sm-6
-            gg/mese non pagati
-          .col-sm-6
-            =number_field_tag 'working_schedule[months_unpaid_days]', ws.months_unpaid_days, style: 'width: 3.5em'
-      .col-sm-1
-        &nbsp
-        =submit_tag 'Modifica', class: 'form-control', data: {confirmation: "Modifcare l'orario del #{WorkingSchedule.weekdays.key(ws.weekday)} per #{@person.complete_name}?"}
-    .col-sm-1
-      =form_tag delete_working_schedule_path(ws.id), method: :delete, remote: true do |f|
+.scrollable-panel
+  - @person.working_schedules.order(weekday: :asc).each do |ws|
+    .row.colored
+      =form_tag edit_working_schedule_path(ws.id), method: :post, remote: true do |f|
         = hidden_field_tag :tab, 'schedules'
-        =submit_tag 'Elimina', class: 'form-control', data: {confirmation: "Eliminare l'orario del #{WorkingSchedule.weekdays.key(ws.weekday)} per #{@person.complete_name}?"}
+        .col-sm-2
+          =select_tag 'working_schedule[weekday]', options_for_select(WorkingSchedule.weekdays, selected:ws.weekday), class: 'form-control'
+        .col-sm-3
+          .row
+            .col-sm-5
+              Accordo dalle
+            .col-sm-7
+              = time_field 'working_schedule', 'agreement_from', value: (ws.agreement_from.nil?? nil : (ws.agreement_from+2.hours).strftime('%H:%M'))
+          .row
+            .col-sm-5
+              Contratto dalle
+            .col-sm-7
+              = time_field 'working_schedule', 'contract_from', value: (ws.contract_from.nil?? nil : (ws.contract_from+2.hours).strftime('%H:%M'))
+        .col-sm-3
+          .row
+            .col-sm-5
+              Accordo alle
+            .col-sm-7
+              = time_field 'working_schedule', 'agreement_to', value: (ws.agreement_to.nil?? nil : (ws.agreement_to+2.hours).strftime('%H:%M'))
+          .row
+            .col-sm-5
+              Contratto alle
+            .col-sm-7
+              = time_field 'working_schedule', 'contract_to', value: (ws.contract_to.nil?? nil : (ws.contract_to+2.hours).strftime('%H:%M'))
+        .col-sm-1
+          Ore previste
+          = number_field_tag 'working_schedule[expected_hours]', ws.expected_hours,  min: 0, max: 24, step: 0.5, width: 2, style: 'width: 5em;'
+        .col-sm-2
+          .row
+            .col-sm-6
+              Minuti pausa
+            .col-sm-6
+              =number_field_tag 'working_schedule[break]', ws.break, style: 'width: 3.5em'
+          .row
+            .col-sm-6
+              gg/mese non pagati
+            .col-sm-6
+              =number_field_tag 'working_schedule[months_unpaid_days]', ws.months_unpaid_days, style: 'width: 3.5em'
+        .col-sm-1
+          &nbsp
+          =submit_tag 'Modifica', class: 'form-control', data: {confirmation: "Modifcare l'orario del #{WorkingSchedule.weekdays.key(ws.weekday)} per #{@person.complete_name}?"}
+      .col-sm-1
+        =form_tag delete_working_schedule_path(ws.id), method: :delete, remote: true do |f|
+          = hidden_field_tag :tab, 'schedules'
+          =submit_tag 'Elimina', class: 'form-control', data: {confirmation: "Eliminare l'orario del #{WorkingSchedule.weekdays.key(ws.weekday)} per #{@person.complete_name}?"}

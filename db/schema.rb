@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180731145536) do
+ActiveRecord::Schema.define(version: 20180731160429) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -938,20 +938,20 @@ ActiveRecord::Schema.define(version: 20180731145536) do
   end
 
   create_table "working_schedules", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "person_id",                          null: false
+    t.integer  "person_id",                                     null: false
     t.time     "agreement_from"
     t.time     "agreement_to"
     t.time     "contract_from"
     t.time     "contract_to"
-    t.integer  "weekday",                            null: false
-    t.boolean  "contractor",         default: false, null: false
-    t.integer  "break",                              null: false
-    t.integer  "months_unpaid_days", default: 0,     null: false
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.integer  "start_flexibility",  default: 0,     null: false
-    t.integer  "break_flexibility",  default: 15,    null: false
-    t.integer  "expected_hours",     default: 9,     null: false
+    t.integer  "weekday",                                       null: false
+    t.boolean  "contractor",                    default: false, null: false
+    t.integer  "break",                                         null: false
+    t.integer  "months_unpaid_days",            default: 0,     null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
+    t.integer  "start_flexibility",             default: 0,     null: false
+    t.integer  "break_flexibility",             default: 15,    null: false
+    t.float    "expected_hours",     limit: 24, default: 9.0,   null: false
     t.index ["contractor"], name: "index_working_schedules_on_contractor", using: :btree
     t.index ["person_id", "weekday"], name: "index_working_schedules_on_person_id_and_weekday", unique: true, using: :btree
     t.index ["person_id"], name: "index_working_schedules_on_person_id", using: :btree
