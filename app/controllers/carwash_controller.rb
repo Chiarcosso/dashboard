@@ -7,7 +7,7 @@ class CarwashController < ApplicationController
   end
 
   def checks_index
-    @check_sessions = VehicleCheckSession.opened.order(created_at: :asc)+VehicleCheckSession.closed.order(finished: :desc).last_week
+    @check_sessions = VehicleCheckSession.where(station: 'carwash').opened.order(created_at: :asc)+VehicleCheckSession.where(station: 'carwash').closed.order(finished: :desc).last_week
     render 'carwash/checks_index'
   end
 
@@ -32,7 +32,7 @@ class CarwashController < ApplicationController
         end
         odl = VehicleCheckSession.create_worksheet(current_user,v,'PUNTO CHECK-UP','55','Controlli')
 
-        @check_session = VehicleCheckSession.create(date: Date.today,vehicle: v, operator: current_user, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: odl, worksheet: Worksheet.create(code: "EWC*#{odl}", vehicle: v, vehicle_type: v.class.to_s, opening_date: Date.current), station: 'workshop')
+        @check_session = VehicleCheckSession.create(date: Date.today,vehicle: v, operator: current_user, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: odl, worksheet: Worksheet.create(code: "EWC*#{odl}", vehicle: v, vehicle_type: v.class.to_s, opening_date: Date.current), station: @station.to_s)
       else
         raise "Veicolo non specificato (#{p[:model_name].inspect})"
       end

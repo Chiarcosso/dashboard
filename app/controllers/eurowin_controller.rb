@@ -129,6 +129,7 @@ class EurowinController < ApplicationController
     payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
     payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
     payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
+    payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
     # payload['UserInsert'] = current_user.person.complete_name.upcase if payload['UserInsert'].nil?
     # payload['DataPost'] = "0" if payload['DataPost'].nil?
     # payload['UserPost'] = "0" if payload['UserPost'].nil?
@@ -175,7 +176,7 @@ class EurowinController < ApplicationController
     payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
     payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
     payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
-    # payload.delete('CodiceAutista') if payload['CodiceAutista'].nil?
+
     # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
     # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
     # payload['TipoDanno'] = '55' if payload['TipoDanno'].nil?
