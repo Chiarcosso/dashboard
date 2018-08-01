@@ -1,7 +1,7 @@
 %h4= "Sposta segnalazione"
 =description
 = form_tag( deassociate_workshop_notification_path(@worksheet.number), remote: true, method: :post) do |f|
-  = text_field_tag :description, ActiveRecord::Base::sanitize(description), placeholder: 'Descrizione..', class: 'form-control', id: 'focus_element', style: 'width: 80vw;'
+  = text_field_tag :description, ActiveRecord::Base::sanitize(description).chomp("'").reverse.chomp("'").reverse, placeholder: 'Descrizione..', class: 'form-control', id: 'focus_element', style: 'width: 80vw;'
   = hidden_field_tag :protocol, protocol
   = hidden_field_tag :year, year
   = hidden_field_tag :damage_type, damage_type
