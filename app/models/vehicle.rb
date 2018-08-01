@@ -65,6 +65,11 @@ class Vehicle < ApplicationRecord
     end
   end
 
+  def last_maintainance
+    lm = EurowinController::last_maintainance(self)
+    Worksheet.find_by(code: "EWC*#{lm['Protocollo']}")
+  end
+
   def self.get_satellite_data
     r = Hash.new
 

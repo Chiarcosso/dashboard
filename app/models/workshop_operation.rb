@@ -9,6 +9,10 @@ class WorkshopOperation < ApplicationRecord
   def real_duration_label
     "#{(self.real_duration.to_i/3600).floor.to_s.rjust(2,'0')}:#{((self.real_duration.to_i/60)%60).floor.to_s.rjust(2,'0')}:#{(self.real_duration.to_i%60).floor.to_s.rjust(2,'0')}"
   end
+
+  def operator
+    self.user.person
+  end
   
   def ew_notification
     EurowinController::get_notification(self.myofficina_reference)

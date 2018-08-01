@@ -21,6 +21,18 @@ class Worksheet < ApplicationRecord
   # scope :incoming, ->(search,opened) { where(exit_time: nil, suspended: false, station: "workshop", closed: false).where(opened ? '1' : 'opening_date is not null').where(search.nil?? '1' : "(case worksheets.vehicle_type when 'Vehicle' then worksheets.vehicle_id in (select vehicle_informations.vehicle_id from vehicle_informations where information like '%#{search}%') when 'ExternalVehicle' then worksheets.vehicle_id in (select external_vehicles.id from external_vehicles where external_vehicles.plate like '%#{search}%') end) or code like '%#{search}%'") }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
+  def hour_unit_price
+    30
+  end
+
+  def material_unit_price
+    5
+  end
+
+  def damage_type
+    EurowinController::get_odl_tipo_danno(self,true)
+  end
+
   def opened?
     if self.closingDate.nil?
       return true
@@ -114,20 +126,44 @@ class Worksheet < ApplicationRecord
     "Valore ricambi: #{"%.2f" % items_price}€"
   end
 
+  def actual_hours(seconds = false)
+    if seconds
+      if self.hours == 0
+        self.real_duration
+      else
+        (self.hours.to_f * 3600).to_i
+      end
+    else
+      if self.hours == 0
+        self.real_duration.to_f/3600
+      else
+        self.hours.to_f
+      end
+    end
+  end
+
+  def actual_hours_label(complete = false)
+    if complete
+      "#{(self.actual_hours(true)/3600).floor.to_s}:#{((self.actual_hours(true)/60)%60).floor.to_s.rjust(2,'0')}:#{(self.actual_hours(true)%60).floor.to_s.rjust(2,'0')}"
+    else
+      "#{(self.actual_hours(true)/3600).floor.to_s}:#{((self.actual_hours(true)/60)%60).floor.to_s.rjust(2,'0')}"
+    end
+  end
+
   def hours_price
-    self.hours.to_f * 30
+    self.actual_hours.to_f * self.hour_unit_price
   end
 
   def hours_price_label
-    "Ore di lavoro: #{self.hours} (#{"%.2f" % self.hours_price}€)"
+    "Ore di lavoro: #{self.actual_hours_label} (#{"%.2f" % self.hours_unit_price}€)"
   end
 
   def hours_complete_price
-    ("%.2f" % self.hours_price.to_s+" € \n("+self.hours.to_s+' ore * 30,00€)').tr('.',',')
+    "#{"%.2f" % self.hours_price} € \n(#{self.actual_hours_label} * #{"%.2f" % self.hour_unit_price}€)".tr('.',',')
   end
 
   def materials_price
-    self.hours.to_f * 5
+    self.actual_hours.to_f * self.material_unit_price
   end
 
   def materials_price_label
@@ -135,7 +171,7 @@ class Worksheet < ApplicationRecord
   end
 
   def materials_complete_price
-    ("%.2f" % self.materials_price.to_s+" € \n("+self.hours.to_s+' ore * 5,00€)').tr('.',',')
+    "#{"%.2f" % self.materials_price} € \n(#{self.actual_hours_label} * #{"%.2f" % self.material_unit_price}€)".tr('.',',')
   end
 
   def total_price
@@ -299,6 +335,10 @@ class Worksheet < ApplicationRecord
       closing_date = self.closingDate.strftime('%d/%m/%Y')
     end
 
+    unless self.exit_time.nil?
+      closing_date = self.exit_time.strftime('%d/%m/%Y')
+    end
+
     unless vehicle.last_washing.nil?
       last_washing_date = vehicle.last_washing.ending_time.strftime('%d/%m/%Y')
     end
@@ -312,8 +352,12 @@ class Worksheet < ApplicationRecord
       end
     end
 
-    last_mantainance_date = nil
-
+    if self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO'
+      last_maintainance_date = self.exit_time.strftime('%d/%m/%Y')
+    else
+      last_maintainance_date = vehicle.last_maintainance.exit_time.strftime('%d/%m/%Y')
+    end
+    
     ld = vehicle.last_driver
     if ld.nil?
       last_driver = nil
@@ -354,8 +398,8 @@ class Worksheet < ApplicationRecord
 
       pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Entrata',size: 7)],[pdf.make_cell(content: opening_date,size: 13, font_style: :bold,height: 25)]],width: 75),
               pdf.make_table([[pdf.make_cell(content: 'Uscita',size: 7)],[pdf.make_cell(content: closing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-              pdf.make_table([[pdf.make_cell(content: 'Ultima manutenzione',size: 7)],[pdf.make_cell(content: last_mantainance_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-              pdf.make_table([[pdf.make_cell(content: 'Ultimo controllo',size: 7)],[pdf.make_cell(content: last_checking_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+              pdf.make_table([[pdf.make_cell(content: 'Km',size: 7)],[pdf.make_cell(content: vehicle.mileage.to_s,size: 13, font_style: :bold,height: 25)]],width: 75),
+              pdf.make_table([[pdf.make_cell(content: 'Ultima manutenzione',size: 7)],[pdf.make_cell(content: last_maintainance_date,size: 13, font_style: :bold,height: 25)]],width: 75),
               pdf.make_table([[pdf.make_cell(content: 'Ultimo lavaggio',size: 7)],[pdf.make_cell(content: last_washing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
               pdf.make_table([[pdf.make_cell(content: 'Ultimo autista',size: 7)],[pdf.make_cell(content: last_driver,size: 13, font_style: :bold,height: 25)]],width: 165),]],
         :position => :center,
@@ -377,8 +421,8 @@ class Worksheet < ApplicationRecord
       end
 
       ops = Array.new
-      WorkshopOperation.find_by(myofficina_reference: n['Protocollo'].to_i).to_a.each do |wo|
-        ops << [wo.name,wo.operator.complete_name,wo.real_time]
+      WorkshopOperation.where(myofficina_reference: n['Protocollo'].to_i).to_a.each do |wo|
+        ops << ["#{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",wo.operator.complete_name,wo.real_duration_label]
       end
       ops = [['','','']] if ops.count < 1
 
@@ -386,7 +430,7 @@ class Worksheet < ApplicationRecord
             :column_widths => { 0 => 45, 1 => 365, 2 => 90, 3 => 40}
 
       pdf.table ops,
-            :column_widths => { 0 => 130, 1 => 350, 2 => 60}
+            :column_widths => { 0 => 330, 1 => 150, 2 => 60}
 
       pdf.move_down 5
       # subtable = pdf.make_table([[sub1],[sub2]])
@@ -429,6 +473,28 @@ class Worksheet < ApplicationRecord
       :column_widths => { 0 => 210, 1 => 223, 2 => 107},
       # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
       :row_colors => ["d2e3ed", "FFFFFF"]
+
+      pdf.move_down 20
+      pdf.text 'Controlli eseguiti:'
+
+      table = [['Controllo','Valore','Risultato']]
+      total = 0.0
+      unless self.vehicle_check_session.nil?
+        self.vehicle_check_session.vehicle_performed_checks.each do |pc|
+          if pc.performed != 0
+            vc = pc.vehicle_check
+            table << ["#{vc.label}#{pc.notes.nil? ? '' : "\n ** Note: #{pc.notes}"}","#{pc.value}#{vc.measure_unit}","#{pc.result_label}"]
+          end
+        end
+      end
+
+      pdf.table table,
+        # :border_style => :grid,
+        # :font_size => 11,
+        :position => :center,
+        :column_widths => { 0 => 340, 1 => 80, 2 => 120},
+        # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+        :row_colors => ["d2e3ed", "FFFFFF"]
 
     pdf.bounding_box([pdf.bounds.right - 50,pdf.bounds.bottom], :width => 60, :height => 20) do
     	count = pdf.page_count

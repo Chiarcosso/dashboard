@@ -274,7 +274,7 @@ class WorkshopController < ApplicationController
 
   def finish_operation
     begin
-      @workshop_operation.update(ending_time: DateTime.now, real_duration: params.require('timesend').to_i, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+      @workshop_operation.update(ending_time: DateTime.now, real_duration: params.require('timesend').to_i, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       #close notification if name == 'Lavorazione'
       EurowinController::create_notification({
@@ -332,6 +332,7 @@ class WorkshopController < ApplicationController
         @worksheet.output_orders.each do |oo|
           oo.update(processed: true)
         end
+        WorkshopMailer.send_worksheet(@worksheet).deliver_now
       else
         @worksheet.update(real_duration: params.require('worksheet_duration').to_i, log: "Scheda sospesa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       end

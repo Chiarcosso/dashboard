@@ -30,6 +30,10 @@ class ExternalVehicle < ApplicationRecord
               "order by finished desc limit 1").first
   end
 
+  def mileage
+    nil
+  end
+  
   def mandatory?(vc)
     vc.importance == 9 ? true : false
   end

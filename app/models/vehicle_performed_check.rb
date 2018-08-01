@@ -18,6 +18,10 @@ class VehiclePerformedCheck < ApplicationRecord
 
   enum fixvalues: ['Non eseguito','Ok','Eseguito/Aggiustato','Non applicabile','Non ok','Non ok bloccante']
 
+  def result_label
+    VehiclePerformedCheck.fixvalues.key(self.performed)
+  end
+
   def blocking?
     self.performed == VehiclePerformedCheck.fixvalues['Non ok bloccante'].to_i
   end

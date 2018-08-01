@@ -102,6 +102,18 @@ class EurowinController < ApplicationController
     r
   end
 
+  def self.last_maintainance(vehicle)
+    ewc = get_ew_client
+    r = ewc.query("select * from autoodl "\
+    "where codiceautomezzo in (#{vehicle.mssql_references.map{|mr| mr.remote_object_id}.join(',')}) "\
+    "and CodiceTipoDanno = '#{get_tipo_danno('MANUTENZIONE')}' or CodiceTipoDanno = '#{get_tipo_danno('COLLAUDO')}' "\
+    "and FlagSchedaChiusa like 'true' "\
+    "order by DataUscitaVeicolo desc limit 1").first
+    ewc.close
+
+    r
+  end
+
   def self.last_open_odl_not(protocol)
     odl = get_worksheet(protocol)
 
@@ -245,6 +257,20 @@ class EurowinController < ApplicationController
     dt = ewc.query(query)
     ewc.close
     return dt
+  end
+
+  def self.get_odl_tipo_danno(odl, whole = false)
+
+    query = "select * from tabdesc where gruppo = 'AUTOTIPD' and Codice = (select CodiceTipoDanno from autoodl where protocollo = #{odl.number})"
+    ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
+    dt = ewc.query(query)
+    ewc.close
+
+    if whole
+      return dt.first
+    else
+      return dt.first['Codice'] unless dt.count < 1
+    end
   end
 
   def self.get_tipo_danno(tipodanno, whole = false)
