@@ -5,7 +5,7 @@ class WorkshopMailer < ApplicationMailer
   def send_worksheet(ws)
 
     # notify_to = ['officina@chiarcosso.it','ufficioit@chiarcosso.com']
-    notify_to = ['ufficioit@chiarcosso.com']
+    notify_to = ['schede.officina@chiarcosso.com']
     vehicle = ws.vehicle
 
     message = "ODL nr. #{ws.number}\n\n"\
@@ -16,7 +16,7 @@ class WorkshopMailer < ApplicationMailer
 
     attachments["odl_nr_#{ws.number}.pdf"] = {:mime_type => 'application/pdf', :content => ws.sheet.render }
     mail(body: message, subject: "ODL nr. #{ws.number} - #{ws.vehicle.plate} - #{ws.notes}", to: notify_to)
-    
+
   end
 
 end
