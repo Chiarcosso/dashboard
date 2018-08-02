@@ -318,17 +318,17 @@ class WorkshopController < ApplicationController
         WorkshopOperation.find(ot['id'].to_i).update(real_duration: ot['time'].to_i)
       end
       if params.require('perform') == 'stop'
-        @worksheet.update(real_duration: params.require('worksheet_duration').to_i, exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
-        vcs = @worksheet.vehicle_check_session
-        vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
-        EurowinController::create_worksheet({
-          'ProtocolloODL': @worksheet.ew_worksheet['Protocollo'].to_s,
-          'AnnoODL': @worksheet.ew_worksheet['Anno'].to_s,
-          'DataIntervento': @worksheet.ew_worksheet['DataIntervento'].to_s,
-          'DataUscitaVeicolo': Date.today.strftime("%Y-%m-%d"),
-          'FlagSvolto': 'true',
-          'CodiceOfficina': "0"
-        })
+        # @worksheet.update(real_duration: params.require('worksheet_duration').to_i, exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+        # vcs = @worksheet.vehicle_check_session
+        # vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+        # EurowinController::create_worksheet({
+        #   'ProtocolloODL': @worksheet.ew_worksheet['Protocollo'].to_s,
+        #   'AnnoODL': @worksheet.ew_worksheet['Anno'].to_s,
+        #   'DataIntervento': @worksheet.ew_worksheet['DataIntervento'].to_s,
+        #   'DataUscitaVeicolo': Date.today.strftime("%Y-%m-%d"),
+        #   'FlagSvolto': 'true',
+        #   'CodiceOfficina': "0"
+        # })
         @worksheet.output_orders.each do |oo|
           oo.update(processed: true)
         end

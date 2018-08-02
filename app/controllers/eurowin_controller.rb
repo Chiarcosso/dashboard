@@ -104,13 +104,14 @@ class EurowinController < ApplicationController
 
   def self.last_maintainance(vehicle)
     ewc = get_ew_client
-    r = ewc.query("select * from autoodl "\
+    query = "select * from autoodl "\
     "where codiceautomezzo in (#{vehicle.mssql_references.map{|mr| mr.remote_object_id}.join(',')}) "\
-    "and CodiceTipoDanno = '#{get_tipo_danno('MANUTENZIONE')}' or CodiceTipoDanno = '#{get_tipo_danno('COLLAUDO')}' "\
+    "and (CodiceTipoDanno = '#{get_tipo_danno('MANUTENZIONE')}' or CodiceTipoDanno = '#{get_tipo_danno('COLLAUDO')}') "\
     "and FlagSchedaChiusa like 'true' "\
-    "order by DataUscitaVeicolo desc limit 1").first
+    "order by DataUscitaVeicolo desc limit 1"
+    r = ewc.query(query).first
     ewc.close
-
+    
     r
   end
 
