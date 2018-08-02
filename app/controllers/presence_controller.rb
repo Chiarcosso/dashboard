@@ -515,9 +515,9 @@ class PresenceController < ApplicationController
     office_workers = leaves.reject{ |gl| gl.person.company_relations.include?(mechanic_role) || gl.person.company_relations.include?(roaming_mechanic_role) || gl.person.company_relations.include?(chief_mechanic_role) || gl.person.company_relations.include?(driver_role)}
 
     pdf.text "Impiegati",size: 20, font_style: :bold
-    office_workers.each_with_index do |d,i|
-      pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 25, align: :center, valign: :center),
-        pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25,borders: [])],
+    office_workers.sort_by{|d| d.person.list_name }.each_with_index do |d,i|
+      pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
+        pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
           [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [])],
           [pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [])]],width: 490)]],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
@@ -534,9 +534,9 @@ class PresenceController < ApplicationController
     pdf.move_down 20
 
     pdf.text "Operai",size: 20, font_style: :bold
-    mechanics.each_with_index do |d,i|
-      pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 25, align: :center, valign: :center),
-        pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25,borders: [])],
+    mechanics.sort_by{|d| d.person.list_name }.each_with_index do |d,i|
+      pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
+        pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
           [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [])],
           [pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [])]],width: 490)]],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
@@ -553,9 +553,9 @@ class PresenceController < ApplicationController
     pdf.move_down 20
 
     pdf.text "Autisti",size: 20, font_style: :bold
-    drivers.each_with_index do |d,i|
+    drivers.sort_by{|d| d.person.list_name }.each_with_index do |d,i|
       pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
-        pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 18, font_style: :bold,height: 27,borders: [])],
+        pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
           [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [])],
           [pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [])]],width: 490)]],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
