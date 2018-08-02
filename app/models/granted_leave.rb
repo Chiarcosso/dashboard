@@ -56,4 +56,27 @@ class GrantedLeave < ApplicationRecord
     end
   end
 
+  def self.upsync_all
+
+    leaves = MssqlReference.query({table: 'permessi'},'chiarcosso_test')
+    leaves.each do |l|
+      begin
+        person = Person.find_by_reference(l['persona_id'])
+        next if person.nil?
+        leave_code = LeaveCode.find_or_create_by_mssql_reference(l['codice_id'])
+        from_time = Time.strptime("#{l['da'].strftime("%Y-%m-%d %H:%M:%S")} #{PresenceController.actual_timezone(l['da'])}","%Y-%m-%d %H:%M:%S %Z")
+        to_time = Time.strptime("#{l['a'].strftime("%Y-%m-%d %H:%M:%S")} #{PresenceController.actual_timezone(l['a'])}","%Y-%m-%d %H:%M:%S %Z")
+        
+        if GrantedLeave.find_by(person: person, leave_code: leave_code, from: from_time, to: to_time).nil?
+          if l['da'].strftime('%Y-%m-%d') == l['a'].strftime('%Y-%m-%d')
+            date = Date.strptime(l['da'].strftime('%Y-%m-%d'),"%Y-%m-%d")
+          end
+          GrantedLeave.create(person: person, leave_code: leave_code, from: from_time, to: to_time, date: date)
+        end
+      rescue Exception => e
+        byebug
+      end
+    end
+
+  end
 end

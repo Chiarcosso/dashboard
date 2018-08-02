@@ -297,12 +297,12 @@ class PresenceController < ApplicationController
   def add_leave
     begin
       begin
-        from = DateTime.strptime("#{params.require(:date)} #{params.require(:time_from)}:00 CEST", "%Y-%m-%d %H:%M:%S %Z")
+        from = DateTime.strptime("#{params.require(:date)} #{params.require(:time_from)}:00 #{PresenceController.actual_timezone(params.require(:date))}", "%Y-%m-%d %H:%M:%S %Z")
       rescue
         @error = 'Ora inizio valida.'
       end
       begin
-        to = DateTime.strptime("#{params.require(:date)} #{params.require(:time_to)}:00 CEST", "%Y-%m-%d %H:%M:%S %Z")
+        to = DateTime.strptime("#{params.require(:date)} #{params.require(:time_to)}:00  #{PresenceController.actual_timezone(params.require(:date))}", "%Y-%m-%d %H:%M:%S %Z")
       rescue
         @error = 'Ora fine non valida.'
       end
@@ -330,11 +330,13 @@ class PresenceController < ApplicationController
   def delete_leave
     begin
       gl = GrantedLeave.find(params.require(:id))
-      date = gl.from
+      from = gl.from
+      to = gl.to
+      deleted_code = gl.leave_code
       gl.delete
       date = from
       while date <= to do
-        PresenceRecord.recalculate(date,@person)
+        PresenceRecord.recalculate(date,@person,[deleted_code])
         date += 1.days
       end
       respond_to do |format|
@@ -502,7 +504,7 @@ class PresenceController < ApplicationController
     pdf.move_down 40
     codes = LeaveCode.where(afterhours: 1)
 
-    leaves = GrantedLeave.where("'#{date.strftime("%Y-%m-%d")}' = granted_leaves.date or '#{date.strftime("%Y-%m-%d")}' between granted_leaves.from and granted_leaves.to and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
+    leaves = GrantedLeave.where("'#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date) or '#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
     driver_role = CompanyRelation.find_by(name: 'Autista')
     mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
     roaming_mechanic_role = CompanyRelation.find_by(name: 'Meccanico trasfertista')

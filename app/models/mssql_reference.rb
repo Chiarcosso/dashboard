@@ -432,7 +432,7 @@ class MssqlReference < ApplicationRecord
   def self.query(query,db = ENV['RAILS_MSSQL_DB'])
     c = TinyTds::Client.new username: ENV['RAILS_MSSQL_USER'], password: ENV['RAILS_MSSQL_PASS'], host: ENV['RAILS_MSSQL_HOST'], port: ENV['RAILS_MSSQL_PORT'], database: db
 
-    q = "select * from [#{query[:table].gsub("'","''")}]"
+    q = "select * from [#{query[:table].to_s.gsub("'","''")}]"
 
     #check conditions
     unless query[:where].nil?
@@ -449,7 +449,7 @@ class MssqlReference < ApplicationRecord
       end
       q += " where #{w.join(' and ')};"
     end
-
+    
     res = []
     c.execute(q).each do |r|
       res << r
