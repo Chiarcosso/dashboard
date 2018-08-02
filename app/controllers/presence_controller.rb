@@ -483,7 +483,7 @@ class PresenceController < ApplicationController
     for day in 1..Time.days_in_month(@month-1,@year)
       date = Time.strptime("#{@year}-#{(@month-1).to_s.rjust(2,'0')}-#{day.to_s.rjust(2,'0')} 00:00:00","%Y-%m-%d %H:%M:%S")
       csv += "#{@person.list_name};#{date.strftime("%d/%m/%Y")};"
-      GrantedLeave.where(person: @person).where("'#{date.strftime("%Y-%m-%d")}' = granted_leaves.date or ('#{date.strftime("%Y-%m-%d")}' between granted_leaves.from and granted_leaves.to)").where("leave_code_id in (#{studio_codes.map{|sc| sc.id}.join(',')})").each do |gl|
+      GrantedLeave.where(person: @person).where("'#{date.strftime("%Y-%m-%d")}' = granted_leaves.date or ('#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to))").where("leave_code_id in (#{studio_codes.map{|sc| sc.id}.join(',')})").each do |gl|
         csv += "#{gl.duration_label(date,false)};#{gl.leave_code.code};" if gl.duration(date) > 0
       end
       csv += "\n"
