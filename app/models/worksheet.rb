@@ -355,9 +355,9 @@ class Worksheet < ApplicationRecord
     if self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO'
       last_maintainance_date = self.exit_time.strftime('%d/%m/%Y')
     else
-      last_maintainance_date = vehicle.last_maintainance.exit_time.strftime('%d/%m/%Y')
+      last_maintainance_date = vehicle.last_maintainance.exit_time.strftime('%d/%m/%Y') unless vehicle.last_maintainance.nil?
     end
-    
+
     ld = vehicle.last_driver
     if ld.nil?
       last_driver = nil

@@ -67,7 +67,11 @@ class Vehicle < ApplicationRecord
 
   def last_maintainance
     lm = EurowinController::last_maintainance(self)
-    Worksheet.find_by(code: "EWC*#{lm['Protocollo']}")
+    if lm.nil?
+      nil
+    else
+      Worksheet.find_by(code: "EWC*#{lm['Protocollo']}")
+    end
   end
 
   def self.get_satellite_data
@@ -323,7 +327,7 @@ class Vehicle < ApplicationRecord
 
   def self.find_by_plate(plate)
     v = Vehicle.where("id in (select vehicle_id from vehicle_informations where vehicle_information_type_id = #{VehicleInformationType.plate.id} and upper(information) = '#{plate.upcase}')").last
-    v = ExternalVehicle.where(plate: plate).last if v.nil?
+    v = ExternalVehicle.where("upper(plate) = #{plate.upcase}").last if v.nil?
     v
   end
 
