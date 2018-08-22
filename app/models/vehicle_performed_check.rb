@@ -83,7 +83,7 @@ class VehiclePerformedCheck < ApplicationRecord
   end
 
   def message
-    measure_unit = self.vehicle_check.measure_unit
+    measure_unit = self.vehicle_check.measure_unit.to_s
     lvr = self.last_valid_reading
     case self.performed
     when 0 then
@@ -95,7 +95,7 @@ class VehiclePerformedCheck < ApplicationRecord
     when 3 then
       "#{self.vehicle_check.label} non applicabile.#{self.notes.nil?? '' : ' '+self.notes+'.'}"
     when 4 then
-      "#{self.vehicle_check.label} non a posto. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}..#{self.notes.nil?? '' : ' '+self.notes+'.'}"
+      "#{self.vehicle_check.label} non a posto. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value.to_s+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}..#{self.notes.nil?? '' : ' '+self.notes+'.'}"
     when 5 then
       "BLOCCANTE -- #{self.vehicle_check.label}: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}..#{self.notes.nil?? '' : ' '+self.notes+'.'}"
     end
