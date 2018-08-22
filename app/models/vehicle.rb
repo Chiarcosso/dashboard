@@ -107,7 +107,9 @@ class Vehicle < ApplicationRecord
 
       begin
         v = Vehicle.find_by_plate(k[0])
-        v.update(mileage: k[1].to_i)
+        if v.mileage > k[1].to_i
+          v.update(mileage: k[1].to_i)
+        end
       rescue Exception => e
         @error = e.message+"\n\n"+k.inspect
         puts @error
@@ -327,7 +329,7 @@ class Vehicle < ApplicationRecord
 
   def self.find_by_plate(plate)
     v = Vehicle.where("id in (select vehicle_id from vehicle_informations where vehicle_information_type_id = #{VehicleInformationType.plate.id} and upper(information) = '#{plate.upcase}')").last
-    v = ExternalVehicle.where("upper(plate) = #{plate.upcase}").last if v.nil?
+    v = ExternalVehicle.where("upper(plate) = '#{plate.to_s.gsub("'","''").upcase}'").last if v.nil?
     v
   end
 

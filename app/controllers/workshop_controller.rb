@@ -135,7 +135,7 @@ class WorkshopController < ApplicationController
   def create_worksheet
     begin
       if params['Worksheet']['vehicle'].nil? || params['Worksheet']['vehicle'] == ''
-        vehicle = Vehicle.find_by_plate(params.require('Worksheet')['vehicle_plate'])
+        vehicle = Vehicle.find_by_plate(params.require('Worksheet')['vehicle_plate'].gsub(' ',''))
       else
         vehicle = params.require('Worksheet').permit(:model_name) == 'ExternalVehicle' ? ExternalVehicle.find(params.require('Worksheet').permit(:vehicle)['vehicle'].to_i) : Vehicle.find(params.require('Worksheet').permit(:vehicle)['vehicle'].to_i)
       end
