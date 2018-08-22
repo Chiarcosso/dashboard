@@ -255,7 +255,7 @@ class PresenceController < ApplicationController
         #get the working schedule for that day and set from timestamp
         date_from =Time.strptime(params.require(:date_from),"%Y-%m-%d")
         ws = WorkingSchedule.get_schedule(date_from,@person)
-        raise 'Orario di inizio non presente' if ws.nil?
+        raise 'Orario data inizio non presente' if ws.nil?
         from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.strftime("%H:%M:%S")} #{self.actual_timezone(date_from)}", "%Y-%m-%d %H:%M:%S %Z")
       rescue
         @error = 'Data inizio non valida.'
@@ -264,7 +264,7 @@ class PresenceController < ApplicationController
         #get the working schedule for that day and set from timestamp
         date_to = Time.strptime(params.require(:date_to),"%Y-%m-%d")
         ws = WorkingSchedule.get_schedule(date_to,@person)
-        raise 'Orario di fine non presente' if ws.nil?
+        raise 'Orario data fine non presente' if ws.nil?
         to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.strftime("%H:%M:%S")} #{self.actual_timezone(date_to)}", "%Y-%m-%d %H:%M:%S %Z")
       rescue
         @error = 'Data fine non valida.'
@@ -274,7 +274,7 @@ class PresenceController < ApplicationController
       # date = Date.strptime(params.require(:date),"%Y-%m-%d")
 
       if GrantedLeave.find_by(from: from, to: to, person: person, leave_code: leave_code).nil?
-        GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code, date: from.strftime("%Y-%m-%d") == to.strftime("%Y-%m-%d") ? date : nil)
+        GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code, date: from.strftime("%Y-%m-%d") == to.strftime("%Y-%m-%d") ? from : nil)
       end
 
       date = from

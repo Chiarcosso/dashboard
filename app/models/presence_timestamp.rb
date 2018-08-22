@@ -5,7 +5,7 @@ class PresenceTimestamp < ApplicationRecord
 
   scope :real_timestamps, -> { where(added: false, deleted: false) }
   scope :date, ->(date) {where("year(time) = #{date.strftime("%Y")} and month(time) = #{date.strftime("%-m")} and day(time) = #{date.strftime("%e")}")}
-  scope :badges, ->(badges) {where("badge_id in (select #{badges.map{|b| b.id}.join(',')})")}
+  scope :badges, ->(badges) {where("badge_id in (#{badges.map{|b| b.id}.join(',')})")}
   belongs_to :sensor
 
   enum months: ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']

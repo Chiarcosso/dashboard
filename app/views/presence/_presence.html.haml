@@ -15,7 +15,7 @@
         %h3="Presenze: "#{@person.list_name}"
       .col-sm-2
         %br
-        =select_tag :person, options_for_select(Person.employees.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
+        =select_tag :person, options_for_select(Person.with_badge.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
       .col-sm-2
         %br
         = select_tag :month, options_for_select(PresenceTimestamp.months, @month-1), class: 'form-control submitting-select'
