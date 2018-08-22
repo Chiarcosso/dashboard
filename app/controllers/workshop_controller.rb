@@ -134,7 +134,6 @@ class WorkshopController < ApplicationController
 
   def create_worksheet
     begin
-      byebug
       if params['Worksheet']['vehicle'].nil? || params['Worksheet']['vehicle'] == ''
         vehicle = Vehicle.find_by_plate(params.require('Worksheet')['vehicle_plate'])
       else
