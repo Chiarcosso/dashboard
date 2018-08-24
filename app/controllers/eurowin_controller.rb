@@ -143,7 +143,7 @@ class EurowinController < ApplicationController
     payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
     payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
     payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
-    payload['UserInsert'] = payload['CodiceAutista'].gsub("'","\\'") if payload['UserInsert'].nil?
+    payload['UserInsert'] = payload['CodiceAutista'].gsub("'","\\'") unless payload['UserInsert'].nil?
     # payload['DataPost'] = "0" if payload['DataPost'].nil?
     # payload['UserPost'] = "0" if payload['UserPost'].nil?
     # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
