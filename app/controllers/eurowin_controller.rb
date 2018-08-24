@@ -143,7 +143,7 @@ class EurowinController < ApplicationController
     payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
     payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
     payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
-    # payload['UserInsert'] = current_user.person.complete_name.upcase if payload['UserInsert'].nil?
+    payload['UserInsert'] = payload['CodiceAutista'].gsub("'","\\'") if payload['UserInsert'].nil?
     # payload['DataPost'] = "0" if payload['DataPost'].nil?
     # payload['UserPost'] = "0" if payload['UserPost'].nil?
     # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
@@ -241,7 +241,7 @@ class EurowinController < ApplicationController
     when 'Altri Mezzi' then
       field = 'COD'
     end
-    
+
     opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
     vehicle_refs['CodiceAutista'] = ewc.query("select codice from autisti where ragionesociale = '#{opcode}'").first
