@@ -107,7 +107,7 @@ class WorkshopController < ApplicationController
         'Descrizione': params.require('description'),
         'ProtocolloODL': params.require('protocol'),
         'AnnoODL': Date.current.strftime('%Y'),
-        'UserInsert': current_user.person.complete_name.upcase,
+        'UserInsert': current_user.person.complete_name.upcase.gsub("'","\'"),
         'UserPost': 'OFFICINA',
         'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
         'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
