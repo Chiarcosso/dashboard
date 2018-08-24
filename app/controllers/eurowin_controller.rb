@@ -111,7 +111,7 @@ class EurowinController < ApplicationController
     "order by DataUscitaVeicolo desc limit 1"
     r = ewc.query(query).first
     ewc.close
-    
+
     r
   end
 
@@ -241,6 +241,7 @@ class EurowinController < ApplicationController
     when 'Altri Mezzi' then
       field = 'COD'
     end
+    
     opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
     vehicle_refs['CodiceAutista'] = ewc.query("select codice from autisti where ragionesociale = '#{opcode}'").first

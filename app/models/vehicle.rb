@@ -424,9 +424,9 @@ class Vehicle < ApplicationRecord
     else
       f = nil
     end
-
     unless f.nil?
       where = msr.map{ |r| "#{f} = #{r.remote_object_id} " }.join(" or ")
+      where = "(#{where}) and"
     end
     query = "select top 1 IdAutista as id "\
                 "from giornale "\
