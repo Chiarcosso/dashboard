@@ -11,8 +11,6 @@ class BadgeAssignment < ApplicationRecord
     #        to: Date
 
     #attempt to find
-    # badge_assignment = BadgeAssignment.find_by(badge_id: data[:badge].id, person_id: data[:person].id, from: data[:from], to: data[:to])
-    
     badge_assignment = BadgeAssignment.find_by(data)
 
     #if not found create or else update

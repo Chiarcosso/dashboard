@@ -477,6 +477,47 @@ class PresenceController < ApplicationController
     end
   end
 
+  def add_badge_assignment
+    begin
+      badge = Badge.find(params.require(:badge).to_i)
+      person = Person.find(params.require(:person).to_i)
+      if badge.assigned?({from: params.require(:from), to: params.require(:to)})
+        raise "Il badge è assegnato a #{badge.holders({from: params.require(:from), to: params.require(:to)}).map{ |p| p.list_name}.join(', ')} nel periodo specificato."
+      else
+        BadgeAssignment.create(badge: badge, person: person, from: params.require(:from), to: params.require(:to))
+      end
+
+      respond_to do |format|
+        format.js { render partial: 'festivities/manage_js' }
+      end
+    rescue Exception => e
+      @error = e.message
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
+  def edit_badge_assignment
+    begin
+      badge_assignment = BadgeAssignment.find(params.require(:id))
+      if badge.assigned?({from: params.require(:from), to: params.require(:to)})
+        raise "Il badge è assegnato a #{badge.holders({from: params.require(:from), to: params.require(:to)}).map{ |p| p.list_name}.join(', ')} nel periodo specificato."
+      else
+        badge_assignment.update(from: params.require(:from), to: params.require(:to))
+      end
+
+      respond_to do |format|
+        format.js { render partial: 'festivities/manage_js' }
+      end
+    rescue Exception => e
+      @error = e.message
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
   def download_csv
     csv = ''
     studio_codes = LeaveCode.where(studio_relevant: true)

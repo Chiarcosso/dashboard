@@ -4,17 +4,40 @@ class Badge < ApplicationRecord
   has_many :peole, through: :badge_assignments
 
   scope :assigned, -> { where("id in (select badge_id from badge_assignments where badge_assignments.to = '1900-01-01')") }
-  scope :unassigned, -> { where("id not in (select badge_id from badge_assignments where badge_assignments.to = '1900-01-01')") }
+  scope :unassigned, -> { where("id not in (select badge_id from badge_assignments where badge_assignments.to = '1900-01-01') "\
+                          "or id in (select badge_id from badge_assignments where badge_assignments.to != '1900-01-01' and badge_assignments.to < '#{Date.today.strftime('%Y-%m-%d')}')") }
 
-  def assigned?
-    self.badge_asssignments.reject{ |ba| ba.to == Date.strptime("1900-01-01","%Y-%m-%d")}.count > 0
+  def assigned?(data)
+    # if data.nil?
+    #   self.badge_asssignments.reject{ |ba| ba.to == Date.strptime("1900-01-01","%Y-%m-%d")}.count > 0
+    # else
+    #   if data[:from].nil?
+    #     BadgeAssigments.where("badge_assignments.to < #{data[:from]}")
+    #   else
+    #     BadgeAssignments.where(badge: self).where("(badge_assignments.from between '#{data[:from].strftime('%Y-%m-%d')}' and '#{data[:to].strftime('%Y-%m-%d')}') "\
+    #               "or (badge_assignments.to between '#{data[:from].strftime('%Y-%m-%d')}' and '#{data[:to].strftime('%Y-%m-%d')}' "\
+    #               "or ('#{data[:from].strftime('%Y-%m-%d')}' between badge_assignments.from and badge_assignments.to").count > 0
+    #   end
+    # end
+    self.holders(data).count > 0
+  end
+
+  def holders(data = {from: Time.today, to: nil})
+    if data[:from].nil?
+      BadgeAssigments.where("badge_assignments.to > '#{data[:from].strftime('%Y-%m-%d')}'")
+    else
+      Person.find_by_sql("select * from people where id = (select person_id from badge_assignments "\
+                "where ((badge_assignments.from between '#{data[:from].strftime('%Y-%m-%d')}' and '#{data[:to].strftime('%Y-%m-%d')}') "\
+                "or (badge_assignments.to between '#{data[:from].strftime('%Y-%m-%d')}' and '#{data[:to].strftime('%Y-%m-%d')}') "\
+                "or ('#{data[:from].strftime('%Y-%m-%d')}' between badge_assignments.from and badge_assignments.to)) and badge_id = #{self.id} order by from desc limit 1) limit 1")
+    end
   end
 
   def current_holder
     Person.find_by_sql("select * from people where id = (select person_id from badge_assignments where to is null and badge_id = #{self.id} order by from desc limit 1) limit 1")
   end
 
-  def person(date = Date.today)
+  def day_holder(date = Date.today)
     Person.find_by_sql("select * from people where id = (select person_id from badge_assignments where ((badge_assignments.to = '1900-01-01' and '#{date.strftime("%Y-%m-%d")}' >= badge_assignments.from) or ('#{date.strftime("%Y-%m-%d")}' between badge_assignments.from and badge_assignments.to)) and badge_id = #{self.id} order by badge_assignments.from desc limit 1) limit 1").first
   end
 
