@@ -11,6 +11,7 @@
   .col-sm-7
     %b= 'Badge (persona)'
 
+
 .scrollable-panel{style: 'height: 45vh; width: 80vw;'}
   - PresenceTimestamp.date(@day).badges(@person.badges(@day)).each do |ts|
     .row.colored
@@ -20,6 +21,8 @@
         = ts.sensor.name
       .col-sm-7
         = "#{ts.badge.code} (#{@person.list_name})"
+        = 'Aggiunto' if ts.added
+        = 'Rimosso' if ts.deleted
 
 
 .close

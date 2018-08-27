@@ -74,7 +74,9 @@ class PresenceRecord < ApplicationRecord
 
     #for every timestamp on that day with those badges calculate records
     presence_timestamps = PresenceTimestamp.where("deleted = 0 and sensor_id in (select id from sensors where presence_relevant = 1) "\
-                        "and badge_id in (#{badges.map{|b|b.id}.join (',')})").where("(year(time) = #{date.strftime('%Y')} and month(time) = #{date.strftime('%m')} and day(time) = #{date.strftime('%d')})").order(time: :asc).to_a
+                        "and badge_id in (#{badges.map{|b|b.id}.join (',')})").where("(year(time) = #{date.strftime('%Y')} and month(time) = #{date.strftime('%-m')} "\
+                        "and day(time) = #{date.strftime('%-d')})").order(time: :asc).to_a
+                        
     presence_timestamps.each_with_index do |pts,index|
       if index%2 == 0
 
@@ -99,7 +101,7 @@ class PresenceRecord < ApplicationRecord
             #calculate delay fine
             unless GrantedLeave.where(date: date, person: person, leave_code: no_delay_leave).count > 0 or dont_create.include?(delay_leave)
               delay = PresenceRecord.round_delay(pts.time - working_schedule.transform_to_date(pts.time,:agreement_from))
-              
+
               GrantedLeave.create(person: person,
                                   leave_code: delay_leave,
                                   date: date,

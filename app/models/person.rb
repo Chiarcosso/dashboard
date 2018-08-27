@@ -36,6 +36,7 @@ class Person < ApplicationRecord
     return true
   end
 
+  def
   def current_badges
     # Badge.where("id in (select badge_id from badge_assignments where person_id = #{self.id} and badge_assignments.to = '1900-01-01')")
     self.badges

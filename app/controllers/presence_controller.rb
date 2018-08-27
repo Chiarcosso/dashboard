@@ -218,7 +218,7 @@ class PresenceController < ApplicationController
     begin
       pr = PresenceTimestamp.find(params.require(:id))
       date = pr.time
-      person = pr.badge.person(date)
+      person = pr.badge.day_holder(date)
       pr.update(deleted: true)
       PresenceRecord.recalculate(date,person)
       respond_to do |format|
