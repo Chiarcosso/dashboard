@@ -125,7 +125,7 @@ class PresenceController < ApplicationController
 
             #set last_date and person
             last_date = time if last_date.nil?
-            person = badge.person(last_date)
+            person = badge.day_holder(last_date)
 
             #add person if exists and the sensor is relevant
             people[person.id.to_s] = person unless person.nil? || !sensor.presence_relevant
@@ -160,7 +160,7 @@ class PresenceController < ApplicationController
         # fname = "#{ENV['RAILS_CAME_PATH']}Sto#{month.to_s.rjust(2,'0')}#{year}.sto"
       end
     rescue Exception => e
-      special_logger.info("#{e.message}\n\n#{e.backtrace.join("\n")}\n")
+      special_logger.error("#{e.message}\n\n#{e.backtrace.join("\n")}\n")
     end
   end
 
