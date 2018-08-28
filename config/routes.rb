@@ -240,6 +240,7 @@ Rails.application.routes.draw do
   post    '/presence/download_csv', to: 'presence#download_csv', as: :presence_download_csv
   post   '/presence/manage/update', to: 'presence#manage_presence', as: :update_presence
   post   '/presence/manage/', to: 'presence#manage_presence', as: :reload_presence
+  post   '/presence/manage/', to: 'presence#manage_presence', as: :reload_building_presence
   get   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence
   post   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence_post
 

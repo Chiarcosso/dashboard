@@ -25,6 +25,7 @@ class Person < ApplicationRecord
   scope :order_mdc_user, -> { order(:mdc_user)}
   scope :employees, -> { joins(:companies).where("company_id = #{Company.chiarcosso.id} or company_id = #{Company.transest.id}").distinct }
   scope :with_badge, -> { where("id in (select person_id from badge_assignments)") }
+  scope :building_employees, -> { where("id in (select person_id from working_schedules)") }
   # scope :drivers, -> { include(:relations).where("relations.name = 'Autista'") }
   # scope :company, ->(name) { joins(:companies).where('company.name like ?',"%#{name}%") }
   def check_properties(comp)
@@ -42,6 +43,10 @@ class Person < ApplicationRecord
     self.badges
   end
 
+  def last_presence_record
+    PresenceRecord.where(person: self).order(id: :desc).limit(1).first
+  end
+
   def badges(date = nil)
     if date.nil?
       where = "badge_assignments.to = '1900-01-01'"
@@ -49,6 +54,10 @@ class Person < ApplicationRecord
       where = "(case when badge_assignments.to is null or badge_assignments.to = '1900-01-01' then '#{date.strftime("%Y-%m-%d")}' >= badge_assignments.from else '#{date.strftime("%Y-%m-%d")}' between badge_assignments.from and badge_assignments.to end)"
     end
     Badge.where("id in (select badge_id from badge_assignments where person_id = #{self.id} and #{where})")
+  end
+
+  def granted_leaves_date(date = Time.today)
+    GrantedLeaves.where(person: self).where("year(granted_leaves.from) = #{date.strftime("%Y")} and month(granted_leaves.from) = #{date.strftime("%-m")} and day(granted_leaves.from) = #{date.strftime("%-d")}")
   end
 
   def has_reference?(table,id)

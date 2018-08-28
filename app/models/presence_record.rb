@@ -120,7 +120,9 @@ class PresenceRecord < ApplicationRecord
           # end
         else
 
-          if previous_record[:break]
+          if previous_record.nil?
+            calculated_start = pts.time.to_datetime
+          elsif previous_record[:break]
             #if the previous record i a break start from when it ended
             calculated_start = previous_record.calculated_end
           else

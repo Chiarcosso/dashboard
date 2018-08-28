@@ -45,6 +45,7 @@ class PresenceController < ApplicationController
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join('<br>')
+      byebug
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
       end

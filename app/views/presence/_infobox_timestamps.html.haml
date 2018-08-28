@@ -13,16 +13,18 @@
 
 
 .scrollable-panel{style: 'height: 45vh; width: 80vw;'}
-  - PresenceTimestamp.date(@day).badges(@person.badges(@day)).each do |ts|
-    .row.colored
-      .col-sm-2
-        = ts.time.strftime("%d/%m/%Y %H:%M:%S")
-      .col-sm-2
-        = ts.sensor.name
-      .col-sm-7
-        = "#{ts.badge.code} (#{@person.list_name})"
-        = 'Aggiunto' if ts.added
-        = 'Rimosso' if ts.deleted
+  - badges = @person.badges(@day)
+  - if badges.count > 0
+    - PresenceTimestamp.date(@day).badges(@person.badges(@day)).each do |ts|
+      .row.colored
+        .col-sm-2
+          = ts.time.strftime("%d/%m/%Y %H:%M:%S")
+        .col-sm-2
+          = ts.sensor.name
+        .col-sm-7
+          = "#{ts.badge.code} (#{@person.list_name})"
+          = 'Aggiunto' if ts.added
+          = 'Rimosso' if ts.deleted
 
 
 .close
