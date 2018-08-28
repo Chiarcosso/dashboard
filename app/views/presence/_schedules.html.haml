@@ -7,7 +7,7 @@
     = hidden_field_tag 'person', @person.id
     = hidden_field_tag :tab, 'schedules'
     .col-sm-2
-      =select_tag 'working_schedule[weekday]', options_for_select(WorkingSchedule.weekdays), class: 'form-control'
+      =select_tag 'working_schedule[weekday]', options_for_select(WorkingSchedule.weekdays), include_blank: 'Selezionare giorno', class: 'form-control'
     .col-sm-3
       .row
         .col-sm-5

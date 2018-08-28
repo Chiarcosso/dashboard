@@ -42,7 +42,7 @@ body{
   margin: .5em;
 }
 
-.colored:nth-child(even){
+.colored:nth-child(odd){
   background-color: #eee;
 }
 

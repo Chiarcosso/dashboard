@@ -76,7 +76,8 @@ class PresenceRecord < ApplicationRecord
     presence_timestamps = PresenceTimestamp.where("deleted = 0 and sensor_id in (select id from sensors where presence_relevant = 1) "\
                         "and badge_id in (#{badges.map{|b|b.id}.join (',')})").where("(year(time) = #{date.strftime('%Y')} and month(time) = #{date.strftime('%-m')} "\
                         "and day(time) = #{date.strftime('%-d')})").order(time: :asc).to_a
-                        
+
+    previous_record = nil
     presence_timestamps.each_with_index do |pts,index|
       if index%2 == 0
 
@@ -118,25 +119,31 @@ class PresenceRecord < ApplicationRecord
           #   byebug
           # end
         else
-          #otherwise get it from the timestamp
-          calculated_start = pts.time.to_datetime
+
+          if previous_record[:break]
+            #if the previous record i a break start from when it ended
+            calculated_start = previous_record.calculated_end
+          else
+            #otherwise get it from the timestamp
+            calculated_start = pts.time.to_datetime
+          end
         end
         if next_pts.nil?
           #if it's the last timestamp, ending time is open
           calculated_end = nil
         else
           #otherwise
-          if presence_timestamps[index+2].nil? && !working_schedule.nil?
-            #if the next is the last get ending time from working schedule
-            # calculated_end = DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{working_schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
-            calculated_end = PresenceRecord.round_timestamp(next_pts.time)
-          else
+          # if presence_timestamps[index+2].nil? && !working_schedule.nil?
+          #   #if the next is the last get ending time from working schedule
+          #   # calculated_end = DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{working_schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
+          #   calculated_end = PresenceRecord.round_timestamp(next_pts.time)
+          # else
             #if not get it from the next timestamp
             calculated_end = next_pts.nil? ? nil : next_pts.time.to_datetime
-          end
+          # end
         end
 
-        PresenceRecord.create(date: date,
+        previous_record = PresenceRecord.create(date: date,
                             person: person,
                             start_ts: pts,
                             end_ts: next_pts,
@@ -145,6 +152,7 @@ class PresenceRecord < ApplicationRecord
                             actual_duration: next_pts.nil? ? 0 : (next_pts.time - pts.time).round,
                             calculated_duration: next_pts.nil? ? 0 : (calculated_end.to_i - calculated_start.to_i),
                             break: false)
+
         actual_total += next_pts.nil? ? 0 : (next_pts.time - pts.time).round
       else
 
@@ -159,14 +167,14 @@ class PresenceRecord < ApplicationRecord
           #start must be the pts' time
           calculated_start = pts.time.to_datetime
 
-          # #end will be the next timetamp
-          if working_schedule.nil?
-            calculated_end = next_pts.time.to_datetime
-          else
-            calculated_end = pts.time+working_schedule.break.minutes
-          end
-
-          PresenceRecord.create(date: date,
+          #end will be the rounded next timestamp
+          # if working_schedule.nil?
+          #   calculated_end = next_pts.time.to_datetime
+          # else
+          #   calculated_end = pts.time+working_schedule.break.minutes
+          # end
+          calculated_end = pts.time+PresenceRecord.round_interval(next_pts.time - pts.time,:+)
+          previous_record = PresenceRecord.create(date: date,
                               person: person,
                               start_ts: pts,
                               end_ts: next_pts,
@@ -175,13 +183,15 @@ class PresenceRecord < ApplicationRecord
                               actual_duration: next_pts.nil? ? 0 : (next_pts.time - pts.time).round,
                               calculated_duration: (calculated_end.to_i - calculated_start.to_i).round,
                               break: true)
+
         end
       end
     end
 
     c_total = 0
     PresenceRecord.where(date: date, person: person, break: false).each do |pr|
-      c_total += pr.actual_duration
+      # c_total += pr.actual_duration
+      c_total += pr.calculated_duration
     end
     GrantedLeave.where(date: date, person: person).each do |gl|
       c_total += gl.duration(date) * gl.leave_code.afterhours
