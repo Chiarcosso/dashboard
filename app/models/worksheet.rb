@@ -200,8 +200,9 @@ class Worksheet < ApplicationRecord
         "(select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
-        "and Protocollo = #{protocol} limit 1")
+        "where Protocollo = #{protocol} limit 1")
       ewc.close
+
       if res.count > 0
         ws = Worksheet.upsync_ws(res.first)
       end
@@ -235,21 +236,23 @@ class Worksheet < ApplicationRecord
       else
         station = odl['CodiceAnagrafico'].to_s
       end
+      
       if ws.nil?
         if odl['DataIntervento'].nil?
           closingDate = Date.today
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : nil
         end
-        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: "#{odl['TipoDanno']} - #{odl['Note']}", suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].upcase == 'TRUE' ? true : false)
+        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: "#{odl['TipoDanno']} - #{odl['Note']}", suspended: odl['FlagProgrammazioneSospesa'].to_s.upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].to_s.upcase == 'TRUE' ? true : false)
       else
         if odl['DataIntervento'].nil?
           closingDate = Date.today
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : ws.closingDate
         end
-        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: "#{odl['TipoDanno']} - #{odl['Note']}", suspended: odl['FlagProgrammazioneSospesa'].upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].upcase == 'TRUE' ? true : false)
+        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: "#{odl['TipoDanno']} - #{odl['Note']}", suspended: odl['FlagProgrammazioneSospesa'].to_s.upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].to_s.upcase == 'TRUE' ? true : false)
       end
+      ws
     rescue Exception => e
       # @error = e.message if @error.nil?
       @error =  "#{e.message}\n\n#{e.backtrace}"
