@@ -10,7 +10,7 @@ class GrantedLeave < ApplicationRecord
 
       #if is less than a day
       if self.from.strftime("%Y-%m-%d") == self.to.strftime("%Y-%m-%d")
-        return (self.to - self.from).to_i
+        return (self.to - self.from).to_i - self.break.minutes
       else
 
         #if we compare with the leave's starting date
@@ -66,7 +66,7 @@ class GrantedLeave < ApplicationRecord
         leave_code = LeaveCode.find_or_create_by_mssql_reference(l['codice_id'])
         from_time = Time.strptime("#{l['da'].strftime("%Y-%m-%d %H:%M:%S")} #{PresenceController.actual_timezone(l['da'])}","%Y-%m-%d %H:%M:%S %Z")
         to_time = Time.strptime("#{l['a'].strftime("%Y-%m-%d %H:%M:%S")} #{PresenceController.actual_timezone(l['a'])}","%Y-%m-%d %H:%M:%S %Z")
-        
+
         if GrantedLeave.find_by(person: person, leave_code: leave_code, from: from_time, to: to_time).nil?
           if l['da'].strftime('%Y-%m-%d') == l['a'].strftime('%Y-%m-%d')
             date = Date.strptime(l['da'].strftime('%Y-%m-%d'),"%Y-%m-%d")

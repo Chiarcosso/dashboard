@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180731160429) do
+ActiveRecord::Schema.define(version: 20180829092622) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -340,15 +340,16 @@ ActiveRecord::Schema.define(version: 20180731160429) do
     t.index ["name"], name: "index_geo_states_on_name", unique: true, using: :btree
   end
 
-  create_table "granted_leaves", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
-    t.integer  "leave_code_id", null: false
-    t.integer  "person_id",     null: false
+  create_table "granted_leaves", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "leave_code_id",             null: false
+    t.integer  "person_id",                 null: false
+    t.datetime "from",                      null: false
+    t.datetime "to",                        null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.date     "date"
-    t.datetime "from",          null: false
-    t.datetime "to",            null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.index ["date"], name: "index_granted_leaves_on_date", using: :btree
+    t.integer  "break",         default: 0, null: false
+    t.index ["leave_code_id", "person_id", "from", "to"], name: "granted_leaves_uniqs", unique: true, using: :btree
     t.index ["leave_code_id"], name: "index_granted_leaves_on_leave_code_id", using: :btree
     t.index ["person_id"], name: "index_granted_leaves_on_person_id", using: :btree
   end
@@ -532,7 +533,7 @@ ActiveRecord::Schema.define(version: 20180731160429) do
     t.index ["serial"], name: "index_prepaid_cards_on_serial", unique: true, using: :btree
   end
 
-  create_table "presence_records", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "presence_records", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "date",                null: false
     t.integer  "start_ts_id",         null: false
     t.integer  "end_ts_id"
@@ -551,7 +552,7 @@ ActiveRecord::Schema.define(version: 20180731160429) do
     t.index ["start_ts_id"], name: "index_presence_records_on_start_ts_id", using: :btree
   end
 
-  create_table "presence_timestamps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "presence_timestamps", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "badge_id",                   null: false
     t.datetime "time"
     t.integer  "sensor_id",                  null: false
@@ -594,7 +595,7 @@ ActiveRecord::Schema.define(version: 20180731160429) do
     t.index ["name"], name: "index_roles_on_name", using: :btree
   end
 
-  create_table "sensors", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "sensors", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "number"
     t.string   "name"
     t.boolean  "presence_relevant"

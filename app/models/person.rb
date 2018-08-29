@@ -56,8 +56,8 @@ class Person < ApplicationRecord
     Badge.where("id in (select badge_id from badge_assignments where person_id = #{self.id} and #{where})")
   end
 
-  def granted_leaves_date(date = Time.today)
-    GrantedLeaves.where(person: self).where("year(granted_leaves.from) = #{date.strftime("%Y")} and month(granted_leaves.from) = #{date.strftime("%-m")} and day(granted_leaves.from) = #{date.strftime("%-d")}")
+  def granted_leaves_date(date = Time.now)
+    GrantedLeave.where(person: self).where("year(granted_leaves.from) = #{date.strftime("%Y")} and month(granted_leaves.from) = #{date.strftime("%-m")} and day(granted_leaves.from) = #{date.strftime("%-d")}")
   end
 
   def has_reference?(table,id)
