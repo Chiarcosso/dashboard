@@ -44,7 +44,68 @@ class Person < ApplicationRecord
   end
 
   def last_presence_record
-    PresenceRecord.where(person: self).order(id: :desc).limit(1).first
+    PresenceRecord.joins("inner join presence_timestamps pt on pt.id = presence_records.start_ts_id").where(person: self).order("pt.time desc").limit(1).first
+  end
+
+  def present?(time = Time.now)
+    lr = self.last_presence_record(time)
+    if lr.nil? || lr.break
+      false
+    else
+      true
+    end
+  end
+
+  def presence_check(time = Time.now)
+    lr = self.last_presence_record
+    schedule = WorkingSchedule.find_by(person: self, weekday: time.strftime('%w').to_i)
+
+    if lr.nil?
+      return :away
+    else
+      if lr.time_in_record(time)
+        #if time is in the last record it's either a break or presence
+        if lr.break
+          return :away
+        else
+          #if out between working schedule the missing or breaking
+          start_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
+          end_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
+          if time >= start_time+2.hours && time <= end_time+2.hours
+            return :present
+          else
+            return :not_requested
+          end
+        end
+      else
+        #if not it must be out
+        if schedule.nil?
+          return :away
+        else
+          #if out between working schedule the missing or breaking
+          start_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
+          end_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
+          if time >= start_time+2.hours && time <= end_time+2.hours
+            return :missing
+          else
+            return :away
+          end
+        end
+      end
+    end
+  end
+
+  def presence_check_style(time = Time.now)
+    case self.presence_check(time)
+    when :present then
+      'background-color: #5f5'
+    when :missing then
+      'background-color: #f55'
+    when :away then
+      ''
+    when :not_requested then
+      'background-color: #ff5'
+    end
   end
 
   def badges(date = nil)
@@ -57,7 +118,7 @@ class Person < ApplicationRecord
   end
 
   def granted_leaves_date(date = Time.now)
-    GrantedLeave.where(person: self).where("year(granted_leaves.from) = #{date.strftime("%Y")} and month(granted_leaves.from) = #{date.strftime("%-m")} and day(granted_leaves.from) = #{date.strftime("%-d")}")
+    GrantedLeave.where(person: self).where("'#{date.strftime("%Y-%m-%d")}' between date_format(granted_leaves.from,'%Y-%m-%d') and date_format(granted_leaves.to,'%Y-%m-%d')")
   end
 
   def has_reference?(table,id)

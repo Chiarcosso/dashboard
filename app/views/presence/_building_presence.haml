@@ -18,7 +18,7 @@
 
   .scrollable-panel#building_presence_list{style: 'height: 75vh;'}
     - Person.building_employees.order(surname: :asc).each do |p|
-      .row.colored
+      .row.colored{style: p.presence_check_style(Time.now)}
         .col-sm-3
           = p.list_name
         .col-sm-3
@@ -30,4 +30,4 @@
               = pr.end_ts.time.strftime('%d/%m/%Y %H:%M:%S') + " (#{pr.end_ts.sensor.name})"
 
         .col-sm-6
-          = p.granted_leaves_date(Time.now).map{ |gl| gl.leave_code.code + " " + gl.complete_duration_label }.join(', ')
+          = p.granted_leaves_date(Time.now).reject{ |gl| gl.leave_code.code == 'ORIT' }.map{ |gl| gl.leave_code.description + " " + gl.complete_duration_label.downcase }.join(', ')

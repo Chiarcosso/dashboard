@@ -17,6 +17,18 @@ class PresenceRecord < ApplicationRecord
     end
   end
 
+  def time_in_record(time = Time.now)
+    if time > self.start_ts.time && self.end_ts.nil?
+      return true
+    else
+      if time >= self.start_ts.time && time <= self.end_ts.time
+        return true
+      else
+        false
+      end
+    end
+  end
+
   def self.round_delay(interval)
     delay = 15*(2**((((interval.to_i/60)-1)/15)/2))
     delay = 2 * 60 if delay > 2 * 60
