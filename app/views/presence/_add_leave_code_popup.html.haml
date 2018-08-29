@@ -4,6 +4,7 @@
   = hidden_field_tag :person, @person.id
   = hidden_field_tag :month, @month-1
   = hidden_field_tag :year, @year
+  = hidden_field_tag :tab, 'presence'
   = hidden_field_tag :date, date.strftime("%Y-%m-%d")
   Dalle
   = time_field_tag :time_from, nil, class: "form-control", id: 'focus_element'

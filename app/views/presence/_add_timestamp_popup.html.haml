@@ -5,6 +5,7 @@
   = hidden_field_tag :month, @month-1
   = hidden_field_tag :year, @year
   = hidden_field_tag :date, date.strftime("%Y-%m-%d")
+  = hidden_field_tag :tab, 'presence'
   = time_field_tag :time, nil, class: "form-control focus_element"
   =select_tag :sensor, options_for_select(Sensor.where(presence_relevant: true).order(name: :asc).collect{|s| [s.name,s.id]}), include_blank: 'Selezionare un sensore', class: "form-control"
   = submit_tag 'Aggiungi', class: "form-control"

@@ -11,7 +11,7 @@
 
 .row
   .tab-content
-    %div{style: 'height:85%', id: 'tab-building_presence', class: @tab.nil? || @tab == 'schedules' ? 'tab-pane active' : 'tab-pane'}
+    %div{style: 'height:85%', id: 'tab-building_presence', class: @tab.nil? || @tab == 'building_presence' ? 'tab-pane active' : 'tab-pane'}
       = render partial: 'presence/building_presence'
     %div{style: 'height:85%', id: 'tab-presence', class: @tab == 'presence' ? 'tab-pane active' : 'tab-pane'}
       = render partial: 'presence/presence'

@@ -29,6 +29,7 @@
                 = hidden_field_tag :month, @month-1
                 = hidden_field_tag :year, @year
                 = hidden_field_tag :id, r.start_ts.id
+                = hidden_field_tag :tab, 'presence'
                 = submit_tag "#{r.start_ts.added ? '*' : ''}#{r.start_ts.time.strftime("%H:%M:%S")} X", class: 'small-btn no-infobox-link', data: {confirmation: "Rimouvere la timbratura delle #{r.start_ts.time.strftime("%H:%M:%S")} di #{@person.list_name}?"}
             = r.calculated_start.time.strftime("%H:%M:%S")
           .col-sm-6
@@ -38,6 +39,7 @@
                 = hidden_field_tag :month, @month-1
                 = hidden_field_tag :year, @year
                 = hidden_field_tag :id, r.end_ts.id
+                = hidden_field_tag :tab, 'presence'
                 = submit_tag "#{r.end_ts.added ? '*' : ''}#{r.end_ts.time.strftime("%H:%M:%S")} X",class: 'small-btn no-infobox-link', data: {confirmation: "Rimouvere la timbratura delle #{r.end_ts.time.strftime("%H:%M:%S")} di #{@person.list_name}?"}
             = r.calculated_end.time.strftime("%H:%M:%S") unless r.calculated_end.nil?
   .col-sm-1
@@ -79,6 +81,7 @@
           = hidden_field_tag :month, @month-1
           = hidden_field_tag :year, @year
           = hidden_field_tag :date, day
+          = hidden_field_tag :tab, 'presence'
           = time_field_tag :set_total, "#{(calculated_total/3600).to_s.rjust(2,'0')}:#{((calculated_total%3600)/60).to_s.rjust(2,'0')}", class: 'no-infobox-link'
           = submit_tag '>', class: 'no-infobox-link'
         -# %b="#{calculated_total/3600}:#{((calculated_total%3600)/60).to_s.rjust(2,'0')}:#{(((calculated_total%3600)%60)).to_s.rjust(2,'0')}"
@@ -90,6 +93,7 @@
         = hidden_field_tag :year, @year
         = hidden_field_tag :date, day
         = hidden_field_tag :id, gl.id
+        = hidden_field_tag :tab, 'presence'
         = submit_tag "#{gl.leave_code.code} (#{gl.duration_label(day)}) X", class: 'small-btn no-infobox-link', data: {confirmation: "Rimouvere il codice #{gl.leave_code.code} di #{@person.list_name}?"}
   .col-sm-1
     %button{ class: "small-btn create_popup no-infobox-link", id: "add_timestamp", data: { popup_id: 'add_timestamp', route: add_timestamp_path, html: (render partial: "presence/add_timestamp_popup", locals: {person: @person, date: day }) } }
