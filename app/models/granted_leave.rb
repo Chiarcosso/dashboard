@@ -3,8 +3,20 @@ class GrantedLeave < ApplicationRecord
   belongs_to :leave_code
   belongs_to :person
 
+  def time_in_leave(time = Time.now)
+
+    if time >= self.from && time <= self.to
+      true
+    else
+      false
+    end
+  end
+
   def duration(comparison_date)
 
+    #if the comparison date is festive return 0
+    return 0 if Festivity.is_festive?(comparison_date)
+    
     #if the comparison date is between the leave dates
     if comparison_date.strftime("%Y-%m-%d") >= self.from.strftime("%Y-%m-%d") && comparison_date.strftime("%Y-%m-%d") <= self.to.strftime("%Y-%m-%d")
 
@@ -55,6 +67,13 @@ class GrantedLeave < ApplicationRecord
       "Dal #{self.from.strftime("%d/%m/%Y")} al #{self.to.strftime("%d/%m/%Y")}"
     end
   end
+
+  def self.check_journal
+    journal = MssqlReference.query({table: 'GIORNALE', where: {IDViaggi: ['MAMAMA','FEFEFE','PEPEPE','INININ'], Data: Time.now.strftime('%Y-%m-%d')}})
+    dashboard = GrantedLeave.where("'#{Time.now.strftime('%Y-%m-%d')}' between date_format(granted_leaves.from,'%Y-%m-%d') and date_format(granted_leaves.to,'%Y-%m-%d')")
+
+  end
+
 
   def self.upsync_all
 

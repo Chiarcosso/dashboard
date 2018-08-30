@@ -59,6 +59,7 @@ class Person < ApplicationRecord
   def presence_check(time = Time.now)
     lr = self.last_presence_record
     schedule = WorkingSchedule.find_by(person: self, weekday: time.strftime('%w').to_i)
+    gl = self.granted_leaves_date(time)
 
     if lr.nil?
       return :away
@@ -86,6 +87,10 @@ class Person < ApplicationRecord
           start_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
           end_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
           if time >= start_time+2.hours && time <= end_time+2.hours
+            return :break if time - lr.end_ts.time < schedule.break*60
+            gl.each do |leave|
+              return :away if leave.time_in_leave(time)
+            end
             return :missing
           else
             return :away
@@ -99,6 +104,8 @@ class Person < ApplicationRecord
     case self.presence_check(time)
     when :present then
       'background-color: #5f5'
+    when :break then
+      'background-color: #bf9'
     when :missing then
       'background-color: #f55'
     when :away then

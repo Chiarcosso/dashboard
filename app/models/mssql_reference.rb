@@ -442,14 +442,22 @@ class MssqlReference < ApplicationRecord
         #build where condition
         condition = "= '#{condition.gsub("'","''")}'" if condition.class == String
         condition = "= #{condition}" if condition.class == Fixnum
+        if condition.class == Array
+          for i in 0..condition.size-1
+            case condition[i].class.to_s
+            when 'String' then
+              condition[i] = "'#{condition[i].gsub("'","''")}'"
+            end
+          end
+          condition = "in (#{condition.join(',')})"
+        end
         condition = "is not null" if condition == :not_null
         condition = "is null" if condition == :null
 
-        w << "[#{field.to_s}] #{condition}"
+        w << "[#{query[:table].to_s.gsub("'","''")}].[#{field.to_s}] #{condition}"
       end
       q += " where #{w.join(' and ')};"
     end
-    
     res = []
     c.execute(q).each do |r|
       res << r
