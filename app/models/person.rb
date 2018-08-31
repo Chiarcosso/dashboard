@@ -68,6 +68,8 @@ class Person < ApplicationRecord
         #if time is in the last record it's either a break or presence
         if lr.break
           return :away
+        elsif schedule.nil?
+          return :not_requested
         else
           #if out between working schedule the missing or breaking
           start_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
