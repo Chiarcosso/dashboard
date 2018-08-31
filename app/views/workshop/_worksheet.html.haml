@@ -114,6 +114,21 @@
 
 :javascript
 
+  var active_timers = {};
+
+  $.each($('.timer'),function(){
+
+    if(!$(this).data('paused')){
+      start_timer(/\w*-(\d*)/.exec($(this).attr('id'))[1]);
+    }
+
+  });
+
+  function start_timer(id){
+    var protocol = $("#start-"+id).data('protocol');
+    active_timers[id] = $('#timer-'+id).data('time');
+  }
+
   function check_disabled_close(){
 
     $('#stop-worksheet').prop('disabled',false);
@@ -124,7 +139,7 @@
       }
     });
   }
-  // $('#line').trigger('click');
+
   var active_timer = null;
   var active_notification = null;
   check_disabled_close();
@@ -260,11 +275,11 @@
   var ck = parseInt($('#clock').data('clock'));
   clearInterval(timer);
   timer = setInterval(function(){
-    if(!(active_timer === null)){
-      active_timer++;
-      $('#timer-'+active_notification).data('time',active_timer);
-      $("#timer-"+active_notification).html(seconds_to_clock(active_timer));
-    }
+    $.each(active_timers,function(k,v){
+      active_timers[k]++;
+      $('#timer-'+k).data('time',v);
+      $("#timer-"+k).html(seconds_to_clock(v));
+    });
     tm++;
     ck++;
     $('[data-additional]').data('additional',tm);

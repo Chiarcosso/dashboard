@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180829092622) do
+ActiveRecord::Schema.define(version: 20180831093425) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -1013,19 +1013,22 @@ ActiveRecord::Schema.define(version: 20180829092622) do
   end
 
   create_table "workshop_operations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "name",                                           null: false
+    t.string   "name",                                              null: false
     t.integer  "frequency"
     t.integer  "frequency_mu",         limit: 1
-    t.datetime "created_at",                                     null: false
-    t.datetime "updated_at",                                     null: false
-    t.integer  "worksheet_id",                                   null: false
-    t.integer  "user_id",                                        null: false
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
+    t.integer  "worksheet_id",                                      null: false
+    t.integer  "user_id",                                           null: false
     t.datetime "starting_time"
     t.datetime "ending_time"
-    t.integer  "real_duration",                      default: 0, null: false
+    t.integer  "real_duration",                      default: 0,    null: false
     t.integer  "myofficina_reference"
     t.string   "notes"
     t.text     "log",                  limit: 65535
+    t.boolean  "paused",                             default: true, null: false
+    t.datetime "last_starting_time"
+    t.datetime "last_stopping_time"
     t.index ["name"], name: "index_workshop_operations_on_name", using: :btree
     t.index ["user_id"], name: "index_workshop_operations_on_user_id", using: :btree
     t.index ["worksheet_id"], name: "index_workshop_operations_on_worksheet_id", using: :btree

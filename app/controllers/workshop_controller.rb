@@ -248,12 +248,20 @@ class WorkshopController < ApplicationController
   def start_operation
     begin
       wo = WorkshopOperation.find(params.require(:operation).to_i)
-      @workshop_operation.update(ending_time: nil, real_duration: params.require('time').to_i, log: "Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
-      @workshop_operation.update(starting_time: DateTime.now) if wo.starting_time.nil?
-      @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
-      # respond_to do |format|
-      #   format.js { render partial: 'workshop/worksheet_js' }
-      # end
+
+      #if the current user is different from the registered one create a new operation
+      if !wo.nil? && wo.user != current_user
+        WorkshopOperation.create(name: wo.name, paused: false, worksheet: wo.worksheet, myofficina_reference: wo.myofficina_reference, user: current_user, last_starting_time: Time.now, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+      else
+        # duration = wo.duration +
+
+        @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+        @workshop_operation.update(starting_time: DateTime.now) if wo.starting_time.nil?
+        @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
+        respond_to do |format|
+          format.js { render partial: 'workshop/worksheet_js' }
+        end
+      end
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"
       respond_to do |format|
@@ -264,11 +272,12 @@ class WorkshopController < ApplicationController
 
   def pause_operation
     begin
-      @workshop_operation.update(real_duration: params.require('time').to_i, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
+      @workshop_operation.update(real_duration: duration, paused: true,  last_stopping_time: Time.now, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
-      # respond_to do |format|
-      #   format.js { render partial: 'workshop/worksheet_js' }
-      # end
+      respond_to do |format|
+        format.js { render partial: 'workshop/worksheet_js' }
+      end
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"
       respond_to do |format|
@@ -279,18 +288,22 @@ class WorkshopController < ApplicationController
 
   def finish_operation
     begin
-      @workshop_operation.update(ending_time: DateTime.now, real_duration: params.require('timesend').to_i, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
+      duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
+      @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_stopping_time: Time.now, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
-      #close notification if name == 'Lavorazione'
-      EurowinController::create_notification({
-        'ProtocolloODL': @workshop_operation.ew_notification['SchedaInterventoProtocollo'].to_s,
-        'AnnoODL': @workshop_operation.ew_notification['SchedaInterventoAnno'].to_s,
-        'ProtocolloSGN': @workshop_operation.ew_notification['Protocollo'].to_s,
-        'AnnoSGN': @workshop_operation.ew_notification['Anno'].to_s,
-        'DataIntervento': @workshop_operation.ew_notification['DataSegnalazione'].to_s,
-        'FlagRiparato': 'true',
-        'CodiceOfficina': "0"
-      }) if @workshop_operation.name == 'Lavorazione'
+
+      #close notification there are no more operations
+      if WorkshopOperations.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
+        EurowinController::create_notification({
+          'ProtocolloODL': @workshop_operation.ew_notification['SchedaInterventoProtocollo'].to_s,
+          'AnnoODL': @workshop_operation.ew_notification['SchedaInterventoAnno'].to_s,
+          'ProtocolloSGN': @workshop_operation.ew_notification['Protocollo'].to_s,
+          'AnnoSGN': @workshop_operation.ew_notification['Anno'].to_s,
+          'DataIntervento': @workshop_operation.ew_notification['DataSegnalazione'].to_s,
+          'FlagRiparato': 'true',
+          'CodiceOfficina': "0"
+        })
+      end
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
@@ -304,7 +317,7 @@ class WorkshopController < ApplicationController
 
   def delete_operation
     begin
-      @worksheet.update(log: "Operazione nr. #{wo.id}, '#{wo.name}', eliminata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      @worksheet.update(log: "Operazione nr. #{@workshop_operation.id}, '#{@workshop_operation.name}', eliminata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       @workshop_operation.destroy
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }

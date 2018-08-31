@@ -155,7 +155,7 @@ class Worksheet < ApplicationRecord
   end
 
   def hours_price_label
-    "Ore di lavoro: #{self.actual_hours_label} (#{"%.2f" % self.hours_unit_price}€)"
+    "Ore di lavoro: #{self.actual_hours_label} (#{"%.2f" % self.hour_unit_price}€)"
   end
 
   def hours_complete_price
@@ -236,7 +236,7 @@ class Worksheet < ApplicationRecord
       else
         station = odl['CodiceAnagrafico'].to_s
       end
-      
+
       if ws.nil?
         if odl['DataIntervento'].nil?
           closingDate = Date.today
