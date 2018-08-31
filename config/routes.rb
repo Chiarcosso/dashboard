@@ -294,6 +294,7 @@ Rails.application.routes.draw do
   post   '/worksheet/:id/deassociate_notification', to: 'workshop#deassociate_notification',as: :deassociate_workshop_notification
   post   '/worksheet/:id/start_operation', to: 'workshop#start_operation',as: :start_workshop_operation
   post   '/worksheet/:id/pause_operation', to: 'workshop#pause_operation',as: :pause_workshop_operation
+  post   '/worksheet/:id/update_operation_time', to: 'workshop#update_operation_time',as: :update_workshop_operation_time
   post   '/worksheet/:id/finish_operation', to: 'workshop#finish_operation',as: :finish_workshop_operation
   post   '/worksheet/:id/delete_operation/', to: 'workshop#delete_operation',as: :delete_workshop_operation
   post   '/worksheet/:id/save', to: 'workshop#save_worksheet',as: :save_worksheet

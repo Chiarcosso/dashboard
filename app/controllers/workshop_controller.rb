@@ -2,7 +2,7 @@ class WorkshopController < ApplicationController
 
   before_action :get_worksheet, except: [:get_sheet,:create_worksheet]
   before_action :get_check_session
-  before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation]
+  before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation, :update_operation_time]
   before_action :set_protocol
   before_action :set_station
 
@@ -245,6 +245,13 @@ class WorkshopController < ApplicationController
     end
   end
 
+  def update_operation_time
+    @workshop_operation.update(real_duration: Time.now.to_i - @workshop_operation.last_starting_time.to_i)
+    respond_to do |format|
+      format.js { render partial: 'workshop/worksheet_js' }
+    end
+  end
+
   def start_operation
     begin
       wo = WorkshopOperation.find(params.require(:operation).to_i)
@@ -258,9 +265,10 @@ class WorkshopController < ApplicationController
         @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
         @workshop_operation.update(starting_time: DateTime.now) if wo.starting_time.nil?
         @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
-        respond_to do |format|
-          format.js { render partial: 'workshop/worksheet_js' }
-        end
+
+      end
+      respond_to do |format|
+        format.js { render partial: 'workshop/worksheet_js' }
       end
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"
@@ -293,7 +301,7 @@ class WorkshopController < ApplicationController
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
 
       #close notification there are no more operations
-      if WorkshopOperations.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
+      if WorkshopOperation.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
         EurowinController::create_notification({
           'ProtocolloODL': @workshop_operation.ew_notification['SchedaInterventoProtocollo'].to_s,
           'AnnoODL': @workshop_operation.ew_notification['SchedaInterventoAnno'].to_s,

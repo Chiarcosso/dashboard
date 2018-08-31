@@ -109,6 +109,7 @@
     #clock{'data-clock': DateTime.now.hour*3600+DateTime.now.minute*60+DateTime.now.second}
       = "#{DateTime.now.strftime('%d/%m/%Y %H:%M:%S')}"
   .col-sm-3
+    = hidden_field_tag :odl, @worksheet.number
     %button{ class: 'create_popup no-loader', data: { popup_id: 'new_notification', html: (render partial: 'workshop/notification_popup', locals: {protocol: @worksheet.number}) } }
       Nuova segnalazione
 
@@ -280,6 +281,17 @@
       $('#timer-'+k).data('time',v);
       $("#timer-"+k).html(seconds_to_clock(v));
     });
+    if(tm%10 == 0){
+      $.each($('.timer'),function(){
+
+        // $.ajax({
+        //   url: '/worksheet/'+$('input[name=odl]').val()+'/update_operation_time',
+        //   method: 'post',
+        //   data: {operation: /\w*-(\d*)/.exec($(this).attr('id'))[1]}
+        // });
+
+      });
+    }
     tm++;
     ck++;
     $('[data-additional]').data('additional',tm);
