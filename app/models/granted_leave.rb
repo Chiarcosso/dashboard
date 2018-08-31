@@ -75,7 +75,9 @@ class GrantedLeave < ApplicationRecord
     journal = MssqlReference.query({table: 'GIORNALE', where: {IDViaggi: ['MAMAMA','FEFEFE','PEPEPE','INININ'], Data: date}})
 
     #get dashboard leaves
-    dashboard = GrantedLeave.where("'#{Time.now.strftime('%Y-%m-%d')}' between date_format(granted_leaves.from,'%Y-%m-%d') and date_format(granted_leaves.to,'%Y-%m-%d')")
+    dashboard = GrantedLeave.where("'#{Time.now.strftime('%Y-%m-%d')}' between date_format(granted_leaves.from,'%Y-%m-%d') and date_format(granted_leaves.to,'%Y-%m-%d') "\
+                      "and granted_leaves.leave_code_id != #{LeaveCode.find_by(code: 'ORIT').id} "\
+                      "and granted_leaves.leave_code_id != #{LeaveCode.find_by(code: 'Ritardo avvisato').id}")
 
     #get leave codes
     leave_codes = {
@@ -94,11 +96,11 @@ class GrantedLeave < ApplicationRecord
 
       if j['IDViaggi'] == 'PEPEPE'
         if dashboard.select{ |d| d.person == person && leave_codes[:PEPEPE].include?(d.leave_code) && d.to.strftime('%Y-%m-%d') == j['DataAl'].strftime('%Y-%m-%d')}.size == 0
-          text += "Il giorno #{j['Data']} e' presente sul giornale un permesso #{j['IDViaggi']} di #{person.list_name}, fino al #{j['DataAl']} che manca in dashboard.\n"
+          text += "Il #{j['Data'].strftime('%d/%m/%Y')} e' presente sul giornale un permesso #{j['IDViaggi']} di #{person.list_name}, fino al #{j['DataAl'].nil? ? '' : j['DataAl'].strftime("%d/%m/%Y")} che manca in dashboard (IDPosizione: #{j['IDPosizione']}).\n"
         end
       else
         if dashboard.select{ |d| d.person == person && d.leave_code == leave_codes[j['IDViaggi'].to_sym] && d.to.strftime('%Y-%m-%d') == j['DataAl'].strftime('%Y-%m-%d')}.size == 0
-          text += "#{j['IDPosizione']} - Il giorno #{j['Data']} e' presente sul giornale un permesso #{j['IDViaggi']} di #{person.list_name}, fino al #{j['DataAl']} che manca in dashboard.\n"
+          text += "Il #{j['Data'].strftime('%d/%m/%Y')} e' presente sul giornale un permesso #{j['IDViaggi']} di #{person.list_name}, fino al #{j['DataAl'].nil? ? '' : j['DataAl'].strftime("%d/%m/%Y")} che manca in dashboard. (IDPosizione: #{j['IDPosizione']})\n"
         end
       end
     end
@@ -106,6 +108,7 @@ class GrantedLeave < ApplicationRecord
     text += "\n\n"
     #check whether all dashboard leaves are matched
     dashboard.each do |d|
+      next if MssqlReference.query({table: 'Autisti', where: {IdAutista: d.person.mssql_references.map{ |r| r.remote_object_id }, IdMansione: [1,5]}}).count == 0
       if leave_codes[:PEPEPE].include?(d.leave_code)
         trip_id = 'PEPEPE'
       else
@@ -120,10 +123,10 @@ class GrantedLeave < ApplicationRecord
           'IDViaggi': trip_id
         }
         }).count == 0
-        text += "Il #{date} nel giornale manca la riga per il permesso di #{d.person.list_name} per #{d.leave_code.code}, dal #{d.from.strftime("%d/%m/%Y")} al #{d.to.strftime("%d/%m/%Y")}"
+        text += "Il #{date.split('-').reverse.join('/')} nel giornale manca la riga per il permesso di #{d.person.list_name} per #{d.leave_code.code}, dal #{d.from.strftime("%d/%m/%Y")} al #{d.to.strftime("%d/%m/%Y")}"
       end
     end
-    text
+    HumanResourcesMailer.journal_check(text).deliver_now unless text == "\n\n"
   end
 
 

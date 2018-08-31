@@ -1,7 +1,7 @@
 class HumanResourcesMailer < ApplicationMailer
 
 
-  default to: 'personale@chiarcosso.it;ufficioit@chiarcosso.com'
+  default to: 'personale@chiarcosso.it'
 
   def vacation_request(application)
     @application = application
@@ -34,7 +34,5 @@ class HumanResourcesMailer < ApplicationMailer
   #
   end
 
-  def journal_check(text)
-    mail(body: text, subject: 'Sincronizzazione dashboard/giornale')
-  end
+
 end
