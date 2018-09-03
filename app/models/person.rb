@@ -37,7 +37,12 @@ class Person < ApplicationRecord
     return true
   end
 
-  def
+  # Queries mssql db for people with 'attivo' flag set
+  def self.active_people
+    refs = MssqlReference.query({table: 'Autisti', where: {Attivo: 1,Ditta: ['A','T']}})
+    Person.joins("inner join mssql_references mr on mr.local_object_id = people.id and mr.local_object_type = 'Person'").where("mr.remote_object_id in (#{refs.to_a.map{ |a| a['Idautista']}.join(',')})").distinct
+  end
+
   def current_badges
     # Badge.where("id in (select badge_id from badge_assignments where person_id = #{self.id} and badge_assignments.to = '1900-01-01')")
     self.badges
