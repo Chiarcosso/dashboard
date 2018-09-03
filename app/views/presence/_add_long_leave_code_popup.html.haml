@@ -8,8 +8,10 @@
   -# = hidden_field_tag :date, date.strftime("%Y-%m-%d")
   Dal
   = date_field_tag :date_from, nil, class: "form-control", id: 'focus_element'
+  = time_field_tag :time_from, nil, class: "form-control", id: 'focus_element'
   Al
   = date_field_tag :date_to, nil, class: "form-control"
+  = time_field_tag :time_to, nil, class: "form-control", id: 'focus_element'
   Codice
   =select_tag :leave_code, options_for_select(LeaveCode.order(code: :asc).collect{|c| [c.code,c.id]}), include_blank: 'Selezionare un codice', class: "form-control"
   = submit_tag 'Aggiungi', class: "form-control"

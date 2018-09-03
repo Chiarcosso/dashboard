@@ -257,6 +257,9 @@ class PresenceController < ApplicationController
         #get the working schedule for that day and set from timestamp
         date_from =Time.strptime(params.require(:date_from),"%Y-%m-%d")
         ws = WorkingSchedule.get_schedule(date_from,@person)
+        if ws.nil? && !params[:time_from].nil?
+          ws = WorkingSchedule.new(person: @person, contract_from:params[:time_from])
+        end
         raise 'Orario data inizio non presente' if ws.nil?
         from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.strftime("%H:%M:%S")} #{self.actual_timezone(date_from)}", "%Y-%m-%d %H:%M:%S %Z")
       rescue
@@ -266,6 +269,9 @@ class PresenceController < ApplicationController
         #get the working schedule for that day and set from timestamp
         date_to = Time.strptime(params.require(:date_to),"%Y-%m-%d")
         ws = WorkingSchedule.get_schedule(date_to,@person)
+        if ws.nil? && !params[:time_to].nil?
+          ws = WorkingSchedule.new(person: @person, contract_to:params[:time_to])
+        end
         raise 'Orario data fine non presente' if ws.nil?
         to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.strftime("%H:%M:%S")} #{self.actual_timezone(date_to)}", "%Y-%m-%d %H:%M:%S %Z")
       rescue
