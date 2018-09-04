@@ -482,7 +482,14 @@ function remember_scroll_form_submit_func(e){
       name: 'scroll_element',
       value: $(this).data('scroll-element')
     }).appendTo(this);
-    
+
+}
+
+function move_under_loader_func(){
+  "use strict";
+
+  var zindex = $('.loading_screen').first.css('z-index');
+  $(this).css('z-index',zindex-1);
 }
 
 function activateJS() {
@@ -553,6 +560,8 @@ function activateJS() {
     $('body').on('mouseleave', '[data-alt]', data_alt_mouseleave_func);
 
     $('body').on('submit','.remember_scroll_form', remember_scroll_form_submit_func)
+
+    $('body').on('submit','.popup form', move_under_loader_func)
 
 }
 
