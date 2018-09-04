@@ -487,9 +487,9 @@ function remember_scroll_form_submit_func(e){
 
 function move_under_loader_func(){
   "use strict";
-
-  var zindex = $('.loading_screen').first.css('z-index');
-  $(this).css('z-index',zindex-1);
+  var zindex = $('.loading-screen').css('z-index');
+  $(this).parents('.popup').first().css('z-index',zindex-1);
+  
 }
 
 function activateJS() {

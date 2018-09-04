@@ -257,8 +257,12 @@ body{
   margin: .4em
 }
 
+#loading-screen{
+  z-index: 2000;
+}
+
 .loading-screen{
-  /*z-index: 2000;*/
+  z-index: 2000;
   position: fixed;
   top: 0px;
   left: 0px;
@@ -342,7 +346,7 @@ body{
   background-color: #fff;
   padding: 2em;
   overflow: hidden;
-  z-index: 1500;
+  z-index: 2001;
 }
 
 .popup .scrollable-panel {

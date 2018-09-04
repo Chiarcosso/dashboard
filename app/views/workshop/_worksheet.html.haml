@@ -282,19 +282,18 @@
       $("#timer-"+k).html(seconds_to_clock(v));
     });
     if(ck%15 == 0){
-      $.each($('.timer'),function(){
-        var protocol = /collapse-(\d*)/.exec($('.in').attr('id'))
-        if(protocol != null){
-          protocol = protocol[1]
-        }
-
+      var protocol = /collapse-(\d*)/.exec($('.in').attr('id'));
+      if(protocol != null){
+        protocol = protocol[1]
+      }
+      if ($('.popup').length < 1){
+        
         $.ajax({
           url: '/worksheet/'+$('input[name=odl]').val()+'/update_operation_time',
           method: 'post',
           data: {protocol: protocol}
         });
-
-      });
+      }
     }
     tm++;
     ck++;
