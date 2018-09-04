@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180831093425) do
+ActiveRecord::Schema.define(version: 20180904120205) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -973,23 +973,26 @@ ActiveRecord::Schema.define(version: 20180831093425) do
   end
 
   create_table "worksheets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "code",                                                                    null: false
+    t.string   "code",                                                                         null: false
     t.date     "closingDate"
-    t.integer  "vehicle_id",                                                              null: false
-    t.datetime "created_at",                                                              null: false
-    t.datetime "updated_at",                                                              null: false
-    t.decimal  "hours",                       precision: 4, scale: 1, default: "0.0",     null: false
-    t.string   "vehicle_type",                                        default: "Vehicle", null: false
+    t.integer  "vehicle_id",                                                                   null: false
+    t.datetime "created_at",                                                                   null: false
+    t.datetime "updated_at",                                                                   null: false
+    t.decimal  "hours",                            precision: 4, scale: 1, default: "0.0",     null: false
+    t.string   "vehicle_type",                                             default: "Vehicle", null: false
     t.string   "notes"
     t.date     "opening_date"
     t.datetime "exit_time"
-    t.integer  "real_duration",                                       default: 0,         null: false
+    t.integer  "real_duration",                                            default: 0,         null: false
     t.date     "creation_date"
-    t.text     "log",           limit: 65535
-    t.boolean  "suspended",                                           default: false,     null: false
+    t.text     "log",                limit: 65535
+    t.boolean  "suspended",                                                default: false,     null: false
     t.string   "station"
-    t.boolean  "closed",                                              default: false,     null: false
+    t.boolean  "closed",                                                   default: false,     null: false
     t.string   "pdf_path"
+    t.datetime "last_starting_time"
+    t.datetime "last_stopping_time"
+    t.boolean  "paused",                                                   default: true,      null: false
     t.index ["code"], name: "index_worksheets_on_code", unique: true, using: :btree
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end

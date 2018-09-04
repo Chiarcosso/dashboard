@@ -504,7 +504,7 @@ class PresenceController < ApplicationController
       end
     rescue Exception => e
       @error = e.message
-      @error += "\n\n#{e.backtrace.join("\n")}"
+      # @error += "\n\n#{e.backtrace.join("\n")}"
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
       end
@@ -514,10 +514,13 @@ class PresenceController < ApplicationController
   def edit_badge_assignment
     begin
       badge_assignment = BadgeAssignment.find(params.require(:id))
-      if badge.assigned?({from: params.require(:from), to: params.require(:to)})
-        raise "Il badge è assegnato a #{badge.holders({from: params.require(:from), to: params.require(:to)}).map{ |p| p.list_name}.join(', ')} nel periodo specificato."
+      badge = badge_assignment.badge
+      from = Time.strptime(params.require(:badge_assignment).permit(:from)[:from],"%Y-%m-%d")
+      to = Time.strptime(params.require(:badge_assignment).permit(:to)[:to],"%Y-%m-%d") unless params.require(:badge_assignment).permit(:to)[:to].nil? || params.require(:badge_assignment).permit(:to)[:to] == ''
+      if badge.assigned?({from: from, to: to, exclude: badge_assignment})
+        raise "Il badge è assegnato a #{badge.holders({from: from, to: to}).map{ |p| p.list_name}.join(', ')} nel periodo specificato."
       else
-        badge_assignment.update(from: params.require(:from), to: params.require(:to))
+        badge_assignment.update(from: from, to: to)
       end
 
       respond_to do |format|
@@ -525,6 +528,7 @@ class PresenceController < ApplicationController
       end
     rescue Exception => e
       @error = e.message
+      # @error += "\n\n#{e.backtrace.join("\n")}"
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
       end

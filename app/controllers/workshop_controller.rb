@@ -249,6 +249,7 @@ class WorkshopController < ApplicationController
     @worksheet.operations.each do |wo|
       wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_starting_time: Time.now) unless wo.paused
     end
+    @worksheet.update(last_starting_time: Time.now, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
     respond_to do |format|
       format.js { render partial: 'workshop/worksheet_js' }
     end
@@ -300,7 +301,8 @@ class WorkshopController < ApplicationController
     begin
       duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
       @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_stopping_time: Time.now, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
-      @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
+      # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
+      @worksheet.update(last_stopping_time: nil, last_starting_time: Time.now, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false)
 
       #close notification there are no more operations
       if WorkshopOperation.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
@@ -348,6 +350,7 @@ class WorkshopController < ApplicationController
       @worksheet.operations(current_user).each do |wo|
         wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
       end
+      
       if params.require('perform') == 'stop'
         @worksheet.update(real_duration: params.require('worksheet_duration').to_i, exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
         vcs = @worksheet.vehicle_check_session
