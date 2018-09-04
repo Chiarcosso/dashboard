@@ -492,7 +492,7 @@ class PresenceController < ApplicationController
 
       from = Time.strptime(params.require(:badge_assignment).permit(:from)[:from],"%Y-%m-%d")
       to = Time.strptime(params.require(:badge_assignment).permit(:to)[:to],"%Y-%m-%d") unless params.require(:badge_assignment).permit(:to)[:to].nil? || params.require(:badge_assignment).permit(:to)[:to] == ''
-      
+
       if badge.assigned?({from: from, to: to.nil? ? Time.now : to})
         raise "Il badge è assegnato a #{badge.holders({from: from, to: to.nil? ? Time.now : to}).map{ |p| p.list_name}.join(', ')} nel periodo specificato."
       else
@@ -565,7 +565,7 @@ class PresenceController < ApplicationController
     chief_mechanic_role = CompanyRelation.find_by(name: 'Capo officina')
 
     drivers = leaves.select{ |gl| gl.person.company_relations.include?(driver_role)}
-    mechanics = drivers = leaves.select{ |gl| gl.person.company_relations.include?(mechanic_role) || gl.person.company_relations.include?(roaming_mechanic_role) || gl.person.company_relations.include?(chief_mechanic_role)}
+    mechanics = leaves.select{ |gl| gl.person.company_relations.include?(mechanic_role) || gl.person.company_relations.include?(roaming_mechanic_role) || gl.person.company_relations.include?(chief_mechanic_role)}
     office_workers = leaves.reject{ |gl| gl.person.company_relations.include?(mechanic_role) || gl.person.company_relations.include?(roaming_mechanic_role) || gl.person.company_relations.include?(chief_mechanic_role) || gl.person.company_relations.include?(driver_role)}
 
     pdf.text "Impiegati",size: 20, font_style: :bold
