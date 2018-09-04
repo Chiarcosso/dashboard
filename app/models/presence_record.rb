@@ -18,7 +18,7 @@ class PresenceRecord < ApplicationRecord
   end
 
   def time_in_record(time = Time.now)
-    
+
     if time >= self.start_ts.time && self.end_ts.nil?
       true
     else
@@ -86,10 +86,13 @@ class PresenceRecord < ApplicationRecord
     working_schedule = WorkingSchedule.get_schedule(date,person)
 
     #for every timestamp on that day with those badges calculate records
-    presence_timestamps = PresenceTimestamp.where("deleted = 0 and sensor_id in (select id from sensors where presence_relevant = 1) "\
-                        "and badge_id in (#{badges.map{|b|b.id}.join (',')})").where("(year(time) = #{date.strftime('%Y')} and month(time) = #{date.strftime('%-m')} "\
-                        "and day(time) = #{date.strftime('%-d')})").order(time: :asc).to_a
-
+    if badges.empty?
+      presence_timestamps = []
+    else
+      presence_timestamps = PresenceTimestamp.where("deleted = 0 and sensor_id in (select id from sensors where presence_relevant = 1) "\
+                          "and badge_id in (#{badges.map{|b|b.id}.join (',')})").where("(year(time) = #{date.strftime('%Y')} and month(time) = #{date.strftime('%-m')} "\
+                          "and day(time) = #{date.strftime('%-d')})").order(time: :asc).to_a
+    end
     previous_record = nil
     presence_timestamps.each_with_index do |pts,index|
       if index%2 == 0

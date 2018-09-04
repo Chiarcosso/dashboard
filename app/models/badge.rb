@@ -29,7 +29,7 @@ class Badge < ApplicationRecord
       Person.find_by_sql("select * from people where id = (select person_id from badge_assignments "\
                 "where ((badge_assignments.from between '#{data[:from].strftime('%Y-%m-%d')}' and '#{data[:to].strftime('%Y-%m-%d')}') "\
                 "or (badge_assignments.to between '#{data[:from].strftime('%Y-%m-%d')}' and '#{data[:to].strftime('%Y-%m-%d')}') "\
-                "or ('#{data[:from].strftime('%Y-%m-%d')}' between badge_assignments.from and badge_assignments.to)) and badge_id = #{self.id} order by from desc limit 1) limit 1")
+                "or ('#{data[:from].strftime('%Y-%m-%d')}' between badge_assignments.from and badge_assignments.to)) and badge_id = #{self.id} order by badge_assignments.from desc limit 1) limit 1")
     end
   end
 

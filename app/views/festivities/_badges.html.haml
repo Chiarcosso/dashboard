@@ -33,7 +33,7 @@
   .col-sm-1
 
 .scrollable-panel
-  - BadgeAssignment.all.sort{|a,b| a.to == Date.strptime('1900-01-01',"%Y-%m-%d") ? -1 : b.to == Date.strptime('1900-01-01',"%Y-%m-%d") ? 1 : b.to <=> a.to}.sort_by{ |ba| ba.person.list_name}.each do |ba|
+  - BadgeAssignment.all.sort{|a,b| a.to == Date.strptime('1900-01-01',"%Y-%m-%d") ? -1 : b.to == Date.strptime('1900-01-01',"%Y-%m-%d") ? 1 : -1}.sort_by{ |ba| ba.person.list_name}.each do |ba|
     .row.colored
       =form_tag edit_badge_assignment_path(ba.id), method: :post, remote: true do |f|
         = hidden_field_tag :tab, 'badges'
@@ -46,7 +46,7 @@
         .col-sm-2{style: 'padding: 1em;'}
           =date_field_tag 'badge_assignment[from]', ba.from, class: 'form-control'
         .col-sm-2{style: 'padding: 1em;'}
-          =date_field_tag 'badge_assignment[to]', ba.to == Date.strptime('1900-01-01',"%Y-%m-%d") ? nil : ba.to, class: 'form-control'
+          =date_field_tag 'badge_assignment[to]', ba.to, class: 'form-control'
         .col-sm-1{style: 'padding: 1em;'}
           =submit_tag 'Modifica', class: 'form-control'
       .col-sm-1

@@ -281,14 +281,18 @@
       $('#timer-'+k).data('time',v);
       $("#timer-"+k).html(seconds_to_clock(v));
     });
-    if(tm%10 == 0){
+    if(ck%15 == 0){
       $.each($('.timer'),function(){
+        var protocol = /collapse-(\d*)/.exec($('.in').attr('id'))
+        if(protocol != null){
+          protocol = protocol[1]
+        }
 
-        // $.ajax({
-        //   url: '/worksheet/'+$('input[name=odl]').val()+'/update_operation_time',
-        //   method: 'post',
-        //   data: {operation: /\w*-(\d*)/.exec($(this).attr('id'))[1]}
-        // });
+        $.ajax({
+          url: '/worksheet/'+$('input[name=odl]').val()+'/update_operation_time',
+          method: 'post',
+          data: {protocol: protocol}
+        });
 
       });
     }

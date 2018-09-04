@@ -150,6 +150,14 @@ class Worksheet < ApplicationRecord
     end
   end
 
+  def operations(operator = nil)
+    if operator.nil?
+      WorkshopOperation.where(worksheet: self)
+    else
+      WorkshopOperation.where(worksheet: self, user: operator)
+    end
+  end
+
   def hours_price
     self.actual_hours.to_f * self.hour_unit_price
   end

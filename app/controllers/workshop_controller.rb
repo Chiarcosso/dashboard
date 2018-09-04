@@ -2,7 +2,7 @@ class WorkshopController < ApplicationController
 
   before_action :get_worksheet, except: [:get_sheet,:create_worksheet]
   before_action :get_check_session
-  before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation, :update_operation_time]
+  before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation]
   before_action :set_protocol
   before_action :set_station
 
@@ -246,7 +246,9 @@ class WorkshopController < ApplicationController
   end
 
   def update_operation_time
-    @workshop_operation.update(real_duration: Time.now.to_i - @workshop_operation.last_starting_time.to_i)
+    @worksheet.operations.each do |wo|
+      wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_starting_time: Time.now) unless wo.paused
+    end
     respond_to do |format|
       format.js { render partial: 'workshop/worksheet_js' }
     end
@@ -263,8 +265,8 @@ class WorkshopController < ApplicationController
         # duration = wo.duration +
 
         @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
-        @workshop_operation.update(starting_time: DateTime.now) if wo.starting_time.nil?
-        @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
+        @workshop_operation.update(starting_time: DateTime.now)
+        # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
 
       end
       respond_to do |format|
@@ -280,8 +282,8 @@ class WorkshopController < ApplicationController
 
   def pause_operation
     begin
-      duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
-      @workshop_operation.update(real_duration: duration, paused: true,  last_stopping_time: Time.now, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i - 1 # minus 1 second for error handling
+      @workshop_operation.update(real_duration: duration, paused: true,  last_starting_time: nil, last_stopping_time: Time.now, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
@@ -340,8 +342,11 @@ class WorkshopController < ApplicationController
 
   def save_worksheet
     begin
-      JSON.parse(params.require('operation_times')).each do |ot|
-        WorkshopOperation.find(ot['id'].to_i).update(real_duration: ot['time'].to_i)
+      # JSON.parse(params.require('operation_times')).each do |ot|
+      #   WorkshopOperation.find(ot['id'].to_i).update(real_duration: ot['time'].to_i)
+      # end
+      @worksheet.operations(current_user).each do |wo|
+        wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
       end
       if params.require('perform') == 'stop'
         @worksheet.update(real_duration: params.require('worksheet_duration').to_i, exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
