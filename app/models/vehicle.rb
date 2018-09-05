@@ -157,10 +157,11 @@ class Vehicle < ApplicationRecord
     eurowin_worksheets = Array.new
     wvehicles = Array.new
     self.mssql_references.each do |msr|
-      wvehicles << "CodiceAutomezzo = #{msr.remote_object_id}"
+      wvehicles << "autoodl.CodiceAutomezzo = #{msr.remote_object_id}"
     end
-    query = "select autoodl.*, (select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as descrizione "\
+    query = "select autoodl.*, off.RagioneSociale as officina, (select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as descrizione "\
               "from autoodl "\
+              "left join anagrafe off on off.Codice = autoodl.CodiceAnagrafico "\
               "where (#{wvehicles.join(' or ')}) "\
               "and FlagSchedaChiusa != 'True' and FlagSchedaChiusa != 'true' "\
               "and FlagProgrammazioneSospesa != 'True' and FlagProgrammazioneSospesa != 'true' "\
@@ -171,7 +172,7 @@ class Vehicle < ApplicationRecord
     odl = ewc.query(query)
     ewc.close
     odl.each do |o|
-      current_odl = {protocol: o['Protocollo'], description: "#{o['descrizione'].nil?? '' : o['descrizione']+' - ' }#{o['Note']}", date: o['DataIntervento'], plate: o['Targa'], entering_date: o['DataEntrataVeicolo'], exit_date: o['DataUscitaVeicolo'], notifications: Array.new}
+      current_odl = {protocol: o['Protocollo'], description: "#{o['descrizione'].nil?? '' : o['descrizione']+' - ' }#{o['Note']}", date: o['DataIntervento'], plate: o['Targa'], entering_date: o['DataEntrataVeicolo'], exit_date: o['DataUscitaVeicolo'], notifications: Array.new, delivery_date: o['DataConsegnaConcordata'], workshop: o['officina']}
       ewc = EurowinController.get_ew_client
       sgn = ewc.query("select * from autosegnalazioni where SerialODL = #{o['Serial']}" )
       ewc.close
