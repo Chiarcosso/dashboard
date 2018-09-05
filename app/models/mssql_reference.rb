@@ -441,7 +441,7 @@ class MssqlReference < ApplicationRecord
 
         #build where condition
         condition = "= '#{condition.gsub("'","''")}'" if condition.class == String
-        condition = "= #{condition}" if condition.class == Integer
+        condition = "= #{condition}" if condition.class == Fixnum
 
         if condition.class == Array
           for i in 0..condition.size-1
