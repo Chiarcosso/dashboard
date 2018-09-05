@@ -417,6 +417,8 @@ class Worksheet < ApplicationRecord
         :width => 540
 
     pdf.move_down 20
+    pdf.text self.notes
+    pdf.move_down 10
     pdf.text 'Segnalazioni:'
 
     table = [['Nr.','Descrizione','Autista','Esito']]
