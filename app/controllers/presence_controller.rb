@@ -261,7 +261,7 @@ class PresenceController < ApplicationController
           ws = WorkingSchedule.new(person: @person, contract_from:params[:time_from])
         end
         raise 'Orario data inizio non presente' if ws.nil?
-        from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.strftime("%H:%M:%S")} #{self.actual_timezone(date_from)}", "%Y-%m-%d %H:%M:%S %Z")
+        from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
       rescue
         @error = 'Data inizio non valida.'
       end
@@ -273,7 +273,7 @@ class PresenceController < ApplicationController
           ws = WorkingSchedule.new(person: @person, contract_to:params[:time_to])
         end
         raise 'Orario data fine non presente' if ws.nil?
-        to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.strftime("%H:%M:%S")} #{self.actual_timezone(date_to)}", "%Y-%m-%d %H:%M:%S %Z")
+        to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
       rescue
         @error = 'Data fine non valida.'
       end
