@@ -19,9 +19,9 @@
             %tr
               %td.odl{style: 'font-weight: bold; padding: .5em; background-color: #f90;', rowspan: odl[:notifications].size+2}
                 = odl[:plate]
-              %td.odl{style: 'font-weight: bold; border-bottom: 1px solid black; padding: .5em; background-color: #f90;', colspan: 2}
+              %td.odl{style: 'font-weight: bold; border-bottom: 1px solid black; padding: .5em; background-color: #f90;', colspan: 3}
                 = odl[:workshop]
-              %td.odl{style: 'font-weight: bold; border-bottom: 1px solid black; padding: .5em; background-color: #f90;', colspan: 2}
+              %td.odl{style: 'font-weight: bold; border-bottom: 1px solid black; padding: .5em; background-color: #f90;'}
                 = "Consegna prevista: #{odl[:delivery_date].strftime("%d/%m/%Y") unless odl[:delivery_date].nil?}"
             %tr
               %td.odl{style: 'font-weight: bold; border-bottom: 1px solid black; padding: .5em; background-color: #f90;'}

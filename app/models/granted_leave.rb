@@ -71,6 +71,7 @@ class GrantedLeave < ApplicationRecord
   def self.check_journal
 
     date = Time.now.strftime('%Y-%m-%d')
+
     #get journal leaves
     journal = MssqlReference.query({table: 'GIORNALE', where: {IDViaggi: ['MAMAMA','FEFEFE','PEPEPE','INININ'], Data: date}})
 
@@ -120,13 +121,15 @@ class GrantedLeave < ApplicationRecord
         where: {
           'IDAutista': d.person.mssql_references.map{|p| p.remote_object_id},
           'data': date,
+          'DataAl': d.to.strftime('%Y-%m-%d'),
           'IDViaggi': trip_id
         }
         }).count == 0
-        text += "Il #{date.split('-').reverse.join('/')} nel giornale manca la riga per il permesso di #{d.person.list_name} per #{d.leave_code.code}, dal #{d.from.strftime("%d/%m/%Y")} al #{d.to.strftime("%d/%m/%Y")}"
+        text += "Il #{date.split('-').reverse.join('/')} nel giornale manca la riga per il permesso di #{d.person.list_name} per #{d.leave_code.code}, dal #{d.from.strftime("%d/%m/%Y")} al #{d.to.strftime("%d/%m/%Y")}\n"
       end
     end
-    HumanResourcesMailer.journal_check(text).deliver_now unless text == "\n\n"
+    text = 'Non ci sono discordanze fra il giornale e dashboard.' if text == "\n\n"
+    HumanResourcesMailer.journal_check(text).deliver_now
   end
 
 
