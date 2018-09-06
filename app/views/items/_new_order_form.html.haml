@@ -83,7 +83,7 @@
                 = text_field_tag "items[#{k}][expiringDate]", i.expiringDate ? (l i.expiringDate) : nil, placeholder: 'Data scadenza', class: 'form-control input-row', 'data-behavior' => 'datepicker', 'data-nodefault' => 'true'
               .col-sm-2
                 .col-sm-6
-                  %b= "#{i.article.containedAmount} pz."
+                  %b= "#{i.article.containedAmount.to_i == i.article.containedAmount ? i.article.containedAmount.to_i : i.article.containedAmount} #{i.article.measure_unit}"
                 .col-sm-6
                   = number_field_tag "items[#{k}][amount]", i.amount, step: :any, class: 'form-control input-row'
 
