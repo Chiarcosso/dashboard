@@ -658,12 +658,12 @@ class PresenceController < ApplicationController
 
   def get_month_year
     if params[:month].nil?
-      @month = (Date.today-20.days).strftime("%m").to_i
+      @month = (Date.today).strftime("%m").to_i
     else
       @month = params.require('month').to_i+1
     end
     if params[:year].nil?
-      @year = (Date.today-20.days).strftime("%Y").to_i
+      @year = (Date.today).strftime("%Y").to_i
     else
       @year = params.require('year').to_i
     end
@@ -693,7 +693,7 @@ class PresenceController < ApplicationController
 
   def working_schedule_params
     p = Hash.new
-    params.require(:working_schedule).permit(:weekday, :agreement_from, :agreement_to, :contract_from, :contract_to, :break, :months_unpaid_days, :expected_hours)
+    params.require(:working_schedule).permit(:weekday, :agreement_from, :agreement_to, :contract_from, :contract_to, :break, :months_unpaid_days, :expected_hours, :flexibility)
     p[:person] = @person
     p[:weekday] = params[:working_schedule][:weekday]
     p[:agreement_from] = params[:working_schedule][:agreement_from] == ''? nil :Time.strptime(params[:working_schedule][:agreement_from],"%H:%M")
@@ -703,6 +703,8 @@ class PresenceController < ApplicationController
     p[:break] = params[:working_schedule][:break]
     p[:months_unpaid_days] = params[:working_schedule][:months_unpaid_days]
     p[:expected_hours] = params[:working_schedule][:expected_hours]
+    p[:flexibility] = params[:working_schedule][:flexibility]
+    
     if p[:agreement_from].nil? ^ p[:agreement_to].nil?
       raise "L'orario concordato non e' completo."
     end

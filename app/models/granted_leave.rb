@@ -22,7 +22,10 @@ class GrantedLeave < ApplicationRecord
 
       #if is less than a day
       if self.from.strftime("%Y-%m-%d") == self.to.strftime("%Y-%m-%d")
-        return (self.to - self.from).to_i - self.break.minutes
+        if self.to - self.from >= 6.hours
+          ws = WorkingSchedule.get_schedule(self.from,self.person)
+        end
+        return (self.to - self.from).to_i - (ws.nil? ? self.break.minutes : ws.break.minutes)
       else
 
         #if we compare with the leave's starting date

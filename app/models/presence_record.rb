@@ -114,7 +114,7 @@ class PresenceRecord < ApplicationRecord
           end
 
           #if there's a delay create a leave
-          if pts.time.utc.strftime('%H:%M') > (working_schedule.transform_to_date(pts.time,:agreement_from) + working_schedule.start_flexibility.minutes).strftime('%H:%M')
+          if pts.time.utc.strftime('%H:%M') > (working_schedule.transform_to_date(pts.time,:agreement_from) + working_schedule.flexibility.minutes).strftime('%H:%M')
             #calculate delay fine
             unless GrantedLeave.where(date: date, person: person, leave_code: no_delay_leave).count > 0 or dont_create.include?(delay_leave)
               delay = PresenceRecord.round_delay(pts.time - working_schedule.transform_to_date(pts.time,:agreement_from))
