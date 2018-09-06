@@ -63,7 +63,7 @@ body{
 
 .custom-autocomplete-dropdown{
     position: absolute;
-    z-index: 2002;
+    z-index: 2502;
     min-height: 1em;
     border: 1px solid gray;
     background-color: #fff;
@@ -435,6 +435,10 @@ body{
   margin-top: 1em;
   margin-bottom: .6em;
   font-weight: bolder;
+}
+
+.ui-front{
+  z-index: 2002;
 }
 
 .visible{
