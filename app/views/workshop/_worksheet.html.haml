@@ -282,12 +282,11 @@
       $("#timer-"+k).html(seconds_to_clock(v));
     });
     if(ck%15 == 0){
-      var protocol = /collapse-(\d*)/.exec($('.in').attr('id'));
+      var protocol = /collapse-(checks|\d*)/.exec($('.in').attr('id'));
       if(protocol != null){
         protocol = protocol[1]
       }
-      if ($('.popup').length < 1){
-        
+      if ($('.popup').length < 1 && protocol != 'checks'){        
         $.ajax({
           url: '/worksheet/'+$('input[name=odl]').val()+'/update_operation_time',
           method: 'post',
