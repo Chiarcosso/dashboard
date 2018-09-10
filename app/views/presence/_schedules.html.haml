@@ -12,7 +12,7 @@
       .col-sm-2
         .row
           .col-sm-7
-            Acorrdo dalle
+            Accordo dalle
           .col-sm-5
             = time_field 'working_schedule', 'agreement_from', value: '08:00'
         .row
@@ -76,7 +76,7 @@
           .col-sm-2
             .row
               .col-sm-7
-                Acorrdo dalle
+                Accordo dalle
               .col-sm-5
                 = time_field 'working_schedule', 'agreement_from', value: (ws.agreement_from.nil?? nil : (ws.agreement_from+2.hours).strftime('%H:%M'))
             .row

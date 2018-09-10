@@ -2,6 +2,8 @@ class PeopleController < ApplicationController
   before_action :set_person, only: [:show, :edit, :update, :destroy, :add_role]
   before_action :search_params
 
+
+
   autocomplete :company, :name, full: true
 
   # GET /people
@@ -35,6 +37,7 @@ class PeopleController < ApplicationController
     @person = Person.where(:name => person_params[:name]).where(:surname => person_params[:surname]).first
     if @person.nil?
       @person = Person.create(person_params)
+      MssqlReference.upsync_employees(true)
     # else
     #   @person.update(params.require(:person).permit(:name,:surname,:notes,:mdc_user))
     #   index

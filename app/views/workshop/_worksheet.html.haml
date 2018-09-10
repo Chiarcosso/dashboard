@@ -117,6 +117,8 @@
 
   var active_timers = {};
 
+  var timer;
+
   $.each($('.timer'),function(){
 
     if(!$(this).data('paused')){
@@ -147,6 +149,11 @@
   leave_page_message = 'Uscire dalla scheda?';
   window.onbeforeunload = before_leave_event;
 
+  $('submit, button').on('click',function(){
+    activateLoadingScreen();
+    clearInterval(timer);
+  });
+
   $('.stop-worksheet').on('click',function(){
     if($(this).attr('id') == 'stop-worksheet'){
       if(!confirm('Chiudere la scheda?')){
@@ -161,7 +168,7 @@
       window.onbeforeunload = null;
     }
 
-    activateLoadingScreen();
+
     var route = $(this).data('route');
     var operation_times = [];
     var action = $(this).data('action');
@@ -271,7 +278,7 @@
   });
 
   deactivateLoadingScreen();
-  var timer;
+
   var tm = parseInt($('#timer').data('time'));
   var ck = parseInt($('#clock').data('clock'));
   clearInterval(timer);
@@ -286,7 +293,7 @@
       if(protocol != null){
         protocol = protocol[1]
       }
-      if ($('.popup').length < 1 && protocol != 'checks'){        
+      if ($('.popup').length < 1 && protocol != 'checks'){
         $.ajax({
           url: '/worksheet/'+$('input[name=odl]').val()+'/update_operation_time',
           method: 'post',

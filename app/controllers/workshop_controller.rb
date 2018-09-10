@@ -262,12 +262,10 @@ class WorkshopController < ApplicationController
 
       #if the current user is different from the registered one create a new operation
       if !wo.nil? && wo.user != current_user
-        WorkshopOperation.create(name: wo.name, paused: false, worksheet: wo.worksheet, myofficina_reference: wo.myofficina_reference, user: current_user, last_starting_time: Time.now, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+        WorkshopOperation.create(name: wo.name, paused: false, worksheet: wo.worksheet, myofficina_reference: wo.myofficina_reference, user: current_user, starting_time: Time.now, last_starting_time: Time.now, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       else
-        # duration = wo.duration +
-
         @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
-        @workshop_operation.update(starting_time: DateTime.now)
+        # @workshop_operation.update(starting_time: DateTime.now)
         @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
 
       end
@@ -284,7 +282,11 @@ class WorkshopController < ApplicationController
 
   def pause_operation
     begin
-      duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i - 1 # minus 1 second for error handling
+      if @workshop_operation.paused
+        duration = @workshop_operation.real_duration
+      else
+        duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
+      end
       @workshop_operation.update(real_duration: duration, paused: true,  last_starting_time: nil, last_stopping_time: Time.now, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
@@ -301,8 +303,12 @@ class WorkshopController < ApplicationController
 
   def finish_operation
     begin
-      duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
-      @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_stopping_time: Time.now, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
+      if @workshop_operation.paused
+        duration = @workshop_operation.real_duration
+      else
+        duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
+      end
+      @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
 
@@ -332,7 +338,11 @@ class WorkshopController < ApplicationController
   def delete_operation
     begin
       @worksheet.update(log: "Operazione nr. #{@workshop_operation.id}, '#{@workshop_operation.name}', eliminata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
-      @workshop_operation.destroy
+      if @workshop_operation.siblings.count < 2
+        @workshop_operation.update(user: nil)
+      else
+        @workshop_operation.destroy
+      end
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
@@ -352,10 +362,10 @@ class WorkshopController < ApplicationController
       @worksheet.operations(current_user).each do |wo|
         wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
       end
-      
+
       @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: @worksheet.real_duration.to_i + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: true)
       if params.require('perform') == 'stop'
-        @worksheet.update(real_duration: params.require('worksheet_duration').to_i, exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+        @worksheet.update(exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         vcs = @worksheet.vehicle_check_session
         vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         EurowinController::create_worksheet({
@@ -369,7 +379,10 @@ class WorkshopController < ApplicationController
         @worksheet.output_orders.each do |oo|
           oo.update(processed: true)
         end
-        WorkshopMailer.send_worksheet(@worksheet).deliver_now
+        pdf = @worksheet.sheet
+        File.open("/mnt/documents/ODL/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
+
+        WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
       else
         # @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: true)
       end
