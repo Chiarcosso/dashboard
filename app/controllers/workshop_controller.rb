@@ -359,7 +359,7 @@ class WorkshopController < ApplicationController
       # JSON.parse(params.require('operation_times')).each do |ot|
       #   WorkshopOperation.find(ot['id'].to_i).update(real_duration: ot['time'].to_i)
       # end
-      if @worksheet.last_starting_time.nil
+      if @worksheet.last_starting_time.nil?
         duration = @workshop_operation.real_duration
       else
         duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
