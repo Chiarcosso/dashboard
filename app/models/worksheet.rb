@@ -21,6 +21,10 @@ class Worksheet < ApplicationRecord
   # scope :incoming, ->(search,opened) { where(exit_time: nil, suspended: false, station: "workshop", closed: false).where(opened ? '1' : 'opening_date is not null').where(search.nil?? '1' : "(case worksheets.vehicle_type when 'Vehicle' then worksheets.vehicle_id in (select vehicle_informations.vehicle_id from vehicle_informations where information like '%#{search}%') when 'ExternalVehicle' then worksheets.vehicle_id in (select external_vehicles.id from external_vehicles where external_vehicles.plate like '%#{search}%') end) or code like '%#{search}%'") }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
+  def self.on_processing
+    Worksheet.where(closingDate: nil)
+  end
+
   def hour_unit_price
     30
   end

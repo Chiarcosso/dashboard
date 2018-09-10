@@ -10,7 +10,8 @@
       =link_to "ODL officina aperti (#{@open_worksheets.count}):", '#tab-opened-ws', data: { toggle: 'tab'}, class: 'no-loader'
     %li
       =link_to 'Lista ODL', '#tab-ws-list', data: { toggle: 'tab'}, class: 'no-loader'
-    %li.active
+    %li
+      =link_to "Attualmente in lavorazione:", '#tab-on-processing-ws', data: { toggle: 'tab'}, class: 'no-loader'
 
 .tab-content
   .tab-pane#tab-opened-ws.active
@@ -84,6 +85,9 @@
       #worksheet_complete_list
         =render :partial => 'workshop/complete_list'
 
+  .tab-pane#tab-on-processing-ws
+    .container-fluid
+      = render 'workshop/on_processing'
 :javascript
 
   deactivateLoadingScreen();

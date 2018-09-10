@@ -250,7 +250,7 @@ class WorkshopController < ApplicationController
       wo.update(real_duration: wo.real_duration.to_i + Time.now.to_i - wo.last_starting_time.to_i , last_starting_time: Time.now) unless wo.paused
     end
 
-    @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration.to_i + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
+    # @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration.to_i + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
     respond_to do |format|
       format.js { render partial: 'workshop/worksheet_js' }
     end
@@ -359,6 +359,11 @@ class WorkshopController < ApplicationController
       # JSON.parse(params.require('operation_times')).each do |ot|
       #   WorkshopOperation.find(ot['id'].to_i).update(real_duration: ot['time'].to_i)
       # end
+      if @worksheet.last_starting_time.nil
+        duration = @workshop_operation.real_duration
+      else
+        duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
+      end
       @worksheet.operations(current_user).each do |wo|
         wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
       end
