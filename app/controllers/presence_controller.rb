@@ -560,8 +560,8 @@ class PresenceController < ApplicationController
     date = Date.strptime(params.require(:date),"%Y-%m-%d")
     pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}",size: 26, font_style: :bold, align: :center
     pdf.move_down 40
-    codes = LeaveCode.where(afterhours: 1)
-
+    codes = LeaveCode.where(afterhours: true)
+    byebug
     leaves = GrantedLeave.where("'#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date) or '#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
     driver_role = CompanyRelation.find_by(name: 'Autista')
     mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
@@ -704,7 +704,7 @@ class PresenceController < ApplicationController
     p[:months_unpaid_days] = params[:working_schedule][:months_unpaid_days]
     p[:expected_hours] = params[:working_schedule][:expected_hours]
     p[:flexibility] = params[:working_schedule][:flexibility]
-    
+
     if p[:agreement_from].nil? ^ p[:agreement_to].nil?
       raise "L'orario concordato non e' completo."
     end
