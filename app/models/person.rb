@@ -90,11 +90,13 @@ class Person < ApplicationRecord
         if schedule.nil?
           return :away
         else
+
           #if out between working schedule the missing or breaking
           start_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
           end_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
           if time >= start_time-PresenceController.actual_offset.hours && time <= end_time-PresenceController.actual_offset.hours
-            return :break if time - lr.end_ts.time < schedule.break*60
+            return :missing if lr.end_ts.nil?
+            return :break if time - lr.end_ts.time < schedule.break.to_i*60
             gl.each do |leave|
               return :away if leave.time_in_leave(time)
             end

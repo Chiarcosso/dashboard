@@ -105,9 +105,9 @@ class Vehicle < ApplicationRecord
 
     Vehicle.get_satellite_data.each do |k|
 
-      begin
+      begin        
         v = Vehicle.find_by_plate(k[0])
-        if v.mileage > k[1].to_i
+        if v.mileage < k[1].to_i
           v.update(mileage: k[1].to_i)
         end
       rescue Exception => e
@@ -120,8 +120,9 @@ class Vehicle < ApplicationRecord
 
   def update_km
     data = Vehicle.get_satellite_data
-    self.update(mileage: data[self.plate])
-
+    unless  data[self.plate].nil? || self.mileage >  data[self.plate]
+      self.update(mileage: data[self.plate])
+    end
   end
 
   def typology

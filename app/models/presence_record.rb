@@ -20,7 +20,11 @@ class PresenceRecord < ApplicationRecord
   def time_in_record(time = Time.now)
 
     if time >= self.start_ts.time && self.end_ts.nil?
-      true
+      if self.start_ts.time.strftime("%Y%m%d") == time.strftime("%Y%m%d")
+        true
+      else
+        false
+      end
     else
       if time >= self.start_ts.time && time <= self.end_ts.time
         true
