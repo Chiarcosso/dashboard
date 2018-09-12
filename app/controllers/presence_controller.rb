@@ -562,8 +562,9 @@ class PresenceController < ApplicationController
     pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}",size: 26, font_style: :bold, align: :center
     pdf.move_down 40
     codes = LeaveCode.where(afterhours: true)
+    
 
-    leaves = GrantedLeave.where("'#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date) or '#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
+    leaves = GrantedLeave.where("('#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date) or '#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
     driver_role = CompanyRelation.find_by(name: 'Autista')
     mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
     roaming_mechanic_role = CompanyRelation.find_by(name: 'Meccanico trasfertista')

@@ -284,6 +284,7 @@ Rails.application.routes.draw do
   post   '/worksheet/pdf/:id', to: 'worksheets#print_pdf', as: :worksheet_print_pdf
   post   '/worksheet/get_pdf/:id', to: 'worksheets#get_pdf', as: :worksheet_get_pdf
   post   '/worksheet/upsync', to: 'worksheets#upsync_all', as: :upsync_worksheets
+  post   '/worksheet/notifications_xbox', to: 'worksheets#notifications_xbox', as: :worksheet_notifications_xbox
 
   get   '/worksheet/:id/info', to: 'workshop#info_worksheet',as: :info_worksheet
   post   '/worksheet/:id/get_sheet', to: 'workshop#get_sheet',as: :worksheet_get_sheet

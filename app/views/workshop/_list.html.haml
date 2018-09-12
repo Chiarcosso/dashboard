@@ -1,6 +1,7 @@
 - worksheets.each_with_index do |ws,i|
   - @vehicle = ws.vehicle if i == 0
-  .row.colored.hilight.selectable.ajax-link{ data: { sbox: "#sbox-#{ws.id}", method: :post, target: info_for_workshop_path(id: ws.vehicle.id) } }
+  -# .row.colored.hilight.selectable.ajax-link{ data: { sbox: "#sbox-#{ws.id}", method: :post, target: info_for_workshop_path(id: ws.vehicle.id) } }
+  .row.colored.hilight.selectable.xbox{ data: { data: {protocol: ws.number}.to_json, route: worksheet_notifications_xbox_path, xbox: "#sbox-#{ws.id}" }}
     .col-sm-1
       =button_to ws.number, open_worksheet_path(ws.number), remote: true, class: 'no-ajax-link'
     .col-sm-2
@@ -18,9 +19,3 @@
     .col-sm-3
       %b=ws.notes
     .sbox{id: "sbox-#{ws.id}", style: "display: none;"}
-      - ws.notifications(:all).each do |n|
-        .row
-          .col-sm-12{style: 'padding-left: 3em; padding-right: 2em;'}
-            %span{style: "#{n['FlagRiparato'].to_s.downcase == 'true' ? 'text-decoration: line-through;' : ''}"}
-              %b=n['TipoDanno']
-              = " - #{n['DescrizioneSegnalazione']}"

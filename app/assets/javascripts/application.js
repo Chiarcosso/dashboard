@@ -489,7 +489,24 @@ function move_under_loader_func(){
   "use strict";
   var zindex = $('.loading-screen').css('z-index');
   $(this).parents('.popup').first().css('z-index',zindex-1);
-  
+
+}
+
+function xbox_click_func(){
+  "use strict";
+  var route = $(this).data('route');
+  var data = $(this).data('data');
+  var xbox = $(this).data('xbox');
+  $.ajax({
+    url: route,
+    data: data,
+    type: 'post',
+    complete: function(response){
+      $('.sbox').hide();
+      $(xbox).show();
+      $(xbox).html(response.responseText);
+    }
+  });
 }
 
 function activateJS() {
@@ -559,9 +576,11 @@ function activateJS() {
 
     $('body').on('mouseleave', '[data-alt]', data_alt_mouseleave_func);
 
-    $('body').on('submit','.remember_scroll_form', remember_scroll_form_submit_func)
+    $('body').on('submit','.remember_scroll_form', remember_scroll_form_submit_func);
 
-    $('body').on('submit','.popup form', move_under_loader_func)
+    $('body').on('submit','.popup form', move_under_loader_func);
+
+    $('body').on('click','.xbox', xbox_click_func);
 
 }
 

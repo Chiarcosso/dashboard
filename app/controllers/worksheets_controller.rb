@@ -18,6 +18,22 @@ class WorksheetsController < ApplicationController
     end
   end
 
+  def notifications_xbox
+    begin
+      ws = get_worksheet
+      @notifications = ws.notifications(:all)
+      respond_to do |format|
+        format.js { render partial: 'workshop/notifications_xbox' }
+      end
+    rescue Exception => e
+      respond_to do |format|
+        @error = e.message+"\n"+e.backtrace.join("\n")
+        format.html { render partial: 'layouts/error_html' }
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
   def upsync_all
     begin
       Worksheet.upsync_all
@@ -120,6 +136,10 @@ class WorksheetsController < ApplicationController
   end
 
   private
+
+  def get_worksheet
+    Worksheet.find_by(code: "EWC*#{params.require('protocol')[/\d*/]}")
+  end
 
   def search_params
     if params[:search].nil?

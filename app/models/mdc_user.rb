@@ -25,9 +25,13 @@ class MdcUser < ApplicationRecord
   end
 
   def self.find_by_holder string
+
+    # Find at least a holder
     holder = Person.find_by_complete_name_inv(string) || Person.find_by_complete_name(string) || Company.find_by_name(string)
+
+    # Find people that respond to that name, to avoid errors
     holders = Person.where("lower(concat_ws(' ',surname,name)) = ? or lower(concat_ws(' ',name,surname)) = ?", string, string)
-    # byebug
+
     if holder.class == Person && holders.count > 0
       MdcUser.where("mdc_users.assigned_to_person_id in (#{holders.map{|p| p.id}.join(',')})").first
     elsif holder.class == Company
