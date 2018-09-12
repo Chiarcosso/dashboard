@@ -17,7 +17,7 @@
       %b= "Permessi"
 
   .scrollable-panel#building_presence_list{style: 'height: 75vh;'}
-    - Person.building_employees.order(surname: :asc).each do |p|
+    - Person.active_people.building_employees.order(surname: :asc).each do |p|
       .row.colored{style: p.presence_check_style(Time.now)}
         .col-sm-3
           = p.list_name
