@@ -258,28 +258,29 @@ class PresenceController < ApplicationController
         date_from =Time.strptime(params.require(:date_from),"%Y-%m-%d")
         ws = WorkingSchedule.get_schedule(date_from,@person)
         if ws.nil? && !params[:time_from].nil?
-          ws = WorkingSchedule.new(person: @person, contract_from:params[:time_from])
+          ws = WorkingSchedule.new(person: @person, contract_from_s:params[:time_from])
         end
         raise 'Orario data inizio non presente' if ws.nil?
-        from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
+        from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.utc.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
       rescue
-        @error = 'Data inizio non valida.'
+        @error = 'Data/ora inizio non valida.'
       end
       begin
         #get the working schedule for that day and set from timestamp
         date_to = Time.strptime(params.require(:date_to),"%Y-%m-%d")
         ws = WorkingSchedule.get_schedule(date_to,@person)
         if ws.nil? && !params[:time_to].nil?
-          ws = WorkingSchedule.new(person: @person, contract_to:params[:time_to])
+          ws = WorkingSchedule.new(person: @person, contract_to_s:params[:time_to])
         end
         raise 'Orario data fine non presente' if ws.nil?
-        to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
+        to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.utc.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
       rescue
-        @error = 'Data fine non valida.'
+        @error = 'Data/ora fine non valida.'
       end
       person = Person.find(params.require(:person).to_i)
       leave_code = LeaveCode.find(params.require(:leave_code).to_i)
       # date = Date.strptime(params.require(:date),"%Y-%m-%d")
+
 
       if GrantedLeave.find_by(from: from, to: to, person: person, leave_code: leave_code).nil?
         GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code, date: from.strftime("%Y-%m-%d") == to.strftime("%Y-%m-%d") ? from : nil)
@@ -561,7 +562,7 @@ class PresenceController < ApplicationController
     pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}",size: 26, font_style: :bold, align: :center
     pdf.move_down 40
     codes = LeaveCode.where(afterhours: true)
-    byebug
+
     leaves = GrantedLeave.where("'#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date) or '#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
     driver_role = CompanyRelation.find_by(name: 'Autista')
     mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
@@ -696,22 +697,22 @@ class PresenceController < ApplicationController
     params.require(:working_schedule).permit(:weekday, :agreement_from, :agreement_to, :contract_from, :contract_to, :break, :months_unpaid_days, :expected_hours, :flexibility)
     p[:person] = @person
     p[:weekday] = params[:working_schedule][:weekday]
-    p[:agreement_from] = params[:working_schedule][:agreement_from] == ''? nil :Time.strptime(params[:working_schedule][:agreement_from],"%H:%M")
-    p[:agreement_to] = params[:working_schedule][:agreement_to] == ''? nil :Time.strptime(params[:working_schedule][:agreement_to],"%H:%M")
-    p[:contract_from] = params[:working_schedule][:contract_from] == ''? nil : Time.strptime(params[:working_schedule][:contract_from],"%H:%M")
-    p[:contract_to] = params[:working_schedule][:contract_to] == ''? nil :Time.strptime(params[:working_schedule][:contract_to],"%H:%M")
+    p[:agreement_from_s] = params[:working_schedule][:agreement_from] #== ''? nil :Time.strptime(params[:working_schedule][:agreement_from],"%H:%M")-PresenceController.actual_offset.hours
+    p[:agreement_to_s] = params[:working_schedule][:agreement_to]#== ''? nil :Time.strptime(params[:working_schedule][:agreement_to],"%H:%M")-PresenceController.actual_offset.hours
+    p[:contract_from_s] = params[:working_schedule][:contract_from] #== ''? nil : Time.strptime(params[:working_schedule][:contract_from],"%H:%M")-PresenceController.actual_offset.hours
+    p[:contract_to_s] = params[:working_schedule][:contract_to] #== ''? nil :Time.strptime(params[:working_schedule][:contract_to],"%H:%M")-PresenceController.actual_offset.hours
     p[:break] = params[:working_schedule][:break]
     p[:months_unpaid_days] = params[:working_schedule][:months_unpaid_days]
     p[:expected_hours] = params[:working_schedule][:expected_hours]
     p[:flexibility] = params[:working_schedule][:flexibility]
 
-    if p[:agreement_from].nil? ^ p[:agreement_to].nil?
+    if p[:agreement_from_s].nil? ^ p[:agreement_to_s].nil?
       raise "L'orario concordato non e' completo."
     end
-    if p[:contract_from].nil? ^ p[:contract_to].nil?
+    if p[:contract_from_s].nil? ^ p[:contract_to_s].nil?
       raise "L'orario da contratto non e' completo."
     end
-    if p[:contract_from].nil? && p[:contract_to].nil? && p[:agreement_from].nil? && p[:agreement_to].nil?
+    if p[:contract_from_s].nil? && p[:contract_to_s].nil? && p[:agreement_from_s].nil? && p[:agreement_to_s].nil?
       raise "Non sono stati impostati gli orari."
     end
     p

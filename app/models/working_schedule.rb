@@ -3,6 +3,38 @@ class WorkingSchedule < ApplicationRecord
 
   enum weekdays: ['Lunedi', 'Martedi', 'Mercoledi', 'Giovedi', 'Venerdi', 'Sabato', 'Domenica']
 
+  def contract_from
+    if self.contract_from_s.size == 5
+      Time.strptime(self.contract_from_s,"%H:%M")
+    elsif self.contract_from_s.size == 8
+      Time.strptime(self.contract_from_s,"%H:%M:%S")
+    end
+  end
+
+  def contract_to
+    if self.contract_to_s.size == 5
+      Time.strptime(self.contract_to_s,"%H:%M")
+    elsif self.contract_to_s.size == 8
+      Time.strptime(self.contract_to_s,"%H:%M:%S")
+    end
+  end
+
+  def agreement_from
+    if self.agreement_from_s.size == 5
+      Time.strptime(self.agreement_from_s,"%H:%M")
+    elsif self.agreement_from_s.size == 8
+      Time.strptime(self.agreement_from_s,"%H:%M:%S")
+    end
+  end
+
+  def agreement_to
+    if self.agreement_to_s.size == 5
+      Time.strptime(self.agreement_to_s,"%H:%M")
+    elsif self.agreement_to_s.size == 8
+      Time.strptime(self.agreement_to_s,"%H:%M:%S")
+    end
+  end
+
   def self.get_schedule(date,person)
     weekday = date.strftime('%u').to_i-1
     working_schedule = WorkingSchedule.find_by(person: person, weekday: weekday)

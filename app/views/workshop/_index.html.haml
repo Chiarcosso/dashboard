@@ -17,7 +17,7 @@
   .tab-pane#tab-opened-ws.active
     .container-fluid
       .row
-        .col-sm-6{ style: 'padding-bottom: 7.5em; height: 100%;'}
+        .col-sm-12{ style: 'padding-bottom: 7.5em; height: 100%;'}
           .row
             = form_tag(search_worksheets_path,remote: true) do |f|
               .col-sm-8
@@ -30,22 +30,23 @@
               .col-sm-2
                 =submit_tag 'Aggiorna', name: 'commit', remote: true, class: 'no-ajax-link'
           .row
-            .col-sm-2
+            .col-sm-1
               %b="Apri"
             .col-sm-2
               %b="Manutentore"
-            .col-sm-2
+            .col-sm-1
               %b="Targa"
             .col-sm-2
+            .col-sm-1
               %b="Data entrata"
-            .col-sm-4
+            .col-sm-3
               %b="Note"
 
           .scrollable-panel{ style: 'padding-bottom: 7em; height: 100%;'}
             =render :partial => 'workshop/list', :locals => { :worksheets => @open_worksheets }
-        .col-sm-6{ style: 'padding-bottom: 5.5em; height: 100%;'}
-          #worksheet_side
-            =render :partial => 'workshop/worksheet_side'
+        -# .col-sm-6{ style: 'padding-bottom: 5.5em; height: 100%;'}
+        -#   #worksheet_side
+        -#     =render :partial => 'workshop/worksheet_side'
       .row
         .col-sm-6{ style: 'bottom: 1.5em; text-align: right'}
           %button{ class: 'create_popup no-loader', data: { popup_id: 'new_worksheet', html: (render partial: 'workshop/worksheet_popup') } }

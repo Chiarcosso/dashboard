@@ -78,23 +78,23 @@
               .col-sm-7
                 Accordo dalle
               .col-sm-5
-                = time_field 'working_schedule', 'agreement_from', value: (ws.agreement_from.nil?? nil : (ws.agreement_from+2.hours).strftime('%H:%M'))
+                = time_field 'working_schedule', 'agreement_from', value: (ws.agreement_from.nil?? nil : (ws.agreement_from).strftime('%H:%M'))
             .row
               .col-sm-7
                 Accordo alle
               .col-sm-5
-                = time_field 'working_schedule', 'agreement_to', value: (ws.agreement_to.nil?? nil : (ws.agreement_to+2.hours).strftime('%H:%M'))
+                = time_field 'working_schedule', 'agreement_to', value: (ws.agreement_to.nil?? nil : (ws.agreement_to).strftime('%H:%M'))
           .col-sm-2
             .row
               .col-sm-7
                 Contratto dalle
               .col-sm-5
-                = time_field 'working_schedule', 'contract_from', value: (ws.contract_from.nil?? nil : (ws.contract_from+2.hours).strftime('%H:%M'))
+                = time_field 'working_schedule', 'contract_from', value: (ws.contract_from.nil?? nil : (ws.contract_from).strftime('%H:%M'))
             .row
               .col-sm-7
                 Contratto alle
               .col-sm-5
-                = time_field 'working_schedule', 'contract_to', value: (ws.contract_to.nil?? nil : (ws.contract_to+2.hours).strftime('%H:%M'))
+                = time_field 'working_schedule', 'contract_to', value: (ws.contract_to.nil?? nil : (ws.contract_to).strftime('%H:%M'))
           .col-sm-2
             .row
               .col-sm-7

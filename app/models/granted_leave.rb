@@ -27,7 +27,7 @@ class GrantedLeave < ApplicationRecord
         end
         return (self.to - self.from).to_i - (ws.nil? ? self.break.minutes : ws.break.minutes)
       else
-
+        # byebug
         #if we compare with the leave's starting date
         if self.from.strftime("%Y-%m-%d") == comparison_date.strftime("%Y-%m-%d")
           ws = WorkingSchedule.get_schedule(self.from,self.person)

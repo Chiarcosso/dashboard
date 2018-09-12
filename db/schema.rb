@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180906110225) do
+ActiveRecord::Schema.define(version: 20180911121609) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -940,10 +940,10 @@ ActiveRecord::Schema.define(version: 20180906110225) do
 
   create_table "working_schedules", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "person_id",                                     null: false
-    t.time     "agreement_from"
-    t.time     "agreement_to"
-    t.time     "contract_from"
-    t.time     "contract_to"
+    t.string   "agreement_from_s",                              null: false
+    t.string   "agreement_to_s",                                null: false
+    t.string   "contract_from_s",                               null: false
+    t.string   "contract_to_s",                                 null: false
     t.integer  "weekday",                                       null: false
     t.boolean  "contractor",                    default: false, null: false
     t.integer  "break",                                         null: false
