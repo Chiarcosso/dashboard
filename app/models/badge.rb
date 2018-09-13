@@ -19,18 +19,24 @@ class Badge < ApplicationRecord
     #               "or ('#{data[:from].strftime('%Y-%m-%d')}' between badge_assignments.from and badge_assignments.to").count > 0
     #   end
     # end
+
     self.holders(data).count > 0
   end
 
   def holders(data = {from: Time.today, to: nil, exclude: nil})
+    
     if data[:to].nil?
-      BadgeAssigments.where("badge_assignments.to > '#{data[:from].strftime('%Y-%m-%d')}' #{data[:exclude].nil?? '' : "and id != #{data[:exclude].id}"}")
+      p = Person.find_by_sql("select * from people where id in ("\
+      "select person_id from badge_assignments.to > '#{data[:from].strftime('%Y-%m-%d')}' #{data[:exclude].nil?? '' : "and id != #{data[:exclude].id}"}"\
+      ")")
+      # BadgeAssigments.where("badge_assignments.to > '#{data[:from].strftime('%Y-%m-%d')}' #{data[:exclude].nil?? '' : "and id != #{data[:exclude].id}"}")
     else
-      Person.find_by_sql("select * from people where id = (select person_id from badge_assignments "\
+      p = Person.find_by_sql("select * from people where id = (select person_id from badge_assignments "\
                 "where #{data[:exclude].nil?? '' : "id != #{data[:exclude].id} and"} ((badge_assignments.from between '#{data[:from].strftime('%Y-%m-%d')}' and '#{data[:to].strftime('%Y-%m-%d')}') "\
                 "or (badge_assignments.to between '#{data[:from].strftime('%Y-%m-%d')}' and '#{data[:to].strftime('%Y-%m-%d')}') "\
                 "or ('#{data[:from].strftime('%Y-%m-%d')}' between badge_assignments.from and badge_assignments.to)) and badge_id = #{self.id} order by badge_assignments.from desc limit 1) limit 1")
     end
+    return p
   end
 
   def current_holder

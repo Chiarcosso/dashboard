@@ -1,7 +1,7 @@
 = navbar fixed: :top do
-  -unless current_user.nil?
-    -unless current_user.has_role?(:admin)
-      = navbar_header brand: 'Chiarcosso Dashboard', brand_link: '/', align: 'left'
+  -# -unless current_user.nil?
+  -#   -unless current_user.has_role?(:admin)
+  -#     = navbar_header brand: 'Chiarcosso Dashboard', brand_link: '/', align: 'left'
   -# %h3= 'Chiarcosso Dashboard'
   = navbar_collapse do
     = navbar_group class: 'foo', id: 'menu' do

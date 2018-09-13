@@ -1,0 +1,6 @@
+- @notifications.each do |n|
+  .row
+    .col-sm-12{style: 'padding-left: 3em; padding-right: 2em;'}
+      %span{style: "#{n['FlagRiparato'].to_s.downcase == 'true' ? 'text-decoration: line-through;' : ''}"}
+        %b=n['TipoDanno']
+        = " - #{n['DescrizioneSegnalazione']}"

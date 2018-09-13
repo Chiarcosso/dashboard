@@ -8,9 +8,10 @@
       - op = ws.ew_operator
       = op['Descrizione'] unless op.nil?
     .col-sm-1
-      = link_to ws.vehicle.plate, vehicles_path(search: ws.vehicle.plate), class: 'no-ajax-link'
-    .col-sm-2
       - v = ws.vehicle
+      %b= v.plate#, vehicles_path(search: ws.vehicle.plate), class: 'no-ajax-link'
+    .col-sm-2
+
       =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(v.id), name: "infobox_vehicle_checks_#{v.id}" }
       =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(v.id), name: "infobox_vehicle_#{v.id}" }
       =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(v.id), name: "infobox_vehicle_workshop_#{v.id}" }
