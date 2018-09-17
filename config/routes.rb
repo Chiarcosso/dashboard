@@ -276,7 +276,7 @@ Rails.application.routes.draw do
   post   '/vehicle/vehicle_external_vehicle_autocomplete', to: 'vehicles#vehicle_external_vehicle_autocomplete', as: :custom_vehicle_external_vehicle_autocomplete
   post   '/vehicle/info_for_workshop', to: 'vehicles#info_for_workshop', as: :info_for_workshop
 
-  get    '/worksheets/', to: 'worksheets#index', as: :worksheets
+  get    '/worksheets/', to: 'workshop#index', as: :worksheets
   post   '/worksheet/search', to: 'workshop#index',as: :search_worksheets
   post   '/worksheet/hours', to: 'worksheets#set_hours', as: :worksheet_hours
   post   "/worksheet/toogle_closure", to: 'worksheets#toggle_closure', as: :worksheet_closure_toggle

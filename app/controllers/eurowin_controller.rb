@@ -230,7 +230,7 @@ class EurowinController < ApplicationController
 
   def self.get_vehicle(vehicle)
     vehicle_refs = { 'CodiceAutomezzo': nil, 'CodiceAutista': nil, 'Targa': nil, 'Km': nil }
-    mssql = vehicle.mssql_references.first
+    mssql = vehicle.mssql_references.last
     vehicle_refs['CodiceAutomezzo'] = mssql.remote_object_id.to_s
 
     case mssql.remote_object_table

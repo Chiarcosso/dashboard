@@ -318,7 +318,7 @@ class PresenceController < ApplicationController
       person = Person.find(params.require(:person).to_i)
       leave_code = LeaveCode.find(params.require(:leave_code).to_i)
       date = Date.strptime(params.require(:date),"%Y-%m-%d")
-
+      
       if GrantedLeave.find_by(from: from, to: to, person: person, leave_code: leave_code).nil?
         gl = GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code, date: date, break: params.require(:break).to_i)
       end

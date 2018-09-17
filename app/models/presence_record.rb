@@ -111,14 +111,14 @@ class PresenceRecord < ApplicationRecord
           #if it's the first timestamp of the day compare starting time with agreed schedule
           # calculated_start = DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{working_schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
 
-          if pts.time.utc.strftime('%H:%M') < working_schedule.agreement_from.strftime('%H:%M')
+          if pts.time.strftime('%H:%M') < working_schedule.agreement_from.strftime('%H:%M')
             calculated_start = PresenceRecord.round_timestamp(pts.time,:+)
           else
-            calculated_start = working_schedule.transform_to_date(pts.time.utc,:agreement_from)
+            calculated_start = working_schedule.transform_to_date(pts.time,:agreement_from)
           end
 
           #if there's a delay create a leave
-          if pts.time.utc.strftime('%H:%M') > (working_schedule.transform_to_date(pts.time,:agreement_from) + working_schedule.flexibility.minutes).strftime('%H:%M')
+          if pts.time.strftime('%H:%M') > (working_schedule.transform_to_date(pts.time,:agreement_from) + working_schedule.flexibility.minutes).strftime('%H:%M')
             #calculate delay fine
             unless GrantedLeave.where(date: date, person: person, leave_code: no_delay_leave).count > 0 or dont_create.include?(delay_leave)
               delay = PresenceRecord.round_delay(pts.time - working_schedule.transform_to_date(pts.time,:agreement_from))
@@ -187,7 +187,7 @@ class PresenceRecord < ApplicationRecord
         unless next_pts.nil?
 
           #start must be the pts' time
-          calculated_start = pts.time.to_datetime
+          calculated_start = pts.time.utc.to_datetime
 
           #end will be the rounded next timestamp
           # if working_schedule.nil?
@@ -195,7 +195,7 @@ class PresenceRecord < ApplicationRecord
           # else
           #   calculated_end = pts.time+working_schedule.break.minutes
           # end
-          calculated_end = pts.time+PresenceRecord.round_interval(next_pts.time - pts.time,:+)
+          calculated_end = pts.time.utc+PresenceRecord.round_interval(next_pts.time - pts.time,:+)
           previous_record = PresenceRecord.create(date: date,
                               person: person,
                               start_ts: pts,

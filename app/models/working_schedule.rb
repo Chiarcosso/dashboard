@@ -71,7 +71,7 @@ class WorkingSchedule < ApplicationRecord
     when :contract_to then
       selected_time = self.contract_to
     end
-    DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{selected_time.strftime("%H:%M")} UTC","%Y-%m-%d %H:%M %Z")
+    DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{selected_time.strftime("%H:%M")} #{PresenceController.actual_timezone}","%Y-%m-%d %H:%M %Z")
   end
 
   def self.upsync_all

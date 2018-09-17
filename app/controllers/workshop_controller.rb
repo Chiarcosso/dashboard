@@ -19,10 +19,12 @@ class WorkshopController < ApplicationController
   end
 
   def index
-    unless params[:list][:search].nil?
-      @search_list = params[:list][:search]
+    unless params[:list].nil?
+      unless params[:list][:search].nil?
+        @search_list = params[:list][:search]
+      end
     end
-    
+
     begin
       respond_to do |format|
         format.html { render 'workshop/index' }
