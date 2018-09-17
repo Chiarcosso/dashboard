@@ -46,6 +46,10 @@ body{
   background-color: #eee;
 }
 
+.colored2:nth-child(odd){
+  background-color: #def;
+}
+
 .custom-autocomplete-choice{
   /*height: 3em;
   border: 1px solid black;*/

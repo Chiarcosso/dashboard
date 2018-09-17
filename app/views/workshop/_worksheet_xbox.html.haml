@@ -1,5 +1,6 @@
 %div{style: 'padding: 2em;'}
   - @notifications.each do |n|
-    = render partial: 'workshop/notification_xbox', locals: {sgn: n}
-  %button{ class: 'btn_small stop-worksheet', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop } }
+    .colored2
+      = render partial: 'workshop/notification_xbox', locals: {sgn: n}
+  %button{ class: 'btn_small stop-worksheet', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop, area: 'on_processing' } }
     = 'Chiudi scheda'

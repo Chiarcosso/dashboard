@@ -1,4 +1,4 @@
-.container-fluid
+.container-fluid{style: 'margin-top: 2em;'}
   .row
     = form_tag(worksheet_filter_path, method: :post, remote: true, type: :script, class: 'preventCr', :id => :filter) do |f|
       .col-sm-1

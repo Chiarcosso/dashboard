@@ -14,7 +14,7 @@
     = sgn['Protocollo']
   .col-sm-11
     - WorkshopOperation.to_notification(sgn['Protocollo']).each_with_index do |wo,i|
-      .row.colored
+      .row
         .col-sm-1
           -# = button_to "-", delete_workshop_operation_path(id: @worksheet.number, operation: wo.id), remote: true, data: { confirmation: "Elminare l'operazione nr. #{wo.id}, #{wo.name}?" }
           -# - if i > 0

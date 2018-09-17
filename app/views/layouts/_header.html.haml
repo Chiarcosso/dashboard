@@ -35,7 +35,7 @@
           - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina')|| current_user.has_role?(:officina))
             = navbar_item "Checkup point", carwash_checks_path
           - if (current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina')|| current_user.has_role?(:officina))
-            = navbar_item "Lista ODL", worksheets_path
+            = navbar_item "ODL aperti", worksheets_path
           - if (current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina'))
             = navbar_item "Attualmente in lavorazione", worksheets_on_processing_path
           - if (current_user.has_role?(:admin)|| current_user.has_role?('gestione officina'))

@@ -167,6 +167,7 @@ class WorkshopController < ApplicationController
         'Descrizione': params.require('Worksheet').permit('description')['description'],
         'ProtocolloODL': '0',
         'AnnoODL': '0',
+        'DataEntrataVeicolo': Time.now.strftime('%Y-%m-%d'),
         'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
         'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
         'CodiceTarga': vehicle_refs['Targa'],
@@ -346,7 +347,11 @@ class WorkshopController < ApplicationController
         })
       end
       respond_to do |format|
-        format.js { render partial: 'workshop/worksheet_js' }
+        if params[:area].nil?
+          format.js { render partial: 'workshop/worksheet_js' }
+        elsif params[:area] == 'on_processing'
+          format.js { render partial: 'workshop/worksheet_op_js' }
+        end
       end
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"
