@@ -25,7 +25,7 @@ class Person < ApplicationRecord
   scope :order_mdc_user, -> { order(:mdc_user)}
   scope :employees, -> { joins(:companies).where("company_id = #{Company.chiarcosso.id} or company_id = #{Company.transest.id}").distinct }
   scope :with_badge, -> { where("id in (select person_id from badge_assignments)") }
-  scope :building_employees, -> { where("people.id in (select person_id from working_schedules)") }
+  # scope :building_employees, -> { where("people.id in (#{MssqlReference.query({table: 'Autisti', where: {IdMansione: [2,3,5,6,7,11,12,13,14,15,16,17,18,19,20]}}).map{|p| p['IdAutista']}.join(',')})") }
   # scope :drivers, -> { include(:relations).where("relations.name = 'Autista'") }
   # scope :company, ->(name) { joins(:companies).where('company.name like ?',"%#{name}%") }
   def check_properties(comp)
@@ -35,6 +35,12 @@ class Person < ApplicationRecord
       return false
     end
     return true
+  end
+
+  # Filter drivers out
+  def self.building_employees
+    refs = MssqlReference.query({table: 'Autisti', where: {IdMansione: [2,3,5,6,7,11,12,13,14,15,16,17,18,19,20]}})
+    Person.joins("inner join mssql_references mr on mr.local_object_id = people.id and mr.local_object_type = 'Person'").where("mr.remote_object_id in (#{refs.to_a.map{ |a| a['Idautista']}.join(',')})").distinct
   end
 
   # Queries mssql db for people with 'attivo' flag set
@@ -79,7 +85,7 @@ class Person < ApplicationRecord
           #if out between working schedule the missing or breaking
           start_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
           end_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
-          if time >= start_time-PresenceController.actual_offset.hours && time <= end_time-PresenceController.actual_offset.hours
+          if time >= start_time && time <= end_time
             return :present
           else
             return :not_requested

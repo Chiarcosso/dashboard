@@ -277,7 +277,7 @@ Rails.application.routes.draw do
   post   '/vehicle/info_for_workshop', to: 'vehicles#info_for_workshop', as: :info_for_workshop
 
   get    '/worksheets/', to: 'worksheets#index', as: :worksheets
-  post   '/worksheet/search', to: 'worksheets#index',as: :search_worksheets
+  post   '/worksheet/search', to: 'workshop#index',as: :search_worksheets
   post   '/worksheet/hours', to: 'worksheets#set_hours', as: :worksheet_hours
   post   "/worksheet/toogle_closure", to: 'worksheets#toggle_closure', as: :worksheet_closure_toggle
   post   '/worksheet/filter/', to: 'worksheets#filter', as: :worksheet_filter
@@ -286,6 +286,9 @@ Rails.application.routes.draw do
   post   '/worksheet/upsync', to: 'worksheets#upsync_all', as: :upsync_worksheets
   post   '/worksheet/notifications_xbox', to: 'worksheets#notifications_xbox', as: :worksheet_notifications_xbox
 
+  get   '/worksheet/manage_worksheets', to: 'worksheets#manage_worksheets_index', as: :manage_worksheets
+  get   '/worksheet/worksheets_on_processing', to: 'worksheets#on_processing_index', as: :worksheets_on_processing
+  post   '/worksheet/processing_xbox', to: 'worksheets#processing_xbox', as: :worksheet_processing_xbox
   get   '/worksheet/:id/info', to: 'workshop#info_worksheet',as: :info_worksheet
   post   '/worksheet/:id/get_sheet', to: 'workshop#get_sheet',as: :worksheet_get_sheet
   post   '/worksheet/:id/open', to: 'workshop#open_worksheet',as: :open_worksheet

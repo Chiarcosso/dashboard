@@ -2,11 +2,27 @@ class WorksheetsController < ApplicationController
 
   before_action :search_params
 
-  def index
+  def manage_worksheets_index
     begin
       apply_filter
       respond_to do |format|
-        format.html { render 'workshop/index' }
+        format.html { render 'worksheets/index' }
+        format.js { render partial: 'worksheets/index_js' }
+      end
+    rescue Exception => e
+      respond_to do |format|
+        @error = e.message+"\n"+e.backtrace.join("\n")
+        format.html { render partial: 'layouts/error_html' }
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
+  def on_processing_index
+    begin
+      @open_worksheets = Worksheet.where("id in (select worksheet_id from workshop_operations where ending_time is null)")
+      respond_to do |format|
+        format.html { render 'workshop/on_processing' }
         format.js { render partial: 'workshop/index_js' }
       end
     rescue Exception => e
@@ -24,6 +40,22 @@ class WorksheetsController < ApplicationController
       @notifications = ws.notifications(:all)
       respond_to do |format|
         format.js { render partial: 'workshop/notifications_xbox' }
+      end
+    rescue Exception => e
+      respond_to do |format|
+        @error = e.message+"\n"+e.backtrace.join("\n")
+        format.html { render partial: 'layouts/error_html' }
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
+  def processing_xbox
+    begin
+      @worksheet = get_worksheet
+      @notifications = @worksheet.notifications(:all)
+      respond_to do |format|
+        format.js { render partial: 'workshop/worksheet_xbox' }
       end
     rescue Exception => e
       respond_to do |format|

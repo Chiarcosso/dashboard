@@ -1,6 +1,5 @@
-- @notifications.each do |n|
-  .row
-    .col-sm-12{style: 'padding-left: 3em; padding-right: 2em;'}
-      %span{style: "#{n['FlagRiparato'].to_s.downcase == 'true' ? 'text-decoration: line-through;' : ''}"}
-        %b=n['TipoDanno']
-        = " - #{n['DescrizioneSegnalazione']}"
+%div{style: 'padding: 2em;'}
+  - @notifications.each do |n|
+    = render partial: 'workshop/notification_xbox', locals: {sgn: n}
+  %button{ class: 'btn_small stop-worksheet', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop } }
+    = 'Chiudi scheda'

@@ -105,7 +105,7 @@ class Vehicle < ApplicationRecord
 
     Vehicle.get_satellite_data.each do |k|
 
-      begin        
+      begin
         v = Vehicle.find_by_plate(k[0])
         if v.mileage < k[1].to_i
           v.update(mileage: k[1].to_i)

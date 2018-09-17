@@ -1,94 +1,46 @@
 -# - @open_worksheets = Worksheet.incoming(@search_list,true).sort_by{ |ws| ws.vehicle.plate }
-- @open_worksheets = Worksheet.get_incoming(@search_list).sort_by{ |ws| ws.vehicle.plate }
-- @worksheets = @open_worksheets if @worksheets.nil?
+- @open_worksheets = Worksheet.get_incoming(@search_list).sort_by{ |ws| ws[:plate] }
+-# - @worksheets = @open_worksheets if @worksheets.nil?
 
-%div{ style: 'height: 100vh, padding-top: 3em'}
-  %ul.nav.nav-tabs
-    -# %style
-    -#   a:visited,a:link,a:hover,a:active{ color: black; font-style: normal; font-size: +2; }
-    %li.active
-      =link_to "ODL officina aperti (#{@open_worksheets.count}):", '#tab-opened-ws', data: { toggle: 'tab'}, class: 'no-loader'
-    %li
-      =link_to 'Lista ODL', '#tab-ws-list', data: { toggle: 'tab'}, class: 'no-loader'
-    %li
-      =link_to "Attualmente in lavorazione:", '#tab-on-processing-ws', data: { toggle: 'tab'}, class: 'no-loader'
 
-.tab-content
-  .tab-pane#tab-opened-ws.active
-    .container-fluid
+.container-fluid{style: 'margin-top: 2em;'}
+  .row
+    .col-sm-12{ style: 'padding-bottom: 7.5em; height: 100%;'}
       .row
-        .col-sm-12{ style: 'padding-bottom: 7.5em; height: 100%;'}
-          .row
-            = form_tag(search_worksheets_path,remote: true) do |f|
-              .col-sm-8
-                =text_field_tag 'list[search]', @search_list, placeholder: 'Cerca..', class: 'form-control'
-              -# .col-sm-2
-              -#   =check_box_tag 'list[opened]', 'on', @opened_list
-              -#   Entrati
-              .col-sm-2
-                =submit_tag 'Cerca'
-              .col-sm-2
-                =submit_tag 'Aggiorna', name: 'commit', remote: true, class: 'no-ajax-link'
-          .row
-            .col-sm-1
-              %b="Apri"
-            .col-sm-2
-              %b="Manutentore"
-            .col-sm-1
-              %b="Targa"
-            .col-sm-2
-            .col-sm-1
-              %b="Data entrata"
-            .col-sm-3
-              %b="Note"
-
-          .scrollable-panel{ style: 'padding-bottom: 7em; height: 100%;'}
-            =render :partial => 'workshop/list', :locals => { :worksheets => @open_worksheets }
-        -# .col-sm-6{ style: 'padding-bottom: 5.5em; height: 100%;'}
-        -#   #worksheet_side
-        -#     =render :partial => 'workshop/worksheet_side'
+        = form_tag(search_worksheets_path,remote: true) do |f|
+          .col-sm-8
+            =text_field_tag 'list[search]', @search_list, placeholder: 'Cerca..', class: 'form-control'
+          -# .col-sm-2
+          -#   =check_box_tag 'list[opened]', 'on', @opened_list
+          -#   Entrati
+          .col-sm-2
+            =submit_tag 'Cerca'
+          .col-sm-2
+            =submit_tag 'Aggiorna', name: 'commit', remote: true, class: 'no-ajax-link'
       .row
-        .col-sm-6{ style: 'bottom: 1.5em; text-align: right'}
-          %button{ class: 'create_popup no-loader', data: { popup_id: 'new_worksheet', html: (render partial: 'workshop/worksheet_popup') } }
-            Nuovo ODL
+        .col-sm-1
+          %b="Apri"
+        .col-sm-2
+          %b="Manutentore"
+        .col-sm-1
+          %b="Targa"
+        .col-sm-2
+        .col-sm-1
+          %b="Data entrata"
+        .col-sm-3
+          %b="Note"
 
-  .tab-pane#tab-ws-list
-    .container-fluid
-      .row
-        = form_tag(worksheet_filter_path, method: :post, remote: true, type: :script, class: 'preventCr', :id => :filter) do |f|
-          .col-sm-1
-            Aperte
-            = check_box_tag 'search[opened]', 1, @search[:opened]
-          .col-sm-1
-            Chiuse
-            = check_box_tag 'search[closed]',  1, @search[:closed]
-          .col-sm-2
-            .col-sm-4
-              Targa
-            .col-sm-8
-              = text_field_tag 'search[plate]', @search[:plate], style: 'width: 9em;'
-          .col-sm-2
-            .inline
-              Nr.
-            .inline
-              = text_field_tag 'search[number]', @search[:number]
-          .col-sm-2
-            Dal
-            = date_field_tag 'search[date_since]', @search[:date_since]
-          .col-sm-2
-            Al
-            = date_field_tag 'search[date_to]', @search[:date_to]
-          .col-sm-1
-            Manutentore
-            = select_tag 'search[mechanic]', Hash.new, class: 'form-control'
-          .col-sm-1
-            = submit_tag 'Filtra', class: 'form-control'
-      #worksheet_complete_list
-        =render :partial => 'workshop/complete_list'
+      .scrollable-panel{ style: 'padding-bottom: 7em; height: 100%;'}
+        =render :partial => 'workshop/list', :locals => { :worksheets => @open_worksheets }
+    -# .col-sm-6{ style: 'padding-bottom: 5.5em; height: 100%;'}
+    -#   #worksheet_side
+    -#     =render :partial => 'workshop/worksheet_side'
+  .row
+    .col-sm-6{ style: 'bottom: 1.5em; text-align: right'}
+      %button{ class: 'create_popup no-loader', data: { popup_id: 'new_worksheet', html: (render partial: 'workshop/worksheet_popup') } }
+        Nuovo ODL
 
-  .tab-pane#tab-on-processing-ws
-    .container-fluid
-      = render 'workshop/on_processing'
+
 :javascript
 
   deactivateLoadingScreen();

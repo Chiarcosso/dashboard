@@ -1,9 +1,9 @@
 class WorkshopController < ApplicationController
 
-  before_action :get_worksheet, except: [:get_sheet,:create_worksheet]
-  before_action :get_check_session
+  before_action :get_worksheet, except: [:get_sheet,:create_worksheet,:index]
+  before_action :get_check_session, except: [:index]
   before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation]
-  before_action :set_protocol
+  before_action :set_protocol, except: [:index]
   before_action :set_station
 
   def get_sheet
@@ -14,6 +14,25 @@ class WorkshopController < ApplicationController
         send_data pdf.render, filename:
         "odl_nr_#{ws.number}.pdf",
         type: "application/pdf"
+      end
+    end
+  end
+
+  def index
+    unless params[:list][:search].nil?
+      @search_list = params[:list][:search]
+    end
+    
+    begin
+      respond_to do |format|
+        format.html { render 'workshop/index' }
+        format.js { render partial: 'workshop/index_js' }
+      end
+    rescue Exception => e
+      respond_to do |format|
+        @error = e.message+"\n"+e.backtrace.join("\n")
+        format.html { render partial: 'layouts/error_html' }
+        format.js { render partial: 'layouts/error' }
       end
     end
   end

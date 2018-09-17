@@ -1,0 +1,64 @@
+.row
+  .col-sm-1
+    %b= "Trovati: #{@worksheets.size > 99 ? '99+' : @worksheets.size}"
+  .col-sm-1
+    %b='Nr. scheda'
+  .col-sm-1
+    %b='Targa'
+  .col-sm-1
+    %b='Data ingr.'
+  .col-sm-1
+    %b='Chiusura'
+  .col-sm-2
+    %b='Ore'
+  .col-sm-1
+  .col-sm-1
+  .col-sm-1
+  .col-sm-1
+
+.row
+  .col-sm-12
+    .scrollable-panel
+      - @worksheets.each do |ws|
+        .row.colored.hilight
+          .col-sm-1
+            =button_tag 'Apri'
+          .col-sm-1
+            ="n. #{ws.number}"
+          .col-sm-1
+            =ws.vehicle.plate
+          .col-sm-1
+            ="#{I18n.l ws.opening_date}"
+          .col-sm-1
+            ="#{I18n.l ws.closingDate}" unless ws.opened?
+          - if ws.opened?
+            = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+              .col-sm-2
+                .inline
+                  = hidden_field_tag 'worksheet[id]', ws.id
+                  = hidden_field_tag :search, @search.to_json
+                  = number_field_tag 'worksheet[hours]', ws.hours, step: 0.5, min: 0, style: "width: 5em;", class: 'toggable-display-fld', data: {target: "ws-#{ws.id}-hours"}
+                .inline
+                  = submit_tag :Ok, class: 'keep-filter invisible', id: "ws-#{ws.id}-hours"
+              -# = number_field_tag :hours, ws.hours, class: 'form-control', step: :any, min: 0, width: '1em'
+            .col-sm-1
+              = form_tag(worksheet_closure_toggle_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+                .col-sm-2
+                  = hidden_field_tag 'worksheet[id]', ws.id
+                  = hidden_field_tag :search, @search.to_json
+                  -# = hidden_field_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil
+                  = submit_tag 'Chiudi', class: 'keep-filter no-loader'
+          - else
+            .col-sm-2
+              = ws.hours
+            .col-sm-1
+              = form_tag(worksheet_closure_toggle_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
+                .col-sm-2
+                  = hidden_field_tag 'worksheet[id]', ws.id
+                  = hidden_field_tag :search, @search.to_json
+                  -# = hidden_field_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil
+                  = submit_tag 'Riapri', class: 'keep-filter no-loader'
+          .col-sm-1
+            = button_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+          .col-sm-1
+            = button_to 'Conteggio', worksheet_print_pdf_path(ws.id,format: :pdf), class: 'no-loader'

@@ -19,6 +19,9 @@
   .scrollable-panel#building_presence_list{style: 'height: 75vh;'}
     - Person.active_people.building_employees.order(surname: :asc).each do |p|
       .row.colored{style: p.presence_check_style(Time.now)}
+        .col-sm-1
+          %button.infobox-button.no-loader{data: { method: :post, target: info_timestamps_path, name: "infobox_timestamps_#{Time.now.strftime("%y%m%d")}_#{p.id}", data: {date: Time.now, person: p.id}.to_json }}
+            Listato
         .col-sm-3
           = p.list_name
         .col-sm-3
@@ -29,5 +32,5 @@
             - else
               = pr.end_ts.time.strftime('%d/%m/%Y %H:%M:%S') + " (#{pr.end_ts.sensor.name})"
 
-        .col-sm-6
+        .col-sm-5
           = p.granted_leaves_date(Time.now).reject{ |gl| gl.leave_code.code == 'ORIT' }.map{ |gl| gl.leave_code.description + " " + gl.complete_duration_label.downcase }.join(', ')

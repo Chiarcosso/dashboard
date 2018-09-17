@@ -1,0 +1,37 @@
+.container-fluid
+  .row
+    = form_tag(worksheet_filter_path, method: :post, remote: true, type: :script, class: 'preventCr', :id => :filter) do |f|
+      .col-sm-1
+        Aperte
+        = check_box_tag 'search[opened]', 1, @search[:opened]
+      .col-sm-1
+        Chiuse
+        = check_box_tag 'search[closed]',  1, @search[:closed]
+      .col-sm-2
+        .col-sm-4
+          Targa
+        .col-sm-8
+          = text_field_tag 'search[plate]', @search[:plate], style: 'width: 9em;'
+      .col-sm-2
+        .inline
+          Nr.
+        .inline
+          = text_field_tag 'search[number]', @search[:number]
+      .col-sm-2
+        Dal
+        = date_field_tag 'search[date_since]', @search[:date_since]
+      .col-sm-2
+        Al
+        = date_field_tag 'search[date_to]', @search[:date_to]
+      .col-sm-1
+        Manutentore
+        = select_tag 'search[mechanic]', Hash.new, class: 'form-control'
+      .col-sm-1
+        = submit_tag 'Filtra', class: 'form-control'
+  #worksheet_complete_list
+    =render :partial => 'worksheet/complete_list'
+
+
+:javascript
+
+  deactivateLoadingScreen();

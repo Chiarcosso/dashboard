@@ -1,0 +1,21 @@
+.scrollable-panel{ style: 'margin-top: 2em; height: 100%;'}
+  - @open_worksheets.each do |ws|
+    .row.colored.hilight.selectable.xbox{ data: { data: {protocol: ws.number}.to_json, route: worksheet_processing_xbox_path, xbox: "#pbox-#{ws.id}" }}
+      .col-sm-1
+        =button_to ws.number, open_worksheet_path(ws.number), remote: true, class: 'no-ajax-link'
+      .col-sm-2
+        - op = ws.ew_operator
+        = op['Descrizione'] unless op.nil?
+      .col-sm-1
+        - v = ws.vehicle
+        %b= v.plate#, vehicles_path(search: ws.vehicle.plate), class: 'no-ajax-link'
+      .col-sm-2
+
+        =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(v.id), name: "infobox_vehicle_checks_#{v.id}" }
+        =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(v.id), name: "infobox_vehicle_#{v.id}" }
+        =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(v.id), name: "infobox_vehicle_workshop_#{v.id}" }
+      .col-sm-2
+        ="#{I18n.l ws.opening_date}" unless ws.opening_date.nil?
+      .col-sm-3
+        %b=ws.notes
+      .sbox{id: "pbox-#{ws.id}", style: "display: none;"}

@@ -47,16 +47,17 @@ class Worksheet < ApplicationRecord
 
   #get ew worksheets and update or create ws
   def self.get_incoming(search)
-    ws = Array.new
+    wks = Array.new
     EurowinController::get_worksheets({opened: :opened, search: search}).each do |odl|
-      new_ws = Worksheet.find_or_create_by_code(odl['Protocollo'])
-      if new_ws.nil?
+      ws = Worksheet.find_or_create_by_code(odl['Protocollo'])
+
+      if ws.nil?
         special_logger.error("EW retrieval error: \n\n#{odl.inspect}\n\n")
       else
-        ws << new_ws
+        wks << {ws: ws, plate: odl['Targa'], vehicle: ws.vehicle_id}
       end
     end
-    ws
+    wks
   end
   #filter operator from incoming worksheets from eurowin
   def self.incoming_operator(search)
@@ -314,23 +315,28 @@ class Worksheet < ApplicationRecord
   end
 
   def get_pdf_path
-
-    if self.pdf_path.nil? || self.pdf_path == ''
-      path = nil
-      list = `find #{ENV['RAILS_WS_PATH']}`
-      # list.scan(/.*\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')} - .*\/.*-#{self.number}.*\.pdf/) do |line|
-      list.scan(/.*-#{self.number}-.*\.pdf/i) do |line|
-        path = line
-      end
-      if path.nil?
-        list.scan(/.*-#{self.number}-.*\.lnk/i) do |line|
-          url = "http://10.0.0.101/linkexplode/default.asp?strPath=\\\\10.0.0.99\\Comune\\#{line[/\/mnt\/wshare\/(.*)$/,1].gsub("\/","\\")}"
-          path = HTTPI.get(url).raw_body.gsub('Z:\\','/mnt/wshare/').tr('\\','/')
+    unless File.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/ODL_#{self.number}.pdf")
+      # byebug
+      # if self.pdf_path.nil? || self.pdf_path == ''
+        path = nil
+        list = `find #{ENV['RAILS_WS_PATH']}`
+        # list.scan(/.*\/#{self.vehicle.mssql_references.map { |msr| msr.remote_object_id }.join('|')} - .*\/.*-#{self.number}.*\.pdf/) do |line|
+        list.scan(/.*-#{self.number}-.*\.pdf/i) do |line|
+          path = line
+        # end
+        if path.nil?
+          list.scan(/.*-#{self.number}-.*\.lnk/i) do |line|
+            url = "http://10.0.0.101/linkexplode/default.asp?strPath=\\\\10.0.0.99\\Comune\\#{line[/\/mnt\/wshare\/(.*)$/,1].gsub("\/","\\")}"
+            path = HTTPI.get(url).raw_body.gsub('Z:\\','/mnt/wshare/').tr('\\','/')
+          end
         end
+        # self.update(pdf_path: path) unless path.nil?
+        `cp #{path.split(' ').join('\ ')} #{ENV['RAILS_DOCS_PATH']}/ODL/ODL_#{self.number}.pdf`
+        
       end
-      self.update(pdf_path: path) unless path.nil?
     end
-    self.pdf_path
+    # self.pdf_path
+    return "#{ENV['RAILS_DOCS_PATH']}/ODL/ODL_#{self.number}.pdf"
   end
 
   def get_pdf
