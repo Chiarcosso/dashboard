@@ -85,7 +85,7 @@ class EurowinController < ApplicationController
       "or protocollo like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")}#{wops}"
     end
     #send query
-    q = "select * from autoodl where #{w}#{wstation};"
+    q = "select * from autoodl where #{w}#{wstation} order by targa;"
 
     ewc = get_ew_client
     r = ewc.query(q)

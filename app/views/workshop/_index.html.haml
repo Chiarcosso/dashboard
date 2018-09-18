@@ -1,5 +1,5 @@
 -# - @open_worksheets = Worksheet.incoming(@search_list,true).sort_by{ |ws| ws.vehicle.plate }
-- @open_worksheets = Worksheet.get_incoming(@search_list).sort_by{ |ws| ws[:plate] }
+- @open_worksheets = Worksheet.get_incoming(@search_list)
 -# - @worksheets = @open_worksheets if @worksheets.nil?
 
 

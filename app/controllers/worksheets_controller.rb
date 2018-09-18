@@ -20,7 +20,7 @@ class WorksheetsController < ApplicationController
 
   def on_processing_index
     begin
-      @open_worksheets = Worksheet.where("id in (select worksheet_id from workshop_operations where ending_time is null)")
+      @open_worksheets = Worksheet.where("id in (select worksheet_id from workshop_operations where ending_time is null)").sort_by{|w| w.opening_date}
       respond_to do |format|
         format.html { render 'workshop/on_processing' }
         format.js { render partial: 'workshop/index_js' }

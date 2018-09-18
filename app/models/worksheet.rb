@@ -54,10 +54,11 @@ class Worksheet < ApplicationRecord
       if ws.nil?
         special_logger.error("EW retrieval error: \n\n#{odl.inspect}\n\n")
       else
-        wks << {ws: ws, plate: odl['Targa'], vehicle: ws.vehicle_id}
+        wks << {ws: ws, plate: odl['Targa'].tr(' .*',''), vehicle: ws.vehicle_id}
       end
     end
-    wks
+
+    wks.sort_by{|ws| ws[:plate]}
   end
   #filter operator from incoming worksheets from eurowin
   def self.incoming_operator(search)
@@ -332,7 +333,7 @@ class Worksheet < ApplicationRecord
         end
         # self.update(pdf_path: path) unless path.nil?
         `cp #{path.split(' ').join('\ ')} #{ENV['RAILS_DOCS_PATH']}/ODL/ODL_#{self.number}.pdf`
-        
+
       end
     end
     # self.pdf_path
@@ -376,7 +377,14 @@ class Worksheet < ApplicationRecord
     if self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO'
       last_maintainance_date = self.exit_time.strftime('%d/%m/%Y')
     else
-      last_maintainance_date = vehicle.last_maintainance.exit_time.strftime('%d/%m/%Y') unless vehicle.last_maintainance.nil?
+      lm = vehicle.last_maintainance
+      unless lm.nil?
+        if lm.exit_time.nil?
+          last_maintainance_date = lm.closingDate.strftime('%d/%m/%Y')
+        else
+          last_maintainance_date = lm.exit_time.strftime('%d/%m/%Y')
+        end
+      end
     end
 
     ld = vehicle.last_driver

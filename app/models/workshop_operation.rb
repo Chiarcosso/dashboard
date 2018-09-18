@@ -13,8 +13,16 @@ class WorkshopOperation < ApplicationRecord
   def operator
     self.user.person
   end
-  
+
   def ew_notification
     EurowinController::get_notification(self.myofficina_reference)
+  end
+
+  def siblings
+    WorkshopOperation.where(myofficina_reference: self.myofficina_reference) - [self]
+  end
+
+  def self.exist_or_create(worksheet,sgn)
+    WorkshopOperation.create(name: 'Lavorazione', myofficina_reference: sgn, worksheet: worksheet) unless WorkshopOperation.where(myofficina_reference: sgn).count > 0
   end
 end
