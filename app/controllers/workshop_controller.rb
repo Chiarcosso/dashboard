@@ -412,21 +412,21 @@ class WorkshopController < ApplicationController
         @worksheet.update(exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         vcs = @worksheet.vehicle_check_session
         vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.") unless vcs.nil?
-        # EurowinController::create_worksheet({
-        #   'ProtocolloODL': @worksheet.ew_worksheet['Protocollo'].to_s,
-        #   'AnnoODL': @worksheet.ew_worksheet['Anno'].to_s,
-        #   'DataIntervento': @worksheet.ew_worksheet['DataIntervento'].to_s,
-        #   'DataUscitaVeicolo': Date.today.strftime("%Y-%m-%d"),
-        #   'FlagSvolto': 'true',
-        #   'CodiceOfficina': "0"
-        # })
-        # @worksheet.output_orders.each do |oo|
-        #   oo.update(processed: true)
-        # end
-        # pdf = @worksheet.sheet
-        # File.open("/mnt/documents/ODL/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
-        #
-        # WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
+        EurowinController::create_worksheet({
+          'ProtocolloODL': @worksheet.ew_worksheet['Protocollo'].to_s,
+          'AnnoODL': @worksheet.ew_worksheet['Anno'].to_s,
+          'DataIntervento': @worksheet.ew_worksheet['DataIntervento'].to_s,
+          'DataUscitaVeicolo': Date.today.strftime("%Y-%m-%d"),
+          'FlagSvolto': 'true',
+          'CodiceOfficina': "0"
+        })
+        @worksheet.output_orders.each do |oo|
+          oo.update(processed: true)
+        end
+        pdf = @worksheet.sheet
+        File.open("/mnt/documents/ODL/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
+
+        WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
       else
         # @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: true)
       end
