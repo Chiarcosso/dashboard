@@ -1,0 +1,3 @@
+$('.popup').remove();
+$("#pbox#{@worksheet.number}").html("#{escape_javascript(render :partial => 'workshop/worksheet_xbox'  )} ");
+deactivateLoadingScreen();

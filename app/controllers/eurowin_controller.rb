@@ -53,6 +53,10 @@ class EurowinController < ApplicationController
     op
   end
 
+  def self.closed_worksheets
+    get_worksheets(:opened => :closed)
+  end
+
   def self.get_worksheets(opts)
 
     #set deafults

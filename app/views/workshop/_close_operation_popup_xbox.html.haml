@@ -1,0 +1,9 @@
+%h4= "Concludi operazione"
+= form_tag( finish_workshop_operation_path(@worksheet.number), remote: true, method: :post) do |f|
+  = text_field_tag :notes, nil, placeholder: 'Note..', class: 'form-control', id: 'focus_element', style: 'width: 80vw;'
+  = hidden_field_tag :protocol, protocol
+  = hidden_field_tag :worksheet_duration, tm, id: 'worksheet-duration-op-'+id.to_s
+  = hidden_field_tag :timesend, time, id: 'timesend-'+id.to_s
+  = hidden_field_tag :operation, id
+  = hidden_field_tag :area, 'on_processing'
+  = submit_tag :ok

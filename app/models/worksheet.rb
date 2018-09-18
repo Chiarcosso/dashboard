@@ -12,17 +12,22 @@ class Worksheet < ApplicationRecord
   has_many :items, through: :output_order_items
 
   has_many :worksheet_operations
+  has_many :workshop_operations
   has_one :vehicle_check_session
 
   belongs_to :vehicle, polymorphic:true
 
   scope :filter, ->(search) { joins(:vehicle).where("code LIKE ? OR ",'%'+search+'%') }
-  scope :open, -> { where(closingDate: nil, suspended: false) }
+  scope :open, -> { where(exit_time: nil, suspended: false) }
+  scope :closed, -> { where("exit_time is not null") }
+
   # scope :incoming, ->(search,opened) { where(exit_time: nil, suspended: false, station: "workshop", closed: false).where(opened ? '1' : 'opening_date is not null').where(search.nil?? '1' : "(case worksheets.vehicle_type when 'Vehicle' then worksheets.vehicle_id in (select vehicle_informations.vehicle_id from vehicle_informations where information like '%#{search}%') when 'ExternalVehicle' then worksheets.vehicle_id in (select external_vehicles.id from external_vehicles where external_vehicles.plate like '%#{search}%') end) or code like '%#{search}%'") }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
+
   def self.on_processing
-    Worksheet.where(closingDate: nil)
+    odl = EurowinController::closed_worksheets
+    Worksheet.find_by_sql("select worksheets.* from worksheets where (closingDate is null and suspended = 0 and opening_date is not null and code not in (#{odl.map { |odl| "'EWC*#{odl['Protocollo']}'"}.join(',')})) or id in (select worksheet_id from workshop_operations where ending_time is null) order by opening_date")
   end
 
   def hour_unit_price
@@ -43,6 +48,15 @@ class Worksheet < ApplicationRecord
     else
       return false
     end
+  end
+
+  def close_related_operations
+    if self.exit_time.nil?
+      ending = self.closingDate
+    else
+      ending = self.exit_time
+    end
+    self.operations.each{ |wo| wo.update(ending_time: ending)} unless ending.nil?
   end
 
   #get ew worksheets and update or create ws

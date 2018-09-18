@@ -235,10 +235,14 @@ class WorkshopController < ApplicationController
           }) if odl.nil?
         protocollo_odl = odl['Protocollo'].to_s
         anno_odl = odl['Anno'].to_s
+
       else
         odl = "-1"
         anno_odl = "-1"
+
       end
+
+      WorkshopOperation.get_from_sgn(params.require('protocol')).each{ |wo| wo.delete }
 
       sgn = EurowinController::create_notification({
         'Descrizione': params.require('description'),
@@ -346,11 +350,13 @@ class WorkshopController < ApplicationController
           'CodiceOfficina': "0"
         })
       end
+
       respond_to do |format|
         if params[:area].nil?
           format.js { render partial: 'workshop/worksheet_js' }
         elsif params[:area] == 'on_processing'
-          format.js { render partial: 'workshop/worksheet_op_js' }
+          @notifications = @worksheet.notifications(:all)
+          format.js { render partial: 'workshop/xbox_js' }
         end
       end
     rescue Exception => e
@@ -385,42 +391,53 @@ class WorkshopController < ApplicationController
       # JSON.parse(params.require('operation_times')).each do |ot|
       #   WorkshopOperation.find(ot['id'].to_i).update(real_duration: ot['time'].to_i)
       # end
+
       if @worksheet.last_starting_time.nil?
         duration = @worksheet.real_duration
       else
         duration = @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i
       end
-      @worksheet.operations(current_user).each do |wo|
+      if params[:area] == 'on_processing'
+        ops = @worksheet.operations
+      else
+        ops = @worksheet.operations(current_user)
+      end
+      ops.each do |wo|
         wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
+        wo.update(ending_time: Time.now)
       end
 
       @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: duration, paused: true)
       if params.require('perform') == 'stop'
         @worksheet.update(exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         vcs = @worksheet.vehicle_check_session
-        vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
-        EurowinController::create_worksheet({
-          'ProtocolloODL': @worksheet.ew_worksheet['Protocollo'].to_s,
-          'AnnoODL': @worksheet.ew_worksheet['Anno'].to_s,
-          'DataIntervento': @worksheet.ew_worksheet['DataIntervento'].to_s,
-          'DataUscitaVeicolo': Date.today.strftime("%Y-%m-%d"),
-          'FlagSvolto': 'true',
-          'CodiceOfficina': "0"
-        })
-        @worksheet.output_orders.each do |oo|
-          oo.update(processed: true)
-        end
-        pdf = @worksheet.sheet
-        File.open("/mnt/documents/ODL/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
-
-        WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
+        vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.") unless vcs.nil?
+        # EurowinController::create_worksheet({
+        #   'ProtocolloODL': @worksheet.ew_worksheet['Protocollo'].to_s,
+        #   'AnnoODL': @worksheet.ew_worksheet['Anno'].to_s,
+        #   'DataIntervento': @worksheet.ew_worksheet['DataIntervento'].to_s,
+        #   'DataUscitaVeicolo': Date.today.strftime("%Y-%m-%d"),
+        #   'FlagSvolto': 'true',
+        #   'CodiceOfficina': "0"
+        # })
+        # @worksheet.output_orders.each do |oo|
+        #   oo.update(processed: true)
+        # end
+        # pdf = @worksheet.sheet
+        # File.open("/mnt/documents/ODL/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
+        #
+        # WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
       else
         # @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: true)
       end
 
 
       respond_to do |format|
-        format.js { render partial: 'workshop/close_worksheet_js' }
+        if params[:area] == 'on_processing'
+          format.js { render partial: 'workshop/worksheet_op_js' }
+        else
+          format.js { render partial: 'workshop/close_worksheet_js' }
+        end
         # format.js { redirect_to worksheets_path }
       end
     rescue Exception => e

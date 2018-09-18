@@ -14,8 +14,18 @@ class WorkshopOperation < ApplicationRecord
     self.user.person
   end
 
+  def self.to_notification_or_create(sgn)
+    
+    WorkshopOperation.create(name: 'Lavorazione', myofficina_reference: sgn['Protocollo'], worksheet: Worksheet.find_by(code: "EWC*#{sgn['SchedaInterventoProtocollo']}")) if WorkshopOperation.to_notification(sgn['Protocollo']).count < 1
+    WorkshopOperation.to_notification(sgn['Protocollo'])
+  end
+
   def ew_notification
     EurowinController::get_notification(self.myofficina_reference)
+  end
+
+  def self.get_from_sgn sgn
+    WorkshopOperation.where(myofficina_reference: sgn)
   end
 
   def siblings

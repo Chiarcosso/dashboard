@@ -494,6 +494,9 @@ function move_under_loader_func(){
 
 function xbox_click_func(){
   "use strict";
+  if ($(this).hasClass('no-ajax')){
+    return;
+  }
   var route = $(this).data('route');
   var data = $(this).data('data');
   var xbox = $(this).data('xbox');
