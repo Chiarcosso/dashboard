@@ -45,3 +45,8 @@
               Concludi
           -# %button{ class: 'btn_small stop_timer', id: "stop-#{wo.id}", data: { route: finish_workshop_operation_path(@worksheet.number), protocol: sgn['Protocollo'] }, disabled: !wo.ending_time.nil? }
           -#   = 'Concludi'
+:javascript
+
+  $('.timer').on('load',function(){
+
+  });

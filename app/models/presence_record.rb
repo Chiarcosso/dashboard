@@ -111,7 +111,7 @@ class PresenceRecord < ApplicationRecord
           #if it's the first timestamp of the day compare starting time with agreed schedule
           # calculated_start = DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{working_schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
 
-          if pts.time.strftime('%H:%M') < working_schedule.agreement_from.strftime('%H:%M')
+          if (pts.time+1.minutes).strftime('%H:%M') < working_schedule.agreement_from.strftime('%H:%M')
             calculated_start = PresenceRecord.round_timestamp(pts.time,:+)
           else
             calculated_start = working_schedule.transform_to_date(pts.time,:agreement_from)
