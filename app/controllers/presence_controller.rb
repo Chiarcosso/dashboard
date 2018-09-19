@@ -262,6 +262,7 @@ class PresenceController < ApplicationController
         end
         raise 'Orario data inizio non presente' if ws.nil?
         from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.utc.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
+        from = from-1.days if ws.contract_from_s == "00:00"
       rescue
         @error = 'Data/ora inizio non valida.'
       end
@@ -274,6 +275,7 @@ class PresenceController < ApplicationController
         end
         raise 'Orario data fine non presente' if ws.nil?
         to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.utc.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
+        to = to-1.days if ws.contract_to_s == "00:00"
       rescue
         @error = 'Data/ora fine non valida.'
       end
@@ -318,7 +320,7 @@ class PresenceController < ApplicationController
       person = Person.find(params.require(:person).to_i)
       leave_code = LeaveCode.find(params.require(:leave_code).to_i)
       date = Date.strptime(params.require(:date),"%Y-%m-%d")
-      
+
       if GrantedLeave.find_by(from: from, to: to, person: person, leave_code: leave_code).nil?
         gl = GrantedLeave.create(from: from, to: to, person: person, leave_code: leave_code, date: date, break: params.require(:break).to_i)
       end
