@@ -30,7 +30,7 @@
         Ferie e malattia
   .scrollable-panel#presence_list{style: 'height: 75vh;'}
     - for day in 1..Time.days_in_month(@month,@year)
-      = render partial: 'presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{day}","%Y-%m-%d")}
+      = render partial: 'presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{day}","%Y-%m-%d"), person: @person}
   .row
     = form_tag presence_print_absences_path(format: :pdf), method: :post, class: 'no-loader' do |f|
       .col-sm-2{style: 'margin-top: 1em;margin-left: 1em;'}

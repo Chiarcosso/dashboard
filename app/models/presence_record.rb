@@ -129,6 +129,7 @@ class PresenceRecord < ApplicationRecord
                                   from: working_schedule.transform_to_date(pts.time,:agreement_from),
                                   to: working_schedule.transform_to_date(pts.time,:agreement_from)+delay.minutes
                                   )
+              anomaly = 'Ritardo ingresso'
             end
           end
 
@@ -173,6 +174,7 @@ class PresenceRecord < ApplicationRecord
                             calculated_end: calculated_end,
                             actual_duration: next_pts.nil? ? 0 : (next_pts.time - pts.time).round,
                             calculated_duration: next_pts.nil? ? 0 : (calculated_end.to_i - calculated_start.to_i),
+                            anomaly: anomaly,
                             break: false)
 
         actual_total += next_pts.nil? ? 0 : (next_pts.time - pts.time).round
@@ -196,7 +198,7 @@ class PresenceRecord < ApplicationRecord
           #   calculated_end = pts.time+working_schedule.break.minutes
           # end
           calculated_end = pts.time.utc+PresenceRecord.round_interval(next_pts.time - pts.time,:+)
-          previous_record = PresenceRecord.create(date: date,
+          previous_record = PresenceRecord.new(date: date,
                               person: person,
                               start_ts: pts,
                               end_ts: next_pts,
@@ -205,6 +207,10 @@ class PresenceRecord < ApplicationRecord
                               actual_duration: next_pts.nil? ? 0 : (next_pts.time - pts.time).round,
                               calculated_duration: (calculated_end.to_i - calculated_start.to_i).round,
                               break: true)
+          unless working_schedule.nil?
+            previous_record.anomaly = 'Ritardo pausa' if previous_record.actual_duration > working_schedule.break * 60
+          end
+          previous_record.save
 
         end
       end

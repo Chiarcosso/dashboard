@@ -24,6 +24,13 @@ class Worksheet < ApplicationRecord
   # scope :incoming, ->(search,opened) { where(exit_time: nil, suspended: false, station: "workshop", closed: false).where(opened ? '1' : 'opening_date is not null').where(search.nil?? '1' : "(case worksheets.vehicle_type when 'Vehicle' then worksheets.vehicle_id in (select vehicle_informations.vehicle_id from vehicle_informations where information like '%#{search}%') when 'ExternalVehicle' then worksheets.vehicle_id in (select external_vehicles.id from external_vehicles where external_vehicles.plate like '%#{search}%') end) or code like '%#{search}%'") }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
+  def hours
+    (self.real_duration/3600).round(1)
+  end
+
+  def set_hours
+    self.update(real_duration: self.operations.map{ |op| op.real_duration }.inject(0,:+))
+  end
 
   def self.on_processing
     odl = EurowinController::closed_worksheets

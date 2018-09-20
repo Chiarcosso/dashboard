@@ -22,16 +22,14 @@
       - @worksheets.each do |ws|
         .row.colored.hilight
           .col-sm-1
-            =button_tag 'Apri'
-          .col-sm-1
             ="n. #{ws.number}"
           .col-sm-1
             =ws.vehicle.plate
           .col-sm-1
             ="#{I18n.l ws.opening_date}"
           .col-sm-1
-            ="#{I18n.l ws.closingDate}" unless ws.opened?
-          - if ws.opened?
+            ="#{I18n.l ws.exit_time}" unless ws.exit_time.nil?
+          - unless ws.exit_time.nil?
             = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
               .col-sm-2
                 .inline

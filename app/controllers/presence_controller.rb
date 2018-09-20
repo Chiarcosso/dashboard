@@ -40,6 +40,18 @@ class PresenceController < ApplicationController
   def manage_presence
     begin
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
       end
@@ -171,6 +183,18 @@ class PresenceController < ApplicationController
       time = Time.strptime("#{params.require(:date)} #{params.require(:set_total)}","%Y-%m-%d %H:%M") - Time.strptime("#{params.require(:date)} 00:00","%Y-%m-%d %H:%M")
       PresenceRecord.where(date: Date.strptime(params.require(:date),"%Y-%m-%d"),person: @person).each { |pr| pr.update(set_day_time: time)}
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
       end
@@ -205,6 +229,18 @@ class PresenceController < ApplicationController
 
       PresenceRecord.recalculate(timestamp,person)
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
       end
@@ -224,6 +260,18 @@ class PresenceController < ApplicationController
       pr.update(deleted: true)
       PresenceRecord.recalculate(date,person)
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
       end
@@ -294,6 +342,18 @@ class PresenceController < ApplicationController
         date += 1.days
       end
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
       end
@@ -327,6 +387,18 @@ class PresenceController < ApplicationController
 
       PresenceRecord.recalculate(date,@person)
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
       end
@@ -351,6 +423,18 @@ class PresenceController < ApplicationController
         date += 1.days
       end
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
       end
@@ -450,6 +534,18 @@ class PresenceController < ApplicationController
     begin
       WorkingSchedule.create(working_schedule_params)
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
       end
     rescue Exception => e
@@ -464,6 +560,18 @@ class PresenceController < ApplicationController
     begin
       @working_schedule.update(working_schedule_params)
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
       end
     rescue Exception => e
@@ -478,6 +586,18 @@ class PresenceController < ApplicationController
     begin
       @working_schedule.destroy
       respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+        end
         format.js { render partial: 'presence/manage_js' }
       end
     rescue Exception => e
@@ -672,6 +792,12 @@ class PresenceController < ApplicationController
     else
       @year = params.require('year').to_i
     end
+    if params[:day].nil?
+      @day = Time.now - 1.days
+    else
+      @day = Time.strptime(params[:day],"%Y-%m-%d")
+    end
+
   end
 
   def get_working_schedule

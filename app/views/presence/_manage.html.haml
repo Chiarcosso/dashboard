@@ -4,6 +4,8 @@
 
     %li{class: (@tab.nil? || @tab == 'building_presence') ? 'active' : ''}
       =link_to "Presenti ora", '#tab-building_presence', data: { toggle: 'tab'}, class: 'no-loader change-tab'
+    %li{class: @tab == 'presence_day' ? 'active' : ''}
+      =link_to "Presenze del giorno", '#tab-presence_day', data: { toggle: 'tab'}, class: 'no-loader change-tab'
     %li{class: @tab == 'presence' ? 'active' : ''}
       =link_to "Presenze", '#tab-presence', data: { toggle: 'tab'}, class: 'no-loader change-tab'
     %li{class: @tab == 'schedules' ? 'active' : ''}
@@ -13,6 +15,8 @@
   .tab-content
     %div{style: 'height:85%', id: 'tab-building_presence', class: @tab.nil? || @tab == 'building_presence' ? 'tab-pane active' : 'tab-pane'}
       = render partial: 'presence/building_presence'
+    %div{style: 'height:85%', id: 'tab-presence_day', class: @tab == 'presence_day' ? 'tab-pane active' : 'tab-pane'}
+      = render partial: 'presence/presence_day'
     %div{style: 'height:85%', id: 'tab-presence', class: @tab == 'presence' ? 'tab-pane active' : 'tab-pane'}
       = render partial: 'presence/presence'
     %div{style: 'height:85%', id: 'tab-schedules', class: @tab == 'schedules' ? 'tab-pane active' : 'tab-pane'}
@@ -26,6 +30,8 @@
     data['tab'] = tab;
     data['month'] = $('select[name=month]');
     data['year'] = $('input[name=year]');
+    data['day'] = $('input[name=day]');
 
     $('#person-select').data('data',data);
+    $('#day').data('data',data);
   })

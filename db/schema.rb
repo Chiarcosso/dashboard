@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180918102619) do
+ActiveRecord::Schema.define(version: 20180920073717) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -546,6 +546,7 @@ ActiveRecord::Schema.define(version: 20180918102619) do
     t.datetime "calculated_start",    null: false
     t.datetime "calculated_end"
     t.integer  "set_day_time"
+    t.string   "anomaly"
     t.index ["date"], name: "index_presence_records_on_date", using: :btree
     t.index ["end_ts_id"], name: "index_presence_records_on_end_ts_id", using: :btree
     t.index ["person_id"], name: "index_presence_records_on_person_id", using: :btree
