@@ -1,4 +1,4 @@
-%div{style: 'padding: .5em'}
+#schedules{style: 'padding: .5em'}
   %h3="Orari: "#{@person.list_name}"
   =form_tag reload_presence_path, method: :post, remote: true do |f|
     =select_tag :person, options_for_select(Person.active_people.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}

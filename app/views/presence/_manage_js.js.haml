@@ -1,6 +1,7 @@
 -# $('#manage_presence').html("#{escape_javascript(render 'presence/manage'  )} ");
 $("#{@tabsub[0]}").html("#{escape_javascript(render @tabsub[1]  )} ");
 $("#{@tabsub2.nil?? '' : @tabsub2[0]}").html("#{@tabsub2.nil?? '' : escape_javascript(render @tabsub2[1]  )} ");
+$("#{@tabsub3.nil?? '' : @tabsub3[0]}").html("#{@tabsub3.nil?? '' : escape_javascript(render @tabsub3[1]  )} ");
 $('.popup').remove();
 $('.infobox').remove();
 $("#{@scroll_element}").scrollTop("#{@scroll}");

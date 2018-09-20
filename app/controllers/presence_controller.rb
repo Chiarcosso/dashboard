@@ -44,6 +44,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -51,6 +52,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
@@ -187,6 +189,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -194,6 +197,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
@@ -233,6 +237,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -240,6 +245,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
@@ -264,6 +270,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -271,6 +278,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
@@ -346,6 +354,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -353,6 +362,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
@@ -391,6 +401,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -398,6 +409,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
@@ -427,6 +439,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -434,6 +447,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
         format.html { render 'presence/index' }
@@ -538,6 +552,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -545,6 +560,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
       end
@@ -564,6 +580,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -571,6 +588,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
       end
@@ -590,6 +608,7 @@ class PresenceController < ApplicationController
         when 'presence' then
           @tabsub = ['#presence','presence/presence']
           @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
         when 'presence_day' then
           @tabsub = ['#presence_day','presence/presence_day']
           @tabsub2 = ['#presence','presence/presence']
@@ -597,6 +616,7 @@ class PresenceController < ApplicationController
           @tabsub = ['#building_presence','presence/building_presence']
         when 'schedules' then
           @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
         end
         format.js { render partial: 'presence/manage_js' }
       end
