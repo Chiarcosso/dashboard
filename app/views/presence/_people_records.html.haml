@@ -4,7 +4,7 @@
 - actual_total = 0
 - calculated_total = 0
 
-.row.colored
+.row.colored.alert_color
   -# .infobox-button.no-loader{ data: { method: :post, target: info_timestamps_path, name: "infobox_timestamps_#{day.strftime("%y%m%d")}_#{person.id}", data: {date: day, person: person.id}.to_json }}
   .col-sm-1{style: 'padding-right: 0px;'}
     = "#{person.list_name}"
@@ -26,6 +26,7 @@
               %br
             - else
               = r.anomaly
+              = hidden_field_tag :anomaly, r.anomaly, class: 'anomalies'
         .row
           .col-sm-6
             - unless r.start_ts.nil?

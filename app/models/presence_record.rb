@@ -76,6 +76,7 @@ class PresenceRecord < ApplicationRecord
     #get delay leave
     delay_leave = LeaveCode.find_by(code: 'ORIT')
     no_delay_leave = LeaveCode.find_by(code: 'Ritardo avvisato')
+    no_break_delay_leave = LeaveCode.find_by(code: 'Rit. pausa avvisato')
     GrantedLeave.where(person: person, leave_code: delay_leave, date: date).each do |gl|
       gl.delete
     end
@@ -119,6 +120,7 @@ class PresenceRecord < ApplicationRecord
 
           #if there's a delay create a leave
           if pts.time.strftime('%H:%M') > (working_schedule.transform_to_date(pts.time,:agreement_from) + working_schedule.flexibility.minutes).strftime('%H:%M')
+            anomaly = 'Ritardo ingresso'
             #calculate delay fine
             unless GrantedLeave.where(date: date, person: person, leave_code: no_delay_leave).count > 0 or dont_create.include?(delay_leave)
               delay = PresenceRecord.round_delay(pts.time - working_schedule.transform_to_date(pts.time,:agreement_from))
@@ -129,7 +131,7 @@ class PresenceRecord < ApplicationRecord
                                   from: working_schedule.transform_to_date(pts.time,:agreement_from),
                                   to: working_schedule.transform_to_date(pts.time,:agreement_from)+delay.minutes
                                   )
-              anomaly = 'Ritardo ingresso'
+
             end
           end
 
@@ -197,7 +199,10 @@ class PresenceRecord < ApplicationRecord
           # else
           #   calculated_end = pts.time+working_schedule.break.minutes
           # end
-          calculated_end = pts.time.utc+PresenceRecord.round_interval(next_pts.time - pts.time,:+)
+          break_time = PresenceRecord.round_interval(next_pts.time - pts.time,:+)
+
+          calculated_end = pts.time.utc+(break_time > working_schedule.break * 60 ? working_schedule.break * 60 : break_time)
+
           previous_record = PresenceRecord.new(date: date,
                               person: person,
                               start_ts: pts,
@@ -208,7 +213,23 @@ class PresenceRecord < ApplicationRecord
                               calculated_duration: (calculated_end.to_i - calculated_start.to_i).round,
                               break: true)
           unless working_schedule.nil?
-            previous_record.anomaly = 'Ritardo pausa' if previous_record.actual_duration > working_schedule.break * 60
+            if previous_record.actual_duration > working_schedule.break * 60
+              previous_record.anomaly = 'Ritardo pausa'
+
+              #if there's a delay create a leave
+
+              unless GrantedLeave.where(date: date, person: person, leave_code: no_break_delay_leave).count > 0 or dont_create.include?(delay_leave)
+                delay = PresenceRecord.round_delay(previous_record.actual_duration - working_schedule.break * 60)
+
+                GrantedLeave.create(person: person,
+                                    leave_code: delay_leave,
+                                    date: date,
+                                    from: next_pts.time,
+                                    to: next_pts.time+delay.minutes
+                                    )
+
+              end
+            end
           end
           previous_record.save
 

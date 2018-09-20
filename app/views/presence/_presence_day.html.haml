@@ -17,7 +17,7 @@
         %br
         -# =select_tag :person, options_for_select(Person.active_people.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
         = date_field_tag :day, (@day).strftime("%Y-%m-%d"), class: 'form-control submitting-field', data: { data: {day: @day}}
-        
+
       .col-sm-2
         -# %br
         -# = select_tag :year, options_for_select(PresenceTimestamp.years, @year), class: 'form-control submitting-select'
@@ -50,3 +50,10 @@
       -# = "Tot. sabati: #{(@total_saturdays - @unpayed_saturdays) < 0 ? 0 : @total_saturdays - @unpayed_saturdays} (#{@total_saturdays})"
       -# %br
       -# = "Tot. ore sabati: #{@total_calculated_saturday_hours/3600}:#{((@total_calculated_saturday_hours%3600)/60).to_s.rjust(2,'0')} (#{@total_actual_saturday_hours/3600}:#{((@total_actual_saturday_hours%3600)/60).to_s.rjust(2,'0')})"
+:javascript
+
+  $('.anomalies').each (function(){
+    if($(this).val() == 'Ritardo pausa'){
+      $(this).parents('.alert_color').first().css('background-color','#fb8');
+    }
+  });
