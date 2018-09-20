@@ -14,8 +14,23 @@ class WorkshopOperation < ApplicationRecord
     self.user.person
   end
 
+  def self.reset_worksheet
+    WorkshopOperation.all.each do |wo|
+      wo.reset_worksheet
+    end    
+  end
+
+  def reset_worksheet
+    odl = EurowinController.get_odl_from_notification(self.myofficina_reference)
+    if odl.nil? || (odl['CodiceAnagrafico'] != 'OFF00001' && odl['CodiceAnagrafico'] == 'OFF00047')
+      self.delete
+    else
+      self.update(worksheet: Worksheet.find_or_create_by_code("EWC*#{odl['Protocollo']}"))
+    end
+  end
+
   def self.to_notification_or_create(sgn)
-    
+
     WorkshopOperation.create(name: 'Lavorazione', myofficina_reference: sgn['Protocollo'], worksheet: Worksheet.find_by(code: "EWC*#{sgn['SchedaInterventoProtocollo']}")) if WorkshopOperation.to_notification(sgn['Protocollo']).count < 1
     WorkshopOperation.to_notification(sgn['Protocollo'])
   end

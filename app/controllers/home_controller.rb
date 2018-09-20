@@ -9,6 +9,9 @@ class HomeController < ApplicationController
     elsif (current_user.has_role? 'lavaggio')
       redirect_to '/carwash/checks/'
       return 0
+    elsif (current_user.has_role? 'personale')
+      redirect_to '/presence/manage/'
+      return 0
     else
       view = "_agenda"
     end

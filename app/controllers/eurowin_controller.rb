@@ -106,6 +106,19 @@ class EurowinController < ApplicationController
     r
   end
 
+  def self.get_odl_from_notification(notification)
+    if notification.class == Fixnum || notification.class == String
+      protocol = notification.to_s[/\d*/]
+    else
+      protocol = notification['Protocollo']
+    end
+    ewc = get_ew_client
+    r = ewc.query("select * from autoodl where CodiceAutomezzo is not null and protocollo = (select SchedaInterventoProtocollo from autosegnalazioni where Protocollo = #{protocol}) limit 1;").first
+    ewc.close
+
+    r
+  end
+
   def self.last_maintainance(vehicle)
     ewc = get_ew_client
     query = "select * from autoodl "\

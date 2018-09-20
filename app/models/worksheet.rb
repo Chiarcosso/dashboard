@@ -34,7 +34,7 @@ class Worksheet < ApplicationRecord
 
   def self.on_processing
     odl = EurowinController::closed_worksheets
-    Worksheet.find_by_sql("select worksheets.* from worksheets where (closingDate is null and suspended = 0 and opening_date is not null and code not in (#{odl.map { |odl| "'EWC*#{odl['Protocollo']}'"}.join(',')})) or id in (select worksheet_id from workshop_operations where ending_time is null) order by opening_date")
+    Worksheet.find_by_sql("select worksheets.* from worksheets where (exit_time is null and closingDate is null and suspended = 0 and opening_date is not null and code not in (#{odl.map { |odl| "'EWC*#{odl['Protocollo']}'"}.join(',')})) or id in (select worksheet_id from workshop_operations where ending_time is null) order by opening_date")
   end
 
   def hour_unit_price
@@ -394,8 +394,8 @@ class Worksheet < ApplicationRecord
         last_checking_date = last_check_session.finished.strftime('%d/%m/%Y')
       end
     end
-
-    if self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO'
+    
+    if !self.damage_type.nil? && (self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO')
       last_maintainance_date = self.exit_time.strftime('%d/%m/%Y')
     else
       lm = vehicle.last_maintainance

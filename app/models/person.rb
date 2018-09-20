@@ -102,7 +102,7 @@ class Person < ApplicationRecord
           end_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
           if time >= start_time-PresenceController.actual_offset.hours && time <= end_time-PresenceController.actual_offset.hours
             return :missing if lr.end_ts.nil?
-            return :break if time - lr.end_ts.time < schedule.break.to_i*60
+            return :break if time - lr.end_ts.time < schedule.break.to_i*60 && lr.break
             gl.each do |leave|
               return :away if leave.time_in_leave(time)
             end

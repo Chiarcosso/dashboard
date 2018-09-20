@@ -412,14 +412,15 @@ class WorkshopController < ApplicationController
         @worksheet.update(exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         vcs = @worksheet.vehicle_check_session
         vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.") unless vcs.nil?
+        odl = @worksheet.ew_worksheet
         EurowinController::create_worksheet({
-          'ProtocolloODL': @worksheet.ew_worksheet['Protocollo'].to_s,
-          'AnnoODL': @worksheet.ew_worksheet['Anno'].to_s,
-          'DataIntervento': @worksheet.ew_worksheet['DataIntervento'].to_s,
+          'ProtocolloODL': odl['Protocollo'].to_s,
+          'AnnoODL': odl['Anno'].to_s,
+          'DataIntervento': odl['DataIntervento'].to_s,
           'DataUscitaVeicolo': Date.today.strftime("%Y-%m-%d"),
           'FlagSvolto': 'true',
           'CodiceOfficina': "0"
-        })
+        }) unless odl.nil?
         @worksheet.output_orders.each do |oo|
           oo.update(processed: true)
         end

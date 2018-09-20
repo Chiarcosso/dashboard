@@ -41,6 +41,7 @@ class PresenceRecord < ApplicationRecord
   end
 
   def self.round_interval(interval,direction = :-)
+    return interval if interval%(30*60) == 0
     if direction == :-
       interval-interval%(30*60)
     else

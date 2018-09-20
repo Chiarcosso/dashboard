@@ -33,4 +33,4 @@
               = pr.end_ts.time.strftime('%d/%m/%Y %H:%M:%S') + " (#{pr.end_ts.sensor.name})"
 
         .col-sm-5
-          = p.granted_leaves_date(Time.now).reject{ |gl| gl.leave_code.code == 'ORIT' }.map{ |gl| gl.leave_code.description + " " + gl.complete_duration_label.downcase }.join(', ')
+          = p.granted_leaves_date(Time.now).map{ |gl| gl.leave_code.description + " " + gl.complete_duration_label.downcase }.join(', ')
