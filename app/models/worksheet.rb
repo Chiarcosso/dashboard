@@ -437,8 +437,12 @@ class Worksheet < ApplicationRecord
       at: [400,725]
 
     pdf.move_down 20
-
-    pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Codice',size: 7)],[pdf.make_cell(content: odl['CodiceAutomezzo'],size: 13, font_style: :bold)]],width: 40),
+    if odl.nil?
+      vehicle_code = 'ODL mancante'
+    else
+      vehicle_code = odl['CodiceAutomezzo']
+    end
+    pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Codice',size: 7)],[pdf.make_cell(content: vehicle_code,size: 13, font_style: :bold)]],width: 40),
             pdf.make_table([[pdf.make_cell(content: 'Mezzo',size: 7)],[pdf.make_cell(content: vehicle.complete_name,size: 13, font_style: :bold)]],width: 250),
             pdf.make_table([[pdf.make_cell(content: 'Anno',size: 7)],[pdf.make_cell(content: opening_year,size: 13, font_style: :bold)]],width: 40),
             pdf.make_table([[pdf.make_cell(content: 'Proprietà',size: 7)],[pdf.make_cell(content: vehicle.property.complete_name,size: 13, font_style: :bold)]],width: 210)]],
