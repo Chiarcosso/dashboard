@@ -394,7 +394,7 @@ class Worksheet < ApplicationRecord
         last_checking_date = last_check_session.finished.strftime('%d/%m/%Y')
       end
     end
-    
+
     if !self.damage_type.nil? && (self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO')
       last_maintainance_date = self.exit_time.strftime('%d/%m/%Y')
     else
@@ -474,7 +474,8 @@ class Worksheet < ApplicationRecord
 
       ops = Array.new
       WorkshopOperation.where(myofficina_reference: n['Protocollo'].to_i).to_a.each do |wo|
-        ops << ["#{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",wo.operator.complete_name,wo.real_duration_label]
+        operator = wo.operator.nil?? 'Operatore mancante' : wo.operator.complete_name
+        ops << ["#{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",operator,wo.real_duration_label]
       end
       ops = [['','','']] if ops.count < 1
 
@@ -547,6 +548,11 @@ class Worksheet < ApplicationRecord
         :column_widths => { 0 => 340, 1 => 80, 2 => 120},
         # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
         :row_colors => ["d2e3ed", "FFFFFF"]
+
+    pdf.move_down 20
+    pdf.text 'Passaggi:'
+    pdf.text self.log.to_s
+
 
     pdf.bounding_box([pdf.bounds.right - 50,pdf.bounds.bottom], :width => 60, :height => 20) do
     	count = pdf.page_count

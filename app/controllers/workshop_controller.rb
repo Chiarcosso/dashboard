@@ -290,7 +290,7 @@ class WorkshopController < ApplicationController
       if !wo.nil? && wo.user != current_user
         WorkshopOperation.create(name: wo.name, paused: false, worksheet: wo.worksheet, myofficina_reference: wo.myofficina_reference, user: current_user, starting_time: Time.now, last_starting_time: Time.now, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       else
-        @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+        @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "#{@workshop_operation.log} Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
         # @workshop_operation.update(starting_time: DateTime.now)
         @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
 
@@ -313,7 +313,7 @@ class WorkshopController < ApplicationController
       else
         duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
       end
-      @workshop_operation.update(real_duration: duration, paused: true,  last_starting_time: nil, last_stopping_time: Time.now, log: "Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      @workshop_operation.update(real_duration: duration, paused: true,  last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log} Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
       respond_to do |format|
@@ -334,7 +334,7 @@ class WorkshopController < ApplicationController
       else
         duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
       end
-      @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
+      @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log} Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
 
@@ -369,7 +369,7 @@ class WorkshopController < ApplicationController
 
   def delete_operation
     begin
-      @worksheet.update(log: "Operazione nr. #{@workshop_operation.id}, '#{@workshop_operation.name}', eliminata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
+      @worksheet.update(log: "#{@worksheet.log} Operazione nr. #{@workshop_operation.id}, '#{@workshop_operation.name}', eliminata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('$H:%M:%S')}.")
       if @workshop_operation.siblings.count < 2
         @workshop_operation.update(user: nil)
       else
@@ -409,7 +409,7 @@ class WorkshopController < ApplicationController
 
       @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: duration, paused: true)
       if params.require('perform') == 'stop'
-        @worksheet.update(exit_time: DateTime.now, log: "Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+        @worksheet.update(exit_time: DateTime.now, log: "#{@worksheet.log} Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         vcs = @worksheet.vehicle_check_session
         vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.") unless vcs.nil?
         odl = @worksheet.ew_worksheet

@@ -11,13 +11,13 @@ class WorkshopOperation < ApplicationRecord
   end
 
   def operator
-    self.user.person
+    self.user.person unless self.user.nil?
   end
 
   def self.reset_worksheet
     WorkshopOperation.all.each do |wo|
       wo.reset_worksheet
-    end    
+    end
   end
 
   def reset_worksheet
