@@ -37,6 +37,37 @@ class PresenceController < ApplicationController
     end
   end
 
+  def recalculate_day
+
+    PresenceRecord.recalculate(@day,@person)
+
+    begin
+      respond_to do |format|
+        case @tab
+        when 'presence' then
+          @tabsub = ['#presence','presence/presence']
+          @tabsub2 = ['#presence_day','presence/presence_day']
+          @tabsub3 = ['#schedules','presence/schedules']
+        when 'presence_day' then
+          @tabsub = ['#presence_day','presence/presence_day']
+          @tabsub2 = ['#presence','presence/presence']
+        when 'building_presence' then
+          @tabsub = ['#building_presence','presence/building_presence']
+        when 'schedules' then
+          @tabsub = ['#schedules','presence/schedules']
+          @tabsub2 = ['#presence','presence/presence']
+        end
+        format.js { render partial: 'presence/manage_js' }
+        format.html { render 'presence/index' }
+      end
+    rescue Exception => e
+      @error = e.message+e.backtrace.join('<br>')
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
   def manage_presence
     begin
       respond_to do |format|
@@ -59,7 +90,6 @@ class PresenceController < ApplicationController
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join('<br>')
-      byebug
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
       end
@@ -306,6 +336,10 @@ class PresenceController < ApplicationController
   def self.actual_offset(date = Time.zone.today)
     Time.parse(date.to_s).dst? ? -2 : -1
   end
+
+  # def recalculate_day
+  #   PresenceRecord.recalculate(@day,@person)
+  # end
 
   def add_long_leave
     begin
@@ -812,10 +846,15 @@ class PresenceController < ApplicationController
     else
       @year = params.require('year').to_i
     end
-    if params[:day].nil?
-      @day = Time.now - 1.days
+    if params[:date].nil?
+      if params[:day].nil?
+        @day = Time.now - 1.days
+      else
+        @day = Time.strptime(params[:day],"%Y-%m-%d")
+      end
     else
-      @day = Time.strptime(params[:day],"%Y-%m-%d")
+      # @day = Time.strptime(params[:date],"%Y-%m-%dT%H:%M:%S.%3N%:z")-1.days
+      @day = Time.now
     end
 
   end

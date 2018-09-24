@@ -62,18 +62,22 @@
         -else
           - afterhours = actual_total - (ws.expected_hours * 3600).to_i
           - calculated_afterhours = calculated_total - (ws.expected_hours * 3600).to_i
-
+        - if afterhours < 0
+          - afterhours = 0
+        - if calculated_afterhours < 0
+          - calculated_afterhours = 0
         = "#{actual_total/3600}:#{((actual_total%3600)/60).to_s.rjust(2,'0')}:#{(((actual_total%3600)%60)).to_s.rjust(2,'0')} (#{afterhours > 0 ? '+' : ''}#{(afterhours/3600).to_s.rjust(1,'0')}:#{((afterhours%3600)/60).to_s.rjust(2,'0')})"
 
-        - @total_calculated_hours += calculated_total
-        - @total_actual_hours += actual_total
-        - if ws.nil?
-          - @total_calculated_afterhours += calculated_total
-          - @total_actual_afterhours += actual_total
-        - elsif calculated_total > 0
-          - @total_calculated_afterhours += calculated_total - (ws.expected_hours * 3600).to_i
-          - @total_actual_afterhours += afterhours
-          - @unpayed_saturdays = ws.months_unpaid_days if saturday
+        - unless saturday
+          - @total_calculated_hours += calculated_total
+          - @total_actual_hours += actual_total
+          - if ws.nil?
+            - @total_calculated_afterhours += calculated_total
+            - @total_actual_afterhours += actual_total
+          - elsif calculated_total > 0
+            - @total_calculated_afterhours += calculated_total - (ws.expected_hours * 3600).to_i
+            - @total_actual_afterhours += afterhours
+            - @unpayed_saturdays = ws.months_unpaid_days if saturday
 
         - if calculated_total > 0 && saturday
           - @total_saturdays += 1
@@ -107,3 +111,10 @@
       Agg. timbratura
     %button{ class: 'small-btn create_popup no-infobox-link', id: "add_leave", data: { popup_id: 'add_leave', route: add_leave_path, html: (render partial: 'presence/add_leave_code_popup', locals: {person: @person, date: day }) } }
       Agg. codice
+    =form_tag recalculate_day_path, method: :post, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#presence_list'} do |f|
+      = hidden_field_tag :person, person.id
+      = hidden_field_tag :month, @month-1
+      = hidden_field_tag :year, @year
+      = hidden_field_tag :date, day
+      = hidden_field_tag :tab, 'presence'
+      = submit_tag "Ricalcola", class: 'small-btn no-infobox-link', data: {confirmation: "Ricalcolare il giorno #{day.strftime("%d/%m/%Y")} per #{person.list_name}?"}

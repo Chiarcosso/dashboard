@@ -64,8 +64,14 @@ class GrantedLeave < ApplicationRecord
   end
 
   def complete_duration_label
+
     if self.from.strftime("%Y-%m-%d") == self.to.strftime("%Y-%m-%d")
-      "Dalle #{self.from.strftime("%H:%M")} alle #{self.to.strftime("%H:%M")}"
+      ws = WorkingSchedule.get_schedule(self.from,self.person)
+      if self.from == ws.transform_to_date(self.from,:contract_from) && self.to == ws.transform_to_date(self.from,:contract_to)
+        "La giornata del #{self.from.strftime("%d/%m/%Y")}"
+      else
+        "Dalle #{self.from.strftime("%H:%M")} alle #{self.to.strftime("%H:%M")}"
+      end
     else
       "Dal #{self.from.strftime("%d/%m/%Y")} al #{self.to.strftime("%d/%m/%Y")}"
     end

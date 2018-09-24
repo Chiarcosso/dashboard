@@ -104,6 +104,7 @@ class PresenceRecord < ApplicationRecord
       if index%2 == 0
 
         next_pts = presence_timestamps[index+1]
+        last_record = presence_timestamps[index+2].nil?
 
         #if timestamp is even (starting from 0) it's an entering ts
         pts.update(entering: true)
@@ -113,24 +114,32 @@ class PresenceRecord < ApplicationRecord
           #if it's the first timestamp of the day compare starting time with agreed schedule
           # calculated_start = DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{working_schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
 
-          if (pts.time+1.minutes).strftime('%H:%M') < working_schedule.agreement_from.strftime('%H:%M')
+          # If there's a granted leave for the starting of the day set starting time accordingly
+          starting_leaves = GrantedLeave.where(date: date, person: person).select{ |gl| gl.from <= working_schedule.agreement_from && gl.leave_code != delay_leave}
+          if starting_leaves.count > 0
+            starting_time = starting_leaves.first.to
+          else
+            starting_time = working_schedule.transform_to_date(pts.time,:agreement_from)
+          end
+
+          if (pts.time).strftime('%H:%M') < starting_time.strftime('%H:%M')
             calculated_start = PresenceRecord.round_timestamp(pts.time,:+)
           else
-            calculated_start = working_schedule.transform_to_date(pts.time,:agreement_from)
+            calculated_start = starting_time
           end
 
           #if there's a delay create a leave
-          if pts.time.strftime('%H:%M') > (working_schedule.transform_to_date(pts.time,:agreement_from) + working_schedule.flexibility.minutes).strftime('%H:%M')
+          if pts.time.strftime('%H:%M') > (starting_time + working_schedule.flexibility.minutes).strftime('%H:%M')
             anomaly = 'Ritardo ingresso'
             #calculate delay fine
             unless GrantedLeave.where(date: date, person: person, leave_code: no_delay_leave).count > 0 or dont_create.include?(delay_leave)
-              delay = PresenceRecord.round_delay(pts.time - working_schedule.transform_to_date(pts.time,:agreement_from))
+              delay = PresenceRecord.round_delay(pts.time - starting_time)
 
               GrantedLeave.create(person: person,
                                   leave_code: delay_leave,
                                   date: date,
-                                  from: working_schedule.transform_to_date(pts.time,:agreement_from),
-                                  to: working_schedule.transform_to_date(pts.time,:agreement_from)+delay.minutes
+                                  from: starting_time,
+                                  to: starting_time+delay.minutes
                                   )
 
             end
@@ -164,6 +173,7 @@ class PresenceRecord < ApplicationRecord
           #   # calculated_end = DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{working_schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
           #   calculated_end = PresenceRecord.round_timestamp(next_pts.time)
           # else
+
             #if not get it from the next timestamp
             calculated_end = next_pts.nil? ? nil : next_pts.time.to_datetime
           # end
@@ -201,8 +211,12 @@ class PresenceRecord < ApplicationRecord
           #   calculated_end = pts.time+working_schedule.break.minutes
           # end
           break_time = PresenceRecord.round_interval(next_pts.time - pts.time,:+)
-
-          calculated_end = pts.time.utc+(break_time > working_schedule.break * 60 ? working_schedule.break * 60 : break_time)
+          ending_leaves = GrantedLeave.where(date: date, person: person).where("('#{(pts.time+working_schedule.break * 60).strftime("%Y-%m-%d %H:%M:%S")}' between granted_leaves.from and granted_leaves.to) and granted_leaves.leave_code_id != #{delay_leave.id}")
+          if ending_leaves.count > 0
+            calculated_end = ending_leaves.first.to
+          else
+            calculated_end = pts.time.utc+(break_time > working_schedule.break * 60 ? working_schedule.break * 60 : break_time)
+          end
 
           previous_record = PresenceRecord.new(date: date,
                               person: person,
@@ -243,9 +257,9 @@ class PresenceRecord < ApplicationRecord
       # c_total += pr.actual_duration
       c_total += pr.calculated_duration
     end
-    GrantedLeave.where(date: date, person: person).each do |gl|
-      c_total += gl.duration(date) * gl.leave_code.afterhours
-    end
+    # GrantedLeave.where(date: date, person: person).each do |gl|
+    #   c_total += gl.duration(date) * gl.leave_code.afterhours
+    # end
     PresenceRecord.where(date: date, person: person).each do |pr|
       pr.update(set_day_time: round_interval(c_total))
     end

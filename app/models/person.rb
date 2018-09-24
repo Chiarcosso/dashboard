@@ -71,7 +71,7 @@ class Person < ApplicationRecord
     lr = self.last_presence_record
     schedule = WorkingSchedule.find_by(person: self, weekday: time.strftime('%w').to_i-1)
     gl = self.granted_leaves_date(time)
-
+    # byebug if self.list_name == 'De Fazio Eva'
     if lr.nil?
       return :away
     else
@@ -97,10 +97,10 @@ class Person < ApplicationRecord
           return :away
         else
 
-          #if out between working schedule the missing or breaking
+          #if out between working schedule then missing or breaking
           start_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
           end_time = Time.strptime("#{time.strftime("%Y-%m-%d")} #{schedule.agreement_to.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
-          if time >= start_time-PresenceController.actual_offset.hours && time <= end_time-PresenceController.actual_offset.hours
+          if time >= start_time && time <= end_time
             return :missing if lr.end_ts.nil?
             return :break if time - lr.end_ts.time < schedule.break.to_i*60 && lr.break
             gl.each do |leave|

@@ -244,6 +244,8 @@ Rails.application.routes.draw do
   get   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence
   post   '/presence/manage/', to: 'presence#manage_presence', as: :manage_presence_post
 
+  post   '/presence/recalculate_day/', to: 'presence#recalculate_day', as: :recalculate_day
+
   post   '/presence/add_timestamp/', to: 'presence#add_timestamp', as: :add_timestamp
   post   '/presence/change_presence/', to: 'presence#change_presence_time', as: :change_presence_time
   delete   '/presence/delete_timestamp/', to: 'presence#delete_timestamp', as: :delete_timestamp
