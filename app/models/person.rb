@@ -43,10 +43,19 @@ class Person < ApplicationRecord
     Person.joins("inner join mssql_references mr on mr.local_object_id = people.id and mr.local_object_type = 'Person'").where("mr.remote_object_id in (#{refs.to_a.map{ |a| a['Idautista']}.join(',')})").distinct
   end
 
+  # People that used the badge in a given month
+  def self.present_at_month(time = Time.now)
+    Person.where("people.id in "\
+                "(select distinct person_id from badge_assignments ba where (('#{time.strftime("%Y-%m")}' between date_format(ba.from,'%Y-%m') and date_format(ba.to,'%Y-%m')) or ('#{time.strftime("%Y-%m-%d")}' > ba.from and ba.to = '1900-01-01')) "\
+                "and ba.badge_id in (select distinct badge_id from presence_timestamps pt where month(pt.time) = #{time.strftime('%-m')} and year(pt.time) = #{time.strftime('%Y')}))").distinct
+
+  end
+
   # Queries mssql db for people with 'attivo' flag set
-  def self.active_people
+  def self.active_people(time = Time.now)
     refs = MssqlReference.query({table: 'Autisti', where: {Attivo: 1,Ditta: ['A','T']}})
-    Person.joins("inner join mssql_references mr on mr.local_object_id = people.id and mr.local_object_type = 'Person'").where("mr.remote_object_id in (#{refs.to_a.map{ |a| a['Idautista']}.join(',')})").distinct
+    pp = Person.present_at_month(time)
+    Person.joins("inner join mssql_references mr on mr.local_object_id = people.id and mr.local_object_type = 'Person'").where("mr.remote_object_id in (#{refs.to_a.map{ |a| a['Idautista']}.join(',')}) or (people.id in (#{pp.map{|p| p.id}.join(',')}))").distinct
   end
 
   def current_badges
