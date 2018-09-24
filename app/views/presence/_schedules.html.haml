@@ -1,4 +1,4 @@
-#schedules{style: 'padding: .5em'}
+#schedules
   %h3="Orari: "#{@person.list_name}"
   =form_tag reload_presence_path, method: :post, remote: true do |f|
     =select_tag :person, options_for_select(Person.active_people.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
@@ -32,6 +32,15 @@
           .col-sm-5
             = time_field 'working_schedule', 'contract_to', value: '18:00'
       .col-sm-2
+        .row
+          .col-sm-6
+            Accordo
+          .col-sm-3{style: 'white-space: nowrap;'}
+            = 'Si'
+            = radio_button_tag 'working_schedule[agreement]', true, true
+          .col-sm-3{style: 'white-space: nowrap;'}
+            = 'No'
+            = radio_button_tag 'working_schedule[agreement]', false, false
         .row
           .col-sm-7
             Ore previste
@@ -96,6 +105,15 @@
               .col-sm-5
                 = time_field 'working_schedule', 'contract_to', value: (ws.contract_to.nil?? nil : (ws.contract_to).strftime('%H:%M'))
           .col-sm-2
+            .row
+              .col-sm-6
+                Accordo
+              .col-sm-3{style: 'white-space: nowrap;'}
+                = 'Si'
+                = radio_button_tag 'working_schedule[agreement]', true, ws.agreement
+              .col-sm-3{style: 'white-space: nowrap;'}
+                = 'No'
+                = radio_button_tag 'working_schedule[agreement]', false, !ws.agreement
             .row
               .col-sm-7
                 Ore previste

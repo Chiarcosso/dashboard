@@ -61,7 +61,7 @@
           - calculated_afterhours = calculated_total
         -else
           - afterhours = actual_total - (ws.expected_hours * 3600).to_i
-          - calculated_afterhours = calculated_total - (ws.expected_hours * 3600).to_i
+          - calculated_afterhours = ws.agreement ? calculated_total - (ws.expected_hours * 3600).to_i : 0
         - if afterhours < 0
           - afterhours = 0
         - if calculated_afterhours < 0
@@ -75,7 +75,7 @@
             - @total_calculated_afterhours += calculated_total
             - @total_actual_afterhours += actual_total
           - elsif calculated_total > 0
-            - @total_calculated_afterhours += calculated_total - (ws.expected_hours * 3600).to_i
+            - @total_calculated_afterhours += calculated_afterhours
             - @total_actual_afterhours += afterhours
             - @unpayed_saturdays = ws.months_unpaid_days if saturday
 
