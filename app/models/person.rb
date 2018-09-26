@@ -55,7 +55,7 @@ class Person < ApplicationRecord
   def self.active_people(time = Time.now)
     refs = MssqlReference.query({table: 'Autisti', where: {Attivo: 1,Ditta: ['A','T']}})
     pp = Person.present_at_month(time)
-    Person.joins("inner join mssql_references mr on mr.local_object_id = people.id and mr.local_object_type = 'Person'").where("mr.remote_object_id in (#{refs.to_a.map{ |a| a['Idautista']}.join(',')}) or (people.id in (#{pp.map{|p| p.id}.join(',')}))").distinct
+    Person.joins("inner join mssql_references mr on mr.local_object_id = people.id and mr.local_object_type = 'Person'").where("mr.remote_object_id in (#{refs.to_a.map{ |a| a['Idautista']}.join(',')}) #{pp.empty? ? '' : "or (people.id in (#{pp.map{|p| p.id}.join(',')}))"}").distinct
   end
 
   def current_badges

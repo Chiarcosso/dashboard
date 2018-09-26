@@ -25,7 +25,7 @@ jQuery.ajaxSetup({
     cache: false
 });
 
-
+var lds_timeout;
 function activateLoadingScreen() {
     "use strict";
     // $('form').on('submit',function() {
@@ -55,6 +55,13 @@ function activateLoadingScreen() {
 
     if(!$(this).hasClass('no-loader')){
       $('.loading-screen').show();
+      clearTimeout(lds_timeout);
+      lds_timeout = window.setTimeout(function(){
+        if ($('.loading-screen:visible').length > 0) {
+          alert('Operazione non riuscita. Riprovare');
+          deactivateLoadingScreen();
+        }
+      },60000);
     }
 
 }

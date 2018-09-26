@@ -15,7 +15,8 @@
         %h3="Presenze: "#{@person.list_name}"
       .col-sm-2
         %br
-        =select_tag :person, options_for_select(Person.active_people.order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
+        - active_date = @month == 12 ? Time.strptime("#{@year}-#{@month}-31","%Y-%m-%d") : Time.strptime("#{@year}-#{@month+1}-01","%Y-%m-%d")-1.days 
+        =select_tag :person, options_for_select(Person.active_people(active_date).order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
       .col-sm-2
         %br
         = select_tag :month, options_for_select(PresenceTimestamp.months, @month-1), class: 'form-control submitting-select'

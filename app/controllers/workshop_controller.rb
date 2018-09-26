@@ -43,9 +43,12 @@ class WorkshopController < ApplicationController
 
     begin
       if @worksheet.opening_date.nil?
-        @worksheet.update(opening_date: Date.today)
+        @worksheet.update(opening_date: Date.today, log: @worksheet.log.to_s+"\nScheda aperta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+
         odl = EurowinController::get_worksheet(@worksheet.number)
         EurowinController::create_worksheet('DataEntrataVeicolo': Date.today.strftime('%Y-%m-%d'),'AnnoODL': odl['Anno'].to_s, 'ProtocolloODL': odl['Protocollo'].to_s, 'DataIntervento': odl['DataIntervento'])
+      else
+        @worksheet.update(log: @worksheet.log.to_s+"\nScheda riaperta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       end
       @worksheet.notifications.each do |sgn|
         if WorkshopOperation.to_notification(sgn['Protocollo']).count < 1
@@ -180,7 +183,7 @@ class WorkshopController < ApplicationController
       odl = EurowinController::create_worksheet(payload)
 
       damage_type = EurowinController::get_tipo_danno(params.require('Worksheet').permit(:damage_type)['damage_type'],true)
-      @worksheet  = Worksheet.create(code: "EWC*#{odl['Protocollo']}",vehicle: vehicle, notes: damage_type['Descrizione']+" - "+params.require('Worksheet').permit('description')['description'], opening_date: Date.current, log: "Scheda creata da #{current_user.person.list_name}.\n")
+      @worksheet  = Worksheet.create(code: "EWC*#{odl['Protocollo']}",vehicle: vehicle, notes: damage_type['Descrizione']+" - "+params.require('Worksheet').permit('description')['description'], opening_date: Date.current, log: "Scheda creata da #{current_user.person.list_name}, il #{Time.now.strftime("%d/%m/%Y alle %H:%M:%S")}.\n")
 
 
       vec = vehicle.vehicle_checks('workshop')
@@ -218,7 +221,7 @@ class WorkshopController < ApplicationController
   def deassociate_notification
     begin
       vehicle_refs = EurowinController::get_vehicle(@worksheet.vehicle)
-
+      @worksheet.update(log: "#{@worksheet.log}\n Segnalazione '#{params.require('description')}' (#{params.require('protocol')}) spostata da #{current_user.person.list_name} il #{Time.now.strftime("%Y/%m/%d")} alle #{Time.now.strftime("%H:%M:%S")}.")
       if params['external_workshop'].nil?
         odl = EurowinController::last_open_odl_not(@worksheet.number)
 
@@ -337,7 +340,7 @@ class WorkshopController < ApplicationController
       @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log}\n Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
-
+      @worksheet.update(log: "#{@worksheet.log}\n #{@workshop_operation.log}")
       #close notification there are no more operations
       if WorkshopOperation.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
         EurowinController::create_notification({

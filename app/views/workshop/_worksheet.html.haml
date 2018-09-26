@@ -103,8 +103,9 @@
     -# = form_tag(save_worksheet_path(@worksheet.id), method: :post, remote: true, class: 'no-cr') do |f|
     -#   = hidden_field_tag :time, @worksheet.real_duration.to_i
     -#   = submit_tag 'Chiudi scheda', class: 'no-cr loading_screen'
-    %button{ class: 'btn_small stop-worksheet', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop } }
-      = 'Chiudi scheda'
+    - if current_user.has_role?('amministratore officina') || current_user.has_role?('admin') 
+      %button{ class: 'btn_small stop-worksheet', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop } }
+        = 'Chiudi scheda'
   .col-sm-3
     #clock{'data-clock': DateTime.now.hour*3600+DateTime.now.minute*60+DateTime.now.second}
       = "#{DateTime.now.strftime('%d/%m/%Y %H:%M:%S')}"
