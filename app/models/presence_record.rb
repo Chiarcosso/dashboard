@@ -225,7 +225,7 @@ class PresenceRecord < ApplicationRecord
                               calculated_start: calculated_start,
                               calculated_end: calculated_end,
                               actual_duration: next_pts.nil? ? 0 : (next_pts.time - pts.time).round,
-                              calculated_duration: (calculated_end.to_i - calculated_start.to_i).round,
+                              calculated_duration: round_interval(calculated_end.to_i - calculated_start.to_i),
                               break: true)
           unless working_schedule.nil?
             if previous_record.actual_duration > working_schedule.break * 60
@@ -257,6 +257,7 @@ class PresenceRecord < ApplicationRecord
       # c_total += pr.actual_duration
       c_total += pr.calculated_duration
     end
+
     # GrantedLeave.where(date: date, person: person).each do |gl|
     #   c_total += gl.duration(date) * gl.leave_code.afterhours
     # end

@@ -91,7 +91,8 @@
           = hidden_field_tag :person, @person.id
           = hidden_field_tag :month, @month-1
           = hidden_field_tag :year, @year
-          = hidden_field_tag :date, day
+          = hidden_field_tag :day, day
+          = hidden_field_tag :date, day.strftime('%Y-%m-%d')
           = hidden_field_tag :tab, 'presence'
           = time_field_tag :set_total, "#{(calculated_total/3600).to_s.rjust(2,'0')}:#{((calculated_total%3600)/60).to_s.rjust(2,'0')}", class: 'no-infobox-link'
           = submit_tag '>', class: 'no-infobox-link'
@@ -102,7 +103,8 @@
         = hidden_field_tag :person, @person.id
         = hidden_field_tag :month, @month-1
         = hidden_field_tag :year, @year
-        = hidden_field_tag :date, day
+        = hidden_field_tag :day, day
+        = hidden_field_tag :date, day.strftime('%Y-%m-%d')
         = hidden_field_tag :id, gl.id
         = hidden_field_tag :tab, 'presence'
         = submit_tag "#{gl.leave_code.code} (#{gl.duration_label(day)}) X", class: 'small-btn no-infobox-link', data: {confirmation: "Rimouvere il codice #{gl.leave_code.code} di #{@person.list_name}?"}
@@ -115,6 +117,7 @@
       = hidden_field_tag :person, person.id
       = hidden_field_tag :month, @month-1
       = hidden_field_tag :year, @year
+      = hidden_field_tag :day, day
       = hidden_field_tag :date, day
       = hidden_field_tag :tab, 'presence'
       = submit_tag "Ricalcola", class: 'small-btn no-infobox-link', data: {confirmation: "Ricalcolare il giorno #{day.strftime("%d/%m/%Y")} per #{person.list_name}?"}

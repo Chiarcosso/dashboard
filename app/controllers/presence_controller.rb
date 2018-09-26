@@ -853,8 +853,9 @@ class PresenceController < ApplicationController
         @day = Time.strptime(params[:day],"%Y-%m-%d")
       end
     else
-      # @day = Time.strptime(params[:date],"%Y-%m-%dT%H:%M:%S.%3N%:z")-1.days
-      @day = Time.now
+
+      @day = Time.strptime(params[:date],"%Y-%m-%d")
+      # @day = Time.now
     end
 
   end
