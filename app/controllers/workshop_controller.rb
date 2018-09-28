@@ -55,6 +55,8 @@ class WorkshopController < ApplicationController
           WorkshopOperation.create(name: "Lavorazione", worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         end
       end
+      WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil) if @worksheet.check_operations.count < 1
+
       v = @worksheet.vehicle
       vec = v.vehicle_checks('workshop')
       if vec.size < 1
@@ -112,7 +114,7 @@ class WorkshopController < ApplicationController
 
   def create_operation
     begin
-      WorkshopOperation.create(name: params.require('name'), worksheet: @worksheet, myofficina_reference: params.require('protocol'), user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+      WorkshopOperation.create(name: params.require('name'), worksheet: @worksheet, myofficina_reference: @protocol == 'checks' ? nil : @protocol, user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
@@ -291,7 +293,11 @@ class WorkshopController < ApplicationController
 
       #if the current user is different from the registered one create a new operation
       if !wo.nil? && wo.user != current_user
-        WorkshopOperation.create(name: wo.name, paused: false, worksheet: wo.worksheet, myofficina_reference: wo.myofficina_reference, user: current_user, starting_time: Time.now, last_starting_time: Time.now, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+        if wo.user.nil?
+          wo.update(name: wo.name, paused: false, worksheet: wo.worksheet, myofficina_reference: wo.myofficina_reference, user: current_user, starting_time: Time.now, last_starting_time: Time.now, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+        else
+          WorkshopOperation.create(name: wo.name, paused: false, worksheet: wo.worksheet, myofficina_reference: wo.myofficina_reference, user: current_user, starting_time: Time.now, last_starting_time: Time.now, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+        end
       else
         @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "#{@workshop_operation.log}\n Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         # @workshop_operation.update(starting_time: DateTime.now)
@@ -342,7 +348,7 @@ class WorkshopController < ApplicationController
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
       @worksheet.update(log: "#{@worksheet.log}\n #{@workshop_operation.log}")
       #close notification there are no more operations
-      if WorkshopOperation.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
+      if !@workshop_operation.myofficina_reference.nil? && WorkshopOperation.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
         EurowinController::create_notification({
           'ProtocolloODL': @workshop_operation.ew_notification['SchedaInterventoProtocollo'].to_s,
           'AnnoODL': @workshop_operation.ew_notification['SchedaInterventoAnno'].to_s,
@@ -468,7 +474,11 @@ class WorkshopController < ApplicationController
   end
 
   def set_protocol
-    @protocol = params['protocol'].to_i
+    if params['protocol'] == 'checks'
+      @protocol = 'checks'
+    else
+      @protocol = params['protocol'].to_i
+    end
   end
 
   def set_station
