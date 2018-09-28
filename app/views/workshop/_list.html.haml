@@ -11,6 +11,7 @@
     .col-sm-1
       -# - v = ws.vehicle
       %b= ws[:plate]#, vehicles_path(search: ws.vehicle.plate), class: 'no-ajax-link'
+      = "Inserire Km" if ws[:no_satellite]
     .col-sm-2
 
       =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(ws[:vehicle]), name: "infobox_vehicle_checks_#{ws[:vehicle]}" }

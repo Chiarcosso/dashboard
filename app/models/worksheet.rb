@@ -73,13 +73,14 @@ class Worksheet < ApplicationRecord
   #get ew worksheets and update or create ws
   def self.get_incoming(search)
     wks = Array.new
+    # sat = Vehicle.get_satellite_data
     EurowinController::get_worksheets({opened: :opened, search: search}).each do |odl|
       ws = Worksheet.find_or_create_by_code(odl['Protocollo'])
 
       if ws.nil?
         special_logger.error("EW retrieval error: \n\n#{odl.inspect}\n\n")
       else
-        wks << {ws: ws, plate: odl['Targa'].tr(' .*',''), vehicle: ws.vehicle_id}
+        wks << {ws: ws, plate: odl['Targa'].tr(' .*',''), vehicle: ws.vehicle_id, no_satellite: (Time.now - ws.vehicle.last_gps.to_i > 7.days)}
       end
     end
 

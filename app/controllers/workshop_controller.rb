@@ -42,6 +42,9 @@ class WorkshopController < ApplicationController
   def open_worksheet
 
     begin
+      if @worksheet.mileage.nil?
+        @worksheet.update(mileage: @worksheet.vehicle.mileage)
+      end
       if @worksheet.opening_date.nil?
         @worksheet.update(opening_date: Date.today, log: @worksheet.log.to_s+"\nScheda aperta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
 

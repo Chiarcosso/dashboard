@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180924140006) do
+ActiveRecord::Schema.define(version: 20180928140206) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -261,14 +261,16 @@ ActiveRecord::Schema.define(version: 20180924140006) do
   end
 
   create_table "external_vehicles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "owner_id",            null: false
-    t.string   "plate",               null: false
-    t.integer  "id_veicolo",          null: false
-    t.integer  "id_fornitore",        null: false
-    t.integer  "vehicle_type_id",     null: false
+    t.integer  "owner_id",                        null: false
+    t.string   "plate",                           null: false
+    t.integer  "id_veicolo",                      null: false
+    t.integer  "id_fornitore",                    null: false
+    t.integer  "vehicle_type_id",                 null: false
     t.integer  "vehicle_typology_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.datetime "last_gps"
+    t.integer  "mileage",             default: 0, null: false
     t.index ["owner_id"], name: "index_external_vehicles_on_owner_id", using: :btree
     t.index ["plate"], name: "index_external_vehicles_on_plate", using: :btree
     t.index ["vehicle_type_id"], name: "index_external_vehicles_on_vehicle_type_id", using: :btree
@@ -932,6 +934,7 @@ ActiveRecord::Schema.define(version: 20180924140006) do
     t.integer  "carwash_code"
     t.integer  "vehicle_category_id",               default: 1,     null: false
     t.string   "registration_model"
+    t.datetime "last_gps"
     t.index ["model_id"], name: "index_vehicles_on_model_id", using: :btree
     t.index ["property_id"], name: "index_vehicles_on_property_id", using: :btree
     t.index ["vehicle_category_id"], name: "index_vehicles_on_vehicle_category_id", using: :btree
@@ -996,6 +999,7 @@ ActiveRecord::Schema.define(version: 20180924140006) do
     t.datetime "last_starting_time"
     t.datetime "last_stopping_time"
     t.boolean  "paused",                                                   default: true,      null: false
+    t.integer  "mileage"
     t.index ["code"], name: "index_worksheets_on_code", unique: true, using: :btree
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end

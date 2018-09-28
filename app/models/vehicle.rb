@@ -102,14 +102,17 @@ class Vehicle < ApplicationRecord
   end
 
   def self.update_km
+    sats = Vehicle.get_satellite_data
 
-    Vehicle.get_satellite_data.each do |k|
+    sats.each do |k|
 
       begin
         v = Vehicle.find_by_plate(k[0])
+        v = ExternalVehicle.find_by(plate: k[0]) if v.nil?
         if v.mileage < k[1].to_i
-          v.update(mileage: k[1].to_i)
+          v.update(mileage: k[1].to_i, last_gps: Time.now)
         end
+
       rescue Exception => e
         @error = e.message+"\n\n"+k.inspect
         puts @error
@@ -121,7 +124,15 @@ class Vehicle < ApplicationRecord
   def update_km
     data = Vehicle.get_satellite_data
     unless  data[self.plate].nil? || self.mileage >  data[self.plate]
-      self.update(mileage: data[self.plate])
+      self.update(mileage: data[self.plate], last_gps: Time.now)
+    end
+  end
+
+  def last_gps_label
+    if self.last_gps.nil?
+      "No GPS"
+    else
+      "GPS #{((Time.now - self.last_gps)/3600/24).floor} giorni fa"
     end
   end
 

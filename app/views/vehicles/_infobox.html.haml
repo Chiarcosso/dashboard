@@ -1,6 +1,6 @@
 -# %div{style: 'width: 90vh; padding: 0px'}
-.small-title="#{@vehicle.model.complete_name} (#{@vehicle.registration_model}) - #{@vehicle.plate} - #{@vehicle.actual_property.nil?? '' : @vehicle.actual_property.owner.complete_name}"
-%b= "#{@vehicle.vehicle_type.name}#{@vehicle.vehicle_category == VehicleCategory.not_available ? '' : " ("+@vehicle.vehicle_category.name+")"} (cat. #{@vehicle.vehicle_category.name}), #{@vehicle.vehicle_typology.name}"
+.small-title="#{@vehicle.methods.include?('model') ? @vehicle.model.complete_name : 'N/D' } (#{@vehicle.registration_model}) - #{@vehicle.plate} - #{@vehicle.actual_property.nil?? '' : @vehicle.actual_property.owner.complete_name}"
+%b= "#{@vehicle.vehicle_type.name}#{@vehicle.vehicle_category == VehicleCategory.not_available ? '' : " ("+@vehicle.vehicle_category.name+")"} (cat. #{@vehicle.vehicle_category.name}), #{@vehicle.vehicle_typology.name}, Km: #{@vehicle.mileage}"
 %br
 %br
 .row.no-margins
@@ -16,11 +16,13 @@
             %br
             = h.owner.complete_name
             = "dal: #{h.date_since.nil? ? '' : (I18n.l h.date_since)}, al: #{h.date_to.nil? ? '' : (I18n.l h.date_to)}"
-  .col-sm-6
+  .col-sm-4
     %b= "Access: "
     -@vehicle.mssql_references.each do |mr|
       = mr.remote_object_table
       = mr.remote_object_id
+  .col-sm-2
+    %b= @vehicle.last_gps_label
 .row.no-margins
   .col-sm-12
     %div
