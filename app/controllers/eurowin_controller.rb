@@ -61,6 +61,7 @@ class EurowinController < ApplicationController
 
     #set deafults
     opts[:opened] = :opened if opts[:opened].nil?
+    opts[:search_fields] = [:plate,:operator,:protocol] if opts[:search_fields].nil?
     opts[:search] = nil if opts[:search].nil?
     opts[:station] = :workshop if opts[:station].nil?
 
@@ -79,14 +80,16 @@ class EurowinController < ApplicationController
     wstation = " and CodiceAnagrafico = '#{get_workshop(opts[:station])}'" unless opts[:station].nil?
 
     unless opts[:search].nil?
+
       ops = EurowinController::get_operators(opts[:search])
       if ops.count > 0
         wops = " or codicemanutentore in (#{ops.map{ |o| "'#{o['Codice']}'" }.join(',')}))"
       else
         wops = ")"
       end
-      w += " and (targa like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")} "\
-      "or protocollo like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")}#{wops}"
+      # w += " and (targa like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")} "\
+      # "or protocollo like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")}#{wops}"
+      w += " and (targa like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")}#{wops}"\
     end
     #send query
     q = "select * from autoodl where #{w}#{wstation} order by targa;"

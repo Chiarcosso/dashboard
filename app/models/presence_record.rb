@@ -228,7 +228,7 @@ class PresenceRecord < ApplicationRecord
                               calculated_duration: round_interval(calculated_end.to_i - calculated_start.to_i),
                               break: true)
           unless working_schedule.nil?
-            if previous_record.actual_duration > working_schedule.break * 60
+            if previous_record.actual_duration-1.minutes > working_schedule.break * 60
               previous_record.anomaly = 'Ritardo pausa'
 
               #if there's a delay create a leave

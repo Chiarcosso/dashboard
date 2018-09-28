@@ -74,7 +74,7 @@ class Worksheet < ApplicationRecord
   def self.get_incoming(search)
     wks = Array.new
     # sat = Vehicle.get_satellite_data
-    EurowinController::get_worksheets({opened: :opened, search: search}).each do |odl|
+    EurowinController::get_worksheets({opened: :opened, search: search, search_fields: [:plate,:operator]}).each do |odl|
       ws = Worksheet.find_or_create_by_code(odl['Protocollo'])
 
       if ws.nil?
