@@ -14,7 +14,7 @@
     - presence_records.each do |r|
       - unless r.break
         - actual_total += r.actual_duration
-      - calculated_total = r.set_day_time
+      - calculated_total = r.set_day_time.to_i
       .col-sm-3
         .row
           .col-sm-12
