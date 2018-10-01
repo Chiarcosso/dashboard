@@ -67,7 +67,7 @@ class GrantedLeave < ApplicationRecord
 
     if self.from.strftime("%Y-%m-%d") == self.to.strftime("%Y-%m-%d")
       ws = WorkingSchedule.get_schedule(self.from,self.person)
-      if self.from == ws.transform_to_date(self.from,:contract_from) && self.to == ws.transform_to_date(self.from,:contract_to)
+      if !ws.nil? && self.from == ws.transform_to_date(self.from,:contract_from) && self.to == ws.transform_to_date(self.from,:contract_to)
         "La giornata del #{self.from.strftime("%d/%m/%Y")}"
       else
         "Dalle #{self.from.strftime("%H:%M")} alle #{self.to.strftime("%H:%M")}"
