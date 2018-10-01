@@ -210,12 +210,14 @@ class PresenceRecord < ApplicationRecord
           # else
           #   calculated_end = pts.time+working_schedule.break.minutes
           # end
+
           break_time = PresenceRecord.round_interval(next_pts.time - pts.time,:+)
-          ending_leaves = GrantedLeave.where(date: date, person: person).where("('#{(pts.time+working_schedule.break * 60).strftime("%Y-%m-%d %H:%M:%S")}' between granted_leaves.from and granted_leaves.to) and granted_leaves.leave_code_id != #{delay_leave.id}")
+          br = working_schedule.nil? ? break_time : working_schedule.break * 60
+          ending_leaves = GrantedLeave.where(date: date, person: person).where("('#{(pts.time+br).strftime("%Y-%m-%d %H:%M:%S")}' between granted_leaves.from and granted_leaves.to) and granted_leaves.leave_code_id != #{delay_leave.id}")
           if ending_leaves.count > 0
             calculated_end = ending_leaves.first.to
           else
-            calculated_end = pts.time.utc+(break_time > working_schedule.break * 60 ? working_schedule.break * 60 : break_time)
+            calculated_end = pts.time.utc+(break_time > br ? br : break_time)
           end
 
           previous_record = PresenceRecord.new(date: date,
