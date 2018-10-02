@@ -228,6 +228,7 @@ class WorkshopController < ApplicationController
 
       # update worksheet's log
       @worksheet.update(log: "#{@worksheet.log}\n Segnalazione '#{params.require('description')}' (#{params.require('protocol')}) spostata da #{current_user.person.list_name} il #{Time.now.strftime("%Y/%m/%d")} alle #{Time.now.strftime("%H:%M:%S")}.")
+
       vehicle_refs = EurowinController::get_vehicle(@worksheet.vehicle)
       if params['external_workshop'].nil?
         odl = EurowinController::last_open_odl_not(@worksheet.number)
@@ -253,7 +254,7 @@ class WorkshopController < ApplicationController
 
       end
 
-      duplicate_sgn = false
+      duplicate_sgn = nil
       # Stop or delete all operations
       wos = WorkshopOperation.get_from_sgn(params.require('protocol'))
 
@@ -272,24 +273,56 @@ class WorkshopController < ApplicationController
         @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
         @worksheet.update(log: "#{@worksheet.log}\n #{wo.log}")
         #close notification there are no more operations
-
+        duplicate_sgn = wo.ew_notification
       end
 
-      sgn = EurowinController::create_notification({
-        'Descrizione': params.require('description'),
-        'ProtocolloODL': protocollo_odl,
-        'AnnoODL': anno_odl,
-        'ProtocolloSGN': params.require('protocol'),
-        'AnnoSGN': params.require('year'),
-        'UserInsert': current_user.person.complete_name.upcase,
-        'UserPost': 'OFFICINA',
-        'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
-        'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
-        'CodiceTarga': vehicle_refs['Targa'],
-        'Chilometraggio': vehicle_refs['Km'].to_s,
-        'TipoDanno': params.require('damage_type').to_s,
-        'CodiceOfficina': EurowinController::get_workshop(:workshop)
-      })
+      if duplicate_sgn.nil?
+
+        sgn = EurowinController::create_notification({
+          'Descrizione': params.require('description'),
+          'ProtocolloODL': protocollo_odl,
+          'AnnoODL': anno_odl,
+          'ProtocolloSGN': params.require('protocol'),
+          'AnnoSGN': params.require('year'),
+          'UserInsert': current_user.person.complete_name.upcase,
+          'UserPost': 'OFFICINA',
+          'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
+          'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
+          'CodiceTarga': vehicle_refs['Targa'],
+          'Chilometraggio': vehicle_refs['Km'].to_s,
+          'TipoDanno': params.require('damage_type').to_s,
+          'CodiceOfficina': EurowinController::get_workshop(:workshop)
+        })
+
+      else
+
+        EurowinController::create_notification({
+          'ProtocolloODL': duplicate_sgn['SchedaInterventoProtocollo'].to_s,
+          'AnnoODL': duplicate_sgn['SchedaInterventoAnno'].to_s,
+          'ProtocolloSGN': duplicate_sgn['Protocollo'].to_s,
+          'AnnoSGN': duplicate_sgn['Anno'].to_s,
+          'DataIntervento': duplicate_sgn['DataSegnalazione'].to_s,
+          'FlagRiparato': 'false',
+          'FlagSvolto': 'true',
+          'CodiceOfficina': "0"
+        })
+
+        sgn = EurowinController::create_notification({
+          'Descrizione': params.require('description'),
+          'ProtocolloODL': protocollo_odl,
+          'AnnoODL': anno_odl,
+          'ProtocolloSGN': '-1',
+          'AnnoSGN': '-1',
+          'UserInsert': current_user.person.complete_name.upcase,
+          'UserPost': 'OFFICINA',
+          'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
+          'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
+          'CodiceTarga': vehicle_refs['Targa'],
+          'Chilometraggio': vehicle_refs['Km'].to_s,
+          'TipoDanno': params.require('damage_type').to_s,
+          'CodiceOfficina': EurowinController::get_workshop(:workshop)
+        })
+      end
 
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
