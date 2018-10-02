@@ -419,12 +419,13 @@ class WorkshopController < ApplicationController
         wo.update(ending_time: Time.now)
         sgn = EurowinController::get_notification(wo.myofficina_reference)
         EurowinController::create_notification({
-          'ProtocolloODL': '0',
-          'AnnoODL': '0',
-          'ProtocolloSGN': sgn['Protocollo'],
-          'AnnoSGN': sgn['Anno'],
+          'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,
+          'AnnoODL': sgn['SchedaInterventoAnno'].to_s,
+          'ProtocolloSGN': sgn['Protocollo'].to_s,
+          'AnnoSGN': sgn['Anno'].to_s,
+          'DataIntervento': sgn['DataSegnalazione'].to_s,
           'FlagRiparato': 'true',
-          'FlagSvolto': 'true'
+          'CodiceOfficina': "0"
         })
       end
 
