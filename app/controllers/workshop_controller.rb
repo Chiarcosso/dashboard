@@ -507,6 +507,7 @@ class WorkshopController < ApplicationController
         File.open("/mnt/documents/ODL/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
 
         WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
+        WorkshopMailer.send_to_logistics(@worksheet).deliver_now
       else
         # @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: true)
       end

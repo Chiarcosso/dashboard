@@ -17,8 +17,6 @@ class WorkshopMailer < ApplicationMailer
     attachments["odl_nr_#{ws.number}.pdf"] = {:mime_type => 'application/pdf', :content => pdf.render }
     mail(body: message, subject: "ODL nr. #{ws.number} - #{ws.vehicle.plate} - #{ws.notes}", to: notify_to)
 
-    send_to_logistics(ws)
-
   end
 
   def send_to_logistics(ws)
