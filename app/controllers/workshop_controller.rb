@@ -225,8 +225,10 @@ class WorkshopController < ApplicationController
 
   def deassociate_notification
     begin
-      vehicle_refs = EurowinController::get_vehicle(@worksheet.vehicle)
+
+      # update worksheet's log
       @worksheet.update(log: "#{@worksheet.log}\n Segnalazione '#{params.require('description')}' (#{params.require('protocol')}) spostata da #{current_user.person.list_name} il #{Time.now.strftime("%Y/%m/%d")} alle #{Time.now.strftime("%H:%M:%S")}.")
+      vehicle_refs = EurowinController::get_vehicle(@worksheet.vehicle)
       if params['external_workshop'].nil?
         odl = EurowinController::last_open_odl_not(@worksheet.number)
 
@@ -251,7 +253,27 @@ class WorkshopController < ApplicationController
 
       end
 
-      WorkshopOperation.get_from_sgn(params.require('protocol')).each{ |wo| wo.delete }
+      duplicate_sgn = false
+      # Stop or delete all operations
+      wos = WorkshopOperation.get_from_sgn(params.require('protocol'))
+
+      wos.each do |wo|
+        if wo.real_duration.to_i == 0
+          wo.delete
+          next
+        end
+        if wo.paused
+          duration = wo.real_duration
+        else
+          duration = wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i
+        end
+        wo.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "#{wo.log}\n Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
+        # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
+        @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
+        @worksheet.update(log: "#{@worksheet.log}\n #{wo.log}")
+        #close notification there are no more operations
+
+      end
 
       sgn = EurowinController::create_notification({
         'Descrizione': params.require('description'),

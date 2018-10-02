@@ -14,11 +14,20 @@ class WorkshopMailer < ApplicationMailer
     "Data uscita: #{ws.exit_time.strftime("%Y/%m/%d")}\n"\
     "Durata totale: #{ws.real_duration_label}"
 
-    mail(body: message, subject: "Il mezzo targato #{ws.vehicle.plate} è uscito dall'officina.", to: 'mezzipronti@chiarcosso.com')
-
     attachments["odl_nr_#{ws.number}.pdf"] = {:mime_type => 'application/pdf', :content => pdf.render }
     mail(body: message, subject: "ODL nr. #{ws.number} - #{ws.vehicle.plate} - #{ws.notes}", to: notify_to)
 
+    send_to_logistics(ws)
+
+  end
+
+  def send_to_logistics(ws)
+    notify_to = ['mezzipronti@chiarcosso.com']
+    vehicle = ws.vehicle
+
+    message = "#{Time.now.strftime("%d/%m/%Y %H:%M:%S")} - Il mezzo targato #{vehicle.plate} è uscito dall'officina.\n\n"\
+          "#{vehicle.complete_name}"
+    mail(body: message, subject: "Il mezzo targato #{ws.vehicle.plate} è uscito dall'officina.", to: notify_to)
 
   end
 
