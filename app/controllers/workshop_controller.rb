@@ -417,6 +417,15 @@ class WorkshopController < ApplicationController
       ops.each do |wo|
         wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
         wo.update(ending_time: Time.now)
+        sgn = EurowinController::get_notification(wo.myofficina_reference)
+        EurowinController::create_notification({
+          'ProtocolloODL': '0',
+          'AnnoODL': '0',
+          'ProtocolloSGN': sgn['Protocollo'],
+          'AnnoSGN': sgn['Anno'],
+          'FlagRiparato': 'true',
+          'FlagSvolto': 'true'
+        })
       end
 
       @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: duration, paused: true)

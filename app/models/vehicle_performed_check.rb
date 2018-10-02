@@ -97,7 +97,7 @@ class VehiclePerformedCheck < ApplicationRecord
     when 4 then
       "#{self.vehicle_check.label} non a posto. Risultato: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value.to_s+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}..#{self.notes.nil?? '' : ' '+self.notes+'.'}"
     when 5 then
-      "BLOCCANTE -- #{self.vehicle_check.label}: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}..#{self.notes.nil?? '' : ' '+self.notes+'.'}"
+      "BLOCCANTE -- #{self.vehicle_check.label}: #{self.value}#{measure_unit}, ultimo riferimento valido: #{lvr.nil?? 'Non trovato' : lvr.value.to_s+measure_unit} #{lvr.nil?? '' : '('+lvr.time.strftime('%d/%m/%Y')+')'}..#{self.notes.nil?? '' : ' '+self.notes.to_s+'.'}"
     end
   end
 

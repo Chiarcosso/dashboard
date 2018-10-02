@@ -20,6 +20,10 @@ class ExternalVehicle < ApplicationRecord
     self.vehicle_typology
   end
 
+  def last_maintainance
+    nil
+  end
+  
   def last_washing
     nil
   end
@@ -33,7 +37,7 @@ class ExternalVehicle < ApplicationRecord
   def mileage
     nil
   end
-  
+
   def mandatory?(vc)
     vc.importance == 9 ? true : false
   end
