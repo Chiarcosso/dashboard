@@ -405,11 +405,12 @@ class WorkshopController < ApplicationController
       #   WorkshopOperation.find(ot['id'].to_i).update(real_duration: ot['time'].to_i)
       # end
 
-      if @worksheet.last_starting_time.nil?
-        duration = @worksheet.real_duration
-      else
-        duration = @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i
-      end
+      # if @worksheet.last_starting_time.nil?
+      #   duration = @worksheet.real_duration
+      # else
+      #   duration = @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i
+      # end
+      duration = @worksheet.workshop_operations.map{ |wo| wo.real_duration}.inject(0,:+)
       if params[:area] == 'on_processing'
         ops = @worksheet.operations
       else
