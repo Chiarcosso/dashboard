@@ -3,35 +3,35 @@ class WorkingSchedule < ApplicationRecord
 
   enum weekdays: ['Lunedi', 'Martedi', 'Mercoledi', 'Giovedi', 'Venerdi', 'Sabato', 'Domenica']
 
-  def contract_from
+  def contract_from(time = Time.now)
     if self.contract_from_s.size == 5
-      Time.strptime(self.contract_from_s,"%H:%M")
+      Time.strptime("#{time.strftime("%Y-%m-%d")} #{self.contract_from_s}","%Y-%m-%d %H:%M")
     elsif self.contract_from_s.size == 8
-      Time.strptime(self.contract_from_s,"%H:%M:%S")
+      Time.strptime("#{time.strftime("%Y-%m-%d")} #{self.contract_from_s}","%Y-%m-%d %H:%M:%S")
     end
   end
 
-  def contract_to
+  def contract_to(time = Time.now)
     if self.contract_to_s.size == 5
-      Time.strptime(self.contract_to_s,"%H:%M")
-    elsif self.contract_to_s.size == 8
-      Time.strptime(self.contract_to_s,"%H:%M:%S")
+      Time.strptime("#{time.strftime("%Y-%m-%d")} #{self.contract_to_s}","%Y-%m-%d %H:%M")
+    elsif self.contract_from_s.size == 8
+      Time.strptime("#{time.strftime("%Y-%m-%d")} #{self.contract_to_s}","%Y-%m-%d %H:%M:%S")
     end
   end
 
-  def agreement_from
+  def agreement_from(time = Time.now)
     if self.agreement_from_s.size == 5
-      Time.strptime(self.agreement_from_s,"%H:%M")
-    elsif self.agreement_from_s.size == 8
-      Time.strptime(self.agreement_from_s,"%H:%M:%S")
+      Time.strptime("#{time.strftime("%Y-%m-%d")} #{self.agreement_from_s}","%Y-%m-%d %H:%M")
+    elsif self.contract_from_s.size == 8
+      Time.strptime("#{time.strftime("%Y-%m-%d")} #{self.agreement_from_s}","%Y-%m-%d %H:%M:%S")
     end
   end
 
-  def agreement_to
+  def agreement_to(time = Time.now)
     if self.agreement_to_s.size == 5
-      Time.strptime(self.agreement_to_s,"%H:%M")
-    elsif self.agreement_to_s.size == 8
-      Time.strptime(self.agreement_to_s,"%H:%M:%S")
+      Time.strptime("#{time.strftime("%Y-%m-%d")} #{self.agreement_to_s}","%Y-%m-%d %H:%M")
+    elsif self.contract_from_s.size == 8
+      Time.strptime("#{time.strftime("%Y-%m-%d")} #{self.agreement_to_s}","%Y-%m-%d %H:%M:%S")
     end
   end
 

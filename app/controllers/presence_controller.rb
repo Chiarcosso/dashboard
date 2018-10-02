@@ -351,7 +351,7 @@ class PresenceController < ApplicationController
           ws = WorkingSchedule.new(person: @person, contract_from_s:params[:time_from])
         end
         raise 'Orario data inizio non presente' if ws.nil?
-        from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from.utc.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
+        from = DateTime.strptime("#{params.require(:date_from)} #{ws.contract_from(Time.strptime(params.require(:date_from),"%Y-%m-%d")).utc.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
         from = from-1.days if ws.contract_from_s == "00:00"
       rescue
         @error = 'Data/ora inizio non valida.'
@@ -364,7 +364,7 @@ class PresenceController < ApplicationController
           ws = WorkingSchedule.new(person: @person, contract_to_s:params[:time_to])
         end
         raise 'Orario data fine non presente' if ws.nil?
-        to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to.utc.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
+        to = DateTime.strptime("#{params.require(:date_to)} #{ws.contract_to(Time.strptime(params.require(:date_to),"%Y-%m-%d")).utc.strftime("%H:%M:%S")}", "%Y-%m-%d %H:%M:%S")
         to = to-1.days if ws.contract_to_s == "00:00"
       rescue
         @error = 'Data/ora fine non valida.'
