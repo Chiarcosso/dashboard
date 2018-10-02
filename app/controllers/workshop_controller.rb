@@ -239,7 +239,8 @@ class WorkshopController < ApplicationController
           'CodiceTarga': vehicle_refs['Targa'],
           'Chilometraggio': vehicle_refs['Km'].to_s,
           'TipoDanno': params.require('damage_type').to_s,
-          'CodiceOfficina': EurowinController::get_workshop(:workshop)
+          'CodiceOfficina': EurowinController::get_workshop(:workshop),
+          'FlagSvolto': 'false'
           }) if odl.nil?
         protocollo_odl = odl['Protocollo'].to_s
         anno_odl = odl['Anno'].to_s

@@ -141,7 +141,7 @@ class EurowinController < ApplicationController
     ewc = get_ew_client
     r = ewc.query("select * from autoodl where protocollo = "\
     "(select protocollo from autoodl where codiceautomezzo = '#{odl['CodiceAutomezzo']}' and protocollo != #{odl['Protocollo']} "\
-    "and DataUscitaVeicolo is null and FlagSchedaChiusa like 'false' "\
+    "and DataUscitaVeicolo is null and FlagSchedaChiusa not like 'true' "\
     "and CodiceAnagrafico = '#{get_workshop(:workshop)}' "\
     "order by dataintervento desc limit 1)").first
     ewc.close
