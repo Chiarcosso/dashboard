@@ -466,7 +466,7 @@ class WorkshopController < ApplicationController
       #   duration = @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i
       # end
       duration = @worksheet.workshop_operations.map{ |wo| wo.real_duration}.inject(0,:+)
-      if params[:area] == 'on_processing'
+      if params[:area] == 'on_processing' || current_user.has_role?('amministratore officina')
         ops = @worksheet.operations
       else
         ops = @worksheet.operations(current_user)
@@ -474,16 +474,18 @@ class WorkshopController < ApplicationController
       ops.each do |wo|
         wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
         wo.update(ending_time: Time.now)
-        sgn = EurowinController::get_notification(wo.myofficina_reference)
-        EurowinController::create_notification({
-          'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,
-          'AnnoODL': sgn['SchedaInterventoAnno'].to_s,
-          'ProtocolloSGN': sgn['Protocollo'].to_s,
-          'AnnoSGN': sgn['Anno'].to_s,
-          'DataIntervento': sgn['DataSegnalazione'].to_s,
-          'FlagRiparato': 'true',
-          'CodiceOfficina': "0"
-        })
+        unless wo.myofficina_reference.nil?
+          sgn = EurowinController::get_notification(wo.myofficina_reference)
+          EurowinController::create_notification({
+            'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,
+            'AnnoODL': sgn['SchedaInterventoAnno'].to_s,
+            'ProtocolloSGN': sgn['Protocollo'].to_s,
+            'AnnoSGN': sgn['Anno'].to_s,
+            'DataIntervento': sgn['DataSegnalazione'].to_s,
+            'FlagRiparato': 'true',
+            'CodiceOfficina': "0"
+          })
+        end
       end
 
       @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: duration, paused: true)

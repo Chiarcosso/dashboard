@@ -312,7 +312,8 @@ class Vehicle < ApplicationRecord
   end
 
   def owners_history
-    VehicleProperty.where(vehicle: self).where("id <> #{self.actual_property.id}").order(date_since: :desc)
+    property = self.actual_property
+    VehicleProperty.where(vehicle: self).where("id <> #{property.id}").order(date_since: :desc) unless property.nil?
   end
 
   def has_reference?(table,id)

@@ -503,6 +503,20 @@ class Worksheet < ApplicationRecord
 
     end
 
+    ops = Array.new
+    self.check_operations.to_a.each do |wo|
+      operator = wo.operator.nil?? 'Operatore mancante' : wo.operator.complete_name
+      ops << ["#{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",operator,wo.real_duration_label]
+    end
+    ops = [['','','']] if ops.count < 1
+
+    pdf.table [['','Controlli','','']],
+          :column_widths => { 0 => 45, 1 => 365, 2 => 90, 3 => 40}
+
+    pdf.table ops,
+          :column_widths => { 0 => 330, 1 => 150, 2 => 60}
+
+    pdf.move_down 5
     # pdf.table table,
     #   # :border_style => :grid,
     #   # :font_size => 11,
