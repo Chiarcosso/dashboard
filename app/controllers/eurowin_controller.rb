@@ -81,6 +81,14 @@ class EurowinController < ApplicationController
     get_worksheets(:opened => :closed)
   end
 
+  def self.reset_odl(protocol)
+    ewc = get_ew_client
+    r = ewc.query("update autoodl set dataentrataveicolo = null where protocollo = #{protocol}")
+    ewc.close
+
+    r
+  end
+
   def self.get_last_open_odl_by_vehicle(vehicle)
     ewc = get_ew_client
     r = ewc.query("select * from autoodl "\

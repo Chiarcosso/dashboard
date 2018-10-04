@@ -16,6 +16,8 @@
     - WorkshopOperation.to_notification_or_create(sgn).each_with_index do |wo,i|
       .row
         .col-sm-1
+          %button{ class: 'btn_small create_popup', id: "deassociate-#{sgn['Protocollo']}", data: { route: deassociate_workshop_notification_path(sgn['Protocollo']), html: (render partial: 'workshop/deassociate_notification_popup_xbox', locals: {protocol: sgn['Protocollo'], year: sgn['Anno'], damage_type: sgn['TipoDanno'], description: sgn['DescrizioneSegnalazione'] }) } }
+            = 'Rimanda'
           -# = button_to "-", delete_workshop_operation_path(id: @worksheet.number, operation: wo.id), remote: true, data: { confirmation: "Elminare l'operazione nr. #{wo.id}, #{wo.name}?" }
           -# - if i > 0
           -#   = form_tag( delete_workshop_operation_path(@worksheet.number), remote: true, method: :post, class: 'no-cr', data: { confirmation: "Elminare l'operazione nr. #{wo.id}, #{wo.name}?" }) do |f|

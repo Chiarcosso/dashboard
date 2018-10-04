@@ -42,12 +42,13 @@ class WorkshopController < ApplicationController
   def reset_worksheet
     begin
       odl = EurowinController::get_worksheet(@worksheet.number)
-      EurowinController::create_worksheet({
-        'DataEntrataVeicolo': '1900-01-01',
-        'AnnoODL': odl['Anno'].to_s,
-        'ProtocolloODL': odl['Protocollo'].to_s,
-        'DataIntervento': odl['DataIntervento']
-        })
+      EurowinController::reset_odl(@worksheet.number)
+      # EurowinController::create_worksheet({
+      #   'DataEntrataVeicolo': '-1',
+      #   'AnnoODL': odl['Anno'].to_s,
+      #   'ProtocolloODL': odl['Protocollo'].to_s,
+      #   'DataIntervento': odl['DataIntervento']
+      #   })
       @worksheet.update(opening_date: nil, paused: true, last_starting_time: nil, last_stopping_time: nil, real_duration: 0)
       @worksheet.workshop_operations.each{ |wo| wo.delete}
       respond_to do |format|
@@ -138,7 +139,7 @@ class WorkshopController < ApplicationController
         'FlagStampato': 'false',
         'FlagChiuso': 'false'
       }
-      
+
       sgn = EurowinController::create_notification(payload)
       # WorkshopOperation.create(name: 'Lavorazione', worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       #
@@ -440,7 +441,12 @@ class WorkshopController < ApplicationController
       end
 
       respond_to do |format|
-        format.js { render partial: 'workshop/worksheet_js' }
+        if params[:area].nil?
+          format.js { render partial: 'workshop/worksheet_js' }
+        elsif params[:area] == 'on_processing'
+          @notifications = @worksheet.notifications(:all)
+          format.js { render partial: 'workshop/xbox_js' }
+        end
       end
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"

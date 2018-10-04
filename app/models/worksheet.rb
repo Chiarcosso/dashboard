@@ -236,7 +236,7 @@ class Worksheet < ApplicationRecord
     protocol = protocol.to_s[/(EWC\*)?([0-9]+).*/,2]
     ws = Worksheet.find_by(code: "EWC*#{protocol}")
 
-    if ws.nil?
+    # if ws.nil?
       ewc = EurowinController::get_ew_client
       res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
         "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico, "\
@@ -246,9 +246,9 @@ class Worksheet < ApplicationRecord
         "where Protocollo = #{protocol} limit 1")
       ewc.close
 
-      if res.count > 0
-        ws = Worksheet.upsync_ws(res.first)
-      end
+    # end
+    if res.count > 0
+      ws = Worksheet.upsync_ws(res.first)
     end
     ws
   end
