@@ -9,6 +9,30 @@ class EurowinController < ApplicationController
     r.first
   end
 
+  def self.get_open_notifications(search)
+
+    plate_id = VehicleInformationType.find_by(name: 'Targa').id
+    q = <<-QUERY
+      select * from mssql_references
+      where (local_object_type = 'Vehicle' or local_object_type = 'ExternalVehicle')
+      and local_object_id in (
+        select distinct sq.id from (
+          select vehicle_id as id from vehicle_informations where vehicle_information_type_id = #{plate_id} and information like '%#{search.to_s.gsub("'","''")}%'
+          union
+          select id from external_vehicles where plate like '%#{search.to_s.gsub("'","''")}%'
+        ) sq
+      )
+    QUERY
+    mrs = MssqlReference.find_by_sql(q)
+    ewc = get_ew_client
+    r = ewc.query("select *, "\
+    "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
+    "from autosegnalazioni where codiceAutomezzo in (#{mrs.map{|mr| mr.remote_object_id}.join(',')}) "\
+    "and (serialODL is null or serialODL = '0') and FlagChiuso not like 'true' and FlagRiparato not like 'true';")
+    ewc.close
+    r
+  end
+
   def self.get_notifications_from_odl(protocol,mod = :opened)
     odl = EurowinController::get_worksheet(protocol)
     case mod
@@ -55,6 +79,19 @@ class EurowinController < ApplicationController
 
   def self.closed_worksheets
     get_worksheets(:opened => :closed)
+  end
+
+  def self.get_last_open_odl_by_vehicle(vehicle)
+    ewc = get_ew_client
+    r = ewc.query("select * from autoodl "\
+    "where codiceautomezzo = '#{vehicle}' "\
+    "and DataUscitaVeicolo is null "\
+    "and FlagSchedaChiusa not like 'true' "\
+    "and CodiceAnagrafico = '#{get_workshop(:workshop)}' "\
+    "order by dataintervento desc limit 1").first
+    ewc.close
+
+    r
   end
 
   def self.get_worksheets(opts)

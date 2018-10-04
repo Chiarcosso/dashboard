@@ -19,7 +19,7 @@
       .col-sm-2
         %b= "ODL nr. #{ws.number}"
       .col-sm-7
-        %b= "Data entrata: #{ws.opening_date.strftime('%d/%m/%Y')}"
+        %b= "Data entrata: #{ws.opening_date.nil? ? 'N/A' : ws.opening_date.strftime('%d/%m/%Y')}"
       .col-sm-1
         -# = link_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
         = button_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader small-btn'

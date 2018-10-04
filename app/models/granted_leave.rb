@@ -47,7 +47,7 @@ class GrantedLeave < ApplicationRecord
           ws = WorkingSchedule.get_schedule(comparison_date,self.person)
           return ws.nil? ? 0 : ws.contract_duration.to_i
         end
-        
+
         return (ending_time - starting_time).to_i - ws.break.minutes
       end
     else
@@ -103,38 +103,45 @@ class GrantedLeave < ApplicationRecord
     journal.each do |j|
       person = Person.find_or_create({mssql_id: j['IDAutista'], table: 'Autisti'})
 
-
-      if j['IDViaggi'] == 'PEPEPE'
-        if dashboard.select{ |d| d.person == person && leave_codes[:PEPEPE].include?(d.leave_code) && d.to.strftime('%Y-%m-%d') == j['DataAl'].strftime('%Y-%m-%d')}.size == 0
-          text += "Il #{j['Data'].strftime('%d/%m/%Y')} e' presente sul giornale un permesso #{j['IDViaggi']} di #{person.list_name}, fino al #{j['DataAl'].nil? ? '' : j['DataAl'].strftime("%d/%m/%Y")} che manca in dashboard (IDPosizione: #{j['IDPosizione']}).\n"
+      begin
+        if j['IDViaggi'] == 'PEPEPE'
+          if dashboard.select{ |d| d.person == person && leave_codes[:PEPEPE].include?(d.leave_code) && d.to.strftime('%Y-%m-%d') == j['DataAl'].strftime('%Y-%m-%d')}.size == 0
+            text += "Il #{j['Data'].strftime('%d/%m/%Y')} e' presente sul giornale un permesso #{j['IDViaggi']} di #{person.list_name}, fino al #{j['DataAl'].nil? ? '' : j['DataAl'].strftime("%d/%m/%Y")} che manca in dashboard (IDPosizione: #{j['IDPosizione']}).\n"
+          end
+        else
+          if dashboard.select{ |d| d.person == person && d.leave_code == leave_codes[j['IDViaggi'].to_sym] && d.to.strftime('%Y-%m-%d') == j['DataAl'].strftime('%Y-%m-%d')}.size == 0
+            text += "Il #{j['Data'].strftime('%d/%m/%Y')} e' presente sul giornale un permesso #{j['IDViaggi']} di #{person.list_name}, fino al #{j['DataAl'].nil? ? '' : j['DataAl'].strftime("%d/%m/%Y")} che manca in dashboard. (IDPosizione: #{j['IDPosizione']})\n"
+          end
         end
-      else
-        if dashboard.select{ |d| d.person == person && d.leave_code == leave_codes[j['IDViaggi'].to_sym] && d.to.strftime('%Y-%m-%d') == j['DataAl'].strftime('%Y-%m-%d')}.size == 0
-          text += "Il #{j['Data'].strftime('%d/%m/%Y')} e' presente sul giornale un permesso #{j['IDViaggi']} di #{person.list_name}, fino al #{j['DataAl'].nil? ? '' : j['DataAl'].strftime("%d/%m/%Y")} che manca in dashboard. (IDPosizione: #{j['IDPosizione']})\n"
-        end
+      rescue
+        text += "Errore: #{j.inspect}\n"
       end
     end
 
     text += "\n\n"
     #check whether all dashboard leaves are matched
     dashboard.each do |d|
-      next if MssqlReference.query({table: 'Autisti', where: {IdAutista: d.person.mssql_references.map{ |r| r.remote_object_id }, IdMansione: [1,5]}}).count == 0
-      if leave_codes[:PEPEPE].include?(d.leave_code)
-        trip_id = 'PEPEPE'
-      else
-        trip_id = leave_codes.key(d.leave_code).to_s
-      end
+      begin
+        next if MssqlReference.query({table: 'Autisti', where: {IdAutista: d.person.mssql_references.map{ |r| r.remote_object_id }, IdMansione: [1,5]}}).count == 0
+        if leave_codes[:PEPEPE].include?(d.leave_code)
+          trip_id = 'PEPEPE'
+        else
+          trip_id = leave_codes.key(d.leave_code).to_s
+        end
 
-      if MssqlReference.query({
-        table: 'GIORNALE',
-        where: {
-          'IDAutista': d.person.mssql_references.map{|p| p.remote_object_id},
-          'data': date,
-          'DataAl': d.to.strftime('%Y-%m-%d'),
-          'IDViaggi': trip_id
-        }
-        }).count == 0
-        text += "Il #{date.split('-').reverse.join('/')} nel giornale manca la riga per il permesso di #{d.person.list_name} per #{d.leave_code.code}, dal #{d.from.strftime("%d/%m/%Y")} al #{d.to.strftime("%d/%m/%Y")}\n"
+        if MssqlReference.query({
+          table: 'GIORNALE',
+          where: {
+            'IDAutista': d.person.mssql_references.map{|p| p.remote_object_id},
+            'data': date,
+            'DataAl': d.to.strftime('%Y-%m-%d'),
+            'IDViaggi': trip_id
+          }
+          }).count == 0
+          text += "Il #{date.split('-').reverse.join('/')} nel giornale manca la riga per il permesso di #{d.person.list_name} per #{d.leave_code.code}, dal #{d.from.strftime("%d/%m/%Y")} al #{d.to.strftime("%d/%m/%Y")}\n"
+        end
+      rescue
+        text += "Errore: #{d.inspect}\n"
       end
     end
     text = 'Non ci sono discordanze fra il giornale e dashboard.' if text == "\n\n"

@@ -2,7 +2,7 @@
   - Worksheet.on_processing.each do |ws|
     .row.colored.xbox{ data: { data: {protocol: ws.number, area: 'on_processing'}.to_json, route: worksheet_processing_xbox_path, xbox: "#pbox-#{ws.id}" }}
       .col-sm-1
-        =button_to 'Apri scheda', open_worksheet_path(ws.number), remote: true, class: 'no-ajax-link'
+        =button_to 'Apri', open_worksheet_path(ws.number), remote: true, class: 'no-ajax-link'
       .col-sm-1
         %b= ws.number
       .col-sm-1

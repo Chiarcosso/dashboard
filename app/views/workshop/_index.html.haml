@@ -1,11 +1,12 @@
 -# - @open_worksheets = Worksheet.incoming(@search_list,true).sort_by{ |ws| ws.vehicle.plate }
 - @open_worksheets = Worksheet.get_incoming(@search_list)
+- @open_notifications = EurowinController::get_open_notifications(@search_list)
 -# - @worksheets = @open_worksheets if @worksheets.nil?
 
 
 .container-fluid{style: 'margin-top: 2em;'}
   .row
-    .col-sm-12{ style: 'padding-bottom: 7.5em; height: 100%;'}
+    .col-sm-12{ style: 'padding-bottom: 7.5em; height: 60%;'}
       .row
         = form_tag(search_worksheets_path,remote: true) do |f|
           .col-sm-8
@@ -32,6 +33,23 @@
 
       .scrollable-panel{ style: 'padding-bottom: 7em; height: 100%;'}
         =render :partial => 'workshop/list', :locals => { :worksheets => @open_worksheets }
+  .row
+    .col-sm-12{ style: 'padding-bottom: 3.5em; height: 50%;'}
+
+      .row
+        .col-sm-1
+          %b="Apri"
+        .col-sm-2
+          %b="Inserita da"
+        .col-sm-1
+          %b="Targa"
+        .col-sm-1
+          %b="Data"
+        .col-sm-3
+          %b="Descrizione"
+
+      .scrollable-panel{ style: 'padding-bottom: 7em; height: 100%;'}
+        =render :partial => 'workshop/notifications_list', :locals => { :notifications => @open_notifications }
     -# .col-sm-6{ style: 'padding-bottom: 5.5em; height: 100%;'}
     -#   #worksheet_side
     -#     =render :partial => 'workshop/worksheet_side'

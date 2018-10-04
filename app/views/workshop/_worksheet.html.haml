@@ -21,7 +21,7 @@
                     %a{ href: "#collapse-#{sgn['Protocollo']}", data: { toggle: 'collapse', parent: '#accordion' }}
                       = sgn['DescrizioneSegnalazione']
                 .col-sm-2
-                  %button{ class: 'btn_small create_popup', id: "deassociate-#{sgn['Protocollo']}", data: { route: deassociate_workshop_notification_path, html: (render partial: 'workshop/deassociate_notification_popup', locals: {protocol: sgn['Protocollo'], year: sgn['Anno'], damage_type: sgn['TipoDanno'], description: sgn['DescrizioneSegnalazione'] }) } }
+                  %button{ class: 'btn_small create_popup', id: "deassociate-#{sgn['Protocollo']}", data: { route: deassociate_workshop_notification_path(sgn['Protocollo']), html: (render partial: 'workshop/deassociate_notification_popup', locals: {protocol: sgn['Protocollo'], year: sgn['Anno'], damage_type: sgn['TipoDanno'], description: sgn['DescrizioneSegnalazione'] }) } }
                     = 'Rimanda'
             %div{ class: "panel-collapse collapse#{sgn['Protocollo'] == @protocol ? ' in' : ''}", id: "collapse-#{sgn['Protocollo']}"}
               .panel-body

@@ -293,7 +293,17 @@ class Worksheet < ApplicationRecord
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : ws.closingDate
         end
-        ws.update(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: "#{odl['TipoDanno']} - #{odl['Note']}", suspended: odl['FlagProgrammazioneSospesa'].to_s.upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].to_s.upcase == 'TRUE' ? true : false)
+        ws.update({code: "EWC*#{odl['Protocollo']}",
+                vehicle: vehicle,
+                creation_date: odl['DataIntervento'],
+                exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']),
+                opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']),
+                notes: "#{odl['TipoDanno']} - #{odl['Note']}",
+                suspended: odl['FlagProgrammazioneSospesa'].to_s.upcase == 'TRUE' ? true : false,
+                station: station,
+                closingDate: odl['DataUscitaVeicolo'],
+                closed: odl['FlagSchedaChiusa'].to_s.upcase == 'TRUE' ? true : false
+              })
       end
       ws
     rescue Exception => e
@@ -311,7 +321,6 @@ class Worksheet < ApplicationRecord
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
       "where DataEntrataVeicolo is not null and DataIntervento is not null "\
-      "and Anno > #{Date.today.strftime('%Y').to_i - 2} "\
       "and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
     ewc.close
     @error = ''

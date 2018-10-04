@@ -294,6 +294,7 @@ Rails.application.routes.draw do
   get   '/worksheet/:id/info', to: 'workshop#info_worksheet',as: :info_worksheet
   post   '/worksheet/:id/get_sheet', to: 'workshop#get_sheet',as: :worksheet_get_sheet
   post   '/worksheet/:id/open', to: 'workshop#open_worksheet',as: :open_worksheet
+  post   '/worksheet/:vehicle/open_notification/:sgn', to: 'workshop#open_notification',as: :open_notification
   post   '/worksheet/:id/create_operation', to: 'workshop#create_operation',as: :create_workshop_operation
   post   '/worksheet/:id/create_notification', to: 'workshop#create_notification',as: :create_workshop_notification
   post   '/worksheet/create_worksheet', to: 'workshop#create_worksheet',as: :create_workshop_worksheet
@@ -304,4 +305,5 @@ Rails.application.routes.draw do
   post   '/worksheet/:id/finish_operation', to: 'workshop#finish_operation',as: :finish_workshop_operation
   post   '/worksheet/:id/delete_operation/', to: 'workshop#delete_operation',as: :delete_workshop_operation
   post   '/worksheet/:id/save', to: 'workshop#save_worksheet',as: :save_worksheet
+  post   '/worksheet/:id/reset', to: 'workshop#reset_worksheet',as: :reset_worksheet
 end

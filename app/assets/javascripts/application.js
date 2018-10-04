@@ -128,6 +128,7 @@ var infobox_name;
 function complete_infobox_link_func(data) {
     "use strict";
     $('#' + infobox_name).html(data.responseText);
+    deactivateLoadingScreen();
     // //clearMemory();
 }
 

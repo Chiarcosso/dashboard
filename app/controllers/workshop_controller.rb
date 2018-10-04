@@ -1,6 +1,6 @@
 class WorkshopController < ApplicationController
 
-  before_action :get_worksheet, except: [:get_sheet,:create_worksheet,:index]
+  before_action :get_worksheet, except: [:get_sheet,:create_worksheet,:index,:open_notification]
   before_action :get_check_session, except: [:index]
   before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation]
   before_action :set_protocol, except: [:index]
@@ -35,6 +35,121 @@ class WorkshopController < ApplicationController
         @error = e.message+"\n"+e.backtrace.join("\n")
         format.html { render partial: 'layouts/error_html' }
         format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
+  def reset_worksheet
+    begin
+      odl = EurowinController::get_worksheet(@worksheet.number)
+      EurowinController::create_worksheet({
+        'DataEntrataVeicolo': '1900-01-01',
+        'AnnoODL': odl['Anno'].to_s,
+        'ProtocolloODL': odl['Protocollo'].to_s,
+        'DataIntervento': odl['DataIntervento']
+        })
+      @worksheet.update(opening_date: nil, paused: true, last_starting_time: nil, last_stopping_time: nil, real_duration: 0)
+      @worksheet.workshop_operations.each{ |wo| wo.delete}
+      respond_to do |format|
+        if params[:area] == 'on_processing'
+          format.js { render partial: 'workshop/worksheet_op_js' }
+        else
+          format.js { render partial: 'workshop/close_worksheet_js' }
+        end
+        # format.js { redirect_to worksheets_path }
+      end
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def open_notification
+
+    begin
+      # Get worksheet from vehicle
+      vehicle = MssqlReference.where("remote_object_id = #{params.require(:vehicle)} and (local_object_type = 'Vehicle' or local_object_type = 'ExternalVehicle')").first.local_object
+
+      # Get first open worksheet
+      # @worksheet = Worksheet.where(vehicle: vehicle, closed: false, exit_time: nil).where().order(opening_date: :asc).first
+      odl = EurowinController::get_last_open_odl_by_vehicle(params.require(:vehicle))
+
+      # Get the notification
+      sgn = EurowinController::get_notification(params.require(:sgn))
+
+      if odl.nil?
+
+
+        vehicle_refs = EurowinController::get_vehicle(vehicle)
+
+        payload = {
+          'Descrizione': params.require('Worksheet').permit('description')['description'],
+          'ProtocolloODL': '0',
+          'AnnoODL': '0',
+          'DataEntrataVeicolo': Time.now.strftime('%Y-%m-%d'),
+          'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
+          'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
+          'CodiceTarga': vehicle_refs['Targa'],
+          'Chilometraggio': vehicle_refs['Km'].to_s,
+          'CodiceOfficina': EurowinController::get_workshop(:workshop),
+          'TipoDanno': params.require('Worksheet').permit(:damage_type)['damage_type'],
+          'FlagSvolto': 'false'
+        }
+
+        odl = EurowinController::create_worksheet(payload)
+
+        damage_type = EurowinController::get_tipo_danno(params.require('Worksheet').permit(:damage_type)['damage_type'],true)
+        @worksheet  = Worksheet.create(code: "EWC*#{odl['Protocollo']}",vehicle: vehicle, notes: damage_type['Descrizione']+" - "+params.require('Worksheet').permit('description')['description'], opening_date: Date.current, log: "Scheda creata da #{current_user.person.list_name}, il #{Time.now.strftime("%d/%m/%Y alle %H:%M:%S")}.\n")
+
+
+        vec = vehicle.vehicle_checks('workshop')
+        if vec.size < 1
+          raise "Non ci sono controlli da fare per questo mezzo (targa: #{v.plate})."
+        end
+
+        if vehicle.class == ExternalVehicle
+
+          @check_session = VehicleCheckSession.create(date: Date.today,external_vehicle: vehicle, operator: current_user, theoretical_duration: vehicle.vehicle_checks('workshop').map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: @worksheet.number.to_i, worksheet: @worksheet, station: @station)
+
+        elsif vehicle.class == Vehicle
+
+          @check_session = VehicleCheckSession.create(date: Date.today,vehicle: vehicle, operator: current_user, theoretical_duration: vehicle.vehicle_checks('workshop').map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: @worksheet.number.to_i, worksheet: @worksheet, station: @station)
+
+        end
+        @checks = Hash.new
+        vec.each do |vc|
+          @checks[vc.code] = Array.new if @checks[vc.code].nil?
+          @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: vehicle.mandatory?(vc) )
+        end
+      else
+        @worksheet = Worksheet.find_by(code: "EWC*#{odl['Protocollo']}")
+      end
+
+      payload = {
+        'ProtocolloODL': odl['Protocollo'].to_s,
+        'AnnoODL': odl['Anno'].to_s,
+        'ProtocolloSGN': sgn['Protocollo'].to_s,
+        'AnnoSGN': sgn['Anno'].to_s,
+        'CodiceAutomezzo': params.require(:vehicle).to_s,
+        'CodiceOfficina': EurowinController::get_workshop(:workshop),
+        'FlagRiparato': 'false',
+        'FlagStampato': 'false',
+        'FlagChiuso': 'false'
+      }
+      
+      sgn = EurowinController::create_notification(payload)
+      # WorkshopOperation.create(name: 'Lavorazione', worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+      #
+      # respond_to do |format|
+      #   format.js { render partial: 'workshop/worksheet_js' }
+      # end
+      open_worksheet
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
       end
     end
   end
