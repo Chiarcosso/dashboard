@@ -594,23 +594,25 @@ class WorkshopController < ApplicationController
       end
       ops.each do |wo|
         wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
-        wo.update(ending_time: Time.now)
-        unless wo.myofficina_reference.nil?
-          sgn = EurowinController::get_notification(wo.myofficina_reference)
-          EurowinController::create_notification({
-            'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,
-            'AnnoODL': sgn['SchedaInterventoAnno'].to_s,
-            'ProtocolloSGN': sgn['Protocollo'].to_s,
-            'AnnoSGN': sgn['Anno'].to_s,
-            'DataIntervento': sgn['DataSegnalazione'].to_s,
-            'FlagRiparato': 'true',
-            'CodiceOfficina': "0"
-          })
-        end
       end
 
       @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: duration, paused: true)
       if params.require('perform') == 'stop'
+        ops.each do |wo|
+          wo.update(ending_time: Time.now)
+          unless wo.myofficina_reference.nil?
+            sgn = EurowinController::get_notification(wo.myofficina_reference)
+            EurowinController::create_notification({
+              'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,
+              'AnnoODL': sgn['SchedaInterventoAnno'].to_s,
+              'ProtocolloSGN': sgn['Protocollo'].to_s,
+              'AnnoSGN': sgn['Anno'].to_s,
+              'DataIntervento': sgn['DataSegnalazione'].to_s,
+              'FlagRiparato': 'true',
+              'CodiceOfficina': "0"
+            })
+          end
+        end
         @worksheet.update(exit_time: DateTime.now, log: "#{@worksheet.log}\n Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         vcs = @worksheet.vehicle_check_session
         vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.") unless vcs.nil?
