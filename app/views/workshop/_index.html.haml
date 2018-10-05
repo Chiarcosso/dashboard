@@ -6,7 +6,7 @@
 
 .container-fluid{style: 'margin-top: 2em;'}
   .row
-    .col-sm-12{ style: 'padding-bottom: 7.5em; height: 60%;'}
+    .col-sm-12{ style: 'padding-bottom: 5.5em; height: 55%;'}
       .row
         = form_tag(search_worksheets_path,remote: true) do |f|
           .col-sm-8
@@ -34,7 +34,7 @@
       .scrollable-panel{ style: 'padding-bottom: 7em; height: 100%;'}
         =render :partial => 'workshop/list', :locals => { :worksheets => @open_worksheets }
   .row
-    .col-sm-12{ style: 'padding-bottom: 3.5em; height: 50%;'}
+    .col-sm-12{ style: 'padding-bottom: 3.5em; height: 45%;'}
 
       .row
         .col-sm-1

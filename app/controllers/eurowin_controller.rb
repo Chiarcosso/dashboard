@@ -28,7 +28,7 @@ class EurowinController < ApplicationController
     r = ewc.query("select *, "\
     "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
     "from autosegnalazioni where codiceAutomezzo in (#{mrs.map{|mr| mr.remote_object_id}.join(',')}) "\
-    "and (serialODL is null or serialODL = '0') and FlagChiuso not like 'true' and FlagRiparato not like 'true';")
+    "and (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';")
     ewc.close
     r
   end
