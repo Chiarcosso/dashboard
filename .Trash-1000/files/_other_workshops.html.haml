@@ -1,0 +1,12 @@
+- EurowinController::get_external_odl.each do |odl|
+  .row
+    .col-sm-1
+      = odl['Protocollo']
+    .col-sm-1
+      = odl['DataEntrataVeicolo'].strftime('%d/%m/%Y')
+    .col-sm-1
+      = odl['DataUscitaPrevista'].strftime('%d/%m/%Y')
+    .col-sm-1
+      = odl['Targa']
+    .col-sm-1
+      = odl['Officina']

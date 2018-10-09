@@ -18,6 +18,22 @@ class WorksheetsController < ApplicationController
     end
   end
 
+  def manage_external_worksheets_index
+    begin
+      apply_filter
+      respond_to do |format|
+        format.html { render 'worksheets/index_other_workshops' }
+        format.js { render partial: 'worksheets/index_other_workshops_js' }
+      end
+    rescue Exception => e
+      respond_to do |format|
+        @error = e.message+"\n"+e.backtrace.join("\n")
+        format.html { render partial: 'layouts/error_html' }
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
   def on_processing_index
     begin
       # @open_worksheets = Worksheet.where("id in (select worksheet_id from workshop_operations where ending_time is null)").sort_by{|w| w.opening_date}
@@ -113,6 +129,21 @@ class WorksheetsController < ApplicationController
     end
   end
 
+  def ow_filter
+    begin
+      apply_ow_filter
+    rescue Exception => e
+      @error = e.message
+    end
+    respond_to do |format|
+      if @error.nil?
+        format.js { render :js, :partial => 'workshop/worksheet_total_list_js' }
+      else
+        format.js { render :js, :partial => 'layouts/error' }
+      end
+    end
+  end
+
   def toggle_closure
     begin
       ws = Worksheet.find(params.require(:worksheet).permit(:id)[:id].to_i)
@@ -189,6 +220,7 @@ class WorksheetsController < ApplicationController
     end
   end
 
+  # internal workshop filter
   def apply_filter
     filter = []
 
@@ -213,6 +245,36 @@ class WorksheetsController < ApplicationController
       filter << "opening_date <= '#{@search.with_indifferent_access[:date_to]}'"
     end
     @worksheets = Worksheet.where(filter.join(' and ')).limit(100).order(:code => :asc)
+
+    unless(params['list'].nil?)
+      @search_list = params.require('list')['search']
+      # @opened_list = params.require('list')['opened'] == 'on' ? true : false
+    end
+  end
+
+  # Other workshops filter
+  def apply_ow_filter
+    filter = []
+
+    if @search.with_indifferent_access[:opened] and !@search.with_indifferent_access[:closed]
+      filter << "(FlagSchedaChiusa like 'false' or FlagSchedaChiusa is null)"
+    elsif !@search.with_indifferent_access[:opened] and @search.with_indifferent_access[:closed]
+      filter << "FlagSchedaChiusa like 'true'"
+    end
+    unless @search.with_indifferent_access[:plate].nil? or @search.with_indifferent_access[:plate] == ''
+      mrs = MssqlReference.find_by_plate(@search.with_indifferent_access[:plate],false)
+      filter << "CodiceAutomezzo in (#{mrs.map{|v| v.remote_object_id }.join(',')})" unless mrs.empty?
+    end
+    unless @search.with_indifferent_access[:number].nil? or @search.with_indifferent_access[:number] == ''
+      filter << "Protocollo like '%#{@search.with_indifferent_access[:number]}%'"
+    end
+    unless @search.with_indifferent_access[:date_since].nil? or @search.with_indifferent_access[:date_since] == ''
+      filter << "DataIntervento >= '#{@search.with_indifferent_access[:date_since]}'"
+    end
+    unless @search.with_indifferent_access[:date_to].nil? or @search.with_indifferent_access[:date_to] == ''
+      filter << "DataIntervento <= '#{@search.with_indifferent_access[:date_to]}'"
+    end
+    @worksheets = EurowinController::get_filtered_odl(filter.join(' and '))
 
     unless(params['list'].nil?)
       @search_list = params.require('list')['search']

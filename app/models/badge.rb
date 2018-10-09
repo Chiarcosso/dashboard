@@ -24,7 +24,7 @@ class Badge < ApplicationRecord
   end
 
   def holders(data = {from: Time.today, to: nil, exclude: nil})
-    
+
     if data[:to].nil?
       p = Person.find_by_sql("select * from people where id in ("\
       "select person_id from badge_assignments.to > '#{data[:from].strftime('%Y-%m-%d')}' #{data[:exclude].nil?? '' : "and id != #{data[:exclude].id}"}"\
@@ -44,7 +44,7 @@ class Badge < ApplicationRecord
   end
 
   def day_holder(date = Date.today)
-    Person.find_by_sql("select * from people where id = (select person_id from badge_assignments where ((badge_assignments.to = '1900-01-01' and '#{date.strftime("%Y-%m-%d")}' >= badge_assignments.from) or ('#{date.strftime("%Y-%m-%d")}' between badge_assignments.from and badge_assignments.to)) and badge_id = #{self.id} order by badge_assignments.from desc limit 1) limit 1").first
+    Person.find_by_sql("select * from people where id = (select person_id from badge_assignments where (((badge_assignments.to = '1900-01-01' or badge_assignments.to is null) and '#{date.strftime("%Y-%m-%d")}' >= badge_assignments.from) or ('#{date.strftime("%Y-%m-%d")}' between badge_assignments.from and badge_assignments.to)) and badge_id = #{self.id} order by badge_assignments.from desc limit 1) limit 1").first
   end
 
   def self.find_or_create(badge)

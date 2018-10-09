@@ -382,6 +382,19 @@ class Worksheet < ApplicationRecord
     File.open(self.get_pdf_path,'r')
   end
 
+  def self.move_pdf
+    Worksheet.all.each do |ws|
+      Dir.mkdir("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}") unless Dir.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}")
+      pdf = self.get_pdf
+       unless pdf.nil?
+        f = File.open("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf",'w')
+        f.write(pdf)
+        f.close
+      end
+
+    end
+  end
+
   def sheet
     vehicle = self.vehicle
 

@@ -24,13 +24,17 @@ class EurowinController < ApplicationController
       )
     QUERY
     mrs = MssqlReference.find_by_sql(q)
-    ewc = get_ew_client
-    r = ewc.query("select *, "\
-    "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
-    "from autosegnalazioni where codiceAutomezzo in (#{mrs.map{|mr| mr.remote_object_id}.join(',')}) "\
-    "and (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';")
-    ewc.close
-    r
+    if mrs.empty?
+      Array.new
+    else
+      ewc = get_ew_client
+      r = ewc.query("select *, "\
+      "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
+      "from autosegnalazioni where codiceAutomezzo in (#{mrs.map{|mr| mr.remote_object_id}.join(',')}) "\
+      "and (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';")
+      ewc.close
+      r
+    end
   end
 
   def self.get_notifications_from_odl(protocol,mod = :opened)
@@ -101,6 +105,7 @@ class EurowinController < ApplicationController
 
     r
   end
+
 
   def self.get_worksheets(opts)
 
@@ -338,6 +343,18 @@ class EurowinController < ApplicationController
     else
       return dt.first['Codice'] unless dt.count < 1
     end
+  end
+
+  def self.get_external_workshops
+    query = "select * from anagrafe where codice like 'off%' order by RagioneSociale"
+    ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
+    dt = ewc.query(query)
+    ewc.close
+    return dt
+  end
+
+  def self.get_filtered_odl
+    
   end
 
   def self.get_tipo_danno(tipodanno, whole = false)

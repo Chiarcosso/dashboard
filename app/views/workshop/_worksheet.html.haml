@@ -167,8 +167,7 @@
 
     $('#stop-worksheet').prop('disabled',false);
     $.each($('.stop_timer'),function(){
-      if(!$(this).prop('disabled') && !$(this).data('checks')){
-        
+      if(!$(this).prop('disabled') && !$(this).data('checks')){        
         $('#stop-worksheet').prop('disabled',true);
         return;
       }

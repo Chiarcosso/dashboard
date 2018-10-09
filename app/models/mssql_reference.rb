@@ -7,6 +7,26 @@ class MssqlReference < ApplicationRecord
 
   scope :identify, ->(local_object, table, id) { where(local_object: local_object, remote_object_table: table, remote_object_id: id).first }
 
+  def self.find_by_plate(plate,strict = true)
+    plate = plate.gsub("'","''")
+    if strict
+      vehicle = Vehicle.find_by_plate(plate)
+      vehicle = ExternalVehicle.find_by(palte: plate) if vehicle.nil?
+      MssqlReference.where(local_object: vehicle)
+    else
+
+      vehicles = Vehicle.where("id in (select vehicle_id from vehicle_informations "\
+      "where information like '%#{plate}%' "\
+      "and vehicle_information_type = (select id from vehicle_information_types where name = 'Targa'))")
+
+      exvehicles = ExternalVehicle.where("plate like '%#{plate}%'")
+
+      f =Array.new
+      f << "(local_object_type = 'Vehicle' and id in (#{vehicles.map{|v| v.id}.join(',')})) " unless vehicles.empty?
+      f << "(local_object_type = 'ExternalVehicle' and id in (#{vehicles.map{|v| v.id}.join(',')}))" unless exvehicles.empty?
+      MssqlReference.where(f.join(' or ')) unless f.empty?
+    end
+  end
 
   def self.update_all
     upsync_vehicles

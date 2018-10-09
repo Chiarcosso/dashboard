@@ -283,12 +283,14 @@ Rails.application.routes.draw do
   post   '/worksheet/hours', to: 'worksheets#set_hours', as: :worksheet_hours
   post   "/worksheet/toogle_closure", to: 'worksheets#toggle_closure', as: :worksheet_closure_toggle
   post   '/worksheet/filter/', to: 'worksheets#filter', as: :worksheet_filter
+  post   '/worksheet/ow_filter/', to: 'worksheets#ow_filter', as: :worksheet_ow_filter
   post   '/worksheet/pdf/:id', to: 'worksheets#print_pdf', as: :worksheet_print_pdf
   post   '/worksheet/get_pdf/:id', to: 'worksheets#get_pdf', as: :worksheet_get_pdf
   post   '/worksheet/upsync', to: 'worksheets#upsync_all', as: :upsync_worksheets
   post   '/worksheet/notifications_xbox', to: 'worksheets#notifications_xbox', as: :worksheet_notifications_xbox
 
   get   '/worksheet/manage_worksheets', to: 'worksheets#manage_worksheets_index', as: :manage_worksheets
+  get   '/worksheet/manage_external_worksheets', to: 'worksheets#manage_external_worksheets_index', as: :manage_external_worksheets
   get   '/worksheet/worksheets_on_processing', to: 'worksheets#on_processing_index', as: :worksheets_on_processing
   post   '/worksheet/processing_xbox', to: 'worksheets#processing_xbox', as: :worksheet_processing_xbox
   get   '/worksheet/:id/info', to: 'workshop#info_worksheet',as: :info_worksheet
