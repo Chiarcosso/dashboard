@@ -609,8 +609,8 @@ class Worksheet < ApplicationRecord
       end
       pdf
     rescue Exception => e
-      @error = e.message+"\n\n\n"+e.backtrace.join("\n\n")
-      ErrorMailer.report_error(@error,"Creazione PDF - ODL nr. #{self.number}")
+      @error = "Worksheet.rb 612\n\n"+e.message+"\n\n\n"+e.backtrace.join("\n\n")
+      ErrorMailer.report_error(@error,"Creazione PDF - ODL nr. #{self.number}").deliver_now
     end
   end
 
