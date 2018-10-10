@@ -12,6 +12,10 @@ class ExternalVehicle < ApplicationRecord
     "#{self.plate} - #{self.type.name} #{self.typology.name} (#{self.owner.name})"
   end
 
+  def property
+    self.owner
+  end
+
   def last_driver
 
     msr = self.mssql_references
@@ -35,7 +39,7 @@ class ExternalVehicle < ApplicationRecord
     Person.find_by_reference(ref['id']) unless ref.nil?
 
   end
-  
+
   def type
     self.vehicle_type
   end
