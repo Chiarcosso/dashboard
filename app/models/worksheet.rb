@@ -396,217 +396,222 @@ class Worksheet < ApplicationRecord
   end
 
   def sheet
-    vehicle = self.vehicle
+    begin
+      vehicle = self.vehicle
 
-    #get various dates
-    unless self.opening_date.nil?
-      opening_year = self.opening_date.strftime('%Y')
-      opening_date = self.opening_date.strftime('%d/%m/%Y')
-    end
-
-    unless self.closingDate.nil?
-      closing_date = self.closingDate.strftime('%d/%m/%Y')
-    end
-
-    unless self.exit_time.nil?
-      closing_date = self.exit_time.strftime('%d/%m/%Y')
-    end
-
-    unless vehicle.last_washing.nil?
-      last_washing_date = vehicle.last_washing.ending_time.strftime('%d/%m/%Y')
-    end
-
-    last_check_session = vehicle.last_check_session
-    unless last_check_session.nil?
-      if last_check_session.finished.nil?
-        last_checking_date = last_check_session.date.strftime('%d/%m/%Y')
-      else
-        last_checking_date = last_check_session.finished.strftime('%d/%m/%Y')
+      #get various dates
+      unless self.opening_date.nil?
+        opening_year = self.opening_date.strftime('%Y')
+        opening_date = self.opening_date.strftime('%d/%m/%Y')
       end
-    end
 
-    if !self.damage_type.nil? && (self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO')
-      last_maintainance_date = self.exit_time.strftime('%d/%m/%Y')
-    else
-      lm = vehicle.last_maintainance
-      unless lm.nil?
-        if lm.exit_time.nil?
-          last_maintainance_date = lm.closingDate.strftime('%d/%m/%Y')
+      unless self.closingDate.nil?
+        closing_date = self.closingDate.strftime('%d/%m/%Y')
+      end
+
+      unless self.exit_time.nil?
+        closing_date = self.exit_time.strftime('%d/%m/%Y')
+      end
+
+      unless vehicle.last_washing.nil?
+        last_washing_date = vehicle.last_washing.ending_time.strftime('%d/%m/%Y')
+      end
+
+      last_check_session = vehicle.last_check_session
+      unless last_check_session.nil?
+        if last_check_session.finished.nil?
+          last_checking_date = last_check_session.date.strftime('%d/%m/%Y')
         else
-          last_maintainance_date = lm.exit_time.strftime('%d/%m/%Y')
+          last_checking_date = last_check_session.finished.strftime('%d/%m/%Y')
         end
       end
-    end
 
-    ld = vehicle.last_driver
-    if ld.nil?
-      last_driver = nil
-    else
-      last_driver = vehicle.last_driver.complete_name
-    end
+      if !self.damage_type.nil? && (self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO')
+        last_maintainance_date = self.exit_time.strftime('%d/%m/%Y')
+      else
+        lm = vehicle.last_maintainance
+        unless lm.nil?
+          if lm.exit_time.nil?
+            last_maintainance_date = lm.closingDate.strftime('%d/%m/%Y')
+          else
+            last_maintainance_date = lm.exit_time.strftime('%d/%m/%Y')
+          end
+        end
+      end
 
-    odl = EurowinController::get_worksheet(self.number)
+      ld = vehicle.last_driver
+      if ld.nil?
+        last_driver = nil
+      else
+        last_driver = vehicle.last_driver.complete_name
+      end
 
-    pdf = Prawn::Document.new
+      odl = EurowinController::get_worksheet(self.number)
 
-    pdf.image Rails.root.join('app','assets','images','logo.png'),
-      fit: [230,50],
-      align: :left
+      pdf = Prawn::Document.new
 
-    pdf.text_box "ODL nr. #{self.number} - #{self.vehicle.plate}",
-      align: :left,
-      style: :bold,
-      font_size: 20,
-      at: [250,705]
+      pdf.image Rails.root.join('app','assets','images','logo.png'),
+        fit: [230,50],
+        align: :left
 
-    @blob = Barby::CairoOutputter.new(Barby::Code128B.new(self.code)).to_png #Raw PNG data
-    File.write("public/images/#{self.code}.png", @blob)
-    pdf.image "public/images/#{self.code}.png",
-      fit: [230,50],
-      align: :right,
-      at: [400,725]
+      pdf.text_box "ODL nr. #{self.number} - #{self.vehicle.plate}",
+        align: :left,
+        style: :bold,
+        font_size: 20,
+        at: [250,705]
 
-    pdf.move_down 20
-    if odl.nil?
-      vehicle_code = 'ODL mancante'
-    else
-      vehicle_code = odl['CodiceAutomezzo']
-    end
-    pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Codice',size: 7)],[pdf.make_cell(content: vehicle_code,size: 13, font_style: :bold)]],width: 40),
-            pdf.make_table([[pdf.make_cell(content: 'Mezzo',size: 7)],[pdf.make_cell(content: vehicle.complete_name,size: 13, font_style: :bold)]],width: 250),
-            pdf.make_table([[pdf.make_cell(content: 'Anno',size: 7)],[pdf.make_cell(content: opening_year,size: 13, font_style: :bold)]],width: 40),
-            pdf.make_table([[pdf.make_cell(content: 'Proprietà',size: 7)],[pdf.make_cell(content: vehicle.property.complete_name,size: 13, font_style: :bold)]],width: 210)]],
-      :position => :center,
-      :width => 540
-      # :column_widths => { 0 => 210, 1 => 223, 2 => 107}
+      @blob = Barby::CairoOutputter.new(Barby::Code128B.new(self.code)).to_png #Raw PNG data
+      File.write("public/images/#{self.code}.png", @blob)
+      pdf.image "public/images/#{self.code}.png",
+        fit: [230,50],
+        align: :right,
+        at: [400,725]
 
-      pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Entrata',size: 7)],[pdf.make_cell(content: opening_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-              pdf.make_table([[pdf.make_cell(content: 'Uscita',size: 7)],[pdf.make_cell(content: closing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-              pdf.make_table([[pdf.make_cell(content: 'Km',size: 7)],[pdf.make_cell(content: vehicle.mileage.to_s,size: 13, font_style: :bold,height: 25)]],width: 75),
-              pdf.make_table([[pdf.make_cell(content: 'Ultima manutenzione',size: 7)],[pdf.make_cell(content: last_maintainance_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-              pdf.make_table([[pdf.make_cell(content: 'Ultimo lavaggio',size: 7)],[pdf.make_cell(content: last_washing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-              pdf.make_table([[pdf.make_cell(content: 'Ultimo autista',size: 7)],[pdf.make_cell(content: last_driver,size: 13, font_style: :bold,height: 25)]],width: 165),]],
+      pdf.move_down 20
+      if odl.nil?
+        vehicle_code = 'ODL mancante'
+      else
+        vehicle_code = odl['CodiceAutomezzo']
+      end
+      pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Codice',size: 7)],[pdf.make_cell(content: vehicle_code,size: 13, font_style: :bold)]],width: 40),
+              pdf.make_table([[pdf.make_cell(content: 'Mezzo',size: 7)],[pdf.make_cell(content: vehicle.complete_name,size: 13, font_style: :bold)]],width: 250),
+              pdf.make_table([[pdf.make_cell(content: 'Anno',size: 7)],[pdf.make_cell(content: opening_year,size: 13, font_style: :bold)]],width: 40),
+              pdf.make_table([[pdf.make_cell(content: 'Proprietà',size: 7)],[pdf.make_cell(content: vehicle.property.complete_name,size: 13, font_style: :bold)]],width: 210)]],
         :position => :center,
         :width => 540
+        # :column_widths => { 0 => 210, 1 => 223, 2 => 107}
 
-    pdf.move_down 20
-    pdf.text self.notes
-    pdf.move_down 10
-    pdf.text 'Segnalazioni:'
+        pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Entrata',size: 7)],[pdf.make_cell(content: opening_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+                pdf.make_table([[pdf.make_cell(content: 'Uscita',size: 7)],[pdf.make_cell(content: closing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+                pdf.make_table([[pdf.make_cell(content: 'Km',size: 7)],[pdf.make_cell(content: vehicle.mileage.to_s,size: 13, font_style: :bold,height: 25)]],width: 75),
+                pdf.make_table([[pdf.make_cell(content: 'Ultima manutenzione',size: 7)],[pdf.make_cell(content: last_maintainance_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+                pdf.make_table([[pdf.make_cell(content: 'Ultimo lavaggio',size: 7)],[pdf.make_cell(content: last_washing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
+                pdf.make_table([[pdf.make_cell(content: 'Ultimo autista',size: 7)],[pdf.make_cell(content: last_driver,size: 13, font_style: :bold,height: 25)]],width: 165),]],
+          :position => :center,
+          :width => 540
 
-    table = [['Nr.','Descrizione','Autista','Esito']]
-    # table =
-    self.notifications(:all).each do |n|
+      pdf.move_down 20
+      pdf.text self.notes
+      pdf.move_down 10
+      pdf.text 'Segnalazioni:'
 
-      if n['FlagRiparato'].to_s.downcase == 'true'
-        result = 'Agg.'
-      elsif n['FlagSvolto'].to_s.downcase == 'true'
-        result = 'Ch.'
-      else
-        result = 'Ap.'
+      table = [['Nr.','Descrizione','Autista','Esito']]
+      # table =
+      self.notifications(:all).each do |n|
+
+        if n['FlagRiparato'].to_s.downcase == 'true'
+          result = 'Agg.'
+        elsif n['FlagSvolto'].to_s.downcase == 'true'
+          result = 'Ch.'
+        else
+          result = 'Ap.'
+        end
+
+        ops = Array.new
+        WorkshopOperation.where(myofficina_reference: n['Protocollo'].to_i).to_a.each do |wo|
+          operator = wo.operator.nil?? 'Operatore mancante' : wo.operator.complete_name
+          ops << ["#{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",operator,wo.real_duration_label]
+        end
+        ops = [['','','']] if ops.count < 1
+
+        pdf.table [[n['Protocollo'],n['DescrizioneSegnalazione'],n['NomeAutista'],result]],
+              :column_widths => { 0 => 45, 1 => 365, 2 => 90, 3 => 40}
+
+        pdf.table ops,
+              :column_widths => { 0 => 330, 1 => 150, 2 => 60}
+
+        pdf.move_down 5
+        # subtable = pdf.make_table([[sub1],[sub2]])
+        # table << [n['Protocollo'],subtable]
+
       end
 
       ops = Array.new
-      WorkshopOperation.where(myofficina_reference: n['Protocollo'].to_i).to_a.each do |wo|
+      self.check_operations.to_a.each do |wo|
         operator = wo.operator.nil?? 'Operatore mancante' : wo.operator.complete_name
         ops << ["#{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",operator,wo.real_duration_label]
       end
       ops = [['','','']] if ops.count < 1
 
-      pdf.table [[n['Protocollo'],n['DescrizioneSegnalazione'],n['NomeAutista'],result]],
+      pdf.table [['','Controlli','','']],
             :column_widths => { 0 => 45, 1 => 365, 2 => 90, 3 => 40}
 
       pdf.table ops,
             :column_widths => { 0 => 330, 1 => 150, 2 => 60}
 
       pdf.move_down 5
-      # subtable = pdf.make_table([[sub1],[sub2]])
-      # table << [n['Protocollo'],subtable]
-
-    end
-
-    ops = Array.new
-    self.check_operations.to_a.each do |wo|
-      operator = wo.operator.nil?? 'Operatore mancante' : wo.operator.complete_name
-      ops << ["#{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",operator,wo.real_duration_label]
-    end
-    ops = [['','','']] if ops.count < 1
-
-    pdf.table [['','Controlli','','']],
-          :column_widths => { 0 => 45, 1 => 365, 2 => 90, 3 => 40}
-
-    pdf.table ops,
-          :column_widths => { 0 => 330, 1 => 150, 2 => 60}
-
-    pdf.move_down 5
-    # pdf.table table,
-    #   # :border_style => :grid,
-    #   # :font_size => 11,
-    #   :position => :center,
-    #   # :column_widths => { 0 => 45, 1 => 365, 2 => 90, 3 => 40},
-    #   # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
-    #   :row_colors => ["d2e3ed", "FFFFFF"]
-
-    pdf.move_down 20
-    pdf.text 'Materiali:'
-
-    table = [['Articolo','Seriale/matricola','Costo']]
-    total = 0.0
-    self.output_orders.each do |oo|
-      oo.output_order_items.each do |i|
-        table << ["#{i.item.article.complete_name} (#{i.quantity}/#{i.item.article.containedAmount})","#{i.item.serial}","#{i.complete_price}"]
-      end
-      total += oo.total.to_f
-    end
-
-
-    table << ["Ore di lavoro","","#{self.hours_complete_price}"]
-    table << ["Materiale di consumo","","#{self.materials_complete_price}"]
-    total += self.hours_price
-    total += self.materials_price
-
-    table << ["Totale","","#{"%.2f" % total} €".tr('.',',')]
-
-    pdf.table table,
-      # :border_style => :grid,
-      # :font_size => 11,
-      :position => :center,
-      :column_widths => { 0 => 210, 1 => 223, 2 => 107},
-      # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
-      :row_colors => ["d2e3ed", "FFFFFF"]
+      # pdf.table table,
+      #   # :border_style => :grid,
+      #   # :font_size => 11,
+      #   :position => :center,
+      #   # :column_widths => { 0 => 45, 1 => 365, 2 => 90, 3 => 40},
+      #   # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+      #   :row_colors => ["d2e3ed", "FFFFFF"]
 
       pdf.move_down 20
-      pdf.text 'Controlli eseguiti:'
+      pdf.text 'Materiali:'
 
-      table = [['Controllo','Valore','Risultato']]
+      table = [['Articolo','Seriale/matricola','Costo']]
       total = 0.0
-      unless self.vehicle_check_session.nil?
-        self.vehicle_check_session.vehicle_performed_checks.each do |pc|
-          if pc.performed != 0
-            vc = pc.vehicle_check
-            table << ["#{vc.label}#{pc.notes.nil? ? '' : "\n ** Note: #{pc.notes}"}","#{pc.value}#{vc.measure_unit}","#{pc.result_label}"]
-          end
+      self.output_orders.each do |oo|
+        oo.output_order_items.each do |i|
+          table << ["#{i.item.article.complete_name} (#{i.quantity}/#{i.item.article.containedAmount})","#{i.item.serial}","#{i.complete_price}"]
         end
+        total += oo.total.to_f
       end
+
+
+      table << ["Ore di lavoro","","#{self.hours_complete_price}"]
+      table << ["Materiale di consumo","","#{self.materials_complete_price}"]
+      total += self.hours_price
+      total += self.materials_price
+
+      table << ["Totale","","#{"%.2f" % total} €".tr('.',',')]
 
       pdf.table table,
         # :border_style => :grid,
         # :font_size => 11,
         :position => :center,
-        :column_widths => { 0 => 340, 1 => 80, 2 => 120},
+        :column_widths => { 0 => 210, 1 => 223, 2 => 107},
         # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
         :row_colors => ["d2e3ed", "FFFFFF"]
 
-    pdf.move_down 20
-    pdf.text 'Passaggi:'
-    pdf.text self.log.to_s
+        pdf.move_down 20
+        pdf.text 'Controlli eseguiti:'
+
+        table = [['Controllo','Valore','Risultato']]
+        total = 0.0
+        unless self.vehicle_check_session.nil?
+          self.vehicle_check_session.vehicle_performed_checks.each do |pc|
+            if pc.performed != 0
+              vc = pc.vehicle_check
+              table << ["#{vc.label}#{pc.notes.nil? ? '' : "\n ** Note: #{pc.notes}"}","#{pc.value}#{vc.measure_unit}","#{pc.result_label}"]
+            end
+          end
+        end
+
+        pdf.table table,
+          # :border_style => :grid,
+          # :font_size => 11,
+          :position => :center,
+          :column_widths => { 0 => 340, 1 => 80, 2 => 120},
+          # :align => { 0 => :right, 1 => :left, 2 => :right, 3 => :left},
+          :row_colors => ["d2e3ed", "FFFFFF"]
+
+      pdf.move_down 20
+      pdf.text 'Passaggi:'
+      pdf.text self.log.to_s
 
 
-    pdf.bounding_box([pdf.bounds.right - 50,pdf.bounds.bottom], :width => 60, :height => 20) do
-    	count = pdf.page_count
-    	pdf.text "Page #{count}"
+      pdf.bounding_box([pdf.bounds.right - 50,pdf.bounds.bottom], :width => 60, :height => 20) do
+      	count = pdf.page_count
+      	pdf.text "Page #{count}"
+      end
+      pdf
+    rescue Exception => e
+      @error = e.message+"\n\n\n"+e.backtrace.join("\n\n")
+      ErrorMailer.report_error(@error,"Creazione PDF - ODL nr. #{self.number}")
     end
-    pdf
   end
 
   def print
@@ -644,6 +649,7 @@ class Worksheet < ApplicationRecord
     	pdf.text "Page #{count}"
     end
     pdf
+
   end
 
   def self.get_client
