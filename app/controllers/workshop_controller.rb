@@ -649,7 +649,7 @@ class WorkshopController < ApplicationController
     rescue Exception => e
 
       @error = "WorkshopController.rb 651\n\n"+e.message+"\n\n\n"+e.backtrace.join("\n\n")
-      ErrorMailer.report_error(@error,"Chiusura scheda - ODL nr. #{@worksheet.number}").deliver_now
+      ErrorMailer.error_report(@error,"Chiusura scheda - ODL nr. #{@worksheet.number}").deliver_now
       respond_to do |format|
         format.js { render :partial => 'layouts/error' }
       end
