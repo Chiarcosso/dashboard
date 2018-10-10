@@ -20,7 +20,7 @@ class WorksheetsController < ApplicationController
 
   def manage_external_worksheets_index
     begin
-      apply_filter
+      apply_ow_filter
       respond_to do |format|
         format.html { render 'worksheets/index_other_workshops' }
         format.js { render partial: 'worksheets/index_other_workshops_js' }
@@ -268,12 +268,16 @@ class WorksheetsController < ApplicationController
     unless @search.with_indifferent_access[:number].nil? or @search.with_indifferent_access[:number] == ''
       filter << "Protocollo like '%#{@search.with_indifferent_access[:number]}%'"
     end
+    unless @search.with_indifferent_access[:workshop].nil? or @search.with_indifferent_access[:workshop] == ''
+      filter << "CodiceAnagrafico = '#{@search.with_indifferent_access[:workshop]}'"
+    end
     unless @search.with_indifferent_access[:date_since].nil? or @search.with_indifferent_access[:date_since] == ''
       filter << "DataIntervento >= '#{@search.with_indifferent_access[:date_since]}'"
     end
     unless @search.with_indifferent_access[:date_to].nil? or @search.with_indifferent_access[:date_to] == ''
       filter << "DataIntervento <= '#{@search.with_indifferent_access[:date_to]}'"
     end
+    filter << "CodiceAnagrafico != 'OFF00001' and CodiceAnagrafico != 'OFF00047'"
     @worksheets = EurowinController::get_filtered_odl(filter.join(' and '))
 
     unless(params['list'].nil?)

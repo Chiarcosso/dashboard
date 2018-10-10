@@ -61,6 +61,7 @@ class PrepaidCardsController < ApplicationController
 
   def get_params
     p = params.require(:prepaid_card).permit(:serial,:pin,:dismissed,:expiring_date,:person,:company)
+    
     if p[:pin].to_s == ''
       raise 'Manca il PIN.'
     end

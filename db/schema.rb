@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180928140206) do
+ActiveRecord::Schema.define(version: 20181010112911) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -524,7 +524,7 @@ ActiveRecord::Schema.define(version: 20180928140206) do
   create_table "prepaid_cards", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "serial",                        null: false
     t.integer  "person_id"
-    t.integer  "pin",                           null: false
+    t.string   "pin",                           null: false
     t.boolean  "dismissed",     default: false, null: false
     t.date     "expiring_date",                 null: false
     t.datetime "created_at",                    null: false

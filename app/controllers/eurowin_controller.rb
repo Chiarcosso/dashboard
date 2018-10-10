@@ -353,8 +353,15 @@ class EurowinController < ApplicationController
     return dt
   end
 
-  def self.get_filtered_odl
-    
+  def self.get_filtered_odl(filter)
+    query = <<-QUERY
+      select *,a.ragionesociale as officina from autoodl
+      left join anagrafe a on autoodl.codiceanagrafico = a.codice  where #{filter}
+    QUERY
+    ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
+    ws = ewc.query(query)
+    ewc.close
+    ws
   end
 
   def self.get_tipo_danno(tipodanno, whole = false)
