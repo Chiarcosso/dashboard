@@ -469,7 +469,11 @@ class Worksheet < ApplicationRecord
         lm = vehicle.last_maintainance
         unless lm.nil?
           if lm.exit_time.nil?
-            last_maintainance_date = lm.closingDate.strftime('%d/%m/%Y')
+            if lm.closingDate.nil?
+              last_maintainance_date = ''
+            else
+              last_maintainance_date = lm.closingDate.strftime('%d/%m/%Y')
+            end
           else
             last_maintainance_date = lm.exit_time.strftime('%d/%m/%Y')
           end
@@ -649,7 +653,7 @@ class Worksheet < ApplicationRecord
       end
       pdf
     rescue Exception => e
-      @error = "Worksheet.rb 612\n\n"+e.message+"\n\n\n"+e.backtrace.join("\n\n")
+      @error = "Worksheet.rb 652\n\n"+e.message+"\n\n\n"+e.backtrace.join("\n\n")
       ErrorMailer.error_report(@error,"Creazione PDF - ODL nr. #{self.number}").deliver_now
       return nil
     end
