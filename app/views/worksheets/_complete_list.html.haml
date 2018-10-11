@@ -33,7 +33,7 @@
                 .inline
                   = hidden_field_tag 'worksheet[id]', ws.id
                   = hidden_field_tag :search, @search.to_json
-                  = number_field_tag 'worksheet[hours]', ws.real_hours, step: 0.5, min: 0, style: "width: 5em;", class: 'toggable-display-fld', data: {target: "ws-#{ws.id}-hours"}
+                  = number_field_tag 'worksheet[hours]', ws.real_hours.round(1), step: 0.5, min: 0, style: "width: 5em;", class: 'toggable-display-fld', data: {target: "ws-#{ws.id}-hours"}
                 .inline
                   = submit_tag :Ok, class: 'keep-filter invisible', id: "ws-#{ws.id}-hours"
               -# = number_field_tag :hours, ws.hours, class: 'form-control', step: :any, min: 0, width: '1em'

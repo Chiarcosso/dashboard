@@ -117,8 +117,8 @@ class VehicleCheckSession < ApplicationRecord
   end
 
   def close_worksheet(user)
-
-    ew_worksheet = self.worksheet.ew_worksheet
+    @worksheet = self.worksheet
+    ew_worksheet = @worksheet.ew_worksheet
     EurowinController::create_worksheet({
       'ProtocolloODL': ew_worksheet['Protocollo'].to_s,
       'AnnoODL': ew_worksheet['Anno'].to_s,
@@ -152,8 +152,16 @@ class VehicleCheckSession < ApplicationRecord
     #
     # odl = JSON.parse(res.body)['ProtocolloODL'].to_i
     # self.update(myofficina_reference: res, worksheet: Worksheet.create(code: "EWC*#{res}", vehicle: self.vehicle, vehicle_type: self.vehicle.class.to_s, opening_date: Date.current))
-    self.worksheet.update(exit_time: DateTime.now)
+    @worksheet.update(exit_time: DateTime.now)
+    @worksheet.output_orders.each do |oo|
+      oo.update(processed: true)
+    end
+    pdf = @worksheet.sheet
+    unless pdf.nil?
+      File.open("/mnt/documents/ODL/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
 
+      WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
+    end
 
 
     self.vehicle_performed_checks.each do |vpc|

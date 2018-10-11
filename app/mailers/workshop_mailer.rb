@@ -15,7 +15,7 @@ class WorkshopMailer < ApplicationMailer
     "Durata totale: #{ws.real_duration_label}"
 
     attachments["odl_nr_#{ws.number}.pdf"] = {:mime_type => 'application/pdf', :content => pdf.render }
-    mail(body: message, subject: "ODL nr. #{ws.number} - #{ws.vehicle.plate} - #{ws.notes}", to: notify_to)
+    mail(body: message, subject: "#{ws.station_label} - ODL nr. #{ws.number} - #{ws.vehicle.plate} - #{ws.notes}", to: notify_to)
 
   end
 
