@@ -158,7 +158,7 @@ class WorkshopController < ApplicationController
   def open_worksheet
 
     begin
-      if @worksheet.mileage.nil?
+      if @worksheet.mileage.to_i == 0
         @worksheet.update(mileage: @worksheet.vehicle.mileage)
       end
       if @worksheet.opening_date.nil?

@@ -3,7 +3,7 @@
   -#   -unless current_user.has_role?(:admin)
   -#     = navbar_header brand: 'Chiarcosso Dashboard', brand_link: '/', align: 'left'
   -# %h3= 'Chiarcosso Dashboard'
-  = navbar_collapse do
+  = navbar_collapse({style: 'width: unset'}) do
     = navbar_group class: 'foo', id: 'menu' do
       - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:personale) || current_user.has_role?('amministratore utenti') || current_user.has_role?('gestione tessere') || current_user.has_role?(:traffico) || current_user.has_role?('amministratore carte prepagate') || current_user.has_role?('carte prepagate'))
         = navbar_dropdown "Personale" do

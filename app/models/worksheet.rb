@@ -462,7 +462,9 @@ class Worksheet < ApplicationRecord
           last_checking_date = last_check_session.finished.strftime('%d/%m/%Y')
         end
       end
-
+      if self.mileage.to_i == 0
+        self.update(mileage: vehicle.mileage.to_i)
+      end
       if !self.damage_type.nil? && (self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO')
         last_maintainance_date = self.exit_time.strftime('%d/%m/%Y')
       else
