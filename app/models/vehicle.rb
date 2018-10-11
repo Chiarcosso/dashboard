@@ -93,7 +93,7 @@ class Vehicle < ApplicationRecord
     request.url = "#{ENV['RAILS_CVS_URL']}DataAPI/VehicleList/json?#{ENV['RAILS_CVS_AUTH_PARAMS']}"
     request.headers['Content-Type'] = 'application/json; charset=utf-8'
     res = HTTPI.post(request)
-
+    
     JSON.parse(res.body)['data']['Vehicles']['Vehicle'].each do |v|
       r[v['VehiclePlateNumber'].tr(' -.','')] = v['Odometer']
     end

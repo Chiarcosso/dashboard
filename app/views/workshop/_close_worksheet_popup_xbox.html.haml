@@ -1,0 +1,12 @@
+%h4= "Chiudere scheda del #{@worksheet.vehicle.plate} (nr. #{@worksheet.number})?"
+= form_tag( save_worksheet_path(@worksheet.number), remote: true, method: :post) do |f|
+  -# = text_field_tag :notes, nil, placeholder: 'Note..', class: 'form-control', id: 'focus_element', style: 'width: 80vw;'
+  = check_box_tag :invoice, true, @worksheet.invoicing
+  = hidden_field_tag :action, :stop
+  = hidden_field_tag :area, 'on_processing'
+  = "Da fatturare?"
+  %br
+  %br
+  %br
+  %br
+  = submit_tag :ok

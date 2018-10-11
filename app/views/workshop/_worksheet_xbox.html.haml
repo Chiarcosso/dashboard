@@ -4,12 +4,14 @@
       = render partial: 'workshop/notification_xbox', locals: {sgn: n}
   .row
     .col-sm-2
-      = form_tag(save_worksheet_path(@worksheet.number),method: :post, remote: true) do |f|
-        = hidden_field_tag :perform, 'stop'
-        = hidden_field_tag :area, 'on_processing'
-        -# %button{ class: 'btn_small stop-worksheet no-ajax', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop, area: 'on_processing' } }
-        -#   = 'Chiudi scheda'
-        = submit_tag 'Chiudi scheda', data: { confirmation: "Sei sicuro di chiudere la scheda nr. #{@worksheet.number} (#{@worksheet.vehicle.plate}) e tutte le segnalazioni?"}
+      -# = form_tag(save_worksheet_path(@worksheet.number),method: :post, remote: true) do |f|
+      -#   = hidden_field_tag :perform, 'stop'
+      -#   = hidden_field_tag :area, 'on_processing'
+      -#   -# %button{ class: 'btn_small stop-worksheet no-ajax', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop, area: 'on_processing' } }
+      -#   -#   = 'Chiudi scheda'
+      -#   = submit_tag 'Chiudi scheda', data: { confirmation: "Sei sicuro di chiudere la scheda nr. #{@worksheet.number} (#{@worksheet.vehicle.plate}) e tutte le segnalazioni?"}
+      %button{ class: 'btn_small stop-worksheet create_popup no-loader', id: "stop-worksheet", data: { popup_id: 'close_worksheet', html: (render partial: 'workshop/close_worksheet_popup_xbox', locals: {protocol: @worksheet.number}) } }
+        = 'Chiudi scheda'
     .col-sm-2
       = form_tag(reset_worksheet_path(@worksheet.number),method: :post, remote: true) do |f|
         = hidden_field_tag :area, 'on_processing'

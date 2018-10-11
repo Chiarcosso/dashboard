@@ -586,6 +586,7 @@ class WorkshopController < ApplicationController
       # else
       #   duration = @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i
       # end
+      
       duration = @worksheet.workshop_operations.map{ |wo| wo.real_duration}.inject(0,:+)
       if params[:area] == 'on_processing' || current_user.has_role?('amministratore officina')
         ops = @worksheet.operations
@@ -613,7 +614,9 @@ class WorkshopController < ApplicationController
             })
           end
         end
-        @worksheet.update(exit_time: DateTime.now, log: "#{@worksheet.log}\n Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+        invoicing = params['invoice'] == 'true' ? true : false
+
+        @worksheet.update(invoicing: invoicing, exit_time: DateTime.now, log: "#{@worksheet.log}\n Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         vcs = @worksheet.vehicle_check_session
         vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.") unless vcs.nil?
         odl = @worksheet.ew_worksheet

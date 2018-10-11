@@ -134,7 +134,8 @@
     -#   = hidden_field_tag :time, @worksheet.real_duration.to_i
     -#   = submit_tag 'Chiudi scheda', class: 'no-cr loading_screen'
     - if current_user.has_role?('amministratore officina') || current_user.has_role?('admin')
-      %button{ class: 'btn_small stop-worksheet', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop } }
+      -# %button{ class: 'btn_small stop-worksheet', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop } }
+      %button{ class: 'btn_small stop-worksheet create_popup no-loader', id: "stop-worksheet", data: { popup_id: 'close_worksheet', html: (render partial: 'workshop/close_worksheet_popup', locals: {protocol: @worksheet.number}) } }
         = 'Chiudi scheda'
   .col-sm-3
     #clock{'data-clock': DateTime.now.hour*3600+DateTime.now.minute*60+DateTime.now.second}
@@ -167,7 +168,7 @@
 
     $('#stop-worksheet').prop('disabled',false);
     $.each($('.stop_timer'),function(){
-      if(!$(this).prop('disabled') && !$(this).data('checks')){        
+      if(!$(this).prop('disabled') && !$(this).data('checks')){
         $('#stop-worksheet').prop('disabled',true);
         return;
       }
@@ -187,12 +188,12 @@
 
   $('.stop-worksheet').on('click',function(){
     if($(this).attr('id') == 'stop-worksheet'){
-      if(!confirm('Chiudere la scheda?')){
-        deactivateLoadingScreen();
-        return;
-      } else {
-        window.onbeforeunload = null;
-      }
+      // if(!confirm('Chiudere la scheda?')){
+      //   deactivateLoadingScreen();
+      //   return;
+      // } else {
+      //   window.onbeforeunload = null;
+      // }
     }
 
     if($(this).attr('id') == 'pause-worksheet'){
@@ -212,11 +213,14 @@
       }
     });
     var data = { worksheet_duration: tm, operation_times: JSON.stringify(operation_times), perform: action };
-    $.ajax({
-      url: route,
-      method: 'post',
-      data: data
-    });
+    if($(this).attr('id') == 'pause-worksheet'){
+      $.ajax({
+        url: route,
+        method: 'post',
+        data: data
+      });
+    }
+
 
   });
 
