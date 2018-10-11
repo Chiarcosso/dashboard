@@ -86,7 +86,7 @@ class WorkshopController < ApplicationController
         vehicle_refs = EurowinController::get_vehicle(vehicle)
 
         payload = {
-          'Descrizione': params.require('Worksheet').permit('description')['description'],
+          'Descrizione': sgn['DescrizioneSegnalazione'],
           'ProtocolloODL': '0',
           'AnnoODL': '0',
           'DataEntrataVeicolo': Time.now.strftime('%Y-%m-%d'),
@@ -95,14 +95,14 @@ class WorkshopController < ApplicationController
           'CodiceTarga': vehicle_refs['Targa'],
           'Chilometraggio': vehicle_refs['Km'].to_s,
           'CodiceOfficina': EurowinController::get_workshop(:workshop),
-          'TipoDanno': params.require('Worksheet').permit(:damage_type)['damage_type'],
+          'TipoDanno': sgn['TipoDanno'],
           'FlagSvolto': 'false'
         }
 
         odl = EurowinController::create_worksheet(payload)
 
-        damage_type = EurowinController::get_tipo_danno(params.require('Worksheet').permit(:damage_type)['damage_type'],true)
-        @worksheet  = Worksheet.create(code: "EWC*#{odl['Protocollo']}",vehicle: vehicle, notes: damage_type['Descrizione']+" - "+params.require('Worksheet').permit('description')['description'], opening_date: Date.current, log: "Scheda creata da #{current_user.person.list_name}, il #{Time.now.strftime("%d/%m/%Y alle %H:%M:%S")}.\n")
+        damage_type = EurowinController::get_tipo_danno(sgn['TipoDanno'],true)
+        @worksheet  = Worksheet.create(code: "EWC*#{odl['Protocollo']}",vehicle: vehicle, notes: damage_type['Descrizione']+" - "+sgn['DescrizioneSegnalazione'], opening_date: Date.current, log: "Scheda creata da #{current_user.person.list_name}, il #{Time.now.strftime("%d/%m/%Y alle %H:%M:%S")}.\n")
 
 
         vec = vehicle.vehicle_checks('workshop')
@@ -586,7 +586,7 @@ class WorkshopController < ApplicationController
       # else
       #   duration = @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i
       # end
-      
+
       duration = @worksheet.workshop_operations.map{ |wo| wo.real_duration}.inject(0,:+)
       if params[:area] == 'on_processing' || current_user.has_role?('amministratore officina')
         ops = @worksheet.operations
@@ -653,7 +653,7 @@ class WorkshopController < ApplicationController
       end
     rescue Exception => e
 
-      @error = "WorkshopController.rb 651\n\n"+e.message+"\n\n\n"+e.backtrace.join("\n\n")
+      @error = "WorkshopController.rb 656\n\n"+e.message+"\n\n\n"+e.backtrace.join("\n\n")
       ErrorMailer.error_report(@error,"Chiusura scheda - ODL nr. #{@worksheet.number}").deliver_now
       respond_to do |format|
         format.js { render :partial => 'layouts/error' }
