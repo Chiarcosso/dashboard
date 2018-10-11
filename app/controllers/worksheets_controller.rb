@@ -107,7 +107,7 @@ class WorksheetsController < ApplicationController
     end
     respond_to do |format|
       if @error.nil?
-        format.js { render :js, :partial => 'workshop/worksheet_total_list_js' }
+        format.js { render :js, :partial => 'worksheets/index_js' }
       else
         format.js { render :js, :partial => 'layouts/error' }
       end
@@ -122,7 +122,7 @@ class WorksheetsController < ApplicationController
     end
     respond_to do |format|
       if @error.nil?
-        format.js { render :js, :partial => 'workshop/worksheet_total_list_js' }
+        format.js { render :js, :partial => 'worksheets/index_js' }
       else
         format.js { render :js, :partial => 'layouts/error' }
       end
@@ -137,7 +137,7 @@ class WorksheetsController < ApplicationController
     end
     respond_to do |format|
       if @error.nil?
-        format.js { render :js, :partial => 'workshop/worksheet_total_list_js' }
+        format.js { render :js, :partial => 'worksheets/index_other_workshops_js' }
       else
         format.js { render :js, :partial => 'layouts/error' }
       end
@@ -165,7 +165,7 @@ class WorksheetsController < ApplicationController
     end
     respond_to do |format|
       if @error.nil?
-        format.js { render :js, :partial => 'workshop/worksheet_total_list_js' }
+        format.js { render :js, :partial => 'worksheets/index_js' }
       else
         format.js { render :js, :partial => 'layouts/error' }
       end
@@ -206,12 +206,12 @@ class WorksheetsController < ApplicationController
 
   def search_params
     if params[:search].nil?
-      @search = {:opened => true, :closed => false, :plate => nil, :number => nil, :date_since => (Date.today - 180), :date_to => Date.today, :mechanic => nil}
+      @search = {:opened => true, :closed => false, :plate => nil, :number => nil, :date_since => (Date.today - 2.months), :date_to => Date.today, :mechanic => nil, :workshop => nil}
     else
       if params[:search].is_a? String
         @search = JSON.parse(params.require(:search))
       else
-        @search = params.require(:search).permit(:opened,:closed,:plate,:number,:date_since,:date_to,:mechanic)
+        @search = params.require(:search).permit(:opened,:closed,:plate,:number,:date_since,:date_to,:mechanic,:workshop)
       end
     end
 
@@ -224,27 +224,27 @@ class WorksheetsController < ApplicationController
   def apply_filter
     filter = []
 
-    if @search.with_indifferent_access[:opened] and @search.with_indifferent_access[:closed]
+    if @search[:opened] and @search[:closed]
       # filter << ''
-    elsif @search.with_indifferent_access[:opened] and !@search.with_indifferent_access[:closed]
+    elsif @search[:opened] and !@search[:closed]
       filter << 'closingDate is null'
-    elsif !@search.with_indifferent_access[:opened] and @search.with_indifferent_access[:closed]
+    elsif !@search[:opened] and @search[:closed]
       filter << 'closingDate is not null'
     end
-    unless @search.with_indifferent_access[:plate].nil? or @search.with_indifferent_access[:plate] == ''
-      filter << "vehicle_id in (select vehicle_id from vehicle_informations where information like '%#{@search.with_indifferent_access[:plate].tr('. *-','')}%' and vehicle_information_type_id = (select id from vehicle_information_types where name = 'Targa'))"
+    unless @search[:plate].nil? or @search[:plate] == ''
+      filter << "vehicle_id in (select vehicle_id from vehicle_informations where information like '%#{@search[:plate].tr('. *-','')}%' and vehicle_information_type_id = (select id from vehicle_information_types where name = 'Targa'))"
     end
-    unless @search.with_indifferent_access[:number].nil? or @search.with_indifferent_access[:number] == ''
-      Worksheet.find_or_create_by_code(@search.with_indifferent_access[:number])
-      filter << "code like '%#{@search.with_indifferent_access[:number]}%'"
+    unless @search[:number].nil? or @search[:number] == ''
+      Worksheet.find_or_create_by_code(@search[:number])
+      filter << "code like '%#{@search[:number]}%'"
     end
-    unless @search.with_indifferent_access[:date_since].nil? or @search.with_indifferent_access[:date_since] == ''
-      filter << "opening_date >= '#{@search.with_indifferent_access[:date_since]}'"
+    unless @search[:date_since].nil? or @search[:date_since] == ''
+      filter << "opening_date >= '#{@search[:date_since]}'"
     end
-    unless @search.with_indifferent_access[:date_to].nil? or @search.with_indifferent_access[:date_to] == ''
-      filter << "opening_date <= '#{@search.with_indifferent_access[:date_to]}'"
+    unless @search[:date_to].nil? or @search[:date_to] == ''
+      filter << "opening_date <= '#{@search[:date_to]}'"
     end
-    @worksheets = Worksheet.where(filter.join(' and ')).limit(100).order(:code => :asc)
+    @worksheets = Worksheet.where(filter.join(' and ')).order(:code => :asc)
 
     unless(params['list'].nil?)
       @search_list = params.require('list')['search']
@@ -256,26 +256,26 @@ class WorksheetsController < ApplicationController
   def apply_ow_filter
     filter = []
 
-    if @search.with_indifferent_access[:opened] and !@search.with_indifferent_access[:closed]
+    if @search[:opened] and !@search[:closed]
       filter << "(FlagSchedaChiusa like 'false' or FlagSchedaChiusa is null)"
-    elsif !@search.with_indifferent_access[:opened] and @search.with_indifferent_access[:closed]
+    elsif !@search[:opened] and @search[:closed]
       filter << "FlagSchedaChiusa like 'true'"
     end
-    unless @search.with_indifferent_access[:plate].nil? or @search.with_indifferent_access[:plate] == ''
-      mrs = MssqlReference.find_by_plate(@search.with_indifferent_access[:plate],false)
+    unless @search[:plate].nil? or @search[:plate] == ''
+      mrs = MssqlReference.find_by_plate(@search[:plate],false)
       filter << "CodiceAutomezzo in (#{mrs.map{|v| v.remote_object_id }.join(',')})" unless mrs.empty?
     end
-    unless @search.with_indifferent_access[:number].nil? or @search.with_indifferent_access[:number] == ''
-      filter << "Protocollo like '%#{@search.with_indifferent_access[:number]}%'"
+    unless @search[:number].nil? or @search[:number] == ''
+      filter << "Protocollo like '%#{@search[:number]}%'"
     end
-    unless @search.with_indifferent_access[:workshop].nil? or @search.with_indifferent_access[:workshop] == ''
-      filter << "CodiceAnagrafico = '#{@search.with_indifferent_access[:workshop]}'"
+    unless @search[:workshop].nil? or @search[:workshop] == ''
+      filter << "CodiceAnagrafico = '#{@search[:workshop]}'"
     end
-    unless @search.with_indifferent_access[:date_since].nil? or @search.with_indifferent_access[:date_since] == ''
-      filter << "DataIntervento >= '#{@search.with_indifferent_access[:date_since]}'"
+    unless @search[:date_since].nil? or @search[:date_since] == ''
+      filter << "DataIntervento >= '#{@search[:date_since]}'"
     end
-    unless @search.with_indifferent_access[:date_to].nil? or @search.with_indifferent_access[:date_to] == ''
-      filter << "DataIntervento <= '#{@search.with_indifferent_access[:date_to]}'"
+    unless @search[:date_to].nil? or @search[:date_to] == ''
+      filter << "DataIntervento <= '#{@search[:date_to]}'"
     end
     filter << "CodiceAnagrafico != 'OFF00001' and CodiceAnagrafico != 'OFF00047'"
     @worksheets = EurowinController::get_filtered_odl(filter.join(' and '))

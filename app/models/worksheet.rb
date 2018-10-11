@@ -7,6 +7,8 @@ class Worksheet < ApplicationRecord
   require 'barby/barcode/ean_13'
   require 'barby/barcode/ean_8'
   belongs_to :vehicle
+  belongs_to :customer, class_name: Company
+
   has_many :output_orders, -> { where("output_orders.destination_type = 'Worksheet'") }, class_name: 'OutputOrder', foreign_key: :destination_id
   has_many :output_order_items, through: :output_orders
   has_many :items, through: :output_order_items
@@ -24,12 +26,31 @@ class Worksheet < ApplicationRecord
   # scope :incoming, ->(search,opened) { where(exit_time: nil, suspended: false, station: "workshop", closed: false).where(opened ? '1' : 'opening_date is not null').where(search.nil?? '1' : "(case worksheets.vehicle_type when 'Vehicle' then worksheets.vehicle_id in (select vehicle_informations.vehicle_id from vehicle_informations where information like '%#{search}%') when 'ExternalVehicle' then worksheets.vehicle_id in (select external_vehicles.id from external_vehicles where external_vehicles.plate like '%#{search}%') end) or code like '%#{search}%'") }
   scope :year, ->(year) { where("year(worksheets.created_at) = ?",year) }
 
+  def customer_label
+    self.customer.complete_name unless self.customer.nil?
+  end
+
+  def station_label
+    case self.station
+    when 'workshop' then
+      return 'Officina interna'
+    when 'carwash'
+      return 'Punto check-up'
+    else
+      return 'Officina non specificata'
+    end
+  end
+
   def check_operations
     WorkshopOperation.where(worksheet: self, myofficina_reference: nil)
   end
 
   def hours
     (self.real_duration/3600).round(1)
+  end
+
+  def real_hours
+    (self.operations.map{ |op| op.real_duration }.inject(0,:+).to_f/3600)
   end
 
   def set_hours
@@ -163,17 +184,19 @@ class Worksheet < ApplicationRecord
 
   def actual_hours(seconds = false)
     if seconds
-      if self.hours == 0
-        self.real_duration
-      else
-        (self.hours.to_f * 3600).to_i
-      end
+      # if self.hours == 0
+      #   self.real_duration
+      # else
+      #   (self.hours.to_f * 3600).to_i
+      # end
+      self.operations.map{ |op| op.real_duration }.inject(0,:+)
     else
-      if self.hours == 0
-        self.real_duration.to_f/3600
-      else
-        self.hours.to_f
-      end
+      # if self.hours == 0
+      #   self.real_duration.to_f/3600
+      # else
+      #   self.hours.to_f
+      # end
+      self.real_hours
     end
   end
 
@@ -234,7 +257,7 @@ class Worksheet < ApplicationRecord
 
   def self.find_or_create_by_code(protocol)
     protocol = protocol.to_s[/(EWC\*)?([0-9]+).*/,2]
-    ws = Worksheet.find_by(code: "EWC*#{protocol}")
+    # ws = Worksheet.find_by(code: "EWC*#{protocol}")
 
     # if ws.nil?
       ewc = EurowinController::get_ew_client
@@ -293,6 +316,11 @@ class Worksheet < ApplicationRecord
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : ws.closingDate
         end
+        if odl['FatturaCodiceCliente'].nil? || odl['FatturaCodiceCliente'] == ''
+          customer = nil
+        else
+          customer = Company.find_or_create_by_reference('Clienti',odl['FatturaCodiceCliente'])
+        end
         ws.update({code: "EWC*#{odl['Protocollo']}",
                 vehicle: vehicle,
                 creation_date: odl['DataIntervento'],
@@ -302,7 +330,9 @@ class Worksheet < ApplicationRecord
                 suspended: odl['FlagProgrammazioneSospesa'].to_s.upcase == 'TRUE' ? true : false,
                 station: station,
                 closingDate: odl['DataUscitaVeicolo'],
-                closed: odl['FlagSchedaChiusa'].to_s.upcase == 'TRUE' ? true : false
+                closed: odl['FlagSchedaChiusa'].to_s.upcase == 'TRUE' ? true : false,
+                invoicing: odl['FlagDaFatturare'].to_s.upcase == 'TRUE' ? true : false,
+                customer: customer
               })
       end
       ws
@@ -315,12 +345,12 @@ class Worksheet < ApplicationRecord
 
   def self.upsync_all
     ewc = EurowinController::get_ew_client
-    res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
+    res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, FlagDaFatturare, FatturaCodiceCliente, "\
       "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico, "\
       "(select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
-      "where DataEntrataVeicolo is not null and DataIntervento is not null "\
+      "where DataIntervento is not null "\
       "and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
     ewc.close
     @error = ''
@@ -392,6 +422,13 @@ class Worksheet < ApplicationRecord
         f.close
       end
 
+    end
+  end
+
+  def write_sheet
+    pdf = self.sheet
+    unless pdf.nil?
+      File.open("/mnt/documents/ODL/ODL_#{self.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
     end
   end
 
@@ -483,13 +520,16 @@ class Worksheet < ApplicationRecord
 
         pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Entrata',size: 7)],[pdf.make_cell(content: opening_date,size: 13, font_style: :bold,height: 25)]],width: 75),
                 pdf.make_table([[pdf.make_cell(content: 'Uscita',size: 7)],[pdf.make_cell(content: closing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
-                pdf.make_table([[pdf.make_cell(content: 'Km',size: 7)],[pdf.make_cell(content: vehicle.mileage.to_s,size: 13, font_style: :bold,height: 25)]],width: 75),
+                pdf.make_table([[pdf.make_cell(content: 'Km',size: 7)],[pdf.make_cell(content: self.mileage.to_s,size: 13, font_style: :bold,height: 25)]],width: 75),
                 pdf.make_table([[pdf.make_cell(content: 'Ultima manutenzione',size: 7)],[pdf.make_cell(content: last_maintainance_date,size: 13, font_style: :bold,height: 25)]],width: 75),
                 pdf.make_table([[pdf.make_cell(content: 'Ultimo lavaggio',size: 7)],[pdf.make_cell(content: last_washing_date,size: 13, font_style: :bold,height: 25)]],width: 75),
                 pdf.make_table([[pdf.make_cell(content: 'Ultimo autista',size: 7)],[pdf.make_cell(content: last_driver,size: 13, font_style: :bold,height: 25)]],width: 165),]],
           :position => :center,
           :width => 540
 
+
+      pdf.move_down 20
+      pdf.text "#{self.station_label}#{self.invoicing ? "               Fatturare a: #{self.customer_label}" : ''}"
       pdf.move_down 20
       pdf.text self.notes
       pdf.move_down 10
@@ -611,6 +651,7 @@ class Worksheet < ApplicationRecord
     rescue Exception => e
       @error = "Worksheet.rb 612\n\n"+e.message+"\n\n\n"+e.backtrace.join("\n\n")
       ErrorMailer.error_report(@error,"Creazione PDF - ODL nr. #{self.number}").deliver_now
+      return nil
     end
   end
 

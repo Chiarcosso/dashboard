@@ -1,8 +1,6 @@
 .row
   .col-sm-1
-    %b= "Trovati: #{@worksheets.size > 99 ? '99+' : @worksheets.size}"
-  .col-sm-1
-    %b='Nr. scheda'
+    %b="Nr. scheda (#{@worksheets.size})"
   .col-sm-1
     %b='Targa'
   .col-sm-1
@@ -28,14 +26,14 @@
           .col-sm-1
             ="#{I18n.l ws.opening_date}"
           .col-sm-1
-            ="#{I18n.l ws.exit_time}" unless ws.exit_time.nil?
+            ="#{ws.exit_time.strftime("%d/%m/%y")}" unless ws.exit_time.nil?
           - unless ws.exit_time.nil?
             = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
               .col-sm-2
                 .inline
                   = hidden_field_tag 'worksheet[id]', ws.id
                   = hidden_field_tag :search, @search.to_json
-                  = number_field_tag 'worksheet[hours]', ws.hours, step: 0.5, min: 0, style: "width: 5em;", class: 'toggable-display-fld', data: {target: "ws-#{ws.id}-hours"}
+                  = number_field_tag 'worksheet[hours]', ws.real_hours, step: 0.5, min: 0, style: "width: 5em;", class: 'toggable-display-fld', data: {target: "ws-#{ws.id}-hours"}
                 .inline
                   = submit_tag :Ok, class: 'keep-filter invisible', id: "ws-#{ws.id}-hours"
               -# = number_field_tag :hours, ws.hours, class: 'form-control', step: :any, min: 0, width: '1em'
@@ -58,5 +56,6 @@
                   = submit_tag 'Riapri', class: 'keep-filter no-loader'
           .col-sm-1
             = button_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
-          .col-sm-1
-            = button_to 'Conteggio', worksheet_print_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+          .col-sm-4
+            -# = button_to 'Conteggio', worksheet_print_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+            %b= "Fatturare a: #{ws.customer_label}" if ws.invoicing

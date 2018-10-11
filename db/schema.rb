@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181010112911) do
+ActiveRecord::Schema.define(version: 20181011092723) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -1000,7 +1000,10 @@ ActiveRecord::Schema.define(version: 20181010112911) do
     t.datetime "last_stopping_time"
     t.boolean  "paused",                                                   default: true,      null: false
     t.integer  "mileage"
+    t.boolean  "invoicing"
+    t.integer  "customer_id"
     t.index ["code"], name: "index_worksheets_on_code", unique: true, using: :btree
+    t.index ["customer_id"], name: "index_worksheets_on_customer_id", using: :btree
     t.index ["vehicle_id"], name: "index_worksheets_on_vehicle_id", using: :btree
   end
 
@@ -1161,6 +1164,7 @@ ActiveRecord::Schema.define(version: 20181010112911) do
   add_foreign_key "worksheet_operations", "people"
   add_foreign_key "worksheet_operations", "worksheets"
   add_foreign_key "worksheet_operations", "workshop_operations"
+  add_foreign_key "worksheets", "companies", column: "customer_id"
   add_foreign_key "workshop_operations", "users"
   add_foreign_key "workshop_operations", "worksheets"
 end

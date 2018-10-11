@@ -355,8 +355,10 @@ class EurowinController < ApplicationController
 
   def self.get_filtered_odl(filter)
     query = <<-QUERY
-      select *,a.ragionesociale as officina from autoodl
-      left join anagrafe a on autoodl.codiceanagrafico = a.codice  where #{filter}
+      select autoodl.*,a.ragionesociale as officina,td.Descrizione as TipoDanno from autoodl
+      left join anagrafe a on autoodl.codiceanagrafico = a.codice
+      left join tabdesc td on autoodl.CodiceTipoDanno = td.Codice
+      where #{filter}
     QUERY
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
     ws = ewc.query(query)

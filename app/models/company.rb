@@ -50,11 +50,12 @@ class Company < ApplicationRecord
     begin
       c = Company.find_by_reference(table,id)
       if c.nil?
+        table = 'Clienti' if table.nil?
         client = MssqlReference::get_client
 
         query = "select '#{table}' as table_name, c.IdCliente as id, c.RagioneSociale as name, c.PartitaIva as vat_number "\
                     "from #{table} c "\
-                    "where IdCliente =#{id}"
+                    "where IdCliente = #{id.to_i}"
         r = client.execute(query).first
 
         unless r.nil?
@@ -66,7 +67,7 @@ class Company < ApplicationRecord
             c = Company.create(name: r['name'], vat_number: r['vat_number'])
           end
 
-          mssqlref = MssqlReference.create(local_object: c, remote_object_table: 'Clienti', remote_object_id: r['id'].to_i)
+          mssqlref = MssqlReference.create(local_object: c, remote_object_table: r['table_name'], remote_object_id: r['id'].to_i)
         end
       end
       c

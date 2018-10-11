@@ -20,16 +20,19 @@
   .col-sm-12
     .scrollable-panel
       - @worksheets.each do |ws|
-        .row.colored.hilight
+        .row.colored.hilight{style: "#{ws['FlagSchedaChiusa'].downcase == 'true' ? '' : "font-weight: bolder"}"}
           .col-sm-1
             = ws['Protocollo']
           .col-sm-1
             = ws['Targa']
           .col-sm-1
-            = ws['DataIntervento']
+            = ws['DataEntrataVeicolo']
           .col-sm-1
+            = ws['PrevisioneUscitaVeicolo']
+          .col-sm-3
             = ws['officina']
-          .col-sm-1
+          .col-sm-5
+            = "#{ws['TipoDanno']} - #{ws['Note']}"
             -# = button_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
           .col-sm-1
             -# = button_to 'Conteggio', worksheet_print_pdf_path(ws.id,format: :pdf), class: 'no-loader'
