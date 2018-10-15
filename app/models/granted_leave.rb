@@ -3,6 +3,16 @@ class GrantedLeave < ApplicationRecord
   belongs_to :leave_code
   belongs_to :person
 
+  scope :absence, -> { where("leave_code_id in (select id from leave_codes where afterhours = 1)")}
+  scope :in_range, ->(from,to) { where(<<-WHERE
+    (granted_leaves.from between '#{from.strftime("%Y%m%d")}' and '#{to.strftime("%Y%m%d")}')
+    or
+    (granted_leaves.to between '#{from.strftime("%Y%m%d")}' and '#{to.strftime("%Y%m%d")}')
+    or
+    (granted_leaves.from <= '#{from.strftime("%Y%m%d")}' and granted_leaves.to >= '#{to.strftime("%Y%m%d")}')
+    WHERE
+    )}
+
   def time_in_leave(time = Time.now)
 
     if time >= self.from && time <= self.to
@@ -10,6 +20,10 @@ class GrantedLeave < ApplicationRecord
     else
       false
     end
+  end
+
+  def color
+    self.leave_code.color
   end
 
   def duration(comparison_date)

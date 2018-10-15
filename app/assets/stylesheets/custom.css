@@ -297,6 +297,25 @@ body{
   height: 100%;
 }
 
+.moving-board{
+  white-space: nowrap;
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.moving-board-connected-container{
+  overflow: hidden;
+}
+
+.moving-board-container{
+  overflow: auto;
+}
+
 .nav > .nav-tabs > li > a:active{
     color: red !important;
     font-style: normal !important;

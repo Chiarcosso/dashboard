@@ -1,0 +1,6 @@
+$('#vacation_calendar').html("#{escape_javascript(render 'presence/calendar'  )} ");
+$('.popup').remove();
+$('.infobox').remove();
+$("#{@scroll_element}").scrollTop("#{@scroll}");
+
+deactivateLoadingScreen();

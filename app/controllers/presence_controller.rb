@@ -4,6 +4,7 @@ class PresenceController < ApplicationController
   before_action :get_month_year
   before_action :get_tab
   before_action :get_scroll
+  before_action :get_from_to, only: [:vacation_calendar]
   before_action :get_working_schedule, only: [:edit_working_schedule, :delete_working_schedule]
   before_action :get_festivity, only: [:edit_festivity, :delete_festivity]
   before_action :get_leave_code, only: [:edit_leave_code, :delete_leave_code]
@@ -15,6 +16,28 @@ class PresenceController < ApplicationController
         format.html { render 'festivities/index' }
       end
     rescue Exception => e
+      @error = e.message
+      respond_to do |format|
+        format.js { render partial: 'layouts/error' }
+      end
+    end
+  end
+
+  def vacation_calendar
+    begin
+      @zoom = params[:zoom].nil? ? 1 : params[:zoom].to_i
+      leaves = GrantedLeave.absence.in_range(@from,@to)
+      people = Person.active_people(@from).order(surname: :asc)
+      @people_leaves = Hash.new
+      people.each do |p|
+        @people_leaves[p.list_name] = leaves.select{ |gl| gl.person == p}
+      end
+      respond_to do |format|
+        format.js { render partial: 'presence/vacation_calendar_js' }
+        format.html { render 'presence/vacation_calendar' }
+      end
+    rescue Exception => e
+      byebug
       @error = e.message
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
@@ -871,6 +894,24 @@ class PresenceController < ApplicationController
 
   def get_leave_code
     @leave_code = LeaveCode.find(params.require(:id).to_i)
+  end
+
+  def get_from_to
+    if params[:from].nil?
+      @from = Time.now - 3.days
+    else
+      @from = Time.strptime(params[:from],"%Y-%m-%d")
+    end
+    if params[:to].nil?
+      @to = @from + 2.months
+    else
+      @to = Time.strptime(params[:to],"%Y-%m-%d")
+    end
+    if @from > @to
+      tmp = @from
+      @from = @to
+      @to = tmp
+    end
   end
 
   def festivity_params

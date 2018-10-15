@@ -1,0 +1,55 @@
+.row
+  .col-sm-6
+    %h4="Calendario assenze"
+  = form_tag(vacation_calendar_path,remote: true,method: :get) do |f|
+    .col-sm-2
+      = date_field_tag :from, @from.strftime('%Y-%m-%d'), class: 'form-control'
+    .col-sm-2
+      = date_field_tag :to, @to.strftime('%Y-%m-%d'), class: 'form-control'
+    .col-sm-2
+      = hidden_field_tag :zoom, 1
+      = hidden_field_tag :offset_x, 0
+      = hidden_field_tag :offset_y, 0
+      = submit_tag 'Ricarica', class: 'form-control'
+.row
+  .col-sm-2
+  .col-sm-10.moving-board-connected-container
+    .moving-board-connected{data: {id: 'calendar-board', direction: 'horizontal'}, style: 'white-space: nowrap'}
+      - date = @from
+      %table{style: 'collapse: collapse;'}
+        %tr
+          - while date <= @to
+            %td.colored2{style: 'border-left: 1px solid #bbb; border-right: 1px solid #bbb'}= date.strftime("%d/%m")
+            - date += 1.days
+.row
+  .col-sm-2.moving-board-connected-container
+    .moving-board-connected{data: {id: 'calendar-board', direction: 'vertical'}}
+      %table{style: 'collapse: collapse; white-space: nowrap;'}
+        - @people_leaves.each do |k,p|
+          %tr.colored{style: 'height: 1.15em;'}
+            %td= k
+  .col-sm-10.moving-board-container
+    .moving-board#calendar-board{data: {days: ((@to-@from)/3600/24).round, width: 3, zoom: @zoom}}
+      %table{style: 'collapse: collapse;'}
+        - @people_leaves.each do |k,p|
+          - date = @from
+          %tr.colored
+            - while date <= @to
+              - levs = p.select{|gl| date.strftime('%Y%m%d') >= gl.from.strftime('%Y%m%d') && date.strftime('%Y%m%d') <= gl.to.strftime('%Y%m%d')}
+              - if levs.empty?
+                %td{style: 'border-right: 1px solid #bbb; border-left: 1px solid #bbb; padding: 0px; margin: 0px; height: 1.15em;', data: {alt: "#{k} - #{date.strftime("%d/%m")}"}}
+                  %span{style: 'opacity: 0;'}
+                    = date.strftime("%d/%m")
+              - else
+                - levs.each do |gl|
+                  %td{style: 'border-right: 1px solid #bbb; border-left: 1px solid #bbb; padding: 0px; margin: 0px; height: 1.15em;', data: {alt: "#{date.strftime("%d/%m")} #{gl.person.list_name}: #{gl.leave_code.description} #{gl.complete_duration_label}" }}
+                    %span{style: 'opacity: 0; position: absolute'}
+                      = date.strftime("%d/%m")
+                    %hr.spacer{style: "border: 1px solid #{gl.color}; margin: 0px;"}
+              - date += 1.days
+
+:javascript
+
+  let config = $('#calendar-board').data();
+  // $('.spacer').css('width',config.width+'em');
+  console.log(config);

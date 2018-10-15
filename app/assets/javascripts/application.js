@@ -465,11 +465,12 @@ function toggle_click_func() {
   $($(this).data('target')).toggle();
 }
 
-function data_alt_mouseenter_func(){
+function data_alt_mouseenter_func(e){
   "use strict";
   $('.cst-alt').remove();
-  var el = $('<div class="cst-alt" style="position: absolute; background-color: #ffc; white-space: nowrap; top: -1.7em; left 2em; z-index: 2500; border: 1px solid black; padding: .2em;">'+$(this).data('alt')+'</div>');
+  var el = $('<div class="cst-alt" style="position: absolute; background-color: #ffc; white-space: nowrap; top: -1.7em; left 2em; z-index: 4500; border: 1px solid black; padding: .2em;">'+$(this).data('alt')+'</div>');
   $(this).append(el);
+  el.offset({top: e.pageY - el.height() - 10, left: e.pageX + 10})
 }
 
 function data_alt_mouseleave_func(){
@@ -518,6 +519,73 @@ function xbox_click_func(){
       $(xbox).html(response.responseText);
     }
   });
+}
+
+var moving_board = false;
+var moving_offset = {x: null, y: null};
+
+function moving_board_func(e){
+  "strict";
+
+  // If moving_board is active
+  if(moving_board){
+
+    // Get current board offset and offsets from origin
+    let this_offset = $(this).offset();
+    let offsetx = moving_offset.x - e.pageX;
+    let offsety = moving_offset.y - e.pageY;
+
+    // Block when at limit for every axis separately
+    let parent_offset = $(this).parents('.moving-board-container').first().offset();
+    if(this_offset.top - offsety >= parent_offset.top){
+      offsety = 0;
+    }
+
+    if(this_offset.left - offsetx >= parent_offset.left){
+      offsetx = 0;
+    }
+
+    // Move the board
+    $(this).offset({top: this_offset.top - offsety, left: this_offset.left - offsetx});
+
+    // Move connected elements
+    $('[data-id='+$(this).attr('id')+']').each(function(){
+      let dir = $(this).data('direction');
+      let this_offset = $(this).offset();
+      switch(dir){
+        case 'both': $(this).offset({top: this_offset.top - offsety, left: this_offset.left - offsetx});
+                      break;
+        case 'vertical': $(this).offset({top: this_offset.top - offsety, left: this_offset.left});
+                      break;
+        case 'horizontal': $(this).offset({top: this_offset.top, left: this_offset.left - offsetx});
+                      break;
+      }
+
+    });
+
+    moving_offset.x = e.pageX;
+    moving_offset.y = e.pageY;
+
+  }
+}
+
+function moving_board_md_func(e){
+  "strict";
+
+  // Get mouse position on click and activate moving_board
+  moving_board = true;
+
+  moving_offset.x = e.pageX;
+  moving_offset.y = e.pageY;
+}
+
+function moving_board_mu_func(e){
+  "strict";
+
+  // Deactivate moving_board and flush mouse position
+  moving_board = false;
+  moving_offset.x = null;
+  moving_offset.y = null;
 }
 
 function activateJS() {
@@ -592,6 +660,14 @@ function activateJS() {
     $('body').on('submit','.popup form', move_under_loader_func);
 
     $('body').on('click','.xbox', xbox_click_func);
+
+    $('body').on('mousemove','.moving-board',moving_board_func);
+
+    $('body').on('mousedown','.moving-board',moving_board_md_func);
+
+    $('body').on('mouseleave','.moving-board-container',moving_board_mu_func);
+
+    $('body').on('mouseup',moving_board_mu_func);
 
 }
 

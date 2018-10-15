@@ -222,7 +222,8 @@ Rails.application.routes.draw do
   get   '/public/get_eurowin_worksheets/:table/:vehicle', to: 'vehicles#get_eurowin_worksheets', as: :get_eurowin_worksheets
 
   get   '/festivities/manage', to: 'presence#manage_festivities', as: :manage_festivities
-
+  get   '/presence/vacation_calendar', to: 'presence#vacation_calendar', as: :vacation_calendar
+  
   post   '/presence/add_badge_assignment/', to: 'presence#add_badge_assignment', as: :add_badge_assignment
   post   '/presence/edit_badge_assignment/:id', to: 'presence#edit_badge_assignment', as: :edit_badge_assignment
   delete   '/presence/delete_badge_assignment/:id', to: 'presence#delete_badge_assignment', as: :delete_badge_assignment

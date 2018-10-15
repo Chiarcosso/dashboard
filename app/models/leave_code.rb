@@ -2,6 +2,14 @@ class LeaveCode < ApplicationRecord
 
   has_many :granted_leaves
 
+  def color
+    if self.color_code.nil?
+      '#000000'
+    else
+      self.color_code
+    end
+  end
+
   def self.find_or_create_by_mssql_reference(id)
     mr = MssqlReference.where(remote_object_table: 'codici_permessi', remote_object_id: id).first
     if mr.nil?
