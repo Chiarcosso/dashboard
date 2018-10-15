@@ -531,12 +531,12 @@ function moving_board_func(e){
   if(moving_board){
 
     // Get current board offset and offsets from origin
-    let this_offset = $(this).offset();
-    let offsetx = moving_offset.x - e.pageX;
-    let offsety = moving_offset.y - e.pageY;
+    var this_offset = $(this).offset();
+    var offsetx = moving_offset.x - e.pageX;
+    var offsety = moving_offset.y - e.pageY;
 
     // Block when at limit for every axis separately
-    let parent_offset = $(this).parents('.moving-board-container').first().offset();
+    var parent_offset = $(this).parents('.moving-board-container').first().offset();
     if(this_offset.top - offsety >= parent_offset.top){
       offsety = 0;
     }
@@ -550,8 +550,8 @@ function moving_board_func(e){
 
     // Move connected elements
     $('[data-id='+$(this).attr('id')+']').each(function(){
-      let dir = $(this).data('direction');
-      let this_offset = $(this).offset();
+      var dir = $(this).data('direction');
+      var this_offset = $(this).offset();
       switch(dir){
         case 'both': $(this).offset({top: this_offset.top - offsety, left: this_offset.left - offsetx});
                       break;
