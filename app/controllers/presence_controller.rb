@@ -26,11 +26,25 @@ class PresenceController < ApplicationController
   def vacation_calendar
     begin
       @zoom = params[:zoom].nil? ? 1 : params[:zoom].to_i
+      driver_role = CompanyRelation.find_by(name: 'Autista')
+      mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
+      roaming_mechanic_role = CompanyRelation.find_by(name: 'Meccanico trasfertista')
+      chief_mechanic_role = CompanyRelation.find_by(name: 'Capo officina')
+
       leaves = GrantedLeave.absence.in_range(@from,@to)
       people = Person.active_people(@from).order(surname: :asc)
       @people_leaves = Hash.new
+      @people_leaves['Autisti'] = Hash.new
+      @people_leaves['Meccanici'] = Hash.new
+      @people_leaves['Impiegati'] = Hash.new
       people.each do |p|
-        @people_leaves[p.list_name] = leaves.select{ |gl| gl.person == p}
+        if p.company_relations.include?(driver_role)
+          @people_leaves['Autisti'][p.list_name] = leaves.select{ |gl| gl.person == p}
+        elsif p.company_relations.include?(mechanic_role) || p.roles.include?(roaming_mechanic_role) || p.roles.include?(chief_mechanic_role)
+          @people_leaves['Meccanici'][p.list_name] = leaves.select{ |gl| gl.person == p}
+        else
+          @people_leaves['Impiegati'][p.list_name] = leaves.select{ |gl| gl.person == p}
+        end
       end
       respond_to do |format|
         format.js { render partial: 'presence/vacation_calendar_js' }
