@@ -27,7 +27,8 @@
               - else
                 - wdc = ''
 
-            %td{style: "#{wdc} border: 1px solid #bbb; border-top: 0px; padding-left: .3em; padding-right: .3em;"}= date.strftime("%d/%m")
+            %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 0px; padding-left: .3em; padding-right: .3em;"}
+              = date.strftime("%d/%m")
             - date += 1.days
 .row
   .col-sm-2.moving-board-connected-container
@@ -35,11 +36,11 @@
       %table{style: 'collapse: collapse; white-space: nowrap;'}
         - @people_leaves.each do |group,types|
           %tr{style: 'height: 1.15em;'}
-            %td{style: 'border-bottom: 1px solid #bbb'}
+            %td{style: 'border-bottom: 1px solid #ddd'}
               %b= group
           - types.each do |k,p|
             %tr{style: 'height: 1.15em;'}
-              %td{style: 'border-bottom: 1px solid #bbb'}= k
+              %td{style: 'border-bottom: 1px solid #ddd'}= k
   .col-sm-10.moving-board-container
     .moving-board#calendar-board{data: {days: ((@to-@from)/3600/24).round, width: 3, zoom: @zoom}}
       %table{style: 'collapse: collapse;'}
@@ -54,7 +55,7 @@
                   - wdc = 'background-color: #e9e9ee;'
                 - else
                   - wdc = 'background-color: #ddd;'
-              %td{style: "#{wdc} border: 1px solid #bbb; border-top: 1px; padding-left: .3em; padding-right: .3em; margin: 0px; height: 1.15em;", data: {alt: "#{group} - #{date.strftime("%d/%m")}"}}
+              %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: .3em; padding-right: .3em; margin: 0px; height: 1.15em;", data: {alt: "#{group} - #{date.strftime("%d/%m")}"}}
                 %span{style: 'opacity: 0;'}
                   = date.strftime("%d/%m")
               - date += 1.days
@@ -72,13 +73,13 @@
                     - wdc = ''
 
                 - if levs.empty?
-                  %td{style: "#{wdc} border: 1px solid #bbb; border-top: 1px; padding-left: .3em; padding-right: .3em; margin: 0px; height: 1.15em;", data: {alt: "#{k} - #{date.strftime("%d/%m")}"}}
+                  %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: .3em; padding-right: .3em; margin: 0px; height: 1.15em;", data: {alt: "#{k} - #{date.strftime("%d/%m")}"}}
                     %span{style: 'opacity: 0;'}
                       = date.strftime("%d/%m")
                 - else
                   - levs.each do |gl|
-                    %td{style: "#{wdc} border: 1px solid #bbb; border-top: 1px; padding-left: 0px; padding-right: 0px; margin: 0px; height: 1.15em;", data: {alt: "#{date.strftime("%d/%m")} #{gl.person.list_name}: #{gl.leave_code.description} #{gl.complete_duration_label}" }}
+                    %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: 0px; padding-right: 0px; margin: 0px; height: 1.15em;", data: {alt: "#{date.strftime("%d/%m")} #{gl.person.list_name}: #{gl.leave_code.description} #{gl.complete_duration_label}" }}
                       %span{style: 'opacity: 0; position: absolute'}
                         = date.strftime("%d/%m")
-                      %hr.spacer{style: "border: 1px solid #{gl.color}; margin: 0px;"}
+                      %hr.spacer{style: "border: 3px solid #{gl.color}; margin: 0px;"}
                 - date += 1.days

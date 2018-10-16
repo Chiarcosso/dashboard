@@ -313,7 +313,7 @@ body{
 }
 
 .moving-board-container{
-  overflow: auto;
+  overflow: hidden;
 }
 
 .nav > .nav-tabs > li > a:active{
@@ -403,6 +403,10 @@ body{
 
 .selected-row{
   background-color: #99f !important;
+}
+
+.shaded{
+  background-color: #aaa !important;
 }
 
 .signal-danger{

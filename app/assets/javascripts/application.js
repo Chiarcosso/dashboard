@@ -522,6 +522,7 @@ function xbox_click_func(){
 }
 
 var moving_board = false;
+var block_column_select = false;
 var moving_offset = {x: null, y: null};
 
 function moving_board_func(e){
@@ -529,6 +530,9 @@ function moving_board_func(e){
 
   // If moving_board is active
   if(moving_board){
+
+    // Block column selection
+    block_column_select = true;
 
     // Get current board offset and offsets from origin
     var this_offset = $(this).offset();
@@ -569,6 +573,52 @@ function moving_board_func(e){
   }
 }
 
+function moving_board_wheel_func(e){
+  "strict";
+  var this_offset = $(this).offset();
+  var offsetx = e.originalEvent.deltaX*10;
+  var offsety = e.originalEvent.deltaY*10;
+  
+  // Block when at limit for every axis separately
+  var parent_offset = $(this).parents('.moving-board-container').first().offset();
+  if(this_offset.top - offsety >= parent_offset.top){
+    offsety = 0;
+  }
+
+  if(this_offset.left - offsetx >= parent_offset.left){
+    offsetx = 0;
+  }
+
+  // Move the board
+  $(this).offset({top: this_offset.top - offsety, left: this_offset.left - offsetx});
+
+  // Move connected elements
+  $('[data-id='+$(this).attr('id')+']').each(function(){
+    var dir = $(this).data('direction');
+    var this_offset = $(this).offset();
+    switch(dir){
+      case 'both': $(this).offset({top: this_offset.top - offsety, left: this_offset.left - offsetx});
+                    break;
+      case 'vertical': $(this).offset({top: this_offset.top - offsety, left: this_offset.left});
+                    break;
+      case 'horizontal': $(this).offset({top: this_offset.top, left: this_offset.left - offsetx});
+                    break;
+    }
+
+  });
+
+  this_offset = $(this).offset();
+  moving_offset.x = this_offset.left;
+  moving_offset.y = this_offset.top;
+
+  // if(e.originalEvent.deltaX != 0){
+  //   $(this).offset({left: e.originalEvent.deltaX, top: offset.top})
+  // }
+  // if(e.originalEvent.deltaY != 0){
+  //   $(this).offset({left: offset.left, top: e.originalEvent.deltaY})
+  // }
+}
+
 function moving_board_md_func(e){
   "strict";
 
@@ -584,8 +634,25 @@ function moving_board_mu_func(e){
 
   // Deactivate moving_board and flush mouse position
   moving_board = false;
+  block_column_select = false;
   moving_offset.x = null;
   moving_offset.y = null;
+}
+
+function selectable_column_click_func(){
+  "strict";
+  if(!block_column_select){
+    var idx = this.cellIndex;
+
+    if($(this).hasClass('shaded')){
+      $('.shaded').removeClass('shaded');
+    } else {
+      $('.shaded').removeClass('shaded');
+      $('td').filter(function(i){
+        return this.cellIndex == idx;
+      }).addClass('shaded');
+    }
+  }
 }
 
 function activateJS() {
@@ -663,11 +730,15 @@ function activateJS() {
 
     $('body').on('mousemove','.moving-board',moving_board_func);
 
+    $('body').on('wheel','.moving-board',moving_board_wheel_func);
+
     $('body').on('mousedown','.moving-board',moving_board_md_func);
 
     $('body').on('mouseleave','.moving-board-container',moving_board_mu_func);
 
     $('body').on('mouseup',moving_board_mu_func);
+
+    $('body').on('mouseup','.selectable-column',selectable_column_click_func);
 
 }
 

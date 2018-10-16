@@ -152,7 +152,7 @@ class VehicleCheckSession < ApplicationRecord
     #
     # odl = JSON.parse(res.body)['ProtocolloODL'].to_i
     # self.update(myofficina_reference: res, worksheet: Worksheet.create(code: "EWC*#{res}", vehicle: self.vehicle, vehicle_type: self.vehicle.class.to_s, opening_date: Date.current))
-    @worksheet.update(exit_time: DateTime.now)
+    @worksheet.update(exit_time: DateTime.now, log: "#{@worksheet.log}\n #{self.log}")
     @worksheet.output_orders.each do |oo|
       oo.update(processed: true)
     end
