@@ -77,9 +77,9 @@
                     %span{style: 'opacity: 0;'}
                       = date.strftime("%d/%m")
                 - else
-                  - levs.each do |gl|
-                    %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: 0px; padding-right: 0px; margin: 0px; height: 1.15em;", data: {alt: "#{date.strftime("%d/%m")} #{gl.person.list_name}: #{gl.leave_code.description} #{gl.complete_duration_label}" }}
-                      %span{style: 'opacity: 0; position: absolute'}
-                        = date.strftime("%d/%m")
-                      %hr.spacer{style: "border: 3px solid #{gl.color}; margin: 0px;"}
+                  - label = levs.map{ |gl| "#{gl.leave_code.description} #{gl.complete_duration_label}" }.join('<br />')
+                  %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: 0px; padding-right: 0px; margin: 0px; height: 1.15em;", data: {alt: "#{date.strftime("%d/%m")} #{k}: #{label}", alt_alignment: 'right' }}
+                    %span{style: 'opacity: 0; position: absolute'}
+                      = date.strftime("%d/%m")
+                    %hr.spacer{style: "border: 3px solid #{levs.last.color}; margin: 0px;"}
                 - date += 1.days

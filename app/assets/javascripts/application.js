@@ -467,8 +467,18 @@ function toggle_click_func() {
 
 function data_alt_mouseenter_func(e){
   "use strict";
+
+  // Remove all labels
   $('.cst-alt').remove();
-  var el = $('<div class="cst-alt" style="position: absolute; background-color: #ffc; white-space: nowrap; top: -1.7em; left 2em; z-index: 4500; border: 1px solid black; padding: .2em;">'+$(this).data('alt')+'</div>');
+
+  // If alignment is specified set it
+  var  align = '';
+  if($(this).data('altAlignment') != undefined){
+    align = 'text-align: '+$(this).data('altAlignment')+';';
+  }
+
+  // Create, append and adjust the label
+  var el = $('<div class="cst-alt" style="'+align+'position: absolute; background-color: #ffc; white-space: nowrap; top: -1.7em; left 2em; z-index: 5500; border: 1px solid black; padding: .2em;">'+$(this).data('alt')+'</div>');
   $(this).append(el);
   el.offset({top: e.pageY - el.height() - 10, left: e.pageX + 10})
 }
@@ -578,7 +588,7 @@ function moving_board_wheel_func(e){
   var this_offset = $(this).offset();
   var offsetx = e.originalEvent.deltaX*10;
   var offsety = e.originalEvent.deltaY*10;
-  
+
   // Block when at limit for every axis separately
   var parent_offset = $(this).parents('.moving-board-container').first().offset();
   if(this_offset.top - offsety >= parent_offset.top){
