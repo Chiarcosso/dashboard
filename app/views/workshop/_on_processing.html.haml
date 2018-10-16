@@ -1,28 +1,43 @@
-.scrollable-panel#on_processing{ style: 'margin-top: 2em; height: 100%;'}
-  - Worksheet.on_processing.each do |ws|
-    .row.colored.xbox{ data: { data: {protocol: ws.number, area: 'on_processing'}.to_json, route: worksheet_processing_xbox_path, xbox: "#pbox-#{ws.id}" }}
-      .col-sm-1
-        =button_to 'Apri', open_worksheet_path(ws.number), remote: true, class: 'no-ajax-link'
-      .col-sm-1
-        %b= ws.number
-      .col-sm-1
-        - op = ws.ew_operator
-        = op['Descrizione'] unless op.nil?
-      .col-sm-1
-        - v = ws.vehicle
-        %b= v.plate#, vehicles_path(search: ws.vehicle.plate), class: 'no-ajax-link'
-      .col-sm-2
+#on_processing{ style: 'margin-top: 2em; height: 100%;'}
+  .row
+    .col-sm-1
+    .col-sm-1
+      %b='Nr. ODL'
+    .col-sm-1
+      %b='Manutentore'
+    .col-sm-1
+      %b='Targa'
+    .col-sm-2
+      %b='Informazioni'
+    .col-sm-1
+      %b='Data entrata'
+    .col-sm-4
+      %b='Note'
+  .scrollable-panel
+    - Worksheet.on_processing.each do |ws|
+      .row.colored.xbox{ data: { data: {protocol: ws.number, area: 'on_processing'}.to_json, route: worksheet_processing_xbox_path, xbox: "#pbox-#{ws.id}" }}
+        .col-sm-1
+          =button_to 'Apri', open_worksheet_path(ws.number), remote: true, class: 'no-ajax-link'
+        .col-sm-1
+          %b= ws.number
+        .col-sm-1
+          - op = ws.ew_operator
+          = op['Descrizione'] unless op.nil?
+        .col-sm-1
+          - v = ws.vehicle
+          %b= v.plate#, vehicles_path(search: ws.vehicle.plate), class: 'no-ajax-link'
+        .col-sm-2
 
-        =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(v.id), name: "infobox_vehicle_checks_#{v.id}" }
-        =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(v.id), name: "infobox_vehicle_#{v.id}" }
-        =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(v.id), name: "infobox_vehicle_workshop_#{v.id}" }
-      .col-sm-2
-        ="#{I18n.l ws.opening_date}" unless ws.opening_date.nil?
-      .col-sm-3
-        %b=ws.notes
-    .row
-      .col-sm-12
-        .sbox{id: "pbox-#{ws.id}", style: "display: none;"}
+          =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(v.id), name: "infobox_vehicle_checks_#{v.id}" }
+          =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(v.id), name: "infobox_vehicle_#{v.id}" }
+          =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(v.id), name: "infobox_vehicle_workshop_#{v.id}" }
+        .col-sm-1
+          ="#{I18n.l ws.opening_date}" unless ws.opening_date.nil?
+        .col-sm-4
+          %b=ws.notes
+      .row
+        .col-sm-12
+          .sbox{id: "pbox-#{ws.id}", style: "display: none;"}
 
 :javascript
 

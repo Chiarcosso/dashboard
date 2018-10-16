@@ -9,9 +9,11 @@ class EurowinController < ApplicationController
     r.first
   end
 
-  def self.get_open_notifications(search)
+  def self.get_open_notifications(search,unprinted = false)
 
     plate_id = VehicleInformationType.find_by(name: 'Targa').id
+    printed = "and FlagStampato not like 'true'" if unprinted
+
     q = <<-QUERY
       select * from mssql_references
       where (local_object_type = 'Vehicle' or local_object_type = 'ExternalVehicle')
@@ -31,7 +33,7 @@ class EurowinController < ApplicationController
       r = ewc.query("select *, "\
       "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
       "from autosegnalazioni where codiceAutomezzo in (#{mrs.map{|mr| mr.remote_object_id}.join(',')}) "\
-      "and (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';")
+      "#{printed} and (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';")
       ewc.close
       r
     end

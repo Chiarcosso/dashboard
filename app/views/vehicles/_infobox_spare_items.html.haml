@@ -1,5 +1,5 @@
 
-%h3="#{@vehicle.model.complete_name} - #{@vehicle.plate}"
+%h3="#{@vehicle.model.nil? ? 'N/D' : @vehicle.model.complete_name}  (#{@vehicle.registration_model}) - #{@vehicle.plate}"
 %b= "#{@vehicle.vehicle_type.name}, #{@vehicle.vehicle_typology.name}"
 %br
 %b="Ricambi utilizzati: "

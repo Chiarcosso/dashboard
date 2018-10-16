@@ -16,6 +16,14 @@ class ExternalVehicle < ApplicationRecord
     self.owner
   end
 
+  def registration_model
+    'N/A'
+  end
+
+  def model
+    'N/A'
+  end
+
   def last_driver
 
     msr = self.mssql_references
