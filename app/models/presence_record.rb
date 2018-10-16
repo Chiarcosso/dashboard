@@ -213,7 +213,8 @@ class PresenceRecord < ApplicationRecord
 
           break_time = PresenceRecord.round_interval(next_pts.time - pts.time,:+)
           br = working_schedule.nil? ? break_time : working_schedule.break * 60
-          ending_leaves = GrantedLeave.where(date: date, person: person).where("('#{(pts.time+br).strftime("%Y-%m-%d %H:%M:%S")}' between granted_leaves.from and granted_leaves.to) and granted_leaves.leave_code_id != #{delay_leave.id}")
+          ending_leaves = GrantedLeave.where(date: date, person: person).where("('#{(pts.time+br+PresenceController.actual_offset(pts.time).hours).strftime("%Y-%m-%d %H:%M:%S")}' between granted_leaves.from and granted_leaves.to) and granted_leaves.leave_code_id != #{delay_leave.id}")
+          
           if ending_leaves.count > 0
             calculated_end = ending_leaves.first.to
           else
