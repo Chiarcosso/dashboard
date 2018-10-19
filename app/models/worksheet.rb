@@ -452,6 +452,7 @@ class Worksheet < ApplicationRecord
   def write_sheet
     pdf = self.sheet
     unless pdf.nil?
+      Dir.mkdir("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}") unless Dir.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}")
       File.open("/mnt/documents/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
     end
   end
