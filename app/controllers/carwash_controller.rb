@@ -183,7 +183,7 @@ class CarwashController < ApplicationController
   end
 
   def set_station
-    @station = 'carwash'
+    @station = params['station'].nil? ? 'carwash' : params['station']
   end
 
   def start_session_params

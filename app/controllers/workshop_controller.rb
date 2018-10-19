@@ -635,7 +635,7 @@ class WorkshopController < ApplicationController
         end
         pdf = @worksheet.sheet
         unless pdf.nil?
-          File.open("/mnt/documents/ODL/#{self.vehicle.plate}/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
+          File.open("/mnt/documents/ODL/#{@worksheet.vehicle.plate}/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
 
           WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
         end
@@ -687,7 +687,7 @@ class WorkshopController < ApplicationController
   end
 
   def set_station
-    @station = 'workshop'
+    @station = params['station'].nil? ? 'workshop' : params['station']
   end
 
 end
