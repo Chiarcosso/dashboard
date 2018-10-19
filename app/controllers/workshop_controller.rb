@@ -635,8 +635,8 @@ class WorkshopController < ApplicationController
         end
         pdf = @worksheet.sheet
         unless pdf.nil?
-          File.open("/mnt/documents/ODL/#{@worksheet.vehicle.plate}/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
-
+          # File.open("/mnt/documents/ODL/#{@worksheet.vehicle.plate}/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
+          @worksheet.write_sheet
           WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
         end
         WorkshopMailer.send_to_logistics(@worksheet).deliver_now
