@@ -57,6 +57,19 @@ class Vehicle < ApplicationRecord
 
   self.per_page = 30
 
+  def all_worksheets
+    odl = EurowinController::get_worksheets_complete(self)
+    wss = Worksheet.where("code in (#{odl.map{ |o| "'EWC*#{o['Protocollo']}'"}.join(',')})")
+    res = Array.new
+    odl.each do |o|
+      ws = wss.select{ |w| w.code == "EWC*#{o['Protocollo']}"}.first
+      ws = Worksheet.find_or_create_by_code(o['Protocollo']) if ws.nil?
+      byebug if ws.nil?
+      res << {odl: o, ws: ws}
+    end
+    res
+  end
+
   def type
     if self.vehicle_type.nil?
       ''
@@ -93,7 +106,7 @@ class Vehicle < ApplicationRecord
     request.url = "#{ENV['RAILS_CVS_URL']}DataAPI/VehicleList/json?#{ENV['RAILS_CVS_AUTH_PARAMS']}"
     request.headers['Content-Type'] = 'application/json; charset=utf-8'
     res = HTTPI.post(request)
-    
+
     JSON.parse(res.body)['data']['Vehicles']['Vehicle'].each do |v|
       r[v['VehiclePlateNumber'].tr(' -.','')] = v['Odometer']
     end
@@ -308,7 +321,9 @@ class Vehicle < ApplicationRecord
   end
 
   def actual_property
-    VehicleProperty.where(vehicle: self).order(date_since: :desc).first
+    ap = VehicleProperty.where(vehicle: self).order(date_since: :desc).first
+    ap = VehicleProperty.create(vehicle: self, owner: self.property, date_since: self.registration_date) if ap.nil?
+    ap
   end
 
   def owners_history

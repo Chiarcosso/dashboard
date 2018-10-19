@@ -76,6 +76,22 @@ class EurowinController < ApplicationController
     end
   end
 
+  def self.get_worksheets_complete(vehicle)
+    ewc = get_ew_client
+    vehicles = vehicle.mssql_references.map { |v| "'#{v.remote_object_id}'" }
+    op = ewc.query(
+    <<-QUERY
+      select autoodl.*,
+      (select RagioneSociale from anagrafe where anagrafe.codice = autoodl.CodiceAnagrafico) as NomeOfficina
+      from autoodl
+      where autoodl.codiceAutomezzo in (#{vehicles.join(',')})
+      order by DataEntrataVeicolo desc
+    QUERY
+    )
+    ewc.close
+    op
+  end
+
   def self.get_operators(search)
     ewc = get_ew_client('common')
     op = ewc.query("select * from operatori where Descrizione like #{ActiveRecord::Base::sanitize("%#{search}%")};")

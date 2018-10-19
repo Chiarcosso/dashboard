@@ -263,7 +263,8 @@ class Worksheet < ApplicationRecord
       ewc = EurowinController::get_ew_client
       res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
         "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico, "\
-        "(select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
+        "(select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as TipoDanno, "\
+        "(select RagioneSociale from anagrafe where codice = autoodl.CodiceAnagrafico) as NomeOfficina "\
         "from autoodl "\
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
         "where Protocollo = #{protocol} limit 1")
@@ -273,11 +274,13 @@ class Worksheet < ApplicationRecord
     if res.count > 0
       ws = Worksheet.upsync_ws(res.first)
     end
+        byebug if ws.nil?
     ws
   end
 
   def self.upsync_ws(odl)
     ws = Worksheet.find_by(code: "EWC*#{odl['Protocollo']}")
+
     case odl['Tipo']
     when 'A'
         table = 'Altri mezzi'
@@ -303,23 +306,38 @@ class Worksheet < ApplicationRecord
         station = odl['CodiceAnagrafico'].to_s
       end
 
+      if odl['FatturaCodiceCliente'].nil? || odl['FatturaCodiceCliente'] == ''
+        customer = nil
+      else
+        customer = Company.find_or_create_by_reference('Clienti',odl['FatturaCodiceCliente'])
+      end
       if ws.nil?
         if odl['DataIntervento'].nil?
           closingDate = Date.today
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : nil
         end
-        ws = Worksheet.create(code: "EWC*#{odl['Protocollo']}", vehicle: vehicle, creation_date: odl['DataIntervento'], exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']), opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']), notes: "#{odl['TipoDanno']} - #{odl['Note']}", suspended: odl['FlagProgrammazioneSospesa'].to_s.upcase == 'TRUE' ? true : false, station: station, closingDate: odl['DataUscitaVeicolo'], closed: odl['FlagSchedaChiusa'].to_s.upcase == 'TRUE' ? true : false)
+        ws = Worksheet.create({
+          code: "EWC*#{odl['Protocollo']}",
+          vehicle: vehicle,
+          creation_date: odl['DataIntervento'],
+          exit_time: (odl['DataUscitaVeicolo'].nil?? nil : odl['DataUscitaVeicolo']),
+          opening_date: (odl['DataEntrataVeicolo'].nil?? nil : odl['DataEntrataVeicolo']),
+          notes: "#{odl['TipoDanno']} - #{odl['Note']}",
+          suspended: odl['FlagProgrammazioneSospesa'].to_s.upcase == 'TRUE' ? true : false,
+          station: station,
+          closingDate: odl['DataUscitaVeicolo'],
+          closed: odl['FlagSchedaChiusa'].to_s.upcase == 'TRUE' ? true : false,
+          invoicing: odl['FlagDaFatturare'].to_s.upcase == 'TRUE' ? true : false,
+          customer: customer,
+          workshop_label: odl['NomeOfficina'].nil?? nil : odl['NomeOfficina']
+          })
+
       else
         if odl['DataIntervento'].nil?
           closingDate = Date.today
         else
           closingDate = odl['DataIntervento'] < (Date.today - 1.year) ? Date.today : ws.closingDate
-        end
-        if odl['FatturaCodiceCliente'].nil? || odl['FatturaCodiceCliente'] == ''
-          customer = nil
-        else
-          customer = Company.find_or_create_by_reference('Clienti',odl['FatturaCodiceCliente'])
         end
         ws.update({code: "EWC*#{odl['Protocollo']}",
                 vehicle: vehicle,
@@ -334,6 +352,9 @@ class Worksheet < ApplicationRecord
                 invoicing: odl['FlagDaFatturare'].to_s.upcase == 'TRUE' ? true : false,
                 customer: customer
               })
+        unless odl['NomeOfficina'].nil?
+          ws.update(workshop_label: odl['NomeOfficina'])
+        end
       end
       ws
     rescue Exception => e
@@ -414,21 +435,24 @@ class Worksheet < ApplicationRecord
 
   def self.move_pdf
     Worksheet.all.each do |ws|
-      Dir.mkdir("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}") unless Dir.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}")
-      pdf = self.get_pdf
-       unless pdf.nil?
-        f = File.open("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf",'w')
-        f.write(pdf)
-        f.close
-      end
+      ws.move_pdf
+    end
+  end
 
+  def move_pdf
+    Dir.mkdir("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}") unless Dir.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}")
+    pdf = self.get_pdf
+    unless pdf.nil?
+      f = File.open("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf",'w')
+      f.write(pdf)
+      f.close
     end
   end
 
   def write_sheet
     pdf = self.sheet
     unless pdf.nil?
-      File.open("/mnt/documents/ODL/ODL_#{self.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
+      File.open("/mnt/documents/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
     end
   end
 

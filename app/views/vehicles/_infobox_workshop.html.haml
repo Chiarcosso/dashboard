@@ -21,17 +21,19 @@
   .col-sm-1
     %b= "PDF"
 .scrollable-panel{style: 'height: 45vh; width: 80vw;'}
-  - @vehicle.worksheets.order(opening_date: :desc).each_with_index do |ws,idx|
+  - @vehicle.all_worksheets.each do |ws|
     .row{ style: 'background-color: #aaa'}
       .col-sm-1
-        %b= "#{ws.number}"
+        %b= "#{ws[:odl]['Protocollo']}"
       .col-sm-2
-        %b= "#{ws.opening_date.strftime('%d/%m/%Y')}" unless ws.opening_date.nil?
-      .col-sm-8
-        %b="#{ws.notes}"
+        %b= "#{ws[:odl]['DataEntrataVeicolo']}"
+      .col-sm-6
+        %b="#{ws[:odl]['Note']}"
+      .col-sm-2
+        = ws[:odl]['NomeOfficina']
       .col-sm-1
-        = button_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader btn-small'
-    - ws.notifications.each do |n|
+        = button_to 'PDF', worksheet_get_pdf_path(ws[:ws].id,format: :pdf), class: 'no-loader btn-small'
+    -# - ws.notifications.each do |n|
       .row.colored
         .col-sm-2
           %b=n['TipoDanno']

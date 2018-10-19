@@ -24,6 +24,10 @@ class ExternalVehicle < ApplicationRecord
     'N/A'
   end
 
+  def owners_history
+    []
+  end
+
   def last_driver
 
     msr = self.mssql_references

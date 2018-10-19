@@ -125,7 +125,7 @@ module AdminHelper
           if update
             v = Vehicle.create(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code])
           else
-            v = Vehicle.new
+            v = Vehicle.new(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code])
             v.id = 0
           end
 

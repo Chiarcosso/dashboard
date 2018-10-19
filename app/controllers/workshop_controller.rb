@@ -407,7 +407,8 @@ class WorkshopController < ApplicationController
           'CodiceTarga': vehicle_refs['Targa'],
           'Chilometraggio': vehicle_refs['Km'].to_s,
           'TipoDanno': params.require('damage_type').to_s,
-          'CodiceOfficina': EurowinController::get_workshop(:workshop)
+          'CodiceOfficina': EurowinController::get_workshop(:workshop),
+          'FlagStampato': 'false'
         })
 
       else
@@ -436,7 +437,8 @@ class WorkshopController < ApplicationController
           'CodiceTarga': vehicle_refs['Targa'],
           'Chilometraggio': vehicle_refs['Km'].to_s,
           'TipoDanno': params.require('damage_type').to_s,
-          'CodiceOfficina': EurowinController::get_workshop(:workshop)
+          'CodiceOfficina': EurowinController::get_workshop(:workshop),
+          'FlagStampato': 'false'
         })
       end
 
@@ -633,7 +635,7 @@ class WorkshopController < ApplicationController
         end
         pdf = @worksheet.sheet
         unless pdf.nil?
-          File.open("/mnt/documents/ODL/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
+          File.open("/mnt/documents/ODL/#{self.vehicle.plate}/ODL_#{@worksheet.number}.pdf",'w').write(pdf.render.force_encoding('utf-8'))
 
           WorkshopMailer.send_worksheet(@worksheet,pdf).deliver_now
         end
