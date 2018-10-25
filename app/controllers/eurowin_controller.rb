@@ -192,6 +192,9 @@ class EurowinController < ApplicationController
 
   def self.last_maintainance(vehicle)
     ewc = get_ew_client
+    if vehicle.mssql_references.empty?
+      vehicle.update_references
+    end
     query = "select * from autoodl "\
     "where codiceautomezzo in (#{vehicle.mssql_references.map{|mr| mr.remote_object_id}.join(',')}) "\
     "and (CodiceTipoDanno = '#{get_tipo_danno('MANUTENZIONE')}' or CodiceTipoDanno = '#{get_tipo_danno('COLLAUDO')}') "\

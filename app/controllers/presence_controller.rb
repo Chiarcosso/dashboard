@@ -29,7 +29,7 @@ class PresenceController < ApplicationController
       driver_role = CompanyRelation.find_by(name: 'Autista')
       mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
       roaming_mechanic_role = CompanyRelation.find_by(name: 'Meccanico trasfertista')
-      chief_mechanic_role = CompanyRelation.find_by(name: 'Capo officina')
+      chief_mechanic_role = CompanyRelation.find_by(name: 'Capo Officina')
 
       leaves = GrantedLeave.absence.in_range(@from,@to)
       people = Person.active_people(@from).order(surname: :asc)

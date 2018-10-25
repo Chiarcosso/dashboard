@@ -452,6 +452,7 @@ class MssqlReference < ApplicationRecord
   def self.query(query,db = ENV['RAILS_MSSQL_DB'])
     c = TinyTds::Client.new username: ENV['RAILS_MSSQL_USER'], password: ENV['RAILS_MSSQL_PASS'], host: ENV['RAILS_MSSQL_HOST'], port: ENV['RAILS_MSSQL_PORT'], database: db
 
+    query[:table] = query[:table].tr('[]','')
     q = "select * from [#{query[:table].to_s.gsub("'","''")}]"
 
     #check conditions

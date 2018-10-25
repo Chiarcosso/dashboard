@@ -405,7 +405,7 @@ class Worksheet < ApplicationRecord
   end
 
   def get_pdf_path
-    unless File.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/ODL_#{self.number}.pdf")
+    unless File.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf")
       # byebug
       # if self.pdf_path.nil? || self.pdf_path == ''
         path = nil
@@ -421,16 +421,17 @@ class Worksheet < ApplicationRecord
           end
         end
         # self.update(pdf_path: path) unless path.nil?
-        `cp #{path.split(' ').join('\ ')} #{ENV['RAILS_DOCS_PATH']}/ODL/ODL_#{self.number}.pdf`
+        Dir.mkdir("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}") unless Dir.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}")
+        `cp #{path.split(' ').join('\ ')} #{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf`
 
       end
     end
     # self.pdf_path
-    return "#{ENV['RAILS_DOCS_PATH']}/ODL/ODL_#{self.number}.pdf"
+    return "#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf"
   end
 
   def get_pdf
-    File.open(self.get_pdf_path,'r')
+    File.open(self.get_pdf_path,'r') rescue self.write_sheet
   end
 
   def self.move_pdf
@@ -440,9 +441,11 @@ class Worksheet < ApplicationRecord
   end
 
   def move_pdf
-    Dir.mkdir("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}") unless Dir.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}")
+
     pdf = self.get_pdf
-    unless pdf.nil?
+
+    if pdf.class == File
+      Dir.mkdir("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}") unless Dir.exists?("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}")
       f = File.open("#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf",'w')
       f.write(pdf)
       f.close
@@ -491,7 +494,7 @@ class Worksheet < ApplicationRecord
         self.update(mileage: vehicle.mileage.to_i)
       end
       if !self.damage_type.nil? && (self.damage_type['Descrizione'] == 'MANUTENZIONE' || self.damage_type['Descrizione'] == 'COLLAUDO')
-        last_maintainance_date = self.exit_time.strftime('%d/%m/%Y')
+        last_maintainance_date = self.exit_time.nil? ? nil : self.exit_time.strftime('%d/%m/%Y')
       else
         lm = vehicle.last_maintainance
         unless lm.nil?
@@ -680,7 +683,7 @@ class Worksheet < ApplicationRecord
       end
       pdf
     rescue Exception => e
-      @error = "Worksheet.rb 652\n\n"+e.message+"\n\n\n"+e.backtrace.join("\n\n")
+      @error = "Worksheet.rb 686\n\n"+e.message+"\n\n\n"+e.backtrace.join("\n\n")
       ErrorMailer.error_report(@error,"Creazione PDF - ODL nr. #{self.number}").deliver_now
       return nil
     end

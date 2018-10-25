@@ -10,8 +10,8 @@ class WorkshopMailer < ApplicationMailer
 
     message = "ODL nr. #{ws.number}\n\n"\
     "#{vehicle.plate} - #{vehicle.class == Vehicle ? vehicle.model.complete_name : vehicle.owner.complete_name}\n\n"\
-    "Data entrata: #{ws.opening_date.strftime("%Y/%m/%d")}\n"\
-    "Data uscita: #{ws.exit_time.strftime("%Y/%m/%d")}\n"\
+    "Data entrata: #{ws.opening_date.nil? ? 'N/D' : ws.opening_date.strftime("%Y/%m/%d")}\n"\
+    "Data uscita: #{ws.exit_time.nil? ? 'N/D' : ws.exit_time.strftime("%Y/%m/%d")}\n"\
     "Durata totale: #{ws.real_duration_label}"
 
     attachments["odl_nr_#{ws.number}.pdf"] = {:mime_type => 'application/pdf', :content => pdf.render }

@@ -124,7 +124,7 @@
     -# = form_tag(save_worksheet_path(@worksheet.id), method: :post, remote: true, class: 'no-cr') do |f|
     -#   = hidden_field_tag :time, @worksheet.real_duration.to_i
     -#   = submit_tag 'Chiudi scheda', class: 'no-cr loading_screen'
-    %button{ class: 'btn_small stop-worksheet loading_screen', id: "pause-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :pause } }
+    %button{ class: 'btn_small stop-worksheet loading_screen', id: "pause-worksheet", data: { route: save_worksheet_path(@worksheet.number), station: @station, action: :pause } }
       = 'Pausa scheda'
   .col-sm-2
     #timer{'data-time': @worksheet.real_duration.to_i}
@@ -135,7 +135,7 @@
     -#   = submit_tag 'Chiudi scheda', class: 'no-cr loading_screen'
     - if current_user.has_role?('amministratore officina') || current_user.has_role?('admin')
       -# %button{ class: 'btn_small stop-worksheet', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop } }
-      %button{ class: 'btn_small stop-worksheet create_popup no-loader', id: "stop-worksheet", data: { popup_id: 'close_worksheet', html: (render partial: 'workshop/close_worksheet_popup', locals: {protocol: @worksheet.number}) } }
+      %button{ class: 'btn_small stop-worksheet create_popup no-loader', id: "stop-worksheet", data: { popup_id: 'close_worksheet', html: (render partial: 'workshop/close_worksheet_popup', locals: {protocol: @worksheet.number, station: @station}) } }
         = 'Chiudi scheda'
   .col-sm-3
     #clock{'data-clock': DateTime.now.hour*3600+DateTime.now.minute*60+DateTime.now.second}
@@ -204,6 +204,7 @@
     var route = $(this).data('route');
     var operation_times = [];
     var action = $(this).data('action');
+    var station = $(this).data('station');
     $.each($('.timer'),function(){
       var id = /timer-(\d*)/.exec($(this).attr('id'))[1];
       if( id == active_notification){
@@ -212,7 +213,7 @@
         operation_times.push({id: id, time: $(this).data('time')});
       }
     });
-    var data = { worksheet_duration: tm, operation_times: JSON.stringify(operation_times), perform: action };
+    var data = { worksheet_duration: tm, operation_times: JSON.stringify(operation_times), perform: action, station: station };
     if($(this).attr('id') == 'pause-worksheet'){
       $.ajax({
         url: route,

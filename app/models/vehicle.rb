@@ -70,6 +70,23 @@ class Vehicle < ApplicationRecord
     res
   end
 
+  def update_references
+    MssqlReference.get_client.execute(
+    <<-QUERY
+      select 'Veicoli' as table, idveicolo as id, targa as plate from Veicoli
+      union
+      select 'Rimorchi1' as table, idrimorchio as id, targa as plate from Rimorchi1
+      union
+      select 'Altri mezzi' as table as id, cod, targa as plate from [Altri mezzi]
+    QUERY
+    ).each do |v|
+      if v['Targa'].tr(' .*-').upcase == vehicle.plate
+        MssqlRefderence.create(local_object: vehicle, remote_object_table: v['table'], remote_object_id: v['id']) if MssqlReference.find_by(local_object: vehicle, remote_object_table: v['table'], remote_object_id: v['id']).nil?
+      end
+    end
+
+  end
+
   def type
     if self.vehicle_type.nil?
       ''

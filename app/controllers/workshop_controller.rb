@@ -644,10 +644,11 @@ class WorkshopController < ApplicationController
         # @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: true)
       end
 
-
       respond_to do |format|
         if params[:area] == 'on_processing'
           format.js { render partial: 'workshop/worksheet_op_js' }
+        elsif @station.to_s == 'carwash'
+          format.js { render 'carwash/checks_index_js' }
         else
           format.js { render partial: 'workshop/close_worksheet_js' }
         end

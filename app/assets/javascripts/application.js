@@ -665,6 +665,10 @@ function selectable_column_click_func(){
   }
 }
 
+function exit_page_click_func(){
+  window.onbeforeunload = null;
+}
+
 function activateJS() {
     "use strict";
 
@@ -749,6 +753,8 @@ function activateJS() {
     $('body').on('mouseup',moving_board_mu_func);
 
     $('body').on('mouseup','.selectable-column',selectable_column_click_func);
+
+    $('body').on('click', '.exit_page', exit_page_click_func);
 
 }
 
