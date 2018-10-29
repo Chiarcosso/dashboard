@@ -341,6 +341,32 @@ class WorkshopController < ApplicationController
 
   def add_sgn_to_worksheet
     byebug
+    sgn = JSON.parse params[:value]
+    odl = @worksheet.ew_worksheet
+    case @station
+    when :workshop then
+      station = 'OFFICINA'
+    when :carwash then
+      station = 'PUNTO CHECK-UP'
+    else
+      station = 'N/D'
+    end
+    # @worksheet.update(log: "#{@worksheet.log}\n Segnalazione '#{params.require('description')}' (#{params.require('protocol')}) spostata da #{current_user.person.list_name} il #{Time.now.strftime("%Y/%m/%d")} alle #{Time.now.strftime("%H:%M:%S")}.")
+    # EurowinController::create_notification({
+    #   'ProtocolloODL': odl['Protocollo'],
+    #   'AnnoODL': odl['Anno'],
+    #   'ProtocolloSGN': sgn['Protocollo'],
+    #   'AnnoSGN': sgn['Anno'],
+    #   'UserInsert': current_user.person.complete_name.upcase,
+    #   'UserPost': station,
+    #   'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
+    #   'CodiceAutomezzo': sgn['CodiceAutomezzo'],
+    #   'CodiceTarga': sgn['Targa'],
+    #   'Chilometraggio': sgn['Km'].to_s,
+    #   'TipoDanno': sgn['TipoDanno'],
+    #   'CodiceOfficina': EurowinController::get_workshop(:workshop),
+    #   'FlagStampato': 'false'
+    # })
     begin
       respond_to do |format|
         if params[:area].nil?

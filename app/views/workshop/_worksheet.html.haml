@@ -143,7 +143,7 @@
       Nuova segnalazione
   .col-sm-3
 
-    -# = select_tag :add_sgn, options_for_select(EurowinController::get_open_notifications_complete(@worksheet.vehicle,@worksheet.number).map{ |sgn| [sgn['Targa']+' - '+sgn['DescrizioneSegnalazione'],sgn['Protocollo']]}), include_blank: 'Altre segnalazioni', class: 'form-control submitting-select ajax_update', id: 'add-sgn-select', data: {target: add_sgn_to_worksheet_path(@worksheet.number), method: :post, data:{station: @station}}
+    -# = select_tag :add_sgn, options_for_select(EurowinController::get_open_notifications_complete(@worksheet.vehicle,@worksheet.number).map{ |sgn| ["#{sgn['SchedaInterventoProtocollo'].nil? ? 'Nuova' : "ODL: #{sgn['SchedaInterventoProtocollo']}"} - #{sgn['DescrizioneSegnalazione']}",sgn.to_json]}), include_blank: 'Altre segnalazioni', class: 'form-control submitting-select ajax_update', id: 'add-sgn-select', data: {target: add_sgn_to_worksheet_path(@worksheet.number), method: :post, station: @station}
 
 :javascript
 
@@ -315,6 +315,7 @@
 
   deactivateLoadingScreen();
 
+  var station = $('input[name=station]').val();
   var tm = parseInt($('#timer').data('time'));
   var ck = parseInt($('#clock').data('clock'));
   clearInterval(timer);
@@ -333,7 +334,7 @@
         $.ajax({
           url: '/worksheet/'+$('input[name=odl]').val()+'/update_operation_time',
           method: 'post',
-          data: {protocol: protocol}
+          data: {protocol: protocol, station: station}
         });
       }
     }

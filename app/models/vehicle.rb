@@ -71,20 +71,21 @@ class Vehicle < ApplicationRecord
   end
 
   def update_references
+    msr = Array.new
     MssqlReference.get_client.execute(
     <<-QUERY
-      select 'Veicoli' as table, idveicolo as id, targa as plate from Veicoli
+      select 'Veicoli' as tab, idveicolo as id, targa as plate from Veicoli
       union
-      select 'Rimorchi1' as table, idrimorchio as id, targa as plate from Rimorchi1
+      select 'Rimorchi1' as tab, idrimorchio as id, targa as plate from Rimorchi1
       union
-      select 'Altri mezzi' as table as id, cod, targa as plate from [Altri mezzi]
+      select 'Altri mezzi' as tab, cod as id, targa as plate from [Altri mezzi]
     QUERY
     ).each do |v|
-      if v['Targa'].tr(' .*-').upcase == vehicle.plate
-        MssqlRefderence.create(local_object: vehicle, remote_object_table: v['table'], remote_object_id: v['id']) if MssqlReference.find_by(local_object: vehicle, remote_object_table: v['table'], remote_object_id: v['id']).nil?
+      if v['plate'].tr(' .*-','').upcase == self.plate
+        msr << MssqlReference.create(local_object: self, remote_object_table: v['tab'], remote_object_id: v['id']) if MssqlReference.find_by(local_object: self, remote_object_table: v['tab'], remote_object_id: v['id']).nil?
       end
     end
-
+    msr
   end
 
   def type
@@ -462,6 +463,7 @@ class Vehicle < ApplicationRecord
   def last_driver
 
     msr = self.mssql_references
+    msr = self.update_references if msr.empty?
     case msr.first.remote_object_table
     when 'Veicoli' then
       f = 'idtarga'
