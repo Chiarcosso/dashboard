@@ -339,6 +339,27 @@ class WorkshopController < ApplicationController
     end
   end
 
+  def add_sgn_to_worksheet
+    byebug
+    begin
+      respond_to do |format|
+        if params[:area].nil?
+          format.js { render partial: 'workshop/worksheet_js' }
+        elsif @station.to_s == 'carwash'
+          format.js { render 'carwash/checks_index_js' }
+        elsif params[:area] == 'on_processing'
+          @notifications = @worksheet.notifications(:all)
+          format.js { render partial: 'workshop/xbox_js' }
+        end
+      end
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
   def deassociate_notification
     begin
 
@@ -445,6 +466,8 @@ class WorkshopController < ApplicationController
       respond_to do |format|
         if params[:area].nil?
           format.js { render partial: 'workshop/worksheet_js' }
+        elsif @station.to_s == 'carwash'
+          format.js { render 'carwash/checks_index_js' }
         elsif params[:area] == 'on_processing'
           @notifications = @worksheet.notifications(:all)
           format.js { render partial: 'workshop/xbox_js' }

@@ -10,7 +10,7 @@
 
 .row
   .col-sm-12
-    .scrollable-panel{style: 'height: 90%;'}
+    .scrollable-panel{style: 'height: 86%;'}
       .panel-group#accordion{style: 'height: 80%;'}
         - @worksheet.notifications.each do |sgn|
           .panel.panel-default
@@ -127,8 +127,8 @@
     %button{ class: 'btn_small stop-worksheet loading_screen', id: "pause-worksheet", data: { route: save_worksheet_path(@worksheet.number), station: @station, action: :pause } }
       = 'Pausa scheda'
   .col-sm-2
-    #timer{'data-time': @worksheet.real_duration.to_i}
-      = "Tempo: #{@worksheet.real_duration_label}"
+    #clock{'data-clock': DateTime.now.hour*3600+DateTime.now.minute*60+DateTime.now.second}
+      = "#{DateTime.now.strftime('%d/%m/%Y %H:%M:%S')}"
   .col-sm-2
     -# = form_tag(save_worksheet_path(@worksheet.id), method: :post, remote: true, class: 'no-cr') do |f|
     -#   = hidden_field_tag :time, @worksheet.real_duration.to_i
@@ -137,13 +137,13 @@
       -# %button{ class: 'btn_small stop-worksheet', id: "stop-worksheet", data: { route: save_worksheet_path(@worksheet.number), action: :stop } }
       %button{ class: 'btn_small stop-worksheet create_popup no-loader', id: "stop-worksheet", data: { popup_id: 'close_worksheet', html: (render partial: 'workshop/close_worksheet_popup', locals: {protocol: @worksheet.number, station: @station}) } }
         = 'Chiudi scheda'
-  .col-sm-3
-    #clock{'data-clock': DateTime.now.hour*3600+DateTime.now.minute*60+DateTime.now.second}
-      = "#{DateTime.now.strftime('%d/%m/%Y %H:%M:%S')}"
-  .col-sm-3
+  .col-sm-2
     = hidden_field_tag :odl, @worksheet.number
-    %button{ class: 'create_popup no-loader', data: { popup_id: 'new_notification', html: (render partial: 'workshop/notification_popup', locals: {protocol: @worksheet.number}) } }
+    %button{ class: 'create_popup no-loader', data: { popup_id: 'new_notification', html: (render partial: 'workshop/notification_popup', locals: {protocol: @worksheet.number,station: @station}) } }
       Nuova segnalazione
+  .col-sm-3
+
+    -# = select_tag :add_sgn, options_for_select(EurowinController::get_open_notifications_complete(@worksheet.vehicle,@worksheet.number).map{ |sgn| [sgn['Targa']+' - '+sgn['DescrizioneSegnalazione'],sgn['Protocollo']]}), include_blank: 'Altre segnalazioni', class: 'form-control submitting-select ajax_update', id: 'add-sgn-select', data: {target: add_sgn_to_worksheet_path(@worksheet.number), method: :post, data:{station: @station}}
 
 :javascript
 

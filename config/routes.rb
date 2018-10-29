@@ -223,7 +223,7 @@ Rails.application.routes.draw do
 
   get   '/festivities/manage', to: 'presence#manage_festivities', as: :manage_festivities
   get   '/presence/vacation_calendar', to: 'presence#vacation_calendar', as: :vacation_calendar
-  
+
   post   '/presence/add_badge_assignment/', to: 'presence#add_badge_assignment', as: :add_badge_assignment
   post   '/presence/edit_badge_assignment/:id', to: 'presence#edit_badge_assignment', as: :edit_badge_assignment
   delete   '/presence/delete_badge_assignment/:id', to: 'presence#delete_badge_assignment', as: :delete_badge_assignment
@@ -301,6 +301,7 @@ Rails.application.routes.draw do
   post   '/worksheet/:id/create_operation', to: 'workshop#create_operation',as: :create_workshop_operation
   post   '/worksheet/:id/create_notification', to: 'workshop#create_notification',as: :create_workshop_notification
   post   '/worksheet/create_worksheet', to: 'workshop#create_worksheet',as: :create_workshop_worksheet
+  post   '/worksheet/:id/add_sgn_to_worksheet', to: 'workshop#add_sgn_to_worksheet',as: :add_sgn_to_worksheet
   post   '/worksheet/:id/deassociate_notification', to: 'workshop#deassociate_notification',as: :deassociate_workshop_notification
   post   '/worksheet/:id/start_operation', to: 'workshop#start_operation',as: :start_workshop_operation
   post   '/worksheet/:id/pause_operation', to: 'workshop#pause_operation',as: :pause_workshop_operation

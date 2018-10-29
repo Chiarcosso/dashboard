@@ -201,7 +201,7 @@ class PresenceController < ApplicationController
             sensor = Sensor.find_by(number: sensor.to_i)
 
             #record timestamp
-            time = DateTime.strptime(timestamp+' UTC',"%d/%m/%y %H:%M:%S %Z")-2.hours
+            time = DateTime.strptime(timestamp+' UTC',"%d/%m/%y %H:%M:%S %Z")+actual_offset(Date.strptime(timestamp,"%d/%m/%y %H:%M:%S")).hours
             ts = PresenceTimestamp.find_or_create(badge: badge, sensor: sensor, time: time,row: row, file: fname)
             special_logger.info(ts.inspect)
 

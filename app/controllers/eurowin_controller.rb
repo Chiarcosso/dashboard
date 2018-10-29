@@ -9,6 +9,25 @@ class EurowinController < ApplicationController
     r.first
   end
 
+  def self.get_open_notifications_complete(vehicle,except,unprinted = false)
+    mrs = vehicle.mssql_references.map{ |msr| msr.remote_object_id }
+    printed = "and FlagStampato not like 'true'" if unprinted
+    # byebug
+    if mrs.empty?
+      Array.new
+    else
+      ewc = get_ew_client
+      q = "select *, "\
+      "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
+      "from autosegnalazioni where codiceAutomezzo in (#{mrs.join(',')}) "\
+      "#{printed} and FlagChiuso not like 'true' and FlagRiparato not like 'true' "\
+      "and (serialODL is null or serialODL not in (select serial from autoodl where protocollo = #{except}));"
+      r = ewc.query(q)
+      ewc.close
+      r
+    end
+  end
+
   def self.get_open_notifications(search,unprinted = false)
 
     plate_id = VehicleInformationType.find_by(name: 'Targa').id

@@ -274,7 +274,7 @@ class Worksheet < ApplicationRecord
     if res.count > 0
       ws = Worksheet.upsync_ws(res.first)
     end
-        byebug if ws.nil?
+        # byebug if ws.nil?
     ws
   end
 
