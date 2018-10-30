@@ -36,6 +36,9 @@ class WorkshopMailer < ApplicationMailer
     message = <<-MESSAGE
     #{Time.now.strftime("%d/%m/%Y %H:%M:%S")} -- #{sgn['Targa']}
     La segnalazione nr. #{sgn['Protocollo']} è stata spostata dall'ODL nr. #{old_odl['Protocollo']} (#{workshop}) all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}.
+
+    #{sgn['DescrizioneSegnalazione']}
+
     MESSAGE
     mail(body: message, subject: "#{sgn['Targa']} - La segnalazione nr. #{sgn['Protocollo']} è stata spostata dall'ODL nr. #{old_odl['Protocollo']} (#{workshop}) all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}", to: notify_to)
 
