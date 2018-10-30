@@ -29,4 +29,16 @@ class WorkshopMailer < ApplicationMailer
 
   end
 
+  def notify_moving_sgn(sgn,old_odl)
+
+    notify_to = ['officina@chiarcosso.it','ufficioit@chiarcosso.com']
+    workshop = EurowinController::get_workshop_by_code(old_odl['CodiceAnagrafico'])
+    message = <<-MESSAGE
+    #{Time.now.strftime("%d/%m/%Y %H:%M:%S")} -- #{sgn['Targa']}
+    La segnalazione nr. #{sgn['Protocollo']} è stata spostata dall'ODL nr. #{old_odl['Protocollo']} (#{workshop}) all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}.
+    MESSAGE
+    mail(body: message, subject: "#{sgn['Targa']} - La segnalazione nr. #{sgn['Protocollo']} è stata spostata dall'ODL nr. #{old_odl['Protocollo']} (#{workshop}) all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}", to: notify_to)
+
+  end
+
 end

@@ -338,6 +338,13 @@ class EurowinController < ApplicationController
     return workshop.first['codice'] unless workshop.count < 1
   end
 
+  def self.get_workshop_by_code(code)
+    ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
+    workshop = ewc.query("select RagioneSociale from anagrafe where codice = '#{code.gsub("'","''")}'")
+    ewc.close
+    return workshop.first['RagioneSociale'].rstrip.lstrip unless workshop.count < 1
+  end
+
   def self.get_vehicle(vehicle)
     vehicle_refs = { 'CodiceAutomezzo': nil, 'CodiceAutista': nil, 'Targa': nil, 'Km': nil }
     mssql = vehicle.mssql_references.last

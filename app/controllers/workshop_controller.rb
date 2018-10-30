@@ -41,16 +41,22 @@ class WorkshopController < ApplicationController
 
   def reset_worksheet
     begin
-      odl = EurowinController::get_worksheet(@worksheet.number)
-      EurowinController::reset_odl(@worksheet.number)
+
+      num = params['id'].to_i if @worksheet.nil?
+      odl = EurowinController::get_worksheet(num)
+      raise "La scheda nr. #{params['id']} è inesistente." if odl.nil?
+      EurowinController::reset_odl(num)
       # EurowinController::create_worksheet({
       #   'DataEntrataVeicolo': '-1',
       #   'AnnoODL': odl['Anno'].to_s,
       #   'ProtocolloODL': odl['Protocollo'].to_s,
       #   'DataIntervento': odl['DataIntervento']
       #   })
-      @worksheet.update(opening_date: nil, paused: true, last_starting_time: nil, last_stopping_time: nil, real_duration: 0)
-      @worksheet.workshop_operations.each{ |wo| wo.delete}
+      unless @worksheet.nil?
+        @worksheet.update(opening_date: nil, paused: true, last_starting_time: nil, last_stopping_time: nil, real_duration: 0)
+        @worksheet.workshop_operations.each{ |wo| wo.delete}
+      end
+
       respond_to do |format|
         if params[:area] == 'on_processing'
           format.js { render partial: 'workshop/worksheet_op_js' }
@@ -340,33 +346,34 @@ class WorkshopController < ApplicationController
   end
 
   def add_sgn_to_worksheet
-    byebug
     sgn = JSON.parse params[:value]
     odl = @worksheet.ew_worksheet
+    old_odl = EurowinController::get_worksheet(sgn['SchedaInterventoProtocollo'])
     case @station
-    when :workshop then
+    when 'workshop' then
       station = 'OFFICINA'
-    when :carwash then
+    when 'carwash' then
       station = 'PUNTO CHECK-UP'
     else
       station = 'N/D'
     end
-    # @worksheet.update(log: "#{@worksheet.log}\n Segnalazione '#{params.require('description')}' (#{params.require('protocol')}) spostata da #{current_user.person.list_name} il #{Time.now.strftime("%Y/%m/%d")} alle #{Time.now.strftime("%H:%M:%S")}.")
-    # EurowinController::create_notification({
-    #   'ProtocolloODL': odl['Protocollo'],
-    #   'AnnoODL': odl['Anno'],
-    #   'ProtocolloSGN': sgn['Protocollo'],
-    #   'AnnoSGN': sgn['Anno'],
-    #   'UserInsert': current_user.person.complete_name.upcase,
-    #   'UserPost': station,
-    #   'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
-    #   'CodiceAutomezzo': sgn['CodiceAutomezzo'],
-    #   'CodiceTarga': sgn['Targa'],
-    #   'Chilometraggio': sgn['Km'].to_s,
-    #   'TipoDanno': sgn['TipoDanno'],
-    #   'CodiceOfficina': EurowinController::get_workshop(:workshop),
-    #   'FlagStampato': 'false'
-    # })
+    @worksheet.update(log: "#{@worksheet.log}\n Segnalazione '#{sgn['DescrizioneSegnalazione']}' (#{sgn['Protocollo']}) spostata da #{current_user.person.list_name} il #{Time.now.strftime("%Y/%m/%d")} alle #{Time.now.strftime("%H:%M:%S")}.")
+    sgn = EurowinController::create_notification({
+      'Descrizione': sgn['Descrizione'],
+      'ProtocolloODL': odl['Protocollo'].to_s,
+      'AnnoODL': odl['Anno'].to_s,
+      'ProtocolloSGN': sgn['Protocollo'].to_s,
+      'AnnoSGN': sgn['Anno'].to_s,
+      'UserInsert': current_user.person.complete_name.upcase,
+      'UserPost': station,
+      'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
+      'CodiceAutomezzo': sgn['CodiceAutomezzo'],
+      'CodiceTarga': sgn['Targa'],
+      'CodiceOfficina': EurowinController::get_workshop(@station.to_sym),
+      'FlagStampato': 'false'
+    })
+
+    WorkshopMailer.notify_moving_sgn(sgn,old_odl).deliver_now
     begin
       respond_to do |format|
         if params[:area].nil?
