@@ -20,8 +20,14 @@ class WorkshopController < ApplicationController
 
   def index
     unless params[:list].nil?
-      unless params[:list][:search].nil?
-        @search_list = params[:list][:search]
+      unless params[:list][:search_number].nil?
+        @search_number = params[:list][:search_number]
+      end
+      unless params[:list][:search_operator].nil?
+        @search_operator = params[:list][:search_operator]
+      end
+      unless params[:list][:search_plate].nil?
+        @search_plate = params[:list][:search_plate]
       end
     end
 

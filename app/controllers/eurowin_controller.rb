@@ -32,27 +32,48 @@ class EurowinController < ApplicationController
 
     plate_id = VehicleInformationType.find_by(name: 'Targa').id
     printed = "and FlagStampato not like 'true'" if unprinted
+    plates = Array.new
+    wherev = Array.new
+    wherex = Array.new
+    unless search[:odl].nil? || search[:odl].empty?
+      plates = search[:odl].map{ |o| "'#{o[:plate].to_s.gsub("'","''")}'"}
+      wherev << "vehicle_information_type_id = #{plate_id} and information in (#{plates.join(',')})"
+      wherex << "plate in (#{plates.join(',')})"
+    end
+    unless search[:plate].to_s == ''
+      wherev << "information like '%#{search[:plate].to_s.gsub("'","''")}%'"
+      wherex << "plate like '%#{search[:plate].to_s.gsub("'","''")}%'"
+    end
 
-    q = <<-QUERY
-      select * from mssql_references
-      where (local_object_type = 'Vehicle' or local_object_type = 'ExternalVehicle')
-      and local_object_id in (
-        select distinct sq.id from (
-          select vehicle_id as id from vehicle_informations where vehicle_information_type_id = #{plate_id} and information like '%#{search.to_s.gsub("'","''")}%'
-          union
-          select id from external_vehicles where plate like '%#{search.to_s.gsub("'","''")}%'
-        ) sq
-      )
-    QUERY
-    mrs = MssqlReference.find_by_sql(q)
+    if wherev.empty?
+      mrs = Array.new
+    else
+      mrs = Array.new
+      q = <<-QUERY
+        select * from mssql_references
+        where (local_object_type = 'Vehicle' or local_object_type = 'ExternalVehicle')
+        and local_object_id in (
+          select distinct sq.id from (
+            select vehicle_id as id from vehicle_informations where vehicle_information_type_id = #{plate_id} and (#{wherev.join(' or ')})
+
+            union
+            select id from external_vehicles where #{wherex.join(' or ')}
+          ) sq
+        )
+      QUERY
+      mrs = MssqlReference.find_by_sql(q)
+    end
+
     if mrs.empty?
       Array.new
     else
       ewc = get_ew_client
-      r = ewc.query("select *, "\
+      query = "select *, "\
       "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
       "from autosegnalazioni where codiceAutomezzo in (#{mrs.map{|mr| mr.remote_object_id}.join(',')}) "\
-      "#{printed} and (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';")
+      "#{printed} and (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';"
+      
+      r = ewc.query(query)
       ewc.close
       r
     end
@@ -168,15 +189,16 @@ class EurowinController < ApplicationController
 
     unless opts[:search].nil?
 
-      ops = EurowinController::get_operators(opts[:search])
-      if ops.count > 0
-        wops = " or codicemanutentore in (#{ops.map{ |o| "'#{o['Codice']}'" }.join(',')}))"
+      ops = EurowinController::get_operators(opts[:search][:search_operator])
+      if ops.count > 0 && !opts[:search][:search_operator].nil?
+        wops = " and codicemanutentore in (#{ops.map{ |o| "'#{o['Codice']}'" }.join(',')}) "
       else
-        wops = ")"
+        wops = ""
       end
+
       # w += " and (targa like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")} "\
-      # "or protocollo like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")}#{wops}"
-      w += " and (targa like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")}#{wops}"\
+      w += " and convert(protocollo,char) like #{ActiveRecord::Base::sanitize("%#{opts[:search][:number]}%")}"
+      w += " and targa like #{ActiveRecord::Base::sanitize("%#{opts[:search][:plate]}%")}#{wops}"\
     end
     #send query
     q = "select * from autoodl where #{w}#{wstation} order by targa;"
