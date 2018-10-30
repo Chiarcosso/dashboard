@@ -92,7 +92,7 @@
           = hidden_field_tag :person, person.id
           = hidden_field_tag :month, @month-1
           = hidden_field_tag :year, @year
-          = hidden_field_tag :date, day
+          = hidden_field_tag :date, day.strftime('%Y-%m-%d')
           = hidden_field_tag :tab, 'presence_day'
           = time_field_tag :set_total, "#{(calculated_total/3600).to_s.rjust(2,'0')}:#{((calculated_total%3600)/60).to_s.rjust(2,'0')}", class: 'no-infobox-link'
           = submit_tag '>', class: 'no-infobox-link'

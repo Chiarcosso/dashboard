@@ -248,7 +248,7 @@ class PresenceController < ApplicationController
 
   def change_presence_time
     begin
-
+      
       time = Time.strptime("#{params.require(:date)} #{params.require(:set_total)}","%Y-%m-%d %H:%M") - Time.strptime("#{params.require(:date)} 00:00","%Y-%m-%d %H:%M")
       PresenceRecord.where(date: Date.strptime(params.require(:date),"%Y-%m-%d"),person: @person).each { |pr| pr.update(set_day_time: time)}
       respond_to do |format|
