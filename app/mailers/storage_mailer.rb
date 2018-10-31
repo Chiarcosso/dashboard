@@ -2,7 +2,6 @@ class StorageMailer < ApplicationMailer
 
 
   default to: 'magazzino@chiarcosso.it'
-          # bcc: ['ufficioit@chiarcosso.com','fabio.boccacini@chiarcosso.com']
 
   def reserve_alert(article)
     text = "L'articolo #{article.complete_name} è sceso sotto la scorta minima di #{article.minimal_reserve}."

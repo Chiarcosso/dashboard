@@ -22,17 +22,19 @@
     %b= "PDF"
 .scrollable-panel{style: 'height: 45vh; width: 80vw;'}
   - @vehicle.all_worksheets.each do |ws|
-    .row{ style: 'background-color: #aaa'}
+    -# .row{ style: 'background-color: #aaa'}
+    .row.colored.hilight.selectable.xbox{ data: { data: {protocol: ws[:ws].number}.to_json, route: worksheet_notifications_xbox_path, xbox: "#sbox-#{ws[:ws].id}" }}
       .col-sm-1
         %b= "#{ws[:odl]['Protocollo']}"
       .col-sm-2
         %b= "#{ws[:odl]['DataEntrataVeicolo']}"
       .col-sm-6
-        %b="#{ws[:odl]['Note']}"
+        %b="#{ws[:ws].notes} #{ws[:odl]['Note']}"
       .col-sm-2
         = ws[:odl]['NomeOfficina']
       .col-sm-1
         = button_to 'PDF', worksheet_get_pdf_path(ws[:ws].id,format: :pdf), class: 'no-loader btn-small'
+    .sbox{id: "sbox-#{ws[:ws].id}", style: "display: none;"}
     -# - ws.notifications.each do |n|
       .row.colored
         .col-sm-2
