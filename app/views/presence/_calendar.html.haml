@@ -16,7 +16,7 @@
   .col-sm-10.moving-board-connected-container
     .moving-board-connected{data: {id: 'calendar-board', direction: 'horizontal'}, style: 'white-space: nowrap'}
       - date = @from
-      %table{style: 'collapse: collapse;'}
+      %table{style: 'border-collapse: collapse;'}
         %tr
           - while date <= @to
             - case date.strftime('%u')
@@ -33,17 +33,17 @@
 .row
   .col-sm-2.moving-board-connected-container
     .moving-board-connected{data: {id: 'calendar-board', direction: 'vertical'}}
-      %table{style: 'collapse: collapse; white-space: nowrap;'}
+      %table{style: 'border-collapse: collapse; white-space: nowrap;'}
         - @people_leaves.each do |group,types|
-          %tr{style: 'height: 1.15em;'}
-            %td{style: 'border-bottom: 1px solid #ddd'}
+          %tr{style: 'height: 1.30em;'}
+            %td{style: 'border: 1px solid #ddd'}
               %b= group
           - types.each do |k,p|
-            %tr{style: 'height: 1.15em;'}
-              %td{style: 'border-bottom: 1px solid #ddd'}= k
+            %tr{style: 'height: 1.30em;'}
+              %td{style: 'border: 1px solid #ddd'}= k
   .col-sm-10.moving-board-container
     .moving-board#calendar-board{data: {days: ((@to-@from)/3600/24).round, width: 3, zoom: @zoom}}
-      %table{style: 'collapse: collapse;'}
+      %table{style: 'border-collapse: collapse;'}
         - @people_leaves.each do |group,types|
           %tr
             - date = @from
@@ -55,7 +55,7 @@
                   - wdc = 'background-color: #e9e9ee;'
                 - else
                   - wdc = 'background-color: #ddd;'
-              %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: .3em; padding-right: .3em; margin: 0px; height: 1.15em;", data: {alt: "#{group} - #{date.strftime("%d/%m")}"}}
+              %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: .3em; padding-right: .3em; margin: 0px; height: 1.30em;", data: {alt: "#{group} - #{date.strftime("%d/%m")}"}}
                 %span{style: 'opacity: 0;'}
                   = date.strftime("%d/%m")
               - date += 1.days
@@ -73,12 +73,12 @@
                     - wdc = ''
 
                 - if levs.empty?
-                  %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: .3em; padding-right: .3em; margin: 0px; height: 1.15em;", data: {alt: "#{k} - #{date.strftime("%d/%m")}"}}
+                  %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: .3em; padding-right: .3em; margin: 0px; height: 1.30em;", data: {alt: "#{k} - #{date.strftime("%d/%m")}"}}
                     %span{style: 'opacity: 0;'}
                       = date.strftime("%d/%m")
                 - else
                   - label = levs.map{ |gl| "#{gl.leave_code.description} #{gl.complete_duration_label}" }.join('<br />')
-                  %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: 0px; padding-right: 0px; margin: 0px; height: 1.15em;", data: {alt: "#{date.strftime("%d/%m")} #{k}: #{label}", alt_alignment: 'right' }}
+                  %td.selectable-column{style: "#{wdc} border: 1px solid #ddd; border-top: 1px; padding-left: 0px; padding-right: 0px; margin: 0px; height: 1.30em;", data: {alt: "#{date.strftime("%d/%m")} #{k}: #{label}", alt_alignment: 'right' }}
                     %span{style: 'opacity: 0; position: absolute'}
                       = date.strftime("%d/%m")
                     %hr.spacer{style: "border: 3px solid #{levs.last.color}; margin: 0px;"}
