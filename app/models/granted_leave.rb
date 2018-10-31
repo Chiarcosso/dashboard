@@ -5,11 +5,11 @@ class GrantedLeave < ApplicationRecord
 
   scope :absence, -> { where("leave_code_id in (select id from leave_codes where afterhours = 1)")}
   scope :in_range, ->(from,to) { where(<<-WHERE
-    (granted_leaves.from between '#{from.strftime("%Y%m%d")}' and '#{to.strftime("%Y%m%d")}')
+    (date_format(granted_leaves.from,'%Y%m%d') between '#{from.strftime("%Y%m%d")}' and '#{to.strftime("%Y%m%d")}')
     or
-    (granted_leaves.to between '#{from.strftime("%Y%m%d")}' and '#{to.strftime("%Y%m%d")}')
+    (date_format(granted_leaves.to,'%Y%m%d') between '#{from.strftime("%Y%m%d")}' and '#{to.strftime("%Y%m%d")}')
     or
-    (granted_leaves.from <= '#{from.strftime("%Y%m%d")}' and granted_leaves.to >= '#{to.strftime("%Y%m%d")}')
+    (date_format(granted_leaves.from,'%Y%m%d') <= '#{from.strftime("%Y%m%d")}' and date_format(granted_leaves.to,'%Y%m%d') >= '#{to.strftime("%Y%m%d")}')
     WHERE
     )}
 
