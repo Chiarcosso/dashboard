@@ -47,10 +47,10 @@ class WorkshopController < ApplicationController
 
   def reset_worksheet
     begin
-
-      num = params['id'].to_i if @worksheet.nil?
+      
+      num = params['id'].to_i #if @worksheet.nil?
       odl = EurowinController::get_worksheet(num)
-      raise "La scheda nr. #{params['id']} è inesistente." if odl.nil?
+      #raise "La scheda nr. #{params['id']} è inesistente." if odl.nil?
       EurowinController::reset_odl(num)
       # EurowinController::create_worksheet({
       #   'DataEntrataVeicolo': '-1',

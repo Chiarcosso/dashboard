@@ -273,6 +273,8 @@ class Worksheet < ApplicationRecord
     # end
     if res.count > 0
       ws = Worksheet.upsync_ws(res.first)
+    else
+      ws = Worksheet.find_by(code: "EWC*#{protocol}")
     end
         # byebug if ws.nil?
     ws
