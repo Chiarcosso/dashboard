@@ -22,10 +22,25 @@ class WorkshopMailer < ApplicationMailer
   def send_to_logistics(ws)
     notify_to = ['mezzipronti@chiarcosso.com']
     vehicle = ws.vehicle
+    case ws.station
+    when 'workshop' then
+      station = "uscito dall\'officina"
+    when 'carwash' then
+      station = 'uscito dal punto check-up'
+    else
+      station = 'pronto (officina non specificata)'
+    end
+    
+    message = <<-MESSAGE
+    #{Time.now.strftime("%d/%m/%Y %H:%M:%S")} - Il mezzo targato #{vehicle.plate} è #{station}.
 
-    message = "#{Time.now.strftime("%d/%m/%Y %H:%M:%S")} - Il mezzo targato #{vehicle.plate} è uscito dall'officina.\n\n"\
-          "#{vehicle.complete_name}"
-    mail(body: message, subject: "Il mezzo targato #{ws.vehicle.plate} è uscito dall'officina.", to: notify_to)
+    #{vehicle.complete_name}
+
+    ODL nr. #{ws.number}.
+
+    MESSAGE
+
+    mail(body: message, subject: "Il mezzo targato #{ws.vehicle.plate} è #{station}.", to: notify_to)
 
   end
 
