@@ -427,6 +427,10 @@ class Worksheet < ApplicationRecord
         `cp #{path.split(' ').join('\ ')} #{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf`
 
       end
+    else
+      if (/PDF document/ =~ `file #{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf`).nil?
+        self.write_sheet
+      end
     end
     # self.pdf_path
     return "#{ENV['RAILS_DOCS_PATH']}/ODL/#{self.vehicle.plate}/ODL_#{self.number}.pdf"
