@@ -23,7 +23,8 @@ class CarwashController < ApplicationController
         end
         odl = VehicleCheckSession.create_worksheet(current_user,v)
 
-        @check_session = VehicleCheckSession.create(date: Date.today,external_vehicle: v, operator: current_user, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: odl, worksheet: Worksheet.create(code: "EWC*#{res}", vehicle: v, vehicle_type: v.class.to_s, opening_date: Date.current, station: @station.to_s), station: @station.to_s)
+        @worksheet = Worksheet.create(code: "EWC*#{res}", vehicle: v, vehicle_type: v.class.to_s, opening_date: Date.current, station: @station.to_s)
+        @check_session = VehicleCheckSession.create(date: Date.today,external_vehicle: v, operator: current_user, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: odl, worksheet: @worksheet, station: @station.to_s)
       elsif p[:model_name] == 'Vehicle'
         v = Vehicle.find(p[:vehicle_id])
         vec = v.vehicle_checks(p[:station])
@@ -31,8 +32,9 @@ class CarwashController < ApplicationController
           raise "Non ci sono controlli da fare per questo mezzo (targa: #{v.plate})."
         end
         odl = VehicleCheckSession.create_worksheet(current_user,v,'PUNTO CHECK-UP','55','Controlli')
-
-        @check_session = VehicleCheckSession.create(date: Date.today,vehicle: v, operator: current_user, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: odl, worksheet: Worksheet.create(code: "EWC*#{odl}", vehicle: v, vehicle_type: v.class.to_s, opening_date: Date.current, station: @station.to_s), station: @station.to_s)
+        
+        @worksheet = Worksheet.create(code: "EWC*#{odl}", vehicle: v, vehicle_type: v.class.to_s, opening_date: Date.current, station: @station.to_s)
+        @check_session = VehicleCheckSession.create(date: Date.today,vehicle: v, operator: current_user, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: odl, worksheet: @worksheet, station: @station.to_s)
       else
         raise "Veicolo non specificato (#{p[:model_name].inspect})"
       end
@@ -45,7 +47,7 @@ class CarwashController < ApplicationController
 
 
       respond_to do |format|
-        format.js { render :partial => 'carwash/checks_js' }
+        format.js { render :partial => 'workshop/worksheet_js' }
       end
     rescue Exception => e
       @error = e.message+"\n\n"+e.backtrace.join("\n")
@@ -61,7 +63,7 @@ class CarwashController < ApplicationController
       @check_session.update(log: @check_session.log.to_s+"\nSessione ripresa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       @checks = @check_session.vehicle_ordered_performed_checks
       respond_to do |format|
-        format.js { render :partial => 'carwash/checks_js' }
+        format.js { render :partial => 'workshop/worksheet_js' }
       end
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"

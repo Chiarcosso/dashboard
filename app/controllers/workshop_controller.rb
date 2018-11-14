@@ -47,17 +47,12 @@ class WorkshopController < ApplicationController
 
   def reset_worksheet
     begin
-      
+
       num = params['id'].to_i #if @worksheet.nil?
       odl = EurowinController::get_worksheet(num)
       #raise "La scheda nr. #{params['id']} è inesistente." if odl.nil?
       EurowinController::reset_odl(num)
-      # EurowinController::create_worksheet({
-      #   'DataEntrataVeicolo': '-1',
-      #   'AnnoODL': odl['Anno'].to_s,
-      #   'ProtocolloODL': odl['Protocollo'].to_s,
-      #   'DataIntervento': odl['DataIntervento']
-      #   })
+
       unless @worksheet.nil?
         @worksheet.update(opening_date: nil, paused: true, last_starting_time: nil, last_stopping_time: nil, real_duration: 0)
         @worksheet.workshop_operations.each{ |wo| wo.delete}
@@ -69,8 +64,8 @@ class WorkshopController < ApplicationController
         else
           format.js { render partial: 'workshop/close_worksheet_js' }
         end
-        # format.js { redirect_to worksheets_path }
       end
+      
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"
       respond_to do |format|
