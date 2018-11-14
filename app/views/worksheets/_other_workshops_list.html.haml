@@ -1,19 +1,16 @@
 .row
   .col-sm-1
-    %b= "Trovati: #{@worksheets.size > 99 ? '99+' : @worksheets.size}"
-  .col-sm-1
-    %b='Nr. scheda'
+    %b= "#{@worksheets.size} ODL"
   .col-sm-1
     %b='Targa'
   .col-sm-1
-    %b='Data ingr.'
+    %b='Data int.'
   .col-sm-1
     %b='Chiusura'
-  .col-sm-2
-    %b='Ore'
-  .col-sm-1
-  .col-sm-1
-  .col-sm-1
+  .col-sm-3
+    %b='Officina'
+  .col-sm-5
+    %b='Descrizione'
   .col-sm-1
 
 .row
@@ -22,13 +19,13 @@
       - @worksheets.each do |ws|
         .row.colored.hilight{style: "#{ws['FlagSchedaChiusa'].downcase == 'true' ? '' : "font-weight: bolder"}"}
           .col-sm-1
-            = ws['Protocollo']
+            = "Nr. #{ws['Protocollo']}"
           .col-sm-1
             = ws['Targa']
           .col-sm-1
-            = ws['DataEntrataVeicolo']
+            = ws['DataIntervento'].strftime("%d/%m/%Y") unless ws['DataIntervento'].nil?
           .col-sm-1
-            = ws['PrevisioneUscitaVeicolo']
+            = ws['DataUscitaVeicolo'].strftime("%d/%m/%Y") unless ws['DataUscitaVeicolo'].nil?
           .col-sm-3
             = ws['officina']
           .col-sm-5

@@ -72,7 +72,7 @@ class EurowinController < ApplicationController
       "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
       "from autosegnalazioni where codiceAutomezzo in (#{mrs.map{|mr| mr.remote_object_id}.join(',')}) "\
       "#{printed} and (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';"
-      
+
       r = ewc.query(query)
       ewc.close
       r
@@ -424,9 +424,9 @@ class EurowinController < ApplicationController
 
   def self.get_filtered_odl(filter)
     query = <<-QUERY
-      select autoodl.*,a.ragionesociale as officina,td.Descrizione as TipoDanno from autoodl
+      select autoodl.*,a.ragionesociale as officina,
+      (select Descrizione from tabdesc where codice = autoodl.CodiceTipoDanno and gruppo = 'AUTOTIPD') as TipoDanno from autoodl
       left join anagrafe a on autoodl.codiceanagrafico = a.codice
-      left join tabdesc td on autoodl.CodiceTipoDanno = td.Codice
       where #{filter}
     QUERY
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])

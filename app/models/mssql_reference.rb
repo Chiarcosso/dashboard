@@ -11,19 +11,20 @@ class MssqlReference < ApplicationRecord
     plate = plate.gsub("'","''")
     if strict
       vehicle = Vehicle.find_by_plate(plate)
-      vehicle = ExternalVehicle.find_by(palte: plate) if vehicle.nil?
+      vehicle = ExternalVehicle.find_by(plate: plate) if vehicle.nil?
       MssqlReference.where(local_object: vehicle)
     else
 
       vehicles = Vehicle.where("id in (select vehicle_id from vehicle_informations "\
       "where information like '%#{plate}%' "\
-      "and vehicle_information_type = (select id from vehicle_information_types where name = 'Targa'))")
+      "and vehicle_information_type_id = (select id from vehicle_information_types where name = 'Targa'))")
 
       exvehicles = ExternalVehicle.where("plate like '%#{plate}%'")
 
       f =Array.new
-      f << "(local_object_type = 'Vehicle' and id in (#{vehicles.map{|v| v.id}.join(',')})) " unless vehicles.empty?
-      f << "(local_object_type = 'ExternalVehicle' and id in (#{vehicles.map{|v| v.id}.join(',')}))" unless exvehicles.empty?
+      f << "(local_object_type = 'Vehicle' and local_object_id in (#{vehicles.map{|v| v.id}.join(',')})) " unless vehicles.empty?
+      f << "(local_object_type = 'ExternalVehicle' and local_object_id in (#{exvehicles.map{|v| v.id}.join(',')}))" unless exvehicles.empty?
+
       MssqlReference.where(f.join(' or ')) unless f.empty?
     end
   end

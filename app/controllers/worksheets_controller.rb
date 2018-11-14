@@ -213,6 +213,16 @@ class WorksheetsController < ApplicationController
       else
         @search = params.require(:search).permit(:opened,:closed,:plate,:number,:date_since,:date_to,:mechanic,:workshop)
       end
+      if params[:search]['opened'].nil?
+        @search[:opened] = false
+      else
+        @search[:opened] = true
+      end
+      if params[:search]['closed'].nil?
+        @search[:closed] = false
+      else
+        @search[:closed] = true
+      end
     end
 
     if(params['commit'] == 'Aggiorna')
@@ -263,10 +273,10 @@ class WorksheetsController < ApplicationController
     end
     unless @search[:plate].nil? or @search[:plate] == ''
       mrs = MssqlReference.find_by_plate(@search[:plate],false)
-      filter << "CodiceAutomezzo in (#{mrs.map{|v| v.remote_object_id }.join(',')})" unless mrs.empty?
+      filter << "Autoodl.CodiceAutomezzo in (#{mrs.map{|v| v.remote_object_id }.join(',')})" unless mrs.empty?
     end
     unless @search[:number].nil? or @search[:number] == ''
-      filter << "Protocollo like '%#{@search[:number]}%'"
+      filter << "Protocollo = #{@search[:number]}"
     end
     unless @search[:workshop].nil? or @search[:workshop] == ''
       filter << "CodiceAnagrafico = '#{@search[:workshop]}'"
