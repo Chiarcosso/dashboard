@@ -268,6 +268,8 @@ class WorksheetsController < ApplicationController
 
   # Other workshops filter
   def apply_ow_filter
+
+    # Build filter
     filter = []
 
     if @search[:opened] and !@search[:closed]
@@ -292,6 +294,8 @@ class WorksheetsController < ApplicationController
       filter << "#{@search[:date_select]} <= '#{@search[:date_to]}'"
     end
     filter << "CodiceAnagrafico != 'OFF00001' and CodiceAnagrafico != 'OFF00047'"
+
+    # Query db
     @worksheets = EurowinController::get_filtered_odl(filter.join(' and ')+" order by #{@search[:date_select]} desc")
 
     unless(params['list'].nil?)

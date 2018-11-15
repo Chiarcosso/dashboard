@@ -40,9 +40,11 @@ module AdminHelper
     end
     res[:manufacturer] = Company.find_by(:name => r['manufacturer'])
     if res[:manufacturer].nil?
-      @error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
-      res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore non valido: #{r['manufacturer']}</span>\n"
-      mssql_reference_logger.error(@error)
+      res[:manufacturer] = Company.create(name: r['manufacturer'], vehicle_manufacturer: true) if update
+      # @error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
+      res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore creato: #{r['manufacturer']}</span>\n"
+      ErrorMailer.error_report("Produttore di veicoli creato: #{r['manufacturer']}","Vehicle update")
+      # mssql_reference_logger.error(@error)
     end
     res['serie'] = nil
     if r['model'] =~ /\d serie$/
@@ -52,9 +54,11 @@ module AdminHelper
 
     res[:model] = VehicleModel.where(:name => r['model'], :manufacturer => res[:manufacturer]).first
     if res[:model].nil?
-      @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
-      res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello non valido: #{r['manufacturer']} #{r['model']}</span>\n"
-      mssql_reference_logger.error(@error)
+      # @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle model: #{r['manufacturer']} #{r['model']}"
+      res[:model] = VehicleModel.create(name: r['model'], manufacturer: res[:manufacturer]) if update
+      res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Modello creato: #{r['manufacturer']} #{r['model']}</span>\n"
+      r['manufacturer']
+      # mssql_reference_logger.error(@error)
     end
     res[:registration_model] = r['registration_model']
     if r['notdismissed'] == false
@@ -111,7 +115,9 @@ module AdminHelper
       res[:plate] = r['plate']
       res[:vehicle] = Vehicle.find_by_plate(r['plate'].tr('. *-',''))
     end
-    raise @error unless @error.nil?
+    unless @error.nil?
+      ErrorMailer.error_report(@error,"Vehicles update")
+    end
     res
   end
 
@@ -232,6 +238,7 @@ module AdminHelper
         end
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace.join("\n")}","Vehicle update")
       mssql_reference_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
       data[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
 
@@ -351,6 +358,7 @@ module AdminHelper
         end
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace.join("\n")}","Vehicle update")
       mssql_reference_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
       data[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
 
@@ -546,6 +554,7 @@ module AdminHelper
         end
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{r['plate']} (#{r['id']})\n\n#{e.message}\n#{e.backtrace.join("\n")}","Vehicle update")
       mssql_reference_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}\n</span>"
 
@@ -770,6 +779,7 @@ module AdminHelper
         end
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{r['plate']} (#{r['id']})\n\n#{e.message}\n#{e.backtrace.join("\n")}","Vehicle update")
       mssql_reference_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
 

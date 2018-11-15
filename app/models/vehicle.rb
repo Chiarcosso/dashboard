@@ -316,7 +316,7 @@ class Vehicle < ApplicationRecord
       end
     rescue Exception => e
       # @error = e.message unless
-      raise e.message
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace.join("\n")}","Vehicle update")
     end
     v
   end
