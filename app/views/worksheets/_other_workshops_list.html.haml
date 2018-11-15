@@ -6,12 +6,13 @@
   .col-sm-1
     %b='Data int.'
   .col-sm-1
-    %b='Chiusura'
+    %b='Data entr.'
+  .col-sm-1
+    %b='Data usc.'
   .col-sm-3
     %b='Officina'
-  .col-sm-5
+  .col-sm-4
     %b='Descrizione'
-  .col-sm-1
 
 .row
   .col-sm-12
@@ -25,11 +26,13 @@
           .col-sm-1
             = ws['DataIntervento'].strftime("%d/%m/%Y") unless ws['DataIntervento'].nil?
           .col-sm-1
+            = ws['DataEntrataVeicolo'].strftime("%d/%m/%Y") unless ws['DataEntrataVeicolo'].nil?
+          .col-sm-1
             = ws['DataUscitaVeicolo'].strftime("%d/%m/%Y") unless ws['DataUscitaVeicolo'].nil?
           .col-sm-3
             = ws['officina']
-          .col-sm-5
+          .col-sm-4
             = "#{ws['TipoDanno']} - #{ws['Note']}"
             -# = button_to 'PDF', worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
-          .col-sm-1
+          -# .col-sm-1
             -# = button_to 'Conteggio', worksheet_print_pdf_path(ws.id,format: :pdf), class: 'no-loader'

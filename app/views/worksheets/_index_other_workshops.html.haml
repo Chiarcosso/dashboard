@@ -1,6 +1,6 @@
 .container-fluid{style: 'margin-top: 2em;'}
-  .row
-    = form_tag(worksheet_ow_filter_path, method: :post, remote: true, type: :script, class: 'preventCr', :id => :filter) do |f|
+  = form_tag(worksheet_ow_filter_path, method: :post, remote: true, type: :script, class: 'preventCr', :id => :filter) do |f|
+    .row
       .col-sm-1
         Aperte
         = check_box_tag 'search[opened]', 1, @search[:opened]
@@ -9,18 +9,48 @@
         = check_box_tag 'search[closed]',  1, @search[:closed]
       .col-sm-2
         = text_field_tag 'search[plate]', @search[:plate],  class: 'form-control', placeholder: 'Targa..'
-      .col-sm-1
+      .col-sm-2
         = text_field_tag 'search[number]', @search[:number], class: 'form-control', placeholder: 'ODL..'
-      .col-sm-2
+      .col-sm-4
         = select_tag 'search[workshop]', options_for_select(EurowinController::get_external_workshops.map{|o| [o['RagioneSociale'],o['Codice']]},@search[:workshop]), include_blank: 'Officina..', class: 'form-control'
-      .col-sm-2
-        Dal
-        = date_field_tag 'search[date_since]', @search[:date_since]
-      .col-sm-2
-        Al
-        = date_field_tag 'search[date_to]', @search[:date_to]
       .col-sm-1
         = submit_tag 'Filtra', class: 'form-control'
+    .row
+      .col-sm-2
+        %table
+          %tr
+            %td
+              = radio_button_tag 'search[date_select]', 'DataIntervento', @search[:date_select] == 'DataIntervento', class: 'form-control'
+            %td
+              &nbsp; Data intervento
+      .col-sm-2
+        %table
+          %tr
+            %td
+              = radio_button_tag 'search[date_select]', 'DataEntrataVeicolo', @search[:date_select] == 'DataEntrataVeicolo', class: 'form-control'
+            %td
+              &nbsp; Data entrata
+      .col-sm-2
+        %table
+          %tr
+            %td
+              = radio_button_tag 'search[date_select]', 'DataUscitaVeicolo', @search[:date_select] == 'DataUscitaVeicolo', class: 'form-control'
+            %td
+              &nbsp; Data uscita
+      .col-sm-2
+        %table
+          %tr
+            %td
+              Dal &nbsp;
+            %td
+              = date_field_tag 'search[date_since]', @search[:date_since], class: 'form-control'
+      .col-sm-2
+        %table
+          %tr
+            %td
+              Al &nbsp;
+            %td
+              = date_field_tag 'search[date_to]', @search[:date_to], class: 'form-control'
   #worksheet_complete_list
     =render :partial => 'worksheets/other_workshops_list'
 

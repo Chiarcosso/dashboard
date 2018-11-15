@@ -206,13 +206,17 @@ class WorksheetsController < ApplicationController
 
   def search_params
     if params[:search].nil?
-      @search = {:opened => true, :closed => false, :plate => nil, :number => nil, :date_since => (Date.today - 2.months), :date_to => Date.today, :mechanic => nil, :workshop => nil}
+      @search = {:opened => true, :closed => false, :plate => nil, :number => nil, :date_since => (Date.today - 2.months), :date_to => Date.today, :mechanic => nil, :workshop => nil, :date_select => 'DataIntervento'}
     else
       if params[:search].is_a? String
         @search = JSON.parse(params.require(:search))
       else
-        @search = params.require(:search).permit(:opened,:closed,:plate,:number,:date_since,:date_to,:mechanic,:workshop)
+        @search = params.require(:search).permit(:opened,:closed,:plate,:number,:date_since,:date_to,:mechanic,:workshop,:date_select)
       end
+      if params[:search]['date_select'].nil? || params[:search]['date_select'] == ''
+        @search[:date_select] = 'DataIntervento'
+      end
+
       if params[:search]['opened'].nil?
         @search[:opened] = false
       else
@@ -282,13 +286,13 @@ class WorksheetsController < ApplicationController
       filter << "CodiceAnagrafico = '#{@search[:workshop]}'"
     end
     unless @search[:date_since].nil? or @search[:date_since] == ''
-      filter << "DataIntervento >= '#{@search[:date_since]}'"
+      filter << "#{@search[:date_select]} >= '#{@search[:date_since]}'"
     end
     unless @search[:date_to].nil? or @search[:date_to] == ''
-      filter << "DataIntervento <= '#{@search[:date_to]}'"
+      filter << "#{@search[:date_select]} <= '#{@search[:date_to]}'"
     end
     filter << "CodiceAnagrafico != 'OFF00001' and CodiceAnagrafico != 'OFF00047'"
-    @worksheets = EurowinController::get_filtered_odl(filter.join(' and '))
+    @worksheets = EurowinController::get_filtered_odl(filter.join(' and ')+" order by #{@search[:date_select]} desc")
 
     unless(params['list'].nil?)
       @search_list = params.require('list')['search']
