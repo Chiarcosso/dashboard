@@ -32,7 +32,7 @@ class CarwashController < ApplicationController
           raise "Non ci sono controlli da fare per questo mezzo (targa: #{v.plate})."
         end
         odl = VehicleCheckSession.create_worksheet(current_user,v,'PUNTO CHECK-UP','55','Controlli')
-        
+
         @worksheet = Worksheet.create(code: "EWC*#{odl}", vehicle: v, vehicle_type: v.class.to_s, opening_date: Date.current, station: @station.to_s)
         @check_session = VehicleCheckSession.create(date: Date.today,vehicle: v, operator: current_user, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: odl, worksheet: @worksheet, station: @station.to_s)
       else
@@ -89,18 +89,23 @@ class CarwashController < ApplicationController
       @check_session = pc.vehicle_check_session
       @check_session.update(real_duration: params.require(:additional))
       @checks = @check_session.vehicle_ordered_performed_checks
-
+      if params['station'] == 'carwash'
+        @station = 'carwash'
+      else
+        @station = 'workshop'
+      end
       respond_to do |format|
-        case params['station']
-        when 'workshop' then
+        # case @station
+        # when 'workshop' then
           @worksheet = @check_session.worksheet
           @worksheet.update(real_duration: params.require(:additional))
           @protocol = 'checks'
-          @station = 'workshop'
+          # @station = 'workshop'
           format.js { render partial: 'workshop/worksheet_js' }
-        when 'carwash' then
-          format.js { render partial: 'carwash/checks_js' }
-        end
+        # when 'carwash' then
+        #   # format.js { render partial: 'carwash/checks_js' }
+        #   format.js { render partial: 'workshop/worksheet_js' }
+        # end
       end
     rescue Exception => e
       @error = e.message
