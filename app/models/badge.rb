@@ -50,25 +50,25 @@ class Badge < ApplicationRecord
   def self.find_or_create(badge)
 
     b = Badge.find_by(code: badge.to_s)
-    ref = MssqlReference.query({table: 'badge', where: {badge: badge.to_s}},'chiarcosso_test')
+    # ref = MssqlReference.query({table: 'badge', where: {badge: badge.to_s}},'chiarcosso_test')
     if b.nil?
       b = Badge.create(code: badge)
     end
 
-    ref.each do |ba|
-
-      case ba['tabella']
-      when 'Dipendenti' then
-        table = 'Autisti'
-      when 'Esterni' then
-        table = 'Clienti'
-      end
-
-      person = Person.find_or_create(mssql_id: ba['persona_id'], table: table)
-
-      BadgeAssignment.find_or_create({badge: b, person: person, from: ba['da'], to: ba['a']})
-
-    end
+    # ref.each do |ba|
+    #
+    #   case ba['tabella']
+    #   when 'Dipendenti' then
+    #     table = 'Autisti'
+    #   when 'Esterni' then
+    #     table = 'Clienti'
+    #   end
+    #
+    #   person = Person.find_or_create(mssql_id: ba['persona_id'], table: table)
+    #
+    #   # BadgeAssignment.find_or_create({badge: b, person: person, from: ba['da'], to: ba['a']})
+    #
+    # end
     b
   end
 
