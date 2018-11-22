@@ -1,0 +1,39 @@
+
+.row
+  .col-sm-12
+    %b= @check.label unless @check.nil?
+.row
+  .col-sm-1
+    = "Targa"
+  .col-sm-2
+    = "Operatore"
+  .col-sm-1
+    = "Data"
+  .col-sm-2
+    = "Valore"
+  .col-sm-2
+    = "Risultato"
+  .col-sm-4
+    = "Note"
+
+.scrollable-panel
+  - VehicleCheck.vehicles(@checks).sort_by{ |vehicle| vehicle.plate}.each do |v|
+    - p_check = v.last_check(@checks.first)
+    .row.colored
+      .col-sm-1
+        %b= v.plate
+      .col-sm-2
+        - unless p_check.nil?
+          -if p_check.operator.nil?
+            = p_check.user
+          -else
+            = p_check.operator.list_name
+
+      .col-sm-1
+        = p_check.time.strftime("%d/%m/%Y") unless p_check.nil?
+      .col-sm-2
+        = "#{p_check.value}#{p_check.vehicle_check.measure_unit}" unless p_check.nil?
+      .col-sm-2
+        %b= VehiclePerformedCheck.fixvalues.key(p_check.performed) unless p_check.nil?
+      .col-sm-4
+        = p_check.notes unless p_check.nil?

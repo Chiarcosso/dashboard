@@ -58,6 +58,7 @@
             = navbar_item "Odl off. esterne", manage_external_worksheets_path
 
           = navbar_item "Mezzi", vehicles_path
+          = navbar_item "Ultimi controlli", last_vehicle_checks_path
           - if (current_user.has_role?(:admin)|| current_user.has_role?("amministratore manutenzioni"))
             = navbar_item "Modelli veicolo", vehicle_models_path
           - if (current_user.has_role?(:admin) || current_user.has_role?("amministratore manutenzioni"))

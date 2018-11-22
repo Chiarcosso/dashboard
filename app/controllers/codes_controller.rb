@@ -150,6 +150,39 @@ class CodesController < ApplicationController
       render :json => 0
     else
       cwu.update(:ending_time => DateTime.now)
+      begin
+        unless cwu.vehicle_1.nil?
+          VehiclePerformedCheck.create({
+              vehicle_check_session: VehicleCheckSession.create({
+                operator: cwu.person,
+                date: Time.now,
+                vehicle: cwu.vehicle_1,
+                log: 'created at the auto-carwash',
+                theoretical_duration: 20,
+                }),
+              vehicle: cwu.vehicle_1,
+              vehicle_check: VehicleChecks.find_by(label: 'LAVAGGIO'),
+              value: 'Lavato',
+              performed: 2
+            })
+          end
+          unless cwu.vehicle_2.nil?
+            VehiclePerformedCheck.create({
+                vehicle_check_session: VehicleCheckSession.create({
+                  operator: cwu.person,
+                  date: Time.now,
+                  vehicle: cwu.vehicle_2,
+                  log: 'created at the auto-carwash',
+                  theoretical_duration: 20,
+                  }),
+                vehicle: cwu.vehicle_2,
+                vehicle_check: VehicleChecks.find_by(label: 'LAVAGGIO'),
+                value: 'Lavato',
+                performed: 2
+              })
+            end
+      rescue
+      end
       render :json => 1
     end
   end

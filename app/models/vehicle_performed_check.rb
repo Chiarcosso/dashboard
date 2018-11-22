@@ -4,6 +4,7 @@ class VehiclePerformedCheck < ApplicationRecord
   belongs_to :vehicle_check
   has_one :vehicle, :through => :vehicle_check_session
   belongs_to :user
+  has_one :operator, :through => :user, source: :person
 
   scope :performed, -> { where('performed != 0')}
   scope :not_ok, -> { where('performed = 4 or performed = 5')}
@@ -24,6 +25,16 @@ class VehiclePerformedCheck < ApplicationRecord
 
   def blocking?
     self.performed == VehiclePerformedCheck.fixvalues['Non ok bloccante'].to_i
+  end
+
+  def self.last_check(vehicle,check)
+    query = <<-QUERY
+      select * from vehicle_performed_checks
+      group by vehicle_id, vehcile_check_d
+      having vehicle_id = #{vehicle.id} and vehicle_check_is = #{check.id}
+      and time = max(time)
+    QUERY
+    VehiclePerformedCheck.find_by_sql(query)
   end
 
   def last_reading

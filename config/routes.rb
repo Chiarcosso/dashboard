@@ -128,6 +128,10 @@ Rails.application.routes.draw do
   post '/carwash/save_session/:id', to: 'carwash#save_check_session', as: :save_check_session
   post '/carwash/delete_session/:id', to: 'carwash#delete_check_session', as: :delete_check_session
   post '/carwash/update_check/:id', to: 'carwash#update_vehicle_check', as: :update_vehicle_check
+  get '/carwash/last_vehicle_checks', to: 'carwash#last_vehicle_checks', as: :last_vehicle_checks
+  post '/carwash/last_vehicle_checks/search', to: 'carwash#last_vehicle_checks_search', as: :last_vehicle_checks_search
+
+  post   '/carwash/vehicle_checks_autocomplete', to: 'carwash#vehicle_checks_autocomplete', as: :custom_vehicle_checks_autocomplete
 
   post '/companies/new', to: 'companies#new', as: :new_company_search
   post '/companies/edit', to: 'companies#edit', as: :edit_company_search

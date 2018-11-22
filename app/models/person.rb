@@ -46,7 +46,8 @@ class Person < ApplicationRecord
   # People that used the badge in a given month
   def self.present_at_month(time = Time.now)
     Person.where("people.id in "\
-                "(select distinct person_id from badge_assignments ba where (('#{time.strftime("%Y-%m")}' between date_format(ba.from,'%Y-%m') and date_format(ba.to,'%Y-%m')) or ('#{time.strftime("%Y-%m-%d")}' > ba.from and ba.to = '1900-01-01')) "\
+                "(select distinct person_id from badge_assignments "\
+                  "ba where (('#{time.strftime("%Y-%m")}' between date_format(ba.from,'%Y-%m') and date_format(ba.to,'%Y-%m')) or ('#{time.strftime("%Y-%m-%d")}' > ba.from and ba.to = '1900-01-01')) "\
                 "and ba.badge_id in (select distinct badge_id from presence_timestamps pt where month(pt.time) = #{time.strftime('%-m')} and year(pt.time) = #{time.strftime('%Y')}))").distinct
 
   end

@@ -1,6 +1,7 @@
 class CarwashController < ApplicationController
 
   before_action :set_station
+  before_action :get_check, only: [:last_vehicle_checks_search]
 
   def index
     @carwash_usages = CarwashUsage.lastmonth.order(:ending_time => :desc)
@@ -9,6 +10,17 @@ class CarwashController < ApplicationController
   def checks_index
     @check_sessions = VehicleCheckSession.where(station: 'carwash').opened.order(created_at: :asc)+VehicleCheckSession.where(station: 'carwash').closed.order(finished: :desc).last_week
     render 'carwash/checks_index'
+  end
+
+  def vehicle_checks_autocomplete
+    unless params[:search].nil? or params[:search] == ''
+      # array = Language.filter(params.require(:search))
+      search = params.require(:search).gsub("'","''").tr(' ','%')
+      # array = VehicleInformationType.find_by_sql("select 'vehicle_information_type' as field, 'Vehicle' as model, c.id as 'vehicle_information_type_id', c.name as label from vehicle_information_types c where c.name like '%#{search}%' and c.vehicle_information_type limit 10")
+      array = VehicleCheck.where("vehicle_checks.label like '%#{search}%'").map { |ch| {field: 'search', model: 'VehicleCheck', vehicle_check_id: ch.label, label: ch.label}}
+
+      render :json => array.uniq
+    end
   end
 
   def start_check_session
@@ -183,6 +195,26 @@ class CarwashController < ApplicationController
       end
     end
   end
+
+  def last_vehicle_checks
+    respond_to do |format|
+      format.html { render 'carwash/last_vehicle_checks_index' }
+    end
+  end
+
+  def last_vehicle_checks_search
+    begin
+      respond_to do |format|
+        format.js { render :partial => 'carwash/last_vehicle_checks_js' }
+      end
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
   private
 
   def get_vehicle
@@ -195,5 +227,9 @@ class CarwashController < ApplicationController
 
   def start_session_params
 
+  end
+
+  def get_check
+    @checks = VehicleCheck.where("label = ?",params.require('check').permit(:label)[:label])
   end
 end
