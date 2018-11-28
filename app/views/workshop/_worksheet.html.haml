@@ -19,7 +19,7 @@
                 .col-sm-8
                   %h4.panel-title
                     %a{ href: "#collapse-#{sgn['Protocollo']}", data: { toggle: 'collapse', parent: '#accordion' }}
-                      = sgn['DescrizioneSegnalazione']
+                      = "#{sgn['TipoDanno']} - #{sgn['DescrizioneSegnalazione']}"
                 .col-sm-2
                   %button{ class: 'btn_small create_popup', id: "deassociate-#{sgn['Protocollo']}", data: { route: deassociate_workshop_notification_path(sgn['Protocollo']), html: (render partial: 'workshop/deassociate_notification_popup', locals: {protocol: sgn['Protocollo'], year: sgn['Anno'], damage_type: sgn['TipoDanno'], description: sgn['DescrizioneSegnalazione'] }) } }
                     = 'Rimanda'

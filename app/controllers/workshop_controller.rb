@@ -65,7 +65,7 @@ class WorkshopController < ApplicationController
           format.js { render partial: 'workshop/close_worksheet_js' }
         end
       end
-      
+
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"
       respond_to do |format|
@@ -264,6 +264,7 @@ class WorkshopController < ApplicationController
         'CodiceAutista': current_user.person.mssql_references.first.remote_object_id.to_s,
         'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
         'CodiceTarga': vehicle_refs['Targa'],
+        'TipoDanno': params.require('damage_type').to_s,
         'Chilometraggio': vehicle_refs['Km'].to_s,
         'CodiceOfficina': EurowinController::get_workshop(:workshop),
         'FlagRiparato': 'false',
@@ -273,6 +274,7 @@ class WorkshopController < ApplicationController
 
       sgn = EurowinController::create_notification(payload)
       WorkshopOperation.create(name: 'Lavorazione', worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
@@ -670,7 +672,7 @@ class WorkshopController < ApplicationController
               'DataIntervento': sgn['DataSegnalazione'].to_s,
               'FlagRiparato': 'true',
               'CodiceOfficina': "0"
-            })
+            }) unless sgn.nil?
           end
         end
         invoicing = params['invoice'] == 'true' ? true : false

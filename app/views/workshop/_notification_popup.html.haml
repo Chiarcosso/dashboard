@@ -1,5 +1,6 @@
 %h4= "Aggiungi segnalazione"
 = form_tag( create_workshop_notification_path(@worksheet.number), remote: true, method: :post) do |f|
   = text_field_tag :description, nil, placeholder: 'Descrizione..', class: 'form-control', id: 'focus_element', style: 'width: 80vw;'
+  = select_tag :damage_type, options_for_select(EurowinController::get_tipi_danno.collect{|dt| [dt['Descrizione'],dt['Codice']]}), class: 'form-control'
   = hidden_field_tag :protocol, protocol
   = submit_tag :ok, onclick: "$(this).parents('.popup').css('z-index': 0);"
