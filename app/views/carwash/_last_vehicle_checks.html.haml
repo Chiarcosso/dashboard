@@ -1,39 +1,40 @@
-
+- vehicles = VehicleCheck.vehicles(@checks)
+-# - checks = VehicleCheck.last_checks(@checks) unless @checks.nil?
 .row
   .col-sm-12
     %b= @check.label unless @check.nil?
 .row
-  .col-sm-1
-    = "Targa"
-  .col-sm-2
+  .col-sm-1.ordering_cell{data: {ordering_id: 'plate'}}
+    = "Targa (#{vehicles.count})"
+  .col-sm-2.ordering_cell{data: {ordering_id: 'operator'}}
     = "Operatore"
-  .col-sm-1
+  .col-sm-1.ordering_cell{data: {ordering_id: 'date'}}
     = "Data"
-  .col-sm-2
+  .col-sm-2.ordering_cell{data: {ordering_id: 'value'}}
     = "Valore"
-  .col-sm-2
+  .col-sm-2.ordering_cell{data: {ordering_id: 'result'}}
     = "Risultato"
-  .col-sm-4
+  .col-sm-4.ordering_cell{data: {ordering_id: 'notes'}}
     = "Note"
 
 .scrollable-panel
-  - VehicleCheck.vehicles(@checks).sort_by{ |vehicle| vehicle.plate}.each do |v|
+  - vehicles.each do |v|
     - p_check = v.last_check(@checks.first)
     .row.colored
-      .col-sm-1
+      .col-sm-1.ordered_cell{data: {ordering_id: 'plate'}}
         %b= v.plate
-      .col-sm-2
+      .col-sm-2.ordered_cell{data: {ordering_id: 'operator'}}
         - unless p_check.nil?
           -if p_check.operator.nil?
             = p_check.user
           -else
             = p_check.operator.list_name
 
-      .col-sm-1
+      .col-sm-1.ordered_cell{data: {ordering_id: 'date', date: true}}
         = p_check.time.strftime("%d/%m/%Y") unless p_check.nil?
-      .col-sm-2
+      .col-sm-2.ordered_cell{data: {ordering_id: 'value'}}
         = "#{p_check.value}#{p_check.vehicle_check.measure_unit}" unless p_check.nil?
-      .col-sm-2
+      .col-sm-2.ordered_cell{data: {ordering_id: 'result'}}
         %b= VehiclePerformedCheck.fixvalues.key(p_check.performed) unless p_check.nil?
-      .col-sm-4
+      .col-sm-4.ordered_cell{data: {ordering_id: 'notes'}}
         = p_check.notes unless p_check.nil?

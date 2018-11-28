@@ -22,7 +22,8 @@ class Company < ApplicationRecord
   has_many :vehicle_properties, as: :owner
 
   scope :filter, ->(search) { where('name like ?',"%#{search}%").order(:name) }
-  scope :not_us, -> { where("name not like 'Autotrasporti Chiarcosso%' and name not like 'Trans Est%'")}
+  scope :not_us, -> { where("name not like 'Autotrasporti Chiarcosso%' and name not like 'Trans Est%' and name not like 'Edilizia Chiarcosso%'")}
+  scope :us, -> { where("name like 'Autotrasporti Chiarcosso%' or name like 'Trans Est%' or name like 'Edilizia Chiarcosso%'")}
   scope :most_used_transporter, -> { where("transporter = 1 and id in "\
     "(select a.owner_id from "\
       "(select owner_id, count(external_vehicles.id) as count "\
