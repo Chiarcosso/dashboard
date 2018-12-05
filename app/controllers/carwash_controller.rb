@@ -235,7 +235,7 @@ class CarwashController < ApplicationController
   end
 
   def get_order
-    @order = params['order']
-    @ordering = params['ordering']
+    # @order = params['order']
+    # @ordering = params['ordering']
   end
 end

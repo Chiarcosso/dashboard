@@ -1,24 +1,25 @@
-- vehicles = VehicleCheck.vehicles(@checks)
+- vehicles = VehicleCheck.vehicles(@checks).sort_by { |v| v.plate }
 -# - checks = VehicleCheck.last_checks(@checks) unless @checks.nil?
-- @ordering = {'plate': false, 'operator': false, 'date': false, 'value': false, 'result': false, 'notes': false} if @ordering.nil?
-= hidden_field_tag :ordering, @ordering.to_json
-- @order = 'plate' if @order.nil?
-= hidden_field_tag :order, @order
+-# - @ordering = {'plate': false, 'operator': false, 'date': false, 'value': false, 'result': false, 'notes': false} if @ordering.nil?
+-# = hidden_field_tag :ordering, @ordering.to_json
+-# - @order = 'plate' if @order.nil?
+-# = hidden_field_tag :order, @order
 .row
   .col-sm-12
     %b= @check.label unless @check.nil?
+    = @ordering.inspect
 .row
-  .col-sm-1.ordering_cell{data: {ordering_id: 'plate', type: 'string', ordering: @ordering}}
+  .col-sm-1.ordering_cell{data: {ordering_id: 'plate', type: 'string', ordering: @ordering.to_json}}
     = "Targa (#{vehicles.count})"
-  .col-sm-2.ordering_cell{data: {ordering_id: 'operator', type: 'string', ordering: @ordering}}
+  .col-sm-2.ordering_cell{data: {ordering_id: 'operator', type: 'string', ordering: @ordering.to_json}}
     = "Operatore"
-  .col-sm-1.ordering_cell{data: {ordering_id: 'date', type: 'date', ordering: @ordering}}
+  .col-sm-1.ordering_cell{data: {ordering_id: 'date', type: 'date', ordering: @ordering.to_json}}
     = "Data"
-  .col-sm-2.ordering_cell{data: {ordering_id: 'value', type: 'string', ordering: @ordering}}
+  .col-sm-2.ordering_cell{data: {ordering_id: 'value', type: 'string', ordering: @ordering.to_json}}
     = "Valore"
-  .col-sm-2.ordering_cell{data: {ordering_id: 'result', type: 'string', ordering: @ordering}}
+  .col-sm-2.ordering_cell{data: {ordering_id: 'result', type: 'string', ordering: @ordering.to_json}}
     = "Risultato"
-  .col-sm-4.ordering_cell{data: {ordering_id: 'notes', type: 'string', ordering: @ordering}}
+  .col-sm-4.ordering_cell{data: {ordering_id: 'notes', type: 'string', ordering: @ordering.to_json}}
     = "Note"
 
 .scrollable-panel#ordering_box

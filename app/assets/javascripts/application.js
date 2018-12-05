@@ -671,48 +671,62 @@ function exit_page_click_func(){
 
 function ordering_cell_click_func(){
   "use strict";
-  console.log($(this).data('ordering'));
-  var ordering = JSON.parse($('input[name=ordering]'));
-  var order = $(this).data('ordering_id');
+
+  var ordering = JSON.parse($('input[name=ordering]').val());
+  // var ordering = $('input[name=ordering]').val();
+  var order = $(this).data('ordering-id');
   ordering[order] = !ordering[order];
-  $('input[name=ordering]').val(ordering);
+  $('input[name=ordering]').val(JSON.stringify(ordering));
   $('input[name=order]').val(order);
+
   // $('#ordering_form').submit();
-  id = $(this).data('ordering_id');
-  type = $(this).data('type');
-  var list = $('.ordered_cell[ordering_id='+id+']');
+  var id = $(this).data('ordering-id');
+  var type = $(this).data('type');
+  console.log(id,type);
+  var list = [];
+  $.each($('.ordered_cell[data-ordering-id='+order+']'),function(){
+    list.push($(this).parent());
+  });
+
   list.sort(function(rowa,rowb){
-    a = rowa.children('.ordered_cell').first();
-    b = rowb.children('.ordered_cell').first();
+    var a = rowa.children('.ordered_cell[data-ordering-id='+order+']');
+    var b = rowb.children('.ordered_cell[data-ordering-id='+order+']');
+    var mul = ordering[order] ? 1 : -1;
     switch(type){
-      case 'number': return Float.parse(a.html()) - Float.parse(b.html());
+      case 'number': return (Float.parse(a.html()) - Float.parse(b.html()) * mul);
       break;
       case 'string': if(a.html() == b.html()){
                       return 0;
                     } else if(a.html() > b.html()){
-                      return 1;
+                      return 1 * mul;
                     }else if(a.html() < b.html()){
-                      return -1;
+                      return -1 * mul;
                     }
       break;
       case 'date': var date1 = a.html().split('/');
                   var date2 = b.html().split('/');
-                  dt1 = date1[2]+date1[1]+date1[0];
-                  dt2 = date2[2]+date2[1]+date2[0];
+                  var dt1 = date1[2]+date1[1]+date1[0];
+                  var dt2 = date2[2]+date2[1]+date2[0];
                   if(dt1 == dt2){
                     return 0;
                   } else if(dt1 > dt2){
-                    return 1;
+                    return 1 * mul;
                   }else if(dt1 < dt2){
-                    return -1;
+                    return -1 * mul;
                   }
       break;
     }
   });
+  console.log(list);
+  $('#ordering_box').html('');
   $.each(list,function(){
-    var parent = $(this).parent();
-    parent.remove();
-    $('#ordering_box').append(parent);
+    // var parent = $(this).parent();
+    // parent.remove();
+    // var tmp = $(this);
+    // console.log(tmp);
+    // // alert();
+    // $(this).remove();
+    $('#ordering_box').append($(this));
   });
 }
 
