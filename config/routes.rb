@@ -222,6 +222,7 @@ Rails.application.routes.draw do
   post '/vehicles/edit', to: 'vehicles#edit', as: :edit_vehicle_search
   post '/vehicles/edit', to: 'vehicles#back', as: :vehicles_back_search
   post '/vehicle/update', to: 'vehicles#update', as: :update_vehicle
+  post '/vehicle/update_mileage', to: 'vehicles#update_mileage', as: :update_vehicle_mileage
 
   get   '/public/get_eurowin_worksheets/:table/:vehicle', to: 'vehicles#get_eurowin_worksheets', as: :get_eurowin_worksheets
 

@@ -21,6 +21,7 @@ class VehicleCheck < ApplicationRecord
 
     raise "Lista controlli vuota." if checks.nil? || checks.count < 1
     companies = Company.us
+
     if all_checks
       w = Array.new
       w << "vehicles.dismissed = 0"

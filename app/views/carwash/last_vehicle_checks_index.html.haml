@@ -1,9 +1,13 @@
 #search_form{style: "margin-top: 2em;"}
-  = form_tag(last_vehicle_checks_search_path, remote: true) do |f|
+  = form_tag(last_vehicle_checks_search_path, remote: true, id: 'ordering_form') do |f|
     .row
       .col-sm-6
         -# = text_field_tag :id, nil, class: 'form-control', placeholder: 'Cerca controllo..'
         = text_field_tag 'check[label]', nil, placeholder: 'Cerca controllo..', id: 'focus_element', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_checks_autocomplete_path, target: 'VehicleCheck' }
+        - @ordering = {'plate': true, 'operator': true, 'date': true, 'value': true, 'result': true, 'notes': true} if @ordering.nil?
+        = hidden_field_tag :ordering, @ordering
+        - @order = 'plate' if @order.nil?
+        = hidden_field_tag :order, @order
       .col-sm-2
         = submit_tag 'Cerca', class: 'form-control'
 

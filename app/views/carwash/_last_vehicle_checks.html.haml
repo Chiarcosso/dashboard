@@ -1,40 +1,44 @@
 - vehicles = VehicleCheck.vehicles(@checks)
 -# - checks = VehicleCheck.last_checks(@checks) unless @checks.nil?
+- @ordering = {'plate': false, 'operator': false, 'date': false, 'value': false, 'result': false, 'notes': false} if @ordering.nil?
+= hidden_field_tag :ordering, @ordering.to_json
+- @order = 'plate' if @order.nil?
+= hidden_field_tag :order, @order
 .row
   .col-sm-12
     %b= @check.label unless @check.nil?
 .row
-  .col-sm-1.ordering_cell{data: {ordering_id: 'plate'}}
+  .col-sm-1.ordering_cell{data: {ordering_id: 'plate', type: 'string', ordering: @ordering}}
     = "Targa (#{vehicles.count})"
-  .col-sm-2.ordering_cell{data: {ordering_id: 'operator'}}
+  .col-sm-2.ordering_cell{data: {ordering_id: 'operator', type: 'string', ordering: @ordering}}
     = "Operatore"
-  .col-sm-1.ordering_cell{data: {ordering_id: 'date'}}
+  .col-sm-1.ordering_cell{data: {ordering_id: 'date', type: 'date', ordering: @ordering}}
     = "Data"
-  .col-sm-2.ordering_cell{data: {ordering_id: 'value'}}
+  .col-sm-2.ordering_cell{data: {ordering_id: 'value', type: 'string', ordering: @ordering}}
     = "Valore"
-  .col-sm-2.ordering_cell{data: {ordering_id: 'result'}}
+  .col-sm-2.ordering_cell{data: {ordering_id: 'result', type: 'string', ordering: @ordering}}
     = "Risultato"
-  .col-sm-4.ordering_cell{data: {ordering_id: 'notes'}}
+  .col-sm-4.ordering_cell{data: {ordering_id: 'notes', type: 'string', ordering: @ordering}}
     = "Note"
 
-.scrollable-panel
+.scrollable-panel#ordering_box
   - vehicles.each do |v|
     - p_check = v.last_check(@checks.first)
     .row.colored
-      .col-sm-1.ordered_cell{data: {ordering_id: 'plate'}}
+      .col-sm-1.ordered_cell{data: {ordering_id: 'plate', type: 'string'}}
         %b= v.plate
-      .col-sm-2.ordered_cell{data: {ordering_id: 'operator'}}
+      .col-sm-2.ordered_cell{data: {ordering_id: 'operator', type: 'string'}}
         - unless p_check.nil?
           -if p_check.operator.nil?
             = p_check.user
           -else
             = p_check.operator.list_name
 
-      .col-sm-1.ordered_cell{data: {ordering_id: 'date', date: true}}
+      .col-sm-1.ordered_cell{data: {ordering_id: 'date', type: 'date'}}
         = p_check.time.strftime("%d/%m/%Y") unless p_check.nil?
-      .col-sm-2.ordered_cell{data: {ordering_id: 'value'}}
+      .col-sm-2.ordered_cell{data: {ordering_id: 'value', type: 'string'}}
         = "#{p_check.value}#{p_check.vehicle_check.measure_unit}" unless p_check.nil?
-      .col-sm-2.ordered_cell{data: {ordering_id: 'result'}}
+      .col-sm-2.ordered_cell{data: {ordering_id: 'result', type: 'string'}}
         %b= VehiclePerformedCheck.fixvalues.key(p_check.performed) unless p_check.nil?
-      .col-sm-4.ordered_cell{data: {ordering_id: 'notes'}}
+      .col-sm-4.ordered_cell{data: {ordering_id: 'notes', type: 'string'}}
         = p_check.notes unless p_check.nil?

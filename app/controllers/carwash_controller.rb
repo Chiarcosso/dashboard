@@ -2,6 +2,7 @@ class CarwashController < ApplicationController
 
   before_action :set_station
   before_action :get_check, only: [:last_vehicle_checks_search]
+  before_action :get_order, only: [:last_vehicle_checks_search]
 
   def index
     @carwash_usages = CarwashUsage.lastmonth.order(:ending_time => :desc)
@@ -231,5 +232,10 @@ class CarwashController < ApplicationController
 
   def get_check
     @checks = VehicleCheck.where("label = ?",params.require('check').permit(:label)[:label])
+  end
+
+  def get_order
+    @order = params['order']
+    @ordering = params['ordering']
   end
 end

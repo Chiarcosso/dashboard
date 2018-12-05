@@ -1,7 +1,7 @@
 class VehiclesController < ApplicationController
   skip_before_action :authenticate_user!, :only => :get_eurowin_worksheets
   include AdminHelper
-  before_action :set_vehicle#, only: [:show, :edit, :update, :destroy, :vehicle_information_type_autocomplete, :get_info, :get_workshop_info, :new_information, :create_information]
+  before_action :set_vehicle, except: [:update_mileage]#, only: [:show, :edit, :update, :destroy, :vehicle_information_type_autocomplete, :get_info, :get_workshop_info, :new_information, :create_information]
   before_action :set_vehicle_information, only: [:delete_information]
   before_action :search_params
   autocomplete :vehicle, :plate, full: true
@@ -44,6 +44,42 @@ class VehiclesController < ApplicationController
 
   def assignation
 
+  end
+
+  def update_mileage
+    begin
+
+      if params.require(:vehicle_class) == 'Vehicle'
+        vehicle = Vehicle.find(params.require(:vehicle_id).to_i)
+      elsif params.require(:vehicle_class) == 'ExternalVehicle'
+        vehicle = ExternalVehicle.find(params.require(:vehicle_id).to_i)
+      end
+
+      if vehicle.mileage.to_i > params.require(:mileage).to_i || params.require(:mileage).to_i == 0
+        @error = "Il chilometraggio inserito non è valido. Vecchio: #{vehicle.mileage.to_i}, nuovo: #{params.require(:mileage)}."
+        raise "Il chilometraggio inserito non è valido. Vecchio: #{vehicle.mileage.to_i}, nuovo: #{params.require(:mileage)}."
+      else
+        vehicle.update(mileage: params.require(:mileage).to_i, last_gps: Time.now)
+      end
+      
+      @worksheet = Worksheet.find(params.require(:worksheet).to_i)
+      # WorkshopController.check_session(@worksheet)
+      @check_session = VehicleCheckSession.find_by(worksheet: @worksheet)
+
+      @checks = @check_session.vehicle_ordered_performed_checks unless @check_session.nil?
+      respond_to do |format|
+        format.js { render partial: 'workshop/worksheet_js' }
+      end
+      # @worksheet = Worksheet.find(params.require(:worksheet).to_i)
+      #
+      # byebug
+      # redirect_to open_worksheet_path(@worksheet.number)
+    rescue Exception => e
+      @error = "#{e.message}\n\n#{e.backtrace.join("\n")}" if @error.nil?
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
   end
 
   def get_info

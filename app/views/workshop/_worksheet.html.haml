@@ -1,12 +1,13 @@
-
+- vehicle = @worksheet.vehicle
 .row{style: 'margin-top: 1em; margin-bottom: 1em;'}
   .col-sm-9
-    %b= "ODL nr. #{@worksheet.number} - #{@worksheet.vehicle.plate} - #{@worksheet.notes}"
+    %b= "ODL nr. #{@worksheet.number} - #{vehicle.plate} - #{@worksheet.notes}"
+
   .col-sm-3
-    =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(@worksheet.vehicle.id), name: "infobox_vehicle_checks_#{@worksheet.vehicle.id}" }
-    =button_tag 'r', class: 'infobox-button no-loader', data: { target: info_vehicle_spare_items_path(@worksheet.vehicle.id), name: "infobox_vehicle_spare_items_#{@worksheet.vehicle.id}" }
-    =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(@worksheet.vehicle.id), name: "infobox_vehicle_#{@worksheet.vehicle.id}" }
-    =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(@worksheet.vehicle.id), name: "infobox_vehicle_workshop_#{@worksheet.vehicle.id}" }
+    =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(vehicle.id), name: "infobox_vehicle_checks_#{vehicle.id}" }
+    =button_tag 'r', class: 'infobox-button no-loader', data: { target: info_vehicle_spare_items_path(vehicle.id), name: "infobox_vehicle_spare_items_#{vehicle.id}" }
+    =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(vehicle.id), name: "infobox_vehicle_#{vehicle.id}" }
+    =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(vehicle.id), name: "infobox_vehicle_workshop_#{vehicle.id}" }
 
 .row
   .col-sm-12
@@ -117,6 +118,15 @@
                       .scrollable-panel#scroll-element
                         = render partial: 'carwash/check_view', locals: {list: v}
 
+    - if Time.now - vehicle.last_gps.to_i > 7.days
+      .overlay-screen
+        .overlay-content
+          = form_tag( update_vehicle_mileage_path, remote: true, method: :post, format: :js) do |f|
+            = number_field_tag :mileage, nil, class: 'form-control', placeholder: 'Inserire Km!'
+            = hidden_field_tag :vehicle_id, vehicle.id
+            = hidden_field_tag :vehicle_class, vehicle.class
+            = hidden_field_tag :worksheet, @worksheet.id
+            = submit_tag 'Ok'
 
 .row
   .col-sm-2
@@ -143,7 +153,7 @@
       Nuova segnalazione
   .col-sm-3
 
-    = select_tag :add_sgn, options_for_select(EurowinController::get_open_notifications_complete(@worksheet.vehicle,@worksheet.number).map{ |sgn| ["#{sgn['SchedaInterventoProtocollo'].nil? ? 'Nuova' : "ODL: #{sgn['SchedaInterventoProtocollo']}"} - #{sgn['DescrizioneSegnalazione']}",sgn.to_json]}), include_blank: 'Altre segnalazioni attive', class: 'form-control submitting-select ajax_update', id: 'add-sgn-select', data: {target: add_sgn_to_worksheet_path(@worksheet.number), method: :post, station: @station}
+    = select_tag :add_sgn, options_for_select(EurowinController::get_open_notifications_complete(vehicle,@worksheet.number).map{ |sgn| ["#{sgn['SchedaInterventoProtocollo'].nil? ? 'Nuova' : "ODL: #{sgn['SchedaInterventoProtocollo']}"} - #{sgn['DescrizioneSegnalazione']}",sgn.to_json]}), include_blank: 'Altre segnalazioni attive', class: 'form-control submitting-select ajax_update', id: 'add-sgn-select', data: {target: add_sgn_to_worksheet_path(@worksheet.number), method: :post, station: @station}
 
 :javascript
 
@@ -325,7 +335,7 @@
       $('#timer-'+k).data('time',v);
       $("#timer-"+k).html(seconds_to_clock(v));
     });
-    if(ck%15 == 0){
+    if(ck%15 == 0 && $('.overlay-screen').length == 0 ){
       var protocol = /collapse-(checks|\d*)/.exec($('.in').attr('id'));
       if(protocol != null){
         protocol = protocol[1]

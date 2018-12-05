@@ -340,7 +340,13 @@ class Vehicle < ApplicationRecord
 
   def actual_property
     ap = VehicleProperty.where(vehicle: self).order(date_since: :desc).first
-    ap = VehicleProperty.create(vehicle: self, owner: self.property, date_since: self.registration_date) if ap.nil?
+    if ap.nil?
+      if self.property.nil?
+        return nil
+      else
+        ap = VehicleProperty.create(vehicle: self, owner: self.property, date_since: self.registration_date)
+      end
+    end
     ap
   end
 

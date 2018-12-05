@@ -669,6 +669,53 @@ function exit_page_click_func(){
   window.onbeforeunload = null;
 }
 
+function ordering_cell_click_func(){
+  "use strict";
+  console.log($(this).data('ordering'));
+  var ordering = JSON.parse($('input[name=ordering]'));
+  var order = $(this).data('ordering_id');
+  ordering[order] = !ordering[order];
+  $('input[name=ordering]').val(ordering);
+  $('input[name=order]').val(order);
+  // $('#ordering_form').submit();
+  id = $(this).data('ordering_id');
+  type = $(this).data('type');
+  var list = $('.ordered_cell[ordering_id='+id+']');
+  list.sort(function(rowa,rowb){
+    a = rowa.children('.ordered_cell').first();
+    b = rowb.children('.ordered_cell').first();
+    switch(type){
+      case 'number': return Float.parse(a.html()) - Float.parse(b.html());
+      break;
+      case 'string': if(a.html() == b.html()){
+                      return 0;
+                    } else if(a.html() > b.html()){
+                      return 1;
+                    }else if(a.html() < b.html()){
+                      return -1;
+                    }
+      break;
+      case 'date': var date1 = a.html().split('/');
+                  var date2 = b.html().split('/');
+                  dt1 = date1[2]+date1[1]+date1[0];
+                  dt2 = date2[2]+date2[1]+date2[0];
+                  if(dt1 == dt2){
+                    return 0;
+                  } else if(dt1 > dt2){
+                    return 1;
+                  }else if(dt1 < dt2){
+                    return -1;
+                  }
+      break;
+    }
+  });
+  $.each(list,function(){
+    var parent = $(this).parent();
+    parent.remove();
+    $('#ordering_box').append(parent);
+  });
+}
+
 function activateJS() {
     "use strict";
 
@@ -755,6 +802,8 @@ function activateJS() {
     $('body').on('mouseup','.selectable-column',selectable_column_click_func);
 
     $('body').on('click', '.exit_page', exit_page_click_func);
+
+    $('body').on('click', '.ordering_cell', ordering_cell_click_func);
 
 }
 
