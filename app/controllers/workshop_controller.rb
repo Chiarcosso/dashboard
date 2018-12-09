@@ -679,6 +679,9 @@ class WorkshopController < ApplicationController
 
         @worksheet.update(invoicing: invoicing, exit_time: DateTime.now, log: "#{@worksheet.log}\n Scheda chiusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         vcs = @worksheet.vehicle_check_session
+        vcs.vehicle_performed_checks.each do |vpc|
+          vpc.create_notification(current_user)
+        end
         vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.") unless vcs.nil?
         odl = @worksheet.ew_worksheet
         EurowinController::create_worksheet({
@@ -722,7 +725,7 @@ class WorkshopController < ApplicationController
       end
     end
   end
-  
+
   private
 
   def get_worksheet

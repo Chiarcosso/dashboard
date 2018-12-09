@@ -107,6 +107,7 @@ class CarwashController < ApplicationController
       else
         @station = 'workshop'
       end
+      # pc.create_notification(current_user)
       respond_to do |format|
         # case @station
         # when 'workshop' then
