@@ -13,7 +13,7 @@ class Person < ApplicationRecord
 
 
   has_one :carwash_driver_code, :dependent => :destroy
-  has_many :mssql_references, as: :local_object
+  has_many :mssql_references, as: :local_object, dependent: :destroy
   has_many :vehicle_properties, as: :owner
 
   scope :order_alpha, -> { order(:name).order(:surname) }

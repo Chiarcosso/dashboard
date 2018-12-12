@@ -210,12 +210,22 @@ class EurowinController < ApplicationController
   end
 
   def self.get_worksheet(protocol)
-    protocol = protocol.to_s[/\d*/]
-    ewc = get_ew_client
-    r = ewc.query("select * from autoodl where CodiceAutomezzo is not null and protocollo = #{protocol} limit 1;").first
-    ewc.close
+    
+    begin
+      if protocol.to_s == ''
+        nil
+      else
+        protocol = protocol.to_s[/\d*/]
+        ewc = get_ew_client
+        r = ewc.query("select * from autoodl where CodiceAutomezzo is not null and protocollo = #{protocol} limit 1;").first
+        ewc.close
 
-    r
+        r
+      end
+
+    rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n\n#{e.backtrace.join("\n")}","Eurowin get_worksheet, protocol: #{protocol}").deliver_now
+    end
   end
 
   def self.get_odl_from_notification(notification)

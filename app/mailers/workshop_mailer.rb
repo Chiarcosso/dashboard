@@ -30,7 +30,7 @@ class WorkshopMailer < ApplicationMailer
     else
       station = 'pronto (officina non specificata)'
     end
-    
+
     message = <<-MESSAGE
     #{Time.now.strftime("%d/%m/%Y %H:%M:%S")} - Il mezzo targato #{vehicle.plate} è #{station}.
 
@@ -47,15 +47,28 @@ class WorkshopMailer < ApplicationMailer
   def notify_moving_sgn(sgn,old_odl)
 
     notify_to = ['officina@chiarcosso.it','ufficioit@chiarcosso.com']
-    workshop = EurowinController::get_workshop_by_code(old_odl['CodiceAnagrafico'])
-    message = <<-MESSAGE
-    #{Time.now.strftime("%d/%m/%Y %H:%M:%S")} -- #{sgn['Targa']}
-    La segnalazione nr. #{sgn['Protocollo']} è stata spostata dall'ODL nr. #{old_odl['Protocollo']} (#{workshop}) all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}.
 
-    #{sgn['DescrizioneSegnalazione']}
+    if old_odl.nil?
+      subject = "#{sgn['Targa']} - La segnalazione nr. #{sgn['Protocollo']} è stata assegnata all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}"
+      message = <<-MESSAGE
+      #{Time.now.strftime("%d/%m/%Y %H:%M:%S")} -- #{sgn['Targa']}
+      La segnalazione nr. #{sgn['Protocollo']} è stata assegnata all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}.
 
-    MESSAGE
-    mail(body: message, subject: "#{sgn['Targa']} - La segnalazione nr. #{sgn['Protocollo']} è stata spostata dall'ODL nr. #{old_odl['Protocollo']} (#{workshop}) all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}", to: notify_to)
+      #{sgn['DescrizioneSegnalazione']}
+
+      MESSAGE
+    else
+      workshop = EurowinController::get_workshop_by_code(old_odl['CodiceAnagrafico'])
+      subject = "#{sgn['Targa']} - La segnalazione nr. #{sgn['Protocollo']} è stata spostata dall'ODL nr. #{old_odl['Protocollo']} (#{workshop}) all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}"
+      message = <<-MESSAGE
+      #{Time.now.strftime("%d/%m/%Y %H:%M:%S")} -- #{sgn['Targa']}
+      La segnalazione nr. #{sgn['Protocollo']} è stata spostata dall'ODL nr. #{old_odl['Protocollo']} (#{workshop}) all'ODL interno nr. #{sgn['SchedaInterventoProtocollo']}.
+
+      #{sgn['DescrizioneSegnalazione']}
+
+      MESSAGE
+    end
+    mail(body: message, subject: subject, to: notify_to)
 
   end
 
