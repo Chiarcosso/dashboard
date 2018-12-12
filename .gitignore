@@ -24,3 +24,4 @@ erd.pdf
 #/config/database.yml
 /public/images/*
 tmp.*
+dump.sql
