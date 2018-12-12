@@ -336,7 +336,6 @@ class WorkshopController < ApplicationController
         @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: vehicle.mandatory?(vc) )
       end
 
-
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
@@ -422,7 +421,7 @@ class WorkshopController < ApplicationController
         anno_odl = odl['Anno'].to_s
 
       else
-        odl = "-1"
+        protocollo_odl = "-1"
         anno_odl = "-1"
 
       end
@@ -590,12 +589,29 @@ class WorkshopController < ApplicationController
       @worksheet.update(log: "#{@worksheet.log}\n #{@workshop_operation.log}")
       #close notification there are no more operations
       if !@workshop_operation.myofficina_reference.nil? && WorkshopOperation.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
+
+        sgn = @workshop_operation.ew_notification
+
+        if sgn.nil? || sgn['SchedaInterventoProtocollo'].nil? || sgn['SchedaInterventoProtocollo'] == ''
+          error = <<-ERR
+            Error retriveing sgn:
+            #{sgn.inspect}
+
+            Operation:
+            #{@workshop_operation.inspect}
+
+            Worksheet:
+            #{@worksheet.inspect}
+          ERR
+
+          ErrorMailer.error_report(error,"Chiusura operazione - SGN nr. #{sgn['Protocollo']}").deliver_now
+        end
         EurowinController::create_notification({
-          'ProtocolloODL': @workshop_operation.ew_notification['SchedaInterventoProtocollo'].to_s,
-          'AnnoODL': @workshop_operation.ew_notification['SchedaInterventoAnno'].to_s,
-          'ProtocolloSGN': @workshop_operation.ew_notification['Protocollo'].to_s,
-          'AnnoSGN': @workshop_operation.ew_notification['Anno'].to_s,
-          'DataIntervento': @workshop_operation.ew_notification['DataSegnalazione'].to_s,
+          'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,
+          'AnnoODL': sgn['SchedaInterventoAnno'].to_s,
+          'ProtocolloSGN': sgn['Protocollo'].to_s,
+          'AnnoSGN': sgn['Anno'].to_s,
+          'DataIntervento': sgn['DataSegnalazione'].to_s,
           'FlagRiparato': 'true',
           'CodiceOfficina': "0"
         })
