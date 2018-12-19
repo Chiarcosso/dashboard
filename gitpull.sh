@@ -34,5 +34,9 @@ fi
 
 chmod u=rwx $RAILS_BASE/bin/rails
 chmod a+x $RAILS_BASE/bin/rails
+
+chmod u=rwx $RAILS_BASE/bin/bundle
+chmod a+x $RAILS_BASE/bin/bundle
+
 sudo service iptables start
 sudo service nginx restart

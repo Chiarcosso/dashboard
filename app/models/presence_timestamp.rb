@@ -13,7 +13,7 @@ class PresenceTimestamp < ApplicationRecord
   def self.years
     years = Array.new
 
-    for i in 2015..Date.today.strftime("%Y").to_i
+    for i in 2015..(Date.today+1.years).strftime("%Y").to_i
       years << i
     end
     years.reverse
