@@ -51,7 +51,7 @@ class PresenceController < ApplicationController
         format.html { render 'presence/vacation_calendar' }
       end
     rescue Exception => e
-      
+
       @error = e.message
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
@@ -792,8 +792,8 @@ class PresenceController < ApplicationController
     office_workers.sort_by{|d| d.person.list_name }.each_with_index do |d,i|
       pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
         pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
-          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [])],
-          [pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [])]],width: 490)]],
+          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [],width: 230),
+          pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [],width: 260)]],width: 490)]],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name)],[pdf.make_cell(content: d.complete_duration_label)],[pdf.make_cell(content: d.leave_code.description)]])],
         # [pdf.make_cell(content: (i+1).to_s)],
@@ -811,8 +811,8 @@ class PresenceController < ApplicationController
     mechanics.sort_by{|d| d.person.list_name }.each_with_index do |d,i|
       pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
         pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
-          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [])],
-          [pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [])]],width: 490)]],
+          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [],width: 230),
+          pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [],width: 260)]],width: 490)]],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name)],[pdf.make_cell(content: d.complete_duration_label)],[pdf.make_cell(content: d.leave_code.description)]])],
         # [pdf.make_cell(content: (i+1).to_s)],
@@ -830,8 +830,8 @@ class PresenceController < ApplicationController
     drivers.sort_by{|d| d.person.list_name }.each_with_index do |d,i|
       pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
         pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
-          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [])],
-          [pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [])]],width: 490)]],
+          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [],width: 230),
+          pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",align: :left, size: 13,borders: [], width: 260)]],width: 490)]],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name)],[pdf.make_cell(content: d.complete_duration_label)],[pdf.make_cell(content: d.leave_code.description)]])],
         # [pdf.make_cell(content: (i+1).to_s)],
