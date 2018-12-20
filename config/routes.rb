@@ -295,6 +295,14 @@ Rails.application.routes.draw do
   post   '/worksheet/upsync', to: 'worksheets#upsync_all', as: :upsync_worksheets
   post   '/worksheet/notifications_xbox', to: 'worksheets#notifications_xbox', as: :worksheet_notifications_xbox
 
+  post  '/timesheets/timesheet_popup', to: 'timesheet#timesheet_popup', as: :timesheet_popup
+  post  '/timesheets/timesheet_popup/start', to: 'timesheet#timesheet_start', as: :timesheet_start
+  post  '/timesheets/timesheet_popup/stop', to: 'timesheet#timesheet_stop', as: :timesheet_stop
+
+  post   '/timesheets/index', to: 'timesheet#index'
+  get    '/timesheets/index', to: 'timesheet#index'
+  post   '/timesheet/update', to: 'timesheet#update', as: :timesheet_update
+
   get   '/worksheet/manage_worksheets', to: 'worksheets#manage_worksheets_index', as: :manage_worksheets
   get   '/worksheet/manage_external_worksheets', to: 'worksheets#manage_external_worksheets_index', as: :manage_external_worksheets
   get   '/worksheet/worksheets_on_processing', to: 'worksheets#on_processing_index', as: :worksheets_on_processing

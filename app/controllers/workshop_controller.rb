@@ -1,7 +1,8 @@
 class WorkshopController < ApplicationController
 
-  before_action :get_worksheet, except: [:get_sheet,:create_worksheet,:index,:open_notification]
-  before_action :get_check_session, except: [:index]
+  before_action :authenticate_user!
+  before_action :get_worksheet, except: [:get_sheet,:create_worksheet,:index,:open_notification,:timesheet_popup,:timesheet_start,:timesheet_stop]
+  before_action :get_check_session, except: [:index,:timesheet_popup,:timesheet_start,:timesheet_stop]
   before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation]
   before_action :set_protocol, except: [:index]
   before_action :set_station
@@ -544,6 +545,8 @@ class WorkshopController < ApplicationController
         @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
 
       end
+
+      TimesheetRecord.create(person: current_user.person, workshop_operation: @workshop_operation, description: params.require(:description), start: Time.now)
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
@@ -565,6 +568,11 @@ class WorkshopController < ApplicationController
       @workshop_operation.update(real_duration: duration, paused: true,  last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log}\n Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
+
+      tr = TimesheetRecord.where(person: current_user.person, workshop_operation: @workshop_operation).order(:created_at => :asc).last
+
+      tr.update(stop: Time.now, minutes: ((Time.now - tr.start) / 60).ceil)
+
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
@@ -584,6 +592,10 @@ class WorkshopController < ApplicationController
         duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
       end
       @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log}\n Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
+
+      tr = TimesheetRecord.find_by(person: current_user.person, workshop_operation: @workshop_operation).order(:created_at => :asc).last
+      tr.update(stop: Time.now, minutes: ((Time.now - tr.start) / 60).ceil)
+
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
       @worksheet.update(log: "#{@worksheet.log}\n #{@workshop_operation.log}")

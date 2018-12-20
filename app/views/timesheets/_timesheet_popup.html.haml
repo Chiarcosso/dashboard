@@ -1,0 +1,90 @@
+- person = current_user.person
+%br
+%h4= "Operazione fuori scheda - #{person.list_name}"
+%br
+-# = form_tag( create_timesheet_record_path, remote: true, method: :post) do |f|
+.row
+  .col-sm-12
+    = hidden_field_tag 'person_id', person.id
+    = text_field_tag 'description', nil, placeholder: 'Descrizione', class: 'form-control'
+.row
+  .col-sm-12
+    %hr
+.row
+  .col-sm-4
+    = button_tag 'Inizia', id: 'timesheet_start', data: {route: timesheet_start_path}, disabled: 'disabled'
+  .col-sm-4
+    #timer-display
+      = '00:00:00'
+  .col-sm-4
+    = button_tag 'Concludi', id: 'timesheet_stop', data: {route: timesheet_stop_path}, disabled: 'disabled'
+
+
+:javascript
+
+  var timer = 0;
+  var tmr;
+  clearInterval(tmr);
+
+  // Disable buttons if no description is given
+  $('input[name=description]').on('keyup',function(){
+    if( $(this).val() === '' ){
+      $('#timesheet_start').attr('disabled','disabled');
+    } else {
+      $('#timesheet_start').removeAttr('disabled');
+    }
+  });
+
+  // Start timer and create timesheet record
+  $('#timesheet_start').click(function(e){
+    e.preventDefault();
+
+    // Make the call
+    $.ajax({
+      url: $(this).data('route')+'.js',
+      method: 'post',
+      data: {
+        'timesheet[person_id]': $('input[name=person_id]').val(),
+        'timesheet[description]': $('input[name=description]').val()
+      },
+      complete: function(data){
+        // Set id on the stop button
+        $('#timesheet_stop').data('id', data.responseText);
+
+        // Enable stop button
+        $('#timesheet_stop').removeAttr('disabled');
+
+        // Disable start button
+        $('#timesheet_start').attr('disabled','disabled');
+
+        // Start the timer
+        tmr = setInterval(function(){
+          timer += 1;
+          $('#timer-display').html(seconds_to_clock(timer));
+        },1000);
+      }
+    });
+  });
+
+  // Stop timer and update record
+  $('#timesheet_stop').click(function(e){
+    e.preventDefault();
+
+    // Stop the timer
+    clearInterval(tmr);
+
+    // Make the call
+    $.ajax({
+      url: $(this).data('route'),
+      method: 'post',
+      data: {id: $(this).data('id')},
+      success: function(data){
+
+        // Close the popup
+        deactivateLoadingScreen();
+        $('.close').trigger('click');
+
+      }
+    })
+
+  });

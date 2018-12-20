@@ -730,6 +730,26 @@ function ordering_cell_click_func(){
   });
 }
 
+function load_popup_click_func(e){
+  "use strict";
+  e.preventDefault();
+  $('.popup').remove();
+  var route = $(this).data('route');
+  var popup_link_name = $(this).data('popup_id');
+  var el = $('<div class="popup" id="'+popup_link_name+'"></div>');
+  $('body').append(el);
+  activateLoadingScreen();
+  $.ajax({
+    url: route+".js",
+    method: 'post',
+    complete: function(data){
+      el.html(data.responseText);
+      el.append('<div class="close">Chiudi</div>');
+      deactivateLoadingScreen();
+    }
+  });
+}
+
 function activateJS() {
     "use strict";
 
@@ -818,6 +838,8 @@ function activateJS() {
     $('body').on('click', '.exit_page', exit_page_click_func);
 
     $('body').on('click', '.ordering_cell', ordering_cell_click_func);
+
+    $('body').on('click', '.load_popup', load_popup_click_func);
 
 }
 

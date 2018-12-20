@@ -239,12 +239,13 @@
 
     var id = /start-(\d*)/.exec($(this).attr('id'))[1];
     var protocol = $(this).data('protocol');
+    var description = $(this).data('description');
 
     if($(this).hasClass('start_timer')){
 
       if(!(active_notification === null)){
         var route = $('#start-'+active_notification).data('route')[1];
-        var data = { operation: active_notification, time: active_timer, worksheet_duration: tm };
+        var data = { operation: active_notification, time: active_timer, worksheet_duration: tm, description: description };
         $.ajax({
           url: route,
           method: 'post',
@@ -265,7 +266,7 @@
       check_disabled_close();
 
       var route = $(this).data('route')[0];
-      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol };
+      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol, description: description };
       $.ajax({
         url: route,
         method: 'post',
@@ -275,7 +276,7 @@
     } else if($(this).hasClass('pause_timer')){
 
       var route = $(this).data('route')[1];
-      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol };
+      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol, description: description };
       $.ajax({
         url: route,
         method: 'post',

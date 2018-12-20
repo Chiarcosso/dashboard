@@ -61,6 +61,9 @@
     .col-sm-6{ style: 'bottom: 1.5em; text-align: right'}
       %button{ class: 'create_popup no-loader', data: { popup_id: 'new_worksheet', html: (render partial: 'workshop/worksheet_popup') } }
         Nuovo ODL
+    .col-sm-6{ style: 'bottom: 1.5em; text-align: left'}
+      %button{ class: 'load_popup no-loader', data: { popup_id: 'new_timesheet_record', route: '/timesheets/timesheet_popup' } }
+        Operazioni fuori scheda
 
 
 :javascript

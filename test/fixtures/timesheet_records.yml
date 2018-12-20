@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  person: one
+  workshop_operation: one
+  description: MyString
+  start: 2018-12-19 11:25:59
+  stop: 2018-12-19 11:25:59
+  hr_approval: 2018-12-19 11:25:59
+  chief_approval: 2018-12-19 11:25:59
+
+two:
+  person: two
+  workshop_operation: two
+  description: MyString
+  start: 2018-12-19 11:25:59
+  stop: 2018-12-19 11:25:59
+  hr_approval: 2018-12-19 11:25:59
+  chief_approval: 2018-12-19 11:25:59

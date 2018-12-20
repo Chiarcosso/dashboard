@@ -1,0 +1,95 @@
+.container-fluid{style: 'margin-top: 2em;'}
+  = form_tag('/timesheets/index') do |f|
+    .row
+      .col-sm-2
+        = "Selezionare il giorno: "
+      .col-sm-2
+        = date_field_tag :date, @date.strftime("%Y-%m-%d"), class: 'form-control'
+        = hidden_field_tag :name, @name
+      .col-sm-1
+        = submit_tag 'Cerca', class: 'form-control'
+
+  .panel-group.scrollable-panel#accordion{style: 'height: 80%;'}
+    - @timesheets.each do |name,ts|
+      .panel.panel-default
+        .panel-heading
+          .row
+            .col-sm-12
+              %h4.panel-title{ data: {name: name}}
+                %a{ href: "#collapse-#{name.tr(' ','_')}", data: { toggle: 'collapse', parent: '#accordion' }}
+                  = name
+        %div{ class: "panel-collapse collapse#{name == @name ? ' in' : ''}", id: "collapse-#{name.tr(' ','_')}"}
+          .panel-body
+            .row
+              .col-sm-5
+                %b
+                  Descrizione
+              .col-sm-2
+                %b
+                  Tempo
+              .col-sm-3
+                .col-sm-6
+                  %b
+                    Responsabile
+                .col-sm-6
+                  %b
+                    Uff. Personale
+              .col-sm-2
+            %div{id: "#collapse-#{name.tr(' ','_')}"}
+              - total = 0
+              - ts.each do |t|
+                - total += t.minutes.to_i
+                = form_tag(timesheet_update_path, remote: true, method: :post) do |f|
+                  .row
+                    .col-sm-5
+                      = t.description
+                      = hidden_field_tag 'timesheet[id]', t.id
+                      = hidden_field_tag :date, @date.strftime("%Y-%m-%d")
+                      = hidden_field_tag :name, @name
+                    .col-sm-2
+                      - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                        = time_field_tag 'timesheet[minutes]', t.time_label, class: 'form-control'
+                      - else
+                        = t.time_label
+                    .col-sm-3
+                      .col-sm-6
+                        - if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                          = check_box_tag 'timesheet[chief_approval]', true, !t.chief_approval.nil?, class: 'form-control ajax-submit'
+                        - else
+                          = hidden_field_tag 'timesheet[chief_approval]', !t.chief_approval.nil?
+                          - if t.chief_approval.nil?
+                            = image_tag('no.png', size: "20x20", alt: "Non confermato dal responsabile")
+                          - else
+                            = image_tag('ok.png', size: "20x20", alt: "Confermato dal responsabile")
+                      .col-sm-6
+                        - if (current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
+                          = check_box_tag 'timesheet[hr_approval]', true, !t.hr_approval.nil?, class: 'form-control ajax-submit'
+                        - else
+                          = hidden_field_tag 'timesheet[hr_approval]', !t.hr_approval.nil?
+                          - if t.hr_approval.nil?
+                            = image_tag('no.png', size: "20x20", alt: "Non confermato dall'ufficio personale")
+                          - else
+                            = image_tag('ok.png', size: "20x20", alt: "Confermato dall'ufficio personale")
+
+                    .col-sm-2
+                      - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                        = submit_tag 'Conferma', class: 'form-control'
+
+              .row
+                .col-sm-1
+                  %b= "Totale: "
+                .col-sm-11
+                  - hrs = (total / 60).floor
+                  - mins = total % 60
+                  %b= "#{hrs.to_s.rjust(2,'0')}:#{mins.to_s.rjust(2,'0')}"
+
+
+
+:javascript
+
+  deactivateLoadingScreen();
+  $('body').on('click','.panel-title',function(){
+    console.log('asdasd',$('input[name=name]').val(),$(this).data('name'));
+    $('input[name=name]').val($(this).data('name'));
+    console.log('asdfdfhfj',$('input[name=name]').val(),$(this).data('name'));
+  });

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181018120147) do
+ActiveRecord::Schema.define(version: 20181219102559) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -607,6 +607,46 @@ ActiveRecord::Schema.define(version: 20181018120147) do
     t.datetime "updated_at",        null: false
   end
 
+  create_table "timesheet_records", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.integer  "person_id",             null: false
+    t.integer  "workshop_operation_id"
+    t.string   "description",           null: false
+    t.datetime "start"
+    t.datetime "stop"
+    t.datetime "hr_approval"
+    t.datetime "chief_approval"
+    t.integer  "minutes"
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.index ["person_id"], name: "index_timesheet_records_on_person_id", using: :btree
+    t.index ["workshop_operation_id"], name: "index_timesheet_records_on_workshop_operation_id", using: :btree
+  end
+
+  create_table "timesheets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "worksheet_id"
+    t.integer  "workshop_operation_id"
+    t.date     "date"
+    t.integer  "person_id"
+    t.integer  "vehicle_id"
+    t.text     "note",                  limit: 65535
+    t.integer  "real_duration",                       default: 0
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
+    t.index ["person_id"], name: "index_timesheets_on_person_id", using: :btree
+    t.index ["vehicle_id"], name: "index_timesheets_on_vehicle_id", using: :btree
+  end
+
+  create_table "timesheets_approval", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.date     "date"
+    t.integer  "person_id"
+    t.datetime "person_approval_time"
+    t.datetime "manager_approval_time"
+    t.datetime "hr_approval_time"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.index ["person_id"], name: "index_timesheets_on_person_id", using: :btree
+  end
+
   create_table "transport_documents", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "number"
     t.date     "date"
@@ -1112,6 +1152,11 @@ ActiveRecord::Schema.define(version: 20181018120147) do
   add_foreign_key "presence_records", "presence_timestamps", column: "start_ts_id"
   add_foreign_key "presence_timestamps", "badges"
   add_foreign_key "presence_timestamps", "sensors"
+  add_foreign_key "timesheet_records", "people"
+  add_foreign_key "timesheet_records", "workshop_operations"
+  add_foreign_key "timesheets", "people", name: "fk_rails_456159c3ad9"
+  add_foreign_key "timesheets", "vehicles", name: "fk_rails_456159c3ad8"
+  add_foreign_key "timesheets_approval", "people", name: "fk_rails_432259c3af9"
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
   add_foreign_key "transport_documents", "companies", column: "vector_id"

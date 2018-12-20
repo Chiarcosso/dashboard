@@ -198,7 +198,8 @@ class EurowinController < ApplicationController
 
       # w += " and (targa like #{ActiveRecord::Base::sanitize("%#{opts[:search]}%")} "\
       w += " and convert(protocollo,char) like #{ActiveRecord::Base::sanitize("%#{opts[:search][:number]}%")}"
-      w += " and targa like #{ActiveRecord::Base::sanitize("%#{opts[:search][:plate]}%")}#{wops}"\
+      plate = opts[:search][:plate].split('').join('%') unless opts[:search][:plate].nil?
+      w += " and targa like #{ActiveRecord::Base::sanitize("%#{plate}%")}#{wops}"\
     end
     #send query
     q = "select * from autoodl where #{w}#{wstation} order by targa;"
@@ -210,7 +211,7 @@ class EurowinController < ApplicationController
   end
 
   def self.get_worksheet(protocol)
-    
+
     begin
       if protocol.to_s == ''
         nil

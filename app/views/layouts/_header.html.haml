@@ -14,6 +14,8 @@
           - if (current_user.has_role?(:personale) || current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
             = navbar_item "Presenze e orari", manage_presence_path
           - if (current_user.has_role?(:personale) || current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
+            = navbar_item "Controllo ore officina", '/timesheets/index'
+          - if (current_user.has_role?(:personale) || current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
             = navbar_item "Calendario assenze", vacation_calendar_path
           - if (current_user.has_role?(:personale) || current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
             = navbar_item "Badge, festività e permessi", manage_festivities_path
@@ -42,6 +44,8 @@
             = navbar_item "Attualmente in lavorazione", worksheets_on_processing_path
           - if (current_user.has_role?(:admin)|| current_user.has_role?('gestione officina'))
             = navbar_item "Gestione ODL", manage_worksheets_path
+          - if (current_user.has_role?('officina') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+            = navbar_item "Controllo ore officina", '/timesheets/index'
           -# - if (current_user.has_role?(:officina) || current_user.has_role?(:admin))
           -#   = navbar_item "Segnalazioni", vehicle_notifications_path
           -# - if (current_user.has_role?(:officina) || current_user.has_role?(:admin))
