@@ -16,10 +16,10 @@
         .panel-heading
           .row
             .col-sm-12
-              %h4.panel-title{ data: {name: name}}
-                %a{ href: "#collapse-#{name.tr(' ','_')}", data: { toggle: 'collapse', parent: '#accordion' }}
+              %h4.panel-title{ data: {name: name.tr('\' ','_')}}
+                %a{ href: "#collapse-#{name.tr('\' ','_')}", data: { toggle: 'collapse', parent: '#accordion' }}
                   = name
-        %div{ class: "panel-collapse collapse#{name == @name ? ' in' : ''}", id: "collapse-#{name.tr(' ','_')}"}
+        %div{ class: "panel-collapse collapse#{name.tr('\' ','_') == @name ? ' in' : ''}", id: "collapse-#{name.tr('\' ','_')}"}
           .panel-body
             .row
               .col-sm-5
@@ -101,15 +101,19 @@
                       = 'Conferma le ore in blocco:'
                   .row
                     .col-sm-6
-                      = check_box_tag 'massive_chief_approval', {from: 'chief', ids: ts.map { |t| t.id }}.to_json, false, class: 'form-control ajax-caller', data: {route: set_all_time_approvals_path}
+                      = check_box_tag 'massive_chief_approval', {date: @date, name: @name, from: 'chief', ids: ts.map { |t| t.id }}.to_json, false, class: 'form-control ajax-caller massive', data: {route: set_all_time_approvals_path}
                     .col-sm-6
-                      = check_box_tag 'massive_hr_approval', {from: 'hr', ids: ts.map { |t| t.id }}.to_json, false, class: 'form-control ajax-caller', data: {route: set_all_time_approvals_path}
+                      = check_box_tag 'massive_hr_approval', {date: @date, name: @name, from: 'hr', ids: ts.map { |t| t.id }}.to_json, false, class: 'form-control ajax-caller massive', data: {route: set_all_time_approvals_path}
 
 
 
 :javascript
 
-  deactivateLoadingScreen();
   $('body').on('click','.panel-title',function(){
     $('input[name=name]').val($(this).data('name'));
+    var opts = JSON.parse($('.massive').first().val());
+    opts['name'] = $(this).data('name');
+    $('.massive').val(JSON.stringify(opts));
+    console.log(JSON.parse($('.massive').val()));
   });
+  deactivateLoadingScreen();

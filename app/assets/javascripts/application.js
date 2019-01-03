@@ -370,7 +370,6 @@ function toggable_display_change_func() {
 
 function check_box_parent_click_func(){
   "use strict";
-  console.log($(this));
   $(this).children('input[type=checkbox]').val(!$(this).children('input[type=checkbox]').val());
 }
 

@@ -121,7 +121,39 @@ class TimesheetController < ApplicationController
   end
 
   def massive_approval
-    
+    begin
+      if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+        # Get strong params
+        from = params.require('from')
+        ids = params.require('ids')
+
+        # Loop through the timesheets
+        ids.each do |ts|
+
+          # Update the right approval
+          case from
+          when 'chief'
+            TimesheetRecord.find(ts.to_i).update(chief_approval: Time.now)
+          when 'hr'
+            TimesheetRecord.find(ts.to_i).update(hr_approval: Time.now)
+          end
+        end
+
+        get_timesheets
+      else
+        raise "Operazione non concessa, l'utente non possiede il ruolo per questa modifica."
+      end
+
+      respond_to do |format|
+        format.js { render partial: 'timesheets/index_js' }
+      end
+    rescue Exception => e
+      respond_to do |format|
+        @error = e.message+"\n"+e.backtrace.join("\n")
+        format.html { render partial: 'layouts/error_html' }
+        format.js { render partial: 'layouts/error' }
+      end
+    end
   end
 
   private
