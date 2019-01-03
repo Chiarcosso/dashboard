@@ -120,6 +120,10 @@ class TimesheetController < ApplicationController
     end
   end
 
+  def massive_approval
+    
+  end
+
   private
 
   def get_timesheets

@@ -745,8 +745,24 @@ function load_popup_click_func(e){
     complete: function(data){
       el.html(data.responseText);
       el.append('<div class="close">Chiudi</div>');
-      deactivateLoadingScreen();
     }
+  });
+}
+
+function ajax_submit_click_func(e){
+  "use strict";
+  $(this).parents('form').first().submit();
+}
+
+function ajax_caller_click_func(e){
+  "use strict";
+  var route = $(this).data('route');
+  activateLoadingScreen();
+  $.ajax({
+    url: route+".js",
+    method: 'post',
+    data: JSON.parse($(this).val()),
+    complete: 'deactivateLoadingScreen'
   });
 }
 
@@ -840,6 +856,10 @@ function activateJS() {
     $('body').on('click', '.ordering_cell', ordering_cell_click_func);
 
     $('body').on('click', '.load_popup', load_popup_click_func);
+
+    $('body').on('click', '.ajax-submit', ajax_submit_click_func);
+
+    $('body').on('click', '.ajax-caller', ajax_caller_click_func);
 
 }
 

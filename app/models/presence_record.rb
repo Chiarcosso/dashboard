@@ -5,6 +5,14 @@ class PresenceRecord < ApplicationRecord
 
   enum weekdays: ['Dom.','Lun.','Mar.','Mer.','Gio.','Ven.','Sab.']
 
+  def self.time_on_date(date,person)
+    PresenceRecord.where(date: date, person: person).order(set_day_time: :asc).first.set_day_time
+  end
+
+  def set_day_time_label
+    "#{(self.set_day_time/3600).to_s.rjust(2,'0')}:#{((self.set_day_time%3600)/60).to_s.rjust(2,'0')}"
+  end
+
   def duration_label(calculated = true)
     if calculated
       "#{self.calculated_duration/3600}:#{((self.calculated_duration%3600)/60).to_s.rjust(2,'0')}:#{(((self.calculated_duration%3600)%60)).to_s.rjust(2,'0')}"
@@ -90,7 +98,7 @@ class PresenceRecord < ApplicationRecord
 
     #get day schedule
     working_schedule = WorkingSchedule.get_schedule(date,person)
-    
+
     #for every timestamp on that day with those badges calculate records
     if badges.empty?
       presence_timestamps = []

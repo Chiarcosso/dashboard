@@ -302,6 +302,7 @@ Rails.application.routes.draw do
   post   '/timesheets/index', to: 'timesheet#index'
   get    '/timesheets/index', to: 'timesheet#index'
   post   '/timesheet/update', to: 'timesheet#update', as: :timesheet_update
+  post   '/timesheets/massive_approval', to: 'timesheet#massive_approval', as: :set_all_time_approvals
 
   get   '/worksheet/manage_worksheets', to: 'worksheets#manage_worksheets_index', as: :manage_worksheets
   get   '/worksheet/manage_external_worksheets', to: 'worksheets#manage_external_worksheets_index', as: :manage_external_worksheets
