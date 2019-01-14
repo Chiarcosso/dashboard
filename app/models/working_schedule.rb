@@ -40,6 +40,10 @@ class WorkingSchedule < ApplicationRecord
     working_schedule = WorkingSchedule.find_by(person: person, weekday: weekday)
   end
 
+  def expected_hours_label
+    "#{(self.expected_hours.floor).to_s.rjust(2,'0')}:#{((self.expected_hours-self.expected_hours.floor)*60).to_i.to_s.rjust(2,'0')}"
+  end
+
   def duration_agreement
     self.agreement_to.to_i - self.agreement_from.to_i - self.break * 60
   end
