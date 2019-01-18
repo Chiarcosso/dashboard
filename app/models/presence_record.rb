@@ -6,7 +6,12 @@ class PresenceRecord < ApplicationRecord
   enum weekdays: ['Dom.','Lun.','Mar.','Mer.','Gio.','Ven.','Sab.']
 
   def self.time_on_date(date,person)
-    PresenceRecord.where(date: date, person: person).order(set_day_time: :asc).first.set_day_time
+    time = PresenceRecord.where(date: date, person: person).order(set_day_time: :asc).first
+    if time.nil?
+      return 0
+    else
+      time.set_day_time 
+    end
   end
 
   def set_day_time_label

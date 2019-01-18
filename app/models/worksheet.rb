@@ -471,6 +471,11 @@ class Worksheet < ApplicationRecord
       vehicle = self.vehicle
 
       #get various dates
+
+      unless vehicle.registration_date.nil?
+        vehicle_registration = vehicle.registration_date.strftime("%Y")
+      end
+
       unless self.opening_date.nil?
         opening_year = self.opening_date.strftime('%Y')
         opening_date = self.opening_date.strftime('%d/%m/%Y')
@@ -552,7 +557,7 @@ class Worksheet < ApplicationRecord
       end
       pdf.table [[pdf.make_table([[pdf.make_cell(content: 'Codice',size: 7)],[pdf.make_cell(content: vehicle_code,size: 13, font_style: :bold)]],width: 40),
               pdf.make_table([[pdf.make_cell(content: 'Mezzo',size: 7)],[pdf.make_cell(content: vehicle.complete_name,size: 13, font_style: :bold)]],width: 250),
-              pdf.make_table([[pdf.make_cell(content: 'Anno',size: 7)],[pdf.make_cell(content: opening_year,size: 13, font_style: :bold)]],width: 40),
+              pdf.make_table([[pdf.make_cell(content: 'Anno',size: 7)],[pdf.make_cell(content: vehicle_registration,size: 13, font_style: :bold)]],width: 40),
               pdf.make_table([[pdf.make_cell(content: 'Proprietà',size: 7)],[pdf.make_cell(content: vehicle.property.complete_name,size: 13, font_style: :bold)]],width: 210)]],
         :position => :center,
         :width => 540

@@ -68,6 +68,10 @@ class Person < ApplicationRecord
     PresenceRecord.joins("inner join presence_timestamps pt on pt.id = presence_records.start_ts_id").where(person: self).order("pt.time desc").limit(1).first
   end
 
+  def self.present_at_date(date)
+    
+  end
+
   def present?(time = Time.now)
     lr = self.last_presence_record(time)
     if lr.nil? || lr.break

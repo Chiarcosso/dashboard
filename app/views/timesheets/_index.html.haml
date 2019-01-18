@@ -44,12 +44,18 @@
                   .row
                     .col-sm-5
                       = t.description
+                      - if t.minutes.nil?
+                        %br
+                        %b{style: 'color: #f00'}= "Errore: tempo non presente -> #{t.time_label}"
+                      - if t.minutes.to_i > (24 * 60)
+                        %br
+                        %b{style: 'color: #f00'}= "Errore: operazione durata più di 24 ore -> #{t.time_label}"
                       = hidden_field_tag 'timesheet[id]', t.id
                       = hidden_field_tag :date, @date.strftime("%Y-%m-%d")
                       = hidden_field_tag :name, @name
                     .col-sm-2
                       - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
-                        = time_field_tag 'timesheet[minutes]', t.time_label, class: 'form-control'
+                        = time_field_tag 'timesheet[minutes]', (t.minutes.to_i < (24 * 60)) ? t.time_label : nil, class: 'form-control'
                       - else
                         = t.time_label
                     .col-sm-3
