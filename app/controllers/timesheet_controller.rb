@@ -195,5 +195,8 @@ class TimesheetController < ApplicationController
       @timesheets[tr[:name]] = Array.new if @timesheets[tr[:name]].nil?
       @timesheets[tr[:name]] << tr
     end
+    Person.present_on_date(@date).each do |p|
+      @timesheets[p.list_name] = Array.new if @timesheets[p.list_name].nil? && p.mechanic?
+    end
   end
 end

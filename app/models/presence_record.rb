@@ -10,7 +10,7 @@ class PresenceRecord < ApplicationRecord
     if time.nil?
       return 0
     else
-      time.set_day_time 
+      time.set_day_time
     end
   end
 

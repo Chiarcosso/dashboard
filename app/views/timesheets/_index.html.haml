@@ -10,7 +10,7 @@
         = submit_tag 'Cerca', class: 'form-control'
 
   .panel-group.scrollable-panel#accordion{style: 'height: 80%;'}
-    - @timesheets.each do |name,ts|
+    - @timesheets.sort.each do |name,ts|
       - person = Person.find_by_complete_name name
       .panel.panel-default
         .panel-heading

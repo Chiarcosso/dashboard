@@ -68,8 +68,12 @@ class Person < ApplicationRecord
     PresenceRecord.joins("inner join presence_timestamps pt on pt.id = presence_records.start_ts_id").where(person: self).order("pt.time desc").limit(1).first
   end
 
-  def self.present_at_date(date)
-    
+  def self.present_on_date(date)
+    PresenceRecord.where(date: date).map{|pr| pr.person}
+  end
+
+  def mechanic?
+    self.company_relations.select{ |cr| cr.name == 'Meccanico' || cr.name == 'Meccanico trasfertista' || cr.name == 'Capo Officina'}.count > 0
   end
 
   def present?(time = Time.now)
