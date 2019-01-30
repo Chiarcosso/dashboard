@@ -900,8 +900,8 @@ class GearRequest
 
   def send_mail
     begin
-      StorageMailer.gear_request(self,:hr).deliver_now
-      StorageMailer.gear_request(self,:storage).deliver_now
+      StorageMailer.gear_request(self,:hr).deliver_now if self.gear_type? :hr
+      StorageMailer.gear_request(self,:storage).deliver_now if self.gear_type? :storage
       puts
       puts'Mail sent.'
       puts
