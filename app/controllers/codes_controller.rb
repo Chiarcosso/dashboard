@@ -109,11 +109,11 @@ class CodesController < ApplicationController
     codes.uniq.each do |c|
       code = CarwashDriverCode.findByCode(c).first || CarwashVehicleCode.findByCode(c).first || CarwashSpecialCode.findByCode(c).first
 
-      if !code.disabled && code.is_a?(CarwashDriverCode)
+      if !code.disabled && !code.deleted && code.is_a?(CarwashDriverCode)
         driver = code.person
-      elsif !code.disabled && code.is_a?(CarwashSpecialCode)
+      elsif !code.disabled && !code.deleted && code.is_a?(CarwashSpecialCode)
         special = code
-      elsif !code.disabled && code.is_a?(CarwashVehicleCode)
+      elsif !code.disabled && !code.deleted && code.is_a?(CarwashVehicleCode)
         vehicles << code.vehicle unless Vehicle.carwash_codes[code.vehicle.carwash_code] == 0 # and code.vehicle.vehicle_type.carwash_type == 0
       end
     end
@@ -211,7 +211,7 @@ class CodesController < ApplicationController
         no_go = true
       end
     end
-    if(code.nil? || no_go || code.disabled)
+    if(code.nil? || no_go || code.disabled || code.deleted)
       render :json => 0
     else
       render :json => 1
@@ -244,6 +244,8 @@ class CodesController < ApplicationController
         @code.update(disabled: false)
       when :delete
         @code.update(deleted: true)
+      when :reenable
+        @code.update(deleted: false)
       end
       # @msg = 'Codice creato.'
     else
@@ -284,6 +286,8 @@ class CodesController < ApplicationController
         @code.update(disabled: false)
       when :delete
         @code.update(deleted: true)
+      when :reenable
+        @code.update(deleted: false)
       end
       # @msg = 'Codice creato.'
     else
@@ -321,6 +325,8 @@ class CodesController < ApplicationController
         @code.update(disabled: false)
       when :delete
         @code.update(deleted: true)
+      when :reenable
+        @code.update(deleted: false)
       end
       # @msg = 'Codice creato.'
     else
@@ -409,6 +415,8 @@ class CodesController < ApplicationController
         @action = :enable
       when 'Elimina'
         @action = :delete
+      when 'Ripristina'
+        @action = :reenable
     end
 
   end

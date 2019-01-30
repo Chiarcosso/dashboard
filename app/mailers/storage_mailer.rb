@@ -17,6 +17,8 @@ class StorageMailer < ApplicationMailer
       address = 'richiesta.dpi@chiarcosso.com'
     when :storage
       address = 'richiesta.materiali@chiarcosso.com'
+    else
+      address = 'magazzino@chiarcosso.it'
     end
     mail(body: application.text(department), subject: 'Richiesta dotazione, '+application.person.complete_name, to: address)
     # StorageMailer::ADDRESS_LIST.each do |address|

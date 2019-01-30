@@ -39,7 +39,7 @@
       - if current_user.has_role? :admin
         = form_tag(new_carwash_special_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
           = text_field_tag 'carwash_special_code[label]', nil, class: 'form-control autofocus', placeholder: 'Nome'
-          = number_field_tag 'carwash_special_code[carwash_code]', '0'
+          = hidden_field_tag 'carwash_special_code[carwash_code]', '14'
           = submit_tag 'Crea'
       -# = form_for(:carwash_vehicle_code, url: new_carwash_vehicle_code_path, method: :post, remote: true) do |f|
       -#   = f.text_field :code, id: :vehicle_code
