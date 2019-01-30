@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181219102559) do
+ActiveRecord::Schema.define(version: 20190130094733) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -81,6 +81,7 @@ ActiveRecord::Schema.define(version: 20181219102559) do
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
     t.boolean  "disabled",   default: false, null: false
+    t.boolean  "deleted",    default: false, null: false
     t.index ["code"], name: "index_carwash_driver_codes_on_code", unique: true, using: :btree
     t.index ["disabled"], name: "index_carwash_driver_codes_on_disabled", using: :btree
     t.index ["person_id"], name: "index_carwash_driver_codes_on_person_id", using: :btree
@@ -93,6 +94,7 @@ ActiveRecord::Schema.define(version: 20181219102559) do
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
     t.boolean  "disabled",     default: false, null: false
+    t.boolean  "deleted",      default: false, null: false
     t.index ["disabled"], name: "index_carwash_special_codes_on_disabled", using: :btree
   end
 
@@ -120,6 +122,7 @@ ActiveRecord::Schema.define(version: 20181219102559) do
     t.datetime "updated_at",                           null: false
     t.boolean  "disabled",             default: false, null: false
     t.integer  "external_vehicles_id"
+    t.boolean  "deleted",              default: false, null: false
     t.index ["code"], name: "index_carwash_vehicle_codes_on_code", unique: true, using: :btree
     t.index ["disabled"], name: "index_carwash_vehicle_codes_on_disabled", using: :btree
     t.index ["external_vehicles_id"], name: "index_carwash_vehicle_codes_on_external_vehicles_id", using: :btree
@@ -607,7 +610,7 @@ ActiveRecord::Schema.define(version: 20181219102559) do
     t.datetime "updated_at",        null: false
   end
 
-  create_table "timesheet_records", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "timesheet_records", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "person_id",             null: false
     t.integer  "workshop_operation_id"
     t.string   "description",           null: false

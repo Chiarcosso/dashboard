@@ -1,5 +1,5 @@
 .container-fluid
-  - CarwashSpecialCode.order(:label).each do |cwdc|
+  - CarwashSpecialCode.not_deleted.order(:label).each do |cwdc|
     = form_tag(update_carwash_special_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
       = hidden_field_tag :id, cwdc.id
       .row{ style: cwdc.disabled ? 'background-color: #999' : ''}
@@ -18,6 +18,7 @@
         .col-sm-12
           = submit_tag 'Rigenera', data: { confirmation: "Rigenerare la carta speciale #{cwdc.code} assegnata a #{cwdc.label}? La tessera stampata in precedenza non sarà più valida."}
           = submit_tag cwdc.disabled ? 'Abilita' : 'Disabilita', data: { confirmation: "#{cwdc.disabled ? 'Abilitare' : 'Disabilitare'} la carta speciale #{cwdc.code} assegnata a #{cwdc.label}?"}
+          = submit_tag 'Elimina', data: { confirmation: "Eliminare la carta #{cwdc.code} assegnata a #{cwdc.label}?"}
           = 'Stampa'
           = check_box_tag "print-special[]",cwdc.id, false, class: 'print print-special', data: {date: cwdc.updated_at.strftime('%Y%m%d')}
           %hr

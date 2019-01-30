@@ -7,6 +7,7 @@ class CarwashDriverCode < ApplicationRecord
 
   scope :findByCode, ->(code) { where(:code => code) }
   scope :findByPerson, ->(person) { where(:person => person) }
+  scope :not_deleted, -> { where(deleted: false) }
   # scope :order_person, -> { joins(:person).order('people.surname,people.name') }
 
   def self.createUnique person

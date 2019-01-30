@@ -242,6 +242,8 @@ class CodesController < ApplicationController
         @code.update(disabled: true)
       when :enable
         @code.update(disabled: false)
+      when :delete
+        @code.update(deleted: true)
       end
       # @msg = 'Codice creato.'
     else
@@ -280,6 +282,8 @@ class CodesController < ApplicationController
         @code.update(disabled: true)
       when :enable
         @code.update(disabled: false)
+      when :delete
+        @code.update(deleted: true)
       end
       # @msg = 'Codice creato.'
     else
@@ -315,6 +319,8 @@ class CodesController < ApplicationController
         @code.update(disabled: true)
       when :enable
         @code.update(disabled: false)
+      when :delete
+        @code.update(deleted: true)
       end
       # @msg = 'Codice creato.'
     else
@@ -401,6 +407,8 @@ class CodesController < ApplicationController
         @action = :disable
       when 'Abilita'
         @action = :enable
+      when 'Elimina'
+        @action = :delete
     end
 
   end

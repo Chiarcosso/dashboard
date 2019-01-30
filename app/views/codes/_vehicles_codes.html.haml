@@ -1,5 +1,5 @@
 .container-fluid
-  - CarwashVehicleCode.all.sort_by{ |c| c.vehicle.plate }.each do |cwdc|
+  - CarwashVehicleCode.not_deleted.sort_by{ |c| c.vehicle.plate }.each do |cwdc|
     = form_tag(update_carwash_vehicle_code_path, method: :post, remote: true, type: :script, class: 'prevent-cr') do |f|
       = hidden_field_tag :id, cwdc.id
       .row{class: (cwdc.vehicle.dismissed ? ' error-item' : ''), style: cwdc.disabled ? 'background-color: #999' : ''}
@@ -15,6 +15,7 @@
         .col-sm-12
           = submit_tag 'Rigenera', data: { confirmation: "Rigenerare la carta #{cwdc.code} assegnata a #{cwdc.vehicle.plate}? La tessera stampata in precedenza non sarà più valida."}
           = submit_tag cwdc.disabled ? 'Abilita' : 'Disabilita', data: { confirmation: "#{cwdc.disabled ? 'Abilitare' : 'Disabilitare'} la carta #{cwdc.code} assegnata a #{cwdc.vehicle.plate}?"}
+          = submit_tag 'Elimina', data: { confirmation: "Eliminare la carta #{cwdc.code} assegnata a #{cwdc.vehicle.plate}?"}
           = 'Stampa'
           = check_box_tag "print-vehicles[]",cwdc.id, false, class: 'print print-vehicle', data: {date: cwdc.vehicle.dismissed ? -1 : cwdc.updated_at.strftime('%Y%m%d')}
           %hr

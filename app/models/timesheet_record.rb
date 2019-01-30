@@ -9,7 +9,7 @@ class TimesheetRecord < ApplicationRecord
   end
 
   def time_label
-    # Transform minutes in '00:00' format
+    # Transform minutes in 'HH:MM' format
     if self.minutes.nil?
       'Errore, operazione non conclusa.'
     else

@@ -9,10 +9,16 @@ class StorageMailer < ApplicationMailer
     mail(body: text, subject: 'Avviso scorta '+article.complete_name)
   end
 
-  def gear_request(application)
+  def gear_request(application,department)
     @application = application
     # attachments[application.filename] = {:mime_type => 'application/pdf', :content => application.form }
-    mail(body: application.text, subject: 'Richiesta dotazione, '+application.person.complete_name, to: 'magazzino@chiarcosso.it')
+    case department
+    when :hr
+      address = 'richiesta.dpi@chiarcosso.com'
+    when :storage
+      address = 'richiesta.materiali@chiarcosso.com'
+    end
+    mail(body: application.text(department), subject: 'Richiesta dotazione, '+application.person.complete_name, to: address)
     # StorageMailer::ADDRESS_LIST.each do |address|
     #   m.to = address
     #   begin

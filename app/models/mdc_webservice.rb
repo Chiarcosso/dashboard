@@ -900,7 +900,8 @@ class GearRequest
 
   def send_mail
     begin
-      StorageMailer.gear_request(self).deliver_now
+      StorageMailer.gear_request(self,:hr).deliver_now
+      StorageMailer.gear_request(self,:storage).deliver_now
       puts
       puts'Mail sent.'
       puts
@@ -924,9 +925,18 @@ class GearRequest
     # StorageMailer.new.gear_request(self)
   end
 
-  def text
+  def gear_type? type
+    case type
+    when :hr
+      !@data[:items][:personal_gear].empty?
+    when :storage
+      !(@data[:items][:vehicle_gear].empty? && @data[:items][:lights_gear].empty?)
+    end
+  end
+
+  def text(type = nil)
     text = "Richiesta dotazione\n\nIl #{self.date}, #{self.person.complete_name} ha richiesto la seguente dotazione:\n\n\n"
-    unless @data[:items][:personal_gear].empty?
+    if !@data[:items][:personal_gear].empty? && (type.nil? || type == :hr)
       text += "Dotazione personale:\n\n"
       @data[:items][:personal_gear].each do |i|
         text += "   #{i}\n"
@@ -939,14 +949,14 @@ class GearRequest
       end
       text += "\n\n"
     end
-    unless @data[:items][:vehicle_gear].empty?
+    if !@data[:items][:vehicle_gear].empty? && (type.nil? || type == :storage)
       text += "Dotazione mezzo:\n\n"
       @data[:items][:vehicle_gear].each do |i|
         text += "   #{i}\n"
       end
       text += "\n\n"
     end
-    unless @data[:items][:lights_gear].empty?
+    if !@data[:items][:lights_gear].empty? && (type.nil? || type == :storage)
       text += "Lampadine:\n\n"
       @data[:items][:lights_gear].each do |i|
         text += "   #{i}\n"

@@ -11,6 +11,7 @@ class CarwashVehicleCode < ApplicationRecord
 
   scope :findByCode, ->(code) { where(:code => code) }
   scope :findByVehicle, ->(vehicle) { where(:vehicle => vehicle) }
+  scope :not_deleted, -> { where(deleted: false) }
   # scope :order_plate, -> { joins(:vehicle_informations).where('vehicle_informations.vehicle_information_type_id = ?',VehicleInformationType.where(name: 'Targa').first.id).order('vehicle_informations.information').distinct }
 
   # def last_usage

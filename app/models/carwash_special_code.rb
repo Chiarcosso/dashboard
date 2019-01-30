@@ -6,6 +6,7 @@ class CarwashSpecialCode < ApplicationRecord
   belongs_to :person
 
   scope :findByCode, ->(code) { where(:code => code) }
+  scope :not_deleted, -> { where(deleted: false) }
 
   def self.createUnique(label, carwash_code)
     if CarwashSpecialCode.where(:label => label).first.nil?
