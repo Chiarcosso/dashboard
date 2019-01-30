@@ -324,4 +324,5 @@ Rails.application.routes.draw do
   post   '/worksheet/:id/delete_operation/', to: 'workshop#delete_operation',as: :delete_workshop_operation
   post   '/worksheet/:id/save', to: 'workshop#save_worksheet',as: :save_worksheet
   post   '/worksheet/:id/reset', to: 'workshop#reset_worksheet',as: :reset_worksheet
+  post   '/worksheet/change_km', to: 'worksheet#change_km',as: :worksheet_change_km
 end

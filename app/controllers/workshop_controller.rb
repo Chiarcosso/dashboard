@@ -594,7 +594,7 @@ class WorkshopController < ApplicationController
       @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log}\n Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
 
       tr = TimesheetRecord.where(person: current_user.person, workshop_operation: @workshop_operation).order(:created_at => :asc).last
-      tr.update(stop: Time.now, minutes: ((Time.now - tr.start) / 60).ceil)
+      tr.update(stop: Time.now, minutes: ((Time.now - tr.start) / 60).ceil) unless tr.nil?
 
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused

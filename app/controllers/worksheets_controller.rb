@@ -172,6 +172,10 @@ class WorksheetsController < ApplicationController
     end
   end
 
+  def change_km
+    byebug
+  end
+
   def print_pdf
     ws = Worksheet.find(params.require(:id))
     respond_to do |format|
