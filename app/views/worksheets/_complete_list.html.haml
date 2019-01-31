@@ -8,6 +8,8 @@
   .col-sm-1
     %b='Chiusura'
   .col-sm-2
+    %b='Km'
+  .col-sm-2
     %b='Ore'
   .col-sm-1
   .col-sm-1
@@ -29,13 +31,13 @@
             ="#{ws.exit_time.strftime("%d/%m/%y")}" unless ws.exit_time.nil?
           .col-sm-2
             = form_tag(worksheet_change_km_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
-              .col-sm-10
-                = number_field_tag 'worksheet[km]', ws.mileage, max: 2000000, min: 0, class: 'form-control'
+              .col-sm-7
+                = text_field_tag 'worksheet[km]', ws.mileage, max: 2000000, min: 0, class: 'form-control'
                 = hidden_field_tag 'worksheet[id]', ws.id
                 = hidden_field_tag :search, @search.to_json
               -# = hidden_field_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil
-              .col-sm-2
-                = submit_tag 'Km', class: 'keep-filter no-loader'
+              .col-sm-5
+                = submit_tag 'Km', class: 'keep-filter no-loader form-control'
           - unless ws.exit_time.nil?
             .col-sm-2
               = form_tag(worksheet_hours_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|

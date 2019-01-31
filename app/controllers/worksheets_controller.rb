@@ -173,7 +173,31 @@ class WorksheetsController < ApplicationController
   end
 
   def change_km
-    byebug
+    begin
+      # Get params
+      p = params.require(:worksheet).permit(:id,:km)
+
+      # Update worksheet
+      ws = Worksheet.find(p[:id])
+      ws.update(mileage: p[:km])
+
+      # Update vehicle
+      ws.vehicle.update(mileage: p[:km])
+
+      # Write pdf
+      File.open(ws.get_pdf_path,'w').write(ws.sheet)
+
+      # Render view
+      # apply_filter
+      # respond_to do |format|
+      #   format.js { render :js, :partial => 'worksheets/index_js' }
+      # end
+    rescue Exception => e
+      @error = e.message+"\n\n"+e.backtrace.join("\n")
+      respond_to do |format|
+        format.js { render :js, :partial => 'layouts/error' }
+      end
+    end
   end
 
   def print_pdf

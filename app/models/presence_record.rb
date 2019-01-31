@@ -113,7 +113,9 @@ class PresenceRecord < ApplicationRecord
                           "and day(time) = #{date.strftime('%-d')})").order(time: :asc).to_a
     end
     previous_record = nil
+
     presence_timestamps.each_with_index do |pts,index|
+
       if index%2 == 0
 
         next_pts = presence_timestamps[index+1]
@@ -128,7 +130,8 @@ class PresenceRecord < ApplicationRecord
           # calculated_start = DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{working_schedule.agreement_from.strftime("%H:%M:%S")}","%Y-%m-%d %H:%M:%S")
 
           # If there's a granted leave for the starting of the day set starting time accordingly
-          starting_leaves = GrantedLeave.where(date: date, person: person).select{ |gl| gl.from <= working_schedule.agreement_from && gl.leave_code != delay_leave}
+          starting_leaves = GrantedLeave.where(date: date, person: person).select{ |gl| gl.from <= working_schedule.agreement_from(date) && gl.leave_code != delay_leave}
+
           if starting_leaves.count > 0
             starting_time = starting_leaves.first.to
           else
