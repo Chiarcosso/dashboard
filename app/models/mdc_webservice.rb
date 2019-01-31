@@ -49,14 +49,22 @@ class MdcWebservice
           end
         end
       when :gear then
-        MdcUser.assigned.each do |p|
-          puts "GEAR Search for user #{p.user.upcase} (#{p.complete_name})"
-          mdc.get_gear_data({applicationID: 'GEAR', deviceCode: p.user.upcase, status: 0}).each do |r|
+        begin
+          gear = nil
+          user = nil
+          MdcUser.assigned.each do |p|
+            puts "GEAR Search for user #{p.user.upcase} (#{p.complete_name})"
+            user = "GEAR Search for user #{p.user.upcase} (#{p.complete_name})"
+            mdc.get_gear_data({applicationID: 'GEAR', deviceCode: p.user.upcase, status: 0}).each do |r|
+                gear = r
+                r.send_mail unless r.data.nil?
 
-              r.send_mail unless r.data.nil?
-
-            results << r
+              results << r
+            end
           end
+        rescue Exception => e
+          error = user+"\n\n"+r.inspect+"\n\n"+e.message+"\n\n"+e.backtrace.join("\n")
+          ErrorMailer.error_report(error,"Mail dotazione - SGN nr. #{sgn['Protocollo']}").deliver_now
         end
     end
     mdc.close_session
