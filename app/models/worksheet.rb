@@ -471,11 +471,13 @@ class Worksheet < ApplicationRecord
       vehicle = self.vehicle
 
       #get various dates
-
-      unless vehicle.registration_date.nil?
-        vehicle_registration = vehicle.registration_date.strftime("%Y")
+      if vehicle.class == Vehicle
+        unless vehicle.registration_date.nil?
+          vehicle_registration = vehicle.registration_date.strftime("%Y")
+        end
+      else
+        vehicle_registration = ''
       end
-
       unless self.opening_date.nil?
         opening_year = self.opening_date.strftime('%Y')
         opening_date = self.opening_date.strftime('%d/%m/%Y')
