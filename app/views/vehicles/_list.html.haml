@@ -14,7 +14,7 @@
 -unless @vehicles.nil?
   .scrollable-panel
     -@vehicles.each do |v|
-      .row.colored.no-margin.selectable
+      .row.colored.no-margin.selectable{style: v.dismissed ? 'color: #f00' : ''}
         .col-sm-2
           =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(v.id), name: "infobox_vehicle_checks_#{v.id}" }
           =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(v.id), name: "infobox_vehicle_#{v.id}" }

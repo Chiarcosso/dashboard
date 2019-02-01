@@ -263,7 +263,7 @@ function ajax_link_click_func(e) {
       target = $(this).data('target');
       // var method = $(this).parents('form').first().children('input[name=_method]').val();
       method = $(this).data('method');
-      console.log(target,method,$(this).data('data'));
+      // console.log(target,method,$(this).data('data'));
       data = $(this).data('data');
 
       ajax_link_element = $(this).data('target-element');
@@ -404,7 +404,7 @@ function ajax_update_change_func() {
 function clickbox_click_func() {
   "use strict";
   activateJS();
-  console.log($('#'+$(this).data('trigger')));
+  // console.log($('#'+$(this).data('trigger')));
   $(this).css('background-color: red;');
   // $('#'+$(this).data('trigger')).trigger('click');
   // $(this).children('#'+$(this).data('trigger')).trigger('click');
@@ -681,7 +681,7 @@ function ordering_cell_click_func(){
   // $('#ordering_form').submit();
   var id = $(this).data('ordering-id');
   var type = $(this).data('type');
-  console.log(id,type);
+  // console.log(id,type);
   var list = [];
   $.each($('.ordered_cell[data-ordering-id='+order+']'),function(){
     list.push($(this).parent());
@@ -692,6 +692,19 @@ function ordering_cell_click_func(){
     var b = rowb.children('.ordered_cell[data-ordering-id='+order+']');
     var mul = ordering[order] ? 1 : -1;
     switch(type){
+      case 'integer':
+        var numa = a.html().replace(/[^0-9]*/g,"");
+        var numb = b.html().replace(/[^0-9]*/g,"");
+        // console.log('nums1',a.html(),a.html().replace(/[^0-9]*/g,""));
+        if (numa == ''){
+          numa = 0;
+        }
+        if (numb == ''){
+          numb = 0;
+        }
+        console.log('nums2',numa,numb);
+        return (parseInt(numa) - parseInt(numb) * mul);
+      break;
       case 'number': return (Float.parse(a.html()) - Float.parse(b.html()) * mul);
       break;
       case 'string': if(a.html() == b.html()){
