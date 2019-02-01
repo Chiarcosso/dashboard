@@ -232,6 +232,7 @@ class CarwashController < ApplicationController
   end
 
   def get_check
+    @dismissed = params.require('vehicles').to_sym
     @checks = VehicleCheck.where("label = ?",params.require('check').permit(:label)[:label])
   end
 

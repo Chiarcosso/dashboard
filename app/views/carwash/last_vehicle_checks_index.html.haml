@@ -8,6 +8,22 @@
         = hidden_field_tag :ordering, {'plate': true, 'operator': true, 'date': true, 'value': true, 'result': true, 'notes': true}.to_json
         -# - @order = 'plate' #if @order.nil?
         = hidden_field_tag :order, 'plate'
+      .col-sm-4
+        .row
+          .col-sm-1
+            = radio_button_tag :vehicles, :undismissed, true
+          .col-sm-11
+            Mezzi che circolano
+        .row
+          .col-sm-1
+            = radio_button_tag :vehicles, :dismissed, false
+          .col-sm-11
+            Mezzi dismessi/venduti
+        .row
+          .col-sm-1
+            = radio_button_tag :vehicles, :both, false
+          .col-sm-11
+            Entrambi
       .col-sm-2
         = submit_tag 'Cerca', class: 'form-control'
   = @ordering

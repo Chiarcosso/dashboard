@@ -2,6 +2,7 @@ class VehiclePerformedCheck < ApplicationRecord
   resourcify
   belongs_to :vehicle_check_session
   belongs_to :vehicle_check
+  has_one :worksheet, through: :vehicle_check_session
   has_one :vehicle, :through => :vehicle_check_session
   belongs_to :user
   has_one :operator, :through => :user, source: :person
@@ -25,6 +26,10 @@ class VehiclePerformedCheck < ApplicationRecord
 
   def blocking?
     self.performed == VehiclePerformedCheck.fixvalues['Non ok bloccante'].to_i
+  end
+
+  def km
+    self.worksheet.mileage unless self.worksheet.nil?
   end
 
   def self.last_check(vehicle,check)

@@ -1,4 +1,4 @@
-- vehicles = VehicleCheck.vehicles(@checks).sort_by { |v| v.plate }
+- vehicles = VehicleCheck.vehicles(@checks,@dismissed).sort_by { |v| v.plate }
 -# - checks = VehicleCheck.last_checks(@checks) unless @checks.nil?
 -# - @ordering = {'plate': false, 'operator': false, 'date': false, 'value': false, 'result': false, 'notes': false} if @ordering.nil?
 -# = hidden_field_tag :ordering, @ordering.to_json
@@ -7,7 +7,7 @@
 .row
   .col-sm-12
     %b= @check.label unless @check.nil?
-    = @ordering.inspect
+    -# = @ordering.inspect
 .row
   .col-sm-1.ordering_cell{data: {ordering_id: 'plate', type: 'string', ordering: @ordering.to_json}}
     = "Targa (#{vehicles.count})"
@@ -15,17 +15,21 @@
     = "Operatore"
   .col-sm-1.ordering_cell{data: {ordering_id: 'date', type: 'date', ordering: @ordering.to_json}}
     = "Data"
-  .col-sm-2.ordering_cell{data: {ordering_id: 'value', type: 'string', ordering: @ordering.to_json}}
+  .col-sm-1.ordering_cell{data: {ordering_id: 'km', type: 'integer', ordering: @ordering.to_json}}
+    = "Km"
+  .col-sm-1.ordering_cell{data: {ordering_id: 'actual_km', type: 'integer', ordering: @ordering.to_json}}
+    = "Km attuali"
+  .col-sm-1.ordering_cell{data: {ordering_id: 'value', type: 'string', ordering: @ordering.to_json}}
     = "Valore"
   .col-sm-2.ordering_cell{data: {ordering_id: 'result', type: 'string', ordering: @ordering.to_json}}
     = "Risultato"
-  .col-sm-4.ordering_cell{data: {ordering_id: 'notes', type: 'string', ordering: @ordering.to_json}}
+  .col-sm-2.ordering_cell{data: {ordering_id: 'notes', type: 'string', ordering: @ordering.to_json}}
     = "Note"
 
 .scrollable-panel#ordering_box
   - vehicles.each do |v|
     - p_check = v.last_check(@checks.first)
-    .row.colored
+    .row.colored{style: v.dismissed ? 'color: #f00' : ''}
       .col-sm-1.ordered_cell{data: {ordering_id: 'plate', type: 'string'}}
         %b= v.plate
       .col-sm-2.ordered_cell{data: {ordering_id: 'operator', type: 'string'}}
@@ -37,9 +41,13 @@
 
       .col-sm-1.ordered_cell{data: {ordering_id: 'date', type: 'date'}}
         = p_check.time.strftime("%d/%m/%Y") unless p_check.nil?
-      .col-sm-2.ordered_cell{data: {ordering_id: 'value', type: 'string'}}
+      .col-sm-1.ordered_cell{data: {ordering_id: 'km', type: 'integer'}, style: 'text-align: right;'}
+        = number_with_delimiter(p_check.km, delimiter: ".", separator: ",") unless p_check.nil?
+      .col-sm-1.ordered_cell{data: {ordering_id: 'actual_km', type: 'integer'}, style: 'text-align: right;'}
+        = number_with_delimiter(v.mileage, delimiter: ".", separator: ",") unless p_check.nil?
+      .col-sm-1.ordered_cell{data: {ordering_id: 'value', type: 'string'}}
         = "#{p_check.value}#{p_check.vehicle_check.measure_unit}" unless p_check.nil?
       .col-sm-2.ordered_cell{data: {ordering_id: 'result', type: 'string'}}
         %b= VehiclePerformedCheck.fixvalues.key(p_check.performed) unless p_check.nil?
-      .col-sm-4.ordered_cell{data: {ordering_id: 'notes', type: 'string'}}
+      .col-sm-2.ordered_cell{data: {ordering_id: 'notes', type: 'string'}}
         = p_check.notes unless p_check.nil?

@@ -17,14 +17,23 @@ class VehicleCheck < ApplicationRecord
     end
   end
 
-  def self.vehicles(checks,all_checks = true)
+  def self.vehicles(checks,dismissed,all_checks = true)
 
     raise "Lista controlli vuota." if checks.nil? || checks.count < 1
     companies = Company.us
 
+    case dismissed
+    when :undismissed then
+      dismissed_filter = "vehicles.dismissed = 0"
+    when :dismissed then
+      dismissed_filter = "vehicles.dismissed = 1"
+    else
+      dismissed_filter = nil
+    end
+
     if all_checks
       w = Array.new
-      w << "vehicles.dismissed = 0"
+      w << dismissed_filter unless dismissed_filter.nil?
       w << "property_id in (#{companies.us.map{|c| c.id}.join(',')})"
       if checks.none?{|c| c.vehicle_type_id.nil?}
         w << "vehicles.vehicle_type_id in (select vehicle_checks.vehicle_type_id from vehicle_checks where id in (#{checks.map{|c|c.id}.join(",")}))"
@@ -35,7 +44,7 @@ class VehicleCheck < ApplicationRecord
 
       Vehicle.where(w.join(" and "))
     else
-      Vehicle.where("vehicles.dismissed = 0 and property_id in (#{companies.us.map{|c| c.id}.join(',')}) and (vehicle_type_id = #{checks.vehicle_type_id} or vehicle_type_id is null)#{checks.vehicle_typology.nil? ? '' : " and vehicle_typology_id = #{checks.vehicle_typology_id}"}")
+      Vehicle.where("#{dismissed_filter} and property_id in (#{companies.us.map{|c| c.id}.join(',')}) and (vehicle_type_id = #{checks.vehicle_type_id} or vehicle_type_id is null)#{checks.vehicle_typology.nil? ? '' : " and vehicle_typology_id = #{checks.vehicle_typology_id}"}")
     end
   end
 
