@@ -89,6 +89,7 @@ class ExternalVehicle < ApplicationRecord
     when 'workshop' then
       station_check = 'and check_workshop != 0'
     end
+    
     VehicleCheck.where("vehicle_type_id = #{self.vehicle_type_id} or vehicle_typology_id = #{self.vehicle_typology_id} #{station_check}").order({importance: :desc, label: :asc})
   end
 

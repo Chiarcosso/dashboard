@@ -183,7 +183,7 @@ class WorkshopController < ApplicationController
         end
       end
       WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil) if @worksheet.check_operations.count < 1
-
+      
       v = @worksheet.vehicle
       vec = v.vehicle_checks('workshop')
       if vec.size < 1

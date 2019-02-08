@@ -344,6 +344,11 @@ body{
     font-weight: bold !important;
 }
 
+.navbar-fixed-top > .container{
+  width: 100vw;
+  margin: 0px;
+}
+
 .no-margin{
   margin: 0px;
 }

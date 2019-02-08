@@ -10,12 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190130094733) do
+ActiveRecord::Schema.define(version: 20190208144424) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.string   "ancestry"
+    t.integer  "ancestry_depth", default: 0
+    t.index ["ancestry"], name: "index_article_categories_on_ancestry", using: :btree
   end
 
   create_table "article_categories_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -45,7 +48,6 @@ ActiveRecord::Schema.define(version: 20190130094733) do
     t.text     "description",      limit: 65535
     t.decimal  "containedAmount",                precision: 12, scale: 3, default: "1.0", null: false
     t.decimal  "minimalReserve",                 precision: 12, scale: 3
-    t.string   "positionCode"
     t.datetime "created_at",                                                              null: false
     t.datetime "updated_at",                                                              null: false
     t.integer  "manufacturer_id"
@@ -267,11 +269,11 @@ ActiveRecord::Schema.define(version: 20190130094733) do
     t.integer  "id_veicolo",                      null: false
     t.integer  "id_fornitore",                    null: false
     t.integer  "vehicle_type_id",                 null: false
-    t.integer  "vehicle_typology_id"
     t.datetime "created_at",                      null: false
     t.datetime "updated_at",                      null: false
     t.datetime "last_gps"
     t.integer  "mileage",             default: 0, null: false
+    t.integer  "vehicle_typology_id", default: 1, null: false
     t.index ["owner_id"], name: "index_external_vehicles_on_owner_id", using: :btree
     t.index ["plate"], name: "index_external_vehicles_on_plate", using: :btree
     t.index ["vehicle_type_id"], name: "index_external_vehicles_on_vehicle_type_id", using: :btree
@@ -339,20 +341,20 @@ ActiveRecord::Schema.define(version: 20190130094733) do
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
     t.index ["code"], name: "index_geo_states_on_code", using: :btree
-    t.index ["language_id"], name: "index_geo_states_on_language_id", using: :btree
+    t.index ["language_id"], name: "index_geo_states_on_languages_id", using: :btree
     t.index ["name"], name: "index_geo_states_on_name", unique: true, using: :btree
   end
 
   create_table "granted_leaves", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "leave_code_id",             null: false
     t.integer  "person_id",                 null: false
-    t.date     "date"
     t.datetime "from",                      null: false
     t.datetime "to",                        null: false
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+    t.date     "date"
     t.integer  "break",         default: 0, null: false
-    t.index ["date"], name: "index_granted_leaves_on_date", using: :btree
+    t.index ["leave_code_id", "person_id", "from", "to"], name: "granted_leaves_uniqs", unique: true, using: :btree
     t.index ["leave_code_id"], name: "index_granted_leaves_on_leave_code_id", using: :btree
     t.index ["person_id"], name: "index_granted_leaves_on_person_id", using: :btree
   end
@@ -376,21 +378,23 @@ ActiveRecord::Schema.define(version: 20190130094733) do
 
   create_table "items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.date     "purchaseDate"
-    t.decimal  "price",                               precision: 9,  scale: 2, default: "0.0", null: false
-    t.decimal  "discount",                            precision: 5,  scale: 2, default: "0.0", null: false
+    t.decimal  "price",                               precision: 9, scale: 2, default: "0.0", null: false
+    t.decimal  "discount",                            precision: 5, scale: 2, default: "0.0", null: false
     t.string   "serial"
     t.integer  "state",                 limit: 3
     t.text     "notes",                 limit: 65535
     t.date     "expiringDate"
-    t.datetime "created_at",                                                                   null: false
-    t.datetime "updated_at",                                                                   null: false
-    t.integer  "article_id",                                                                   null: false
+    t.datetime "created_at",                                                                  null: false
+    t.datetime "updated_at",                                                                  null: false
+    t.integer  "article_id",                                                                  null: false
+    t.integer  "transportDocument_id"
     t.integer  "transport_document_id"
     t.string   "barcode"
-    t.integer  "position_code_id",                                                             null: false
-    t.decimal  "remaining_quantity",                  precision: 12, scale: 3, default: "0.0", null: false
+    t.integer  "position_code_id",                                                            null: false
+    t.decimal  "remaining_quantity",                  precision: 7, scale: 2, default: "0.0", null: false
     t.index ["article_id"], name: "index_items_on_article_id", using: :btree
     t.index ["position_code_id"], name: "index_items_on_position_code_id", using: :btree
+    t.index ["transportDocument_id"], name: "index_items_on_transportDocument_id", using: :btree
     t.index ["transport_document_id"], name: "index_items_on_transport_document_id", using: :btree
   end
 
@@ -480,17 +484,17 @@ ActiveRecord::Schema.define(version: 20190130094733) do
   create_table "output_order_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "item_id"
     t.integer  "output_order_id"
-    t.datetime "created_at",                                                    null: false
-    t.datetime "updated_at",                                                    null: false
-    t.decimal  "quantity",             precision: 12, scale: 3, default: "1.0", null: false
-    t.boolean  "from_mobile_workshop",                          default: false, null: false
+    t.datetime "created_at",                                                   null: false
+    t.datetime "updated_at",                                                   null: false
+    t.decimal  "quantity",             precision: 7, scale: 2, default: "1.0", null: false
+    t.boolean  "from_mobile_workshop",                         default: false, null: false
     t.index ["item_id"], name: "index_output_order_items_on_item_id", using: :btree
     t.index ["output_order_id"], name: "index_output_order_items_on_output_order_id", using: :btree
   end
 
   create_table "output_orders", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "createdBy_id"
-    t.string   "destination_type"
+    t.string   "destination_type",                 null: false
     t.integer  "destination_id",                   null: false
     t.datetime "created_at",                       null: false
     t.datetime "updated_at",                       null: false
@@ -627,10 +631,14 @@ ActiveRecord::Schema.define(version: 20190130094733) do
     t.string   "reason"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
+    t.integer  "order_id"
+    t.integer  "sender_id"
     t.integer  "vector_id"
     t.integer  "subvector_id"
     t.integer  "receiver_id"
+    t.index ["order_id"], name: "index_transport_documents_on_order_id", using: :btree
     t.index ["receiver_id"], name: "index_transport_documents_on_receiver_id", using: :btree
+    t.index ["sender_id"], name: "index_transport_documents_on_sender_id", using: :btree
     t.index ["subvector_id"], name: "index_transport_documents_on_subvector_id", using: :btree
     t.index ["vector_id"], name: "index_transport_documents_on_vector_id", using: :btree
   end
@@ -647,7 +655,7 @@ ActiveRecord::Schema.define(version: 20190130094733) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.integer  "person_id"
+    t.integer  "person_id",                           null: false
     t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
     t.index ["person_id"], name: "index_users_on_person_id", using: :btree
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
@@ -799,13 +807,11 @@ ActiveRecord::Schema.define(version: 20190130094733) do
 
   create_table "vehicle_models", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
     t.integer  "manufacturer_id"
     t.text     "description",     limit: 65535
-    t.integer  "vehicle_type_id",               default: 1, null: false
     t.index ["manufacturer_id"], name: "index_vehicle_models_on_manufacturer_id", using: :btree
-    t.index ["vehicle_type_id"], name: "index_vehicle_models_on_vehicle_type_id", using: :btree
   end
 
   create_table "vehicle_performed_checks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -955,6 +961,26 @@ ActiveRecord::Schema.define(version: 20190130094733) do
     t.index ["vehicle_typology_id"], name: "index_vehicles_on_vehicle_typology_id", using: :btree
   end
 
+  create_table "vw_lavaggi", id: false, force: :cascade, options: "ENGINE=MyISAM DEFAULT CHARSET=utf8" do |t|
+    t.integer "starting_time",           limit: 1, null: false
+    t.integer "ending_time",             limit: 1, null: false
+    t.integer "carwash_special_code_id", limit: 1, null: false
+    t.integer "nominativo",              limit: 1, null: false
+    t.integer "targa",                   limit: 1, null: false
+  end
+
+  create_table "vw_leaves_calendar", id: false, force: :cascade, options: "ENGINE=MyISAM DEFAULT CHARSET=utf8" do |t|
+    t.integer "categ",       limit: 1, null: false
+    t.integer "Nome",        limit: 1, null: false
+    t.integer "description", limit: 1, null: false
+    t.integer "code",        limit: 1, null: false
+    t.integer "color_code",  limit: 1, null: false
+    t.integer "leave_from",  limit: 1, null: false
+    t.integer "leave_to",    limit: 1, null: false
+    t.integer "hr",          limit: 1, null: false
+    t.integer "gg",          limit: 1, null: false
+  end
+
   create_table "working_schedules", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "person_id",                                     null: false
     t.string   "agreement_from_s",                              null: false
@@ -1083,9 +1109,9 @@ ActiveRecord::Schema.define(version: 20190130094733) do
   add_foreign_key "company_addresses", "geo_localities"
   add_foreign_key "company_mail_addresses", "companies"
   add_foreign_key "company_mail_addresses", "company_addresses"
-  add_foreign_key "company_people", "companies", on_delete: :cascade
-  add_foreign_key "company_people", "company_relations", on_delete: :cascade
-  add_foreign_key "company_people", "people", on_delete: :cascade
+  add_foreign_key "company_people", "companies"
+  add_foreign_key "company_people", "company_relations"
+  add_foreign_key "company_people", "people"
   add_foreign_key "company_phone_numbers", "companies"
   add_foreign_key "company_phone_numbers", "company_addresses"
   add_foreign_key "equipment_articles", "articles"
@@ -1118,7 +1144,6 @@ ActiveRecord::Schema.define(version: 20190130094733) do
   add_foreign_key "output_order_items", "output_orders"
   add_foreign_key "output_orders", "people", column: "receiver_id"
   add_foreign_key "output_orders", "users", column: "createdBy_id"
-  add_foreign_key "prepaid_cards", "companies"
   add_foreign_key "prepaid_cards", "people"
   add_foreign_key "presence_records", "people"
   add_foreign_key "presence_records", "presence_timestamps", column: "end_ts_id"
@@ -1130,7 +1155,7 @@ ActiveRecord::Schema.define(version: 20190130094733) do
   add_foreign_key "transport_documents", "companies", column: "receiver_id"
   add_foreign_key "transport_documents", "companies", column: "subvector_id"
   add_foreign_key "transport_documents", "companies", column: "vector_id"
-  add_foreign_key "users", "people"
+  add_foreign_key "transport_documents", "orders"
   add_foreign_key "vehicle_check_sessions", "external_vehicles"
   add_foreign_key "vehicle_check_sessions", "people", column: "operator_id"
   add_foreign_key "vehicle_check_sessions", "vehicles"
@@ -1151,7 +1176,6 @@ ActiveRecord::Schema.define(version: 20190130094733) do
   add_foreign_key "vehicle_model_typologies", "vehicle_models"
   add_foreign_key "vehicle_model_typologies", "vehicle_typologies"
   add_foreign_key "vehicle_models", "companies", column: "manufacturer_id"
-  add_foreign_key "vehicle_models", "vehicle_types"
   add_foreign_key "vehicle_performed_checks", "external_vehicles"
   add_foreign_key "vehicle_performed_checks", "vehicle_check_sessions"
   add_foreign_key "vehicle_performed_checks", "vehicle_checks"

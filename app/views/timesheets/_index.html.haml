@@ -1,12 +1,12 @@
 .container-fluid{style: 'margin-top: 2em;'}
   = form_tag('/timesheets/index') do |f|
     .row
-      .col-sm-2
+      .col-sm-3
         = "Selezionare il giorno: "
-      .col-sm-2
+      .col-sm-3
         = date_field_tag :date, @date.strftime("%Y-%m-%d"), class: 'form-control'
         = hidden_field_tag :name, @name
-      .col-sm-1
+      .col-sm-2
         = submit_tag 'Cerca', class: 'form-control'
 
   .panel-group.scrollable-panel#accordion{style: 'height: 80%;'}
