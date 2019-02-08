@@ -7,7 +7,8 @@ class AddFieldsToVehicles < ActiveRecord::Migration[5.0]
       VehicleTypology.create(:name => 'N/D')
     end
     if VehicleModel.where(:name => 'N/D').size == 0
-      VehicleModel.create(:name => 'N/D', :vehicle_type => VehicleType.not_available)
+      # VehicleModel.create(:name => 'N/D', :vehicle_type => VehicleType.not_available)
+      VehicleModel.create(:name => 'N/D')
     end
     type = VehicleType.where(:name => 'N/D').first
     typology = VehicleTypology.where(:name => 'N/D').first

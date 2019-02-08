@@ -1,6 +1,6 @@
 -# - @open_worksheets = Worksheet.incoming(@search_list,true).sort_by{ |ws| ws.vehicle.plate }
 - @open_worksheets = Worksheet.get_incoming({number: @search_number, operator: @search_operator, plate: @search_plate})
-- @open_notifications = EurowinController::get_open_notifications({number: @search_number, operator: @search_operator, plate: @search_plate, odl: @open_worksheets},true)
+- @open_notifications = EurowinController::get_open_notifications({number: @search_number, operator: @search_operator, plate: @search_plate, odl: nil},true)
 -# - @worksheets = @open_worksheets if @worksheets.nil?
 
 

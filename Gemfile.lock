@@ -204,7 +204,6 @@ GEM
     roo (2.7.1)
       nokogiri (~> 1)
       rubyzip (~> 1.1, < 2.0.0)
-    rsmbclient (0.0.2)
     ruby-graphviz (1.2.3)
     ruby_parser (3.9.0)
       sexp_processor (~> 4.1)
@@ -304,7 +303,6 @@ DEPENDENCIES
   rest-client
   rolify
   roo (~> 2.7.0)
-  rsmbclient
   sanitize-rails
   sass-rails (~> 5.0)
   spring
@@ -320,4 +318,4 @@ DEPENDENCIES
   zebra-epl
 
 BUNDLED WITH
-   1.16.1
+   1.16.3

@@ -31,7 +31,7 @@ class EurowinController < ApplicationController
   def self.get_open_notifications(search,unprinted = false)
 
     plate_id = VehicleInformationType.find_by(name: 'Targa').id
-    printed = "and FlagStampato not like 'true'" if unprinted
+    printed = "FlagStampato not like 'true' and" if unprinted
     plates = Array.new
     wherev = Array.new
     wherex = Array.new
@@ -63,20 +63,23 @@ class EurowinController < ApplicationController
       QUERY
       mrs = MssqlReference.find_by_sql(q)
     end
-
+    ewc = get_ew_client
     if mrs.empty?
-      Array.new
+      query = "select *, "\
+      "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
+      "from autosegnalazioni where "\
+      "#{printed} (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';"
     else
-      ewc = get_ew_client
+
       query = "select *, "\
       "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
       "from autosegnalazioni where codiceAutomezzo in (#{mrs.map{|mr| mr.remote_object_id}.join(',')}) "\
-      "#{printed} and (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';"
+      "and #{printed} (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';"
 
-      r = ewc.query(query)
-      ewc.close
-      r
     end
+    r = ewc.query(query)
+    ewc.close
+    r
   end
 
   def self.get_notifications_from_odl(protocol,mod = :opened)
