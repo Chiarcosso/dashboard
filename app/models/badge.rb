@@ -32,7 +32,8 @@ class Badge < ApplicationRecord
       p = Person.find_by_sql(<<-QRY
           select * from people where id in (
             select person_id from badge_assignments
-            where badge_id = #{self.id} and
+            where #{data[:exclude].nil?? '' : "id != #{data[:exclude].id} and"}
+            badge_id = #{self.id} and
             ((badge_assignments.to is null or badge_assignments.to = '1900-01-01')
             or badge_assignments.to >= '#{data[:from].strftime('%Y-%m-%d')}')
           )
