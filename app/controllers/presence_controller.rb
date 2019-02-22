@@ -707,8 +707,8 @@ class PresenceController < ApplicationController
       from = Time.strptime(params.require(:badge_assignment).permit(:from)[:from],"%Y-%m-%d")
       to = Time.strptime(params.require(:badge_assignment).permit(:to)[:to],"%Y-%m-%d") unless params.require(:badge_assignment).permit(:to)[:to].nil? || params.require(:badge_assignment).permit(:to)[:to] == ''
 
-      if badge.assigned?({from: from, to: to.nil? ? Time.now : to})
-        raise "Il badge è assegnato a #{badge.holders({from: from, to: to.nil? ? Time.now : to}).map{ |p| p.list_name}.join(', ')} nel periodo specificato."
+      if badge.assigned?({from: from, to: to})
+        raise "Il badge è assegnato a #{badge.holders({from: from, to: to}).map{ |p| p.list_name}.join(', ')} nel periodo specificato."
       else
         BadgeAssignment.create(badge: badge, person: person, from: from, to: to)
       end
