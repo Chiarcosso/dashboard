@@ -771,6 +771,8 @@ class PresenceController < ApplicationController
   end
 
   def print_absences
+    motivation = params[:motivation] == 'true'
+
     pdf = Prawn::Document.new
     date = Date.strptime(params.require(:date),"%Y-%m-%d")
     pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}",size: 26, font_style: :bold, align: :center
@@ -793,7 +795,8 @@ class PresenceController < ApplicationController
       pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
         pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
           [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [],width: 240),
-          pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [],width: 240)]],width: 480)]],
+          pdf.make_cell(content: motivation ? "Per: #{d.leave_code.description.downcase}" : '',size: 13,borders: [],width: 240)]],width: 480)]],
+
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name)],[pdf.make_cell(content: d.complete_duration_label)],[pdf.make_cell(content: d.leave_code.description)]])],
         # [pdf.make_cell(content: (i+1).to_s)],
@@ -812,7 +815,8 @@ class PresenceController < ApplicationController
       pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
         pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
           [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [],width: 240),
-          pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",size: 13,borders: [],width: 240)]],width: 480)]],
+          pdf.make_cell(content: motivation ? "Per: #{d.leave_code.description.downcase}" : '',size: 13,borders: [],width: 240)]],width: 480)]],
+
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name)],[pdf.make_cell(content: d.complete_duration_label)],[pdf.make_cell(content: d.leave_code.description)]])],
         # [pdf.make_cell(content: (i+1).to_s)],
@@ -831,7 +835,8 @@ class PresenceController < ApplicationController
       pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
         pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
           [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [],width: 240),
-          pdf.make_cell(content: "Per: #{d.leave_code.description.downcase}",align: :left, size: 13,borders: [], width: 240)]],width: 480)]],
+          pdf.make_cell(content: motivation ? "Per: #{d.leave_code.description.downcase}" : '',align: :left, size: 13,borders: [], width: 240)]],width: 480)]],
+
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name)],[pdf.make_cell(content: d.complete_duration_label)],[pdf.make_cell(content: d.leave_code.description)]])],
         # [pdf.make_cell(content: (i+1).to_s)],

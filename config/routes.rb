@@ -242,7 +242,11 @@ Rails.application.routes.draw do
   delete   '/presence/delete_leave_code/:id', to: 'presence#delete_leave_code', as: :delete_leave_code
 
   post    '/presence/info_timestamps', to: 'presence#info_timestamps', as: :info_timestamps
+<<<<<<< HEAD
+  post    '/presence/print_absences/', to: 'presence#print_absences', as: :presence_print_absences
+=======
   post    '/presence/print_absences', to: 'presence#print_absences', as: :presence_print_absences
+>>>>>>> 5a4605fa284cf2a1678d3ec7cf80465360f34ef0
   post    '/presence/download_csv', to: 'presence#download_csv', as: :presence_download_csv
   post   '/presence/manage/update', to: 'presence#manage_presence', as: :update_presence
   post   '/presence/manage/', to: 'presence#manage_presence', as: :reload_presence

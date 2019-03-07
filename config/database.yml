@@ -16,7 +16,9 @@ development:
   adapter: mysql2
   pool: 5
   timeout: 5000
-  host: 'localhost'
+
+  # host: <%= ENV["RAILS_SQL_HOST"] %>
+
   username: <%= ENV["RAILS_SQL_DEV_USER"] %>
   password: <%= ENV["RAILS_SQL_DEV_PASS"] %>
   database: 'dashboard_dev'

@@ -15,7 +15,9 @@
         %h3="Presenze: "#{@person.list_name}"
       .col-sm-2
         %br
-        - active_date = @month == 12 ? Time.strptime("#{@year}-#{@month}-31","%Y-%m-%d") : Time.strptime("#{@year}-#{@month+1}-01","%Y-%m-%d")-1.days 
+
+        - active_date = @month == 12 ? Time.strptime("#{@year}-#{@month}-31","%Y-%m-%d") : Time.strptime("#{@year}-#{@month+1}-01","%Y-%m-%d")-1.days
+
         =select_tag :person, options_for_select(Person.active_people(active_date).order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
       .col-sm-2
         %br
@@ -36,6 +38,22 @@
     = form_tag presence_print_absences_path(format: :pdf), method: :post, class: 'no-loader' do |f|
       .col-sm-2{style: 'margin-top: 1em;margin-left: 1em;'}
         = date_field_tag :date, Date.current+1.days, class: 'form-control'
+
+      .col-sm-1{style: 'margin-top: 1em;margin-left: 1em;'}
+        .row
+          .col-sm-12
+            Motivazioni
+        .row
+          .col-sm-4
+            = radio_button_tag :motivation, true, true
+          .col-sm-8
+            = "si"
+        .row
+          .col-sm-4
+            = radio_button_tag :motivation, false, false
+          .col-sm-8
+            = "no"
+
       .col-sm-2{style: 'margin-top: 1em;'}
         = button_tag 'PDF assenze', class: 'form-control no-loader'
     = form_tag presence_download_csv_path(format: :csv), method: :post, class: 'no-loader' do |f|

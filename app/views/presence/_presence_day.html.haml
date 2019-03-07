@@ -34,6 +34,22 @@
     = form_tag presence_print_absences_path(format: :pdf), method: :post, class: 'no-loader' do |f|
       .col-sm-2{style: 'margin-top: 1em;margin-left: 1em;'}
         = date_field_tag :date, Date.current+1.days, class: 'form-control'
+
+      .col-sm-1{style: 'margin-top: 1em;margin-left: 1em;'}
+        .row
+          .col-sm-12
+            Motivazioni
+        .row
+          .col-sm-4
+            = radio_button_tag :motivation, true, true
+          .col-sm-8
+            = "si"
+        .row
+          .col-sm-4
+            = radio_button_tag :motivation, false, false
+          .col-sm-8
+            = "no"
+
       .col-sm-2{style: 'margin-top: 1em;'}
         = button_tag 'PDF assenze', class: 'form-control no-loader'
     -# = form_tag presence_download_csv_path(format: :csv), method: :post, class: 'no-loader' do |f|
