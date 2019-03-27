@@ -6,8 +6,9 @@ class MdcWebservice
     password = ENV['MDC_PASSWD']
     useSharedDatabaseConnection = 0
 
-     # addr = 'chiarcosso.mobiledatacollection.it'
-    addr = '192.168.88.13'
+    # addr = 'chiarcosso.mobiledatacollection.it'
+    addr = "outpost.chiarcosso"
+    # addr = '192.168.88.13'
     @endpoint = 'http://'+addr+'/mdc_webservice/services/MdcServiceManager'
     @media_address = 'http://'+addr+'/server_chiarcosso/mediaanswers/'
 
@@ -38,6 +39,18 @@ class MdcWebservice
     mdc = MdcWebservice.new
     results = Array.new
     case what
+    when :report then
+      MdcUser.assigned.each do |p|
+        puts "REPORTS Search for user #{p.user.upcase} (#{p.complete_name})"
+        mdc.get_report_data({applicationID: 'REPORTS', deviceCode: p.user.upcase, status: 0}).each do |r|
+          # byebug
+          r.register unless r.data.nil?
+            # r.send_mail unless r.data.nil?
+
+          results << r
+        end
+
+      end
       when :vacation then
         MdcUser.assigned.each do |p|
           puts "VACATION Search for user #{p.user.upcase} (#{p.complete_name})"
@@ -83,6 +96,25 @@ class MdcWebservice
     unless dch[:data].nil?
       dch[:data].each_with_index do |ch,i|
         data[i] = FareDocuments.new(self.select_data_collection_rows(ch)[:data],self)
+        # data[i][:data].each do |d|
+        #   self.update_data_collection_rows_status(d.dataCollectionRowKey)
+        # end
+      end
+    end
+    self.commit_transaction
+    self.end_transaction
+    # self.close_session
+    return data
+  end
+
+  def get_report_data(ops)
+    self.begin_transaction
+
+    data = Array.new
+    dch = self.select_data_collection_heads(ops)
+    unless dch[:data].nil?
+      dch[:data].each_with_index do |ch,i|
+        data[i] = ReportRequest.new(self.select_data_collection_rows(ch)[:data],self)
         # data[i][:data].each do |d|
         #   self.update_data_collection_rows_status(d.dataCollectionRowKey)
         # end
@@ -276,7 +308,23 @@ class MdcWebservice
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:insertOrUpdateTabgen xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{tabgen.xml}</ns3:insertOrUpdateTabgen></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
     special_logger.info(request.body+"\n")
+    puts request.body
     resp = HTTPI.post(request)
+    puts resp.body
+    special_logger.info(resp.body+"\n\n")
+    resp
+  end
+
+  def select_tabgen(tabgen)
+
+    request = HTTPI::Request.new
+    request.url = @endpoint
+    request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:selectTabgen xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{tabgen.xml(true)}</ns3:selectTabgen></soapenv:Body></soapenv:Envelope>"
+    request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
+    special_logger.info(request.body+"\n")
+    puts request.body
+    resp = HTTPI.post(request)
+    puts resp.body
     special_logger.info(resp.body+"\n\n")
     resp
   end
@@ -292,8 +340,10 @@ class MdcWebservice
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:deleteTabgenBySelector xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId>#{sel}</ns3:deleteTabgenBySelector></soapenv:Body></soapenv:Envelope>"
     request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
     special_logger.info(request.body+"\n")
+    puts request.body
     resp = HTTPI.post(request)
     special_logger.info(resp.body+"\n\n")
+    puts resp.body
     resp
   end
 
@@ -399,7 +449,7 @@ class MdcWebservice
 
           end
         else
-          byebug
+          # byebug
           tmp = response[/%PDF.*/m]
           # data = XMPR::XMP.new(tmp)
           File.open('tmp.pdf','w+') do |f|
@@ -488,6 +538,21 @@ class Tabgen
     @deviceCode
   end
 
+  def deviceCodeXml
+    if @deviceCode.nil?
+      str = "<ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"></ns1:deviceCode>"
+    else
+      str = ''
+      @deviceCode.split('|').each do |dc|
+        str += "<ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{dc}</ns1:deviceCode>" unless dc == ''
+      end
+    end
+
+
+    str
+    "<ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@deviceCode}</ns1:deviceCode>"
+  end
+
   def xml_values
     xml = ''
     c = 1
@@ -503,8 +568,8 @@ class Tabgen
     xml
   end
 
-  def xml
-    "<ns3:tabgen xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.deviceCode}</ns1:deviceCode><ns1:key xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.key}</ns1:key><ns1:order xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.order}</ns1:order><ns1:tabname xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.tabname}</ns1:tabname>#{self.xml_values}</ns3:tabgen>"
+  def xml(no_values = false)
+    "<ns3:tabgen xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.deviceCodeXml}<ns1:key xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.key}</ns1:key><ns1:order xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.order}</ns1:order><ns1:tabname xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.tabname}</ns1:tabname>#{no_values ? '' : self.xml_values}</ns3:tabgen>"
   end
 end
 
@@ -532,8 +597,17 @@ class TabgenSelector
     @deviceCode
   end
 
+  def deviceCodeXml
+    str = ''
+    # @deviceCode.split('|').each do |dc|
+    #   str += "<ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{dc}</ns1:deviceCode>"
+    # end
+    str = "<ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{@deviceCode}</ns1:deviceCode>" unless @deviceCode.nil?
+    str
+  end
+
   def xml
-    "<ns3:tabgenSelector xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:tabname xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.tabname}</ns1:tabname><ns1:index xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.index}</ns1:index><ns1:value xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{value}</ns1:value><ns1:deviceCode xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.deviceCode}</ns1:deviceCode></ns3:tabgenSelector>"
+    "<ns3:tabgenSelector xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\"><ns1:tabname xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.tabname}</ns1:tabname><ns1:index xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{self.index}</ns1:index><ns1:value xmlns:ns1=\"http://ws.dataexchange.mdc.gullivernet.com/xsd\">#{value}</ns1:value>#{self.deviceCodeXml}</ns3:tabgenSelector>"
   end
 end
 
@@ -717,6 +791,152 @@ class FareDocuments
     # end
     # tmp
     @data[:photos]
+  end
+end
+
+class ReportRequest
+
+  def initialize(dataCollectionRows, mdc)
+
+    @dataCollectionRows = dataCollectionRows
+    @mdc = mdc
+    @data = Hash.new
+    @data[:images] = Array.new
+    @dataCollectionRows.each do |dcr|
+
+      next if dcr.applicationID != 'REPORTS'
+      @type = 0
+
+
+      @date = Date.strptime(dcr.data[:date], '%Y%m%d')
+      @dataCollectionRowKey = dcr.dataCollectionRowKey
+      case dcr.data[:formCode]
+      when 'type' then
+        @data[:type] = dcr.data[:value] || dcr.data[:extendedValue]
+      when 'description' then
+        @data[:description] = dcr.data[:value] || dcr.data[:extendedValue]
+      when 'plate' then
+        @data[:vehicle] = Vehicle.find(dcr.data[:value].to_i) unless dcr.data[:value].nil?
+      when 'photos' then
+        # file = mdc.download_file(dcr.data[:description]).body[/Content-Type: image\/jpeg.?*\r\n\r\n(.?*)\r\n--MIMEBoundary/m,1]
+        # @data[:photos] << file.force_encoding("utf-8") unless file.nil?
+        img = dcr.data[:description][/\/.*?([^\/]*.$)/,1] unless dcr.data[:description].nil?
+        @data[:images] << mdc.media_address+img unless img.nil?
+      end
+      @data[:sent_at] = Time.strptime(dcr.data[:date],"%Y%m%d") unless dcr.data[:date].nil?
+      # if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
+      #    @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
+      # end
+
+    end
+    # byebug if @data[:id].nil? || @data[:id] == ''
+    # @data = nil if @data[:date_from].nil? or @data[:date_to].nil?
+    # mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
+  end
+
+  def data
+    @data
+  end
+
+  def definition
+    request = HTTPI::Request.new
+    request.url = "http://portale.chiarcosso/invia-viaggi/rest.php?id=#{self.id}"
+    # request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendPushNotificationExt xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:notificationExtList>#{nots}</ns3:notificationExtList></ns3:sendPushNotificationExt></soapenv:Body></soapenv:Envelope>"
+    # request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
+
+    HTTPI.post(request).body
+  end
+
+  def dataCollectionRows
+    @dataCollectionRows
+  end
+
+  def type
+    @data[:type]
+  end
+
+  def description
+    @data[:description]
+  end
+
+  def vehicle
+    @data[:vehicle]
+  end
+
+  def sent_at
+    @data[:sent_at]
+  end
+
+  def offices
+    case self.type.downcase
+    when 'incidente' then
+      return [:hr,:logistics]
+    when 'infortunio' then
+      return [:hr,:logistics]
+    when 'info' then
+      return [:hr,:logistics]
+    when 'sosta_prolungata' then
+      return [:logistics]
+    when 'avaria_mezzo' then
+      return [:maintenance]
+    when 'guasto' then
+      return [:maintenance]
+    when 'danno' then
+      return [:maintenance]
+    when 'furto' then
+      return [:hr,:maintenance,:logistics]
+    when 'altro' then
+      return [:hr,:maintenance,:logistics]
+    when 'contravvenzione' then
+      return [:logistics,:maintenance]
+    when 'attrezzatura' then
+      return [:logistics]
+    when 'dpi' then
+      return [:logistics,:hr]
+    else
+      return []
+    end
+  end
+
+  def register
+    begin
+
+      data = {
+        mdc_user: self.user,
+        report_type: self.type,
+        description: self.description || '',
+        vehicle: self.vehicle,
+        hr: self.offices.include?(:hr),
+        maintenance: self.offices.include?(:maintenance),
+        logistics: self.offices.include?(:logistics),
+        sent_at: self.sent_at
+      }
+
+      report = MdcReport.create(data)
+      self.images.each do |i|
+        MdcReportImage.create(mdc_report: report, url: i)
+      end
+      @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
+    rescue Exception => e
+      # byebug
+    end
+  end
+
+  def user
+    # Person.find_by_mdc_user(@dataCollectionRowKey.deviceCode)
+    MdcUser.where(user: @dataCollectionRowKey.deviceCode).first
+  end
+
+  def images
+    # tmp = Array.new
+    # @data[:photos].each_with_index do |p,i|
+    #   fh = File.open("public/foto/#{self.id}-#{i}.jpg",'w')
+    #   fh.write(p)
+    #   fh.close
+    #   tmp << "/foto/#{self.id}-#{i}.jpg"
+    # end
+    # tmp
+    @data[:images]
   end
 end
 

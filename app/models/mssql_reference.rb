@@ -101,12 +101,14 @@ class MssqlReference < ApplicationRecord
             end
           end
         rescue Exception => e
+          ErrorMailer.error_report("#{e.message}\n#{e.backtrace}","Companies update")
           special_logger.error("  - #{r['RagioneSociale']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
           response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['RagioneSociale']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
 
         end
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace}","Companies update")
       special_logger.error("#{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
 
@@ -145,6 +147,7 @@ class MssqlReference < ApplicationRecord
         response += VehiclesController.helpers.create_vehicle_from_veicoli(r,update,vbase)
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace}","Vehicles update")
       special_logger.error("#{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
 
@@ -186,6 +189,7 @@ class MssqlReference < ApplicationRecord
         response += VehiclesController.helpers.create_external_vehicle_from_veicoli(r,update,vbase)
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace}","External vehicles update")
       special_logger.error("#{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
 
@@ -230,6 +234,7 @@ class MssqlReference < ApplicationRecord
         response += VehiclesController.helpers.create_vehicle_from_veicoli(r,update,vbase)
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace}","Trailers update")
       special_logger.error("#{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
 
@@ -277,6 +282,7 @@ class MssqlReference < ApplicationRecord
         response += VehiclesController.helpers.create_vehicle_from_veicoli(r,update,vbase)
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace}","Other vehicles update")
       special_logger.error("#{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
 
@@ -432,12 +438,14 @@ class MssqlReference < ApplicationRecord
             end
           end
         rescue Exception => e
+          ErrorMailer.error_report("#{e.message}\n#{e.backtrace}","Employees update")
           special_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
           response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
 
         end
       end
     rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace}","Employees update")
       special_logger.error("#{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
 

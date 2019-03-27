@@ -292,13 +292,17 @@ class Worksheet < ApplicationRecord
         table = 'Rimorchi1'
     end
     begin
-  	  if odl['Tipo'] != 'C' and !table.nil?
+  	  if odl['Tipo'] != 'C' && !table.nil?
   		    vehicle = Vehicle.get_or_create_by_reference(table,odl['CodiceAutomezzo'])
+          vehicle = Vehicle.find_by_plate(odl['Targa'].tr('. *',''))
   	  else
   		    vehicle = Vehicle.new
   	  end
+
       @error = "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
       # raise "Impossibile trovare veicolo con id Access #{odl['CodiceAutomezzo']} (tabella #{table})" if vehicle.nil?
+      raise @error if vehicle.nil?
+
       case odl['CodiceAnagrafico']
       when 'OFF00001' then
         station = 'workshop'
@@ -361,6 +365,7 @@ class Worksheet < ApplicationRecord
       ws
     rescue Exception => e
       # @error = e.message if @error.nil?
+
       @error =  "#{e.message}\n\n#{e.backtrace}"
     end
     ws
@@ -368,12 +373,13 @@ class Worksheet < ApplicationRecord
 
   def self.upsync_all
     ewc = EurowinController::get_ew_client
-    res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, FlagDaFatturare, FatturaCodiceCliente, "\
+    res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, autoodl.Targa, FlagSchedaChiusa, FlagDaFatturare, FatturaCodiceCliente, "\
       "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico, "\
       "(select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
       "from autoodl "\
       "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
       "where DataIntervento is not null "\
+      "and DataIntervento > '#{(Time.now - 2.years).strftime("%Y%m%D")}'"\
       "and (CodiceAnagrafico = 'OFF00001' or CodiceAnagrafico = 'OFF00047') order by DataEntrataVeicolo desc")
     ewc.close
     @error = ''
@@ -384,12 +390,13 @@ class Worksheet < ApplicationRecord
       rescue Exception => e
         # raise error
         @error += e.message+"\n\n"
+        ErrorMailer.error_report(e,"Errori sincronizzazione ODL: #{odl['Protocollo']}").deliver_now
+        next
       end
     end
     unless @error == ''
       special_logger.error(@error)
 
-      raise @error
     end
   end
 

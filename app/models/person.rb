@@ -6,11 +6,13 @@ class Person < ApplicationRecord
   has_many :company_relations, through: :relations
 
   has_many :prepaid_cards
-  has_many :badge_assignations
-  has_many :badges, through: :badge_assignations
+  has_many :badge_assignments, :dependent => :destroy
+  has_many :badges, through: :badge_assignments
   has_many :presence_timestamps, through: :badges
-  has_many :working_schedules
+  has_many :working_schedules, :dependent => :destroy
 
+  has_many :item_relations, :dependent => :destroy
+  has_many :items, through: :item_relations
 
   has_one :carwash_driver_code, :dependent => :destroy
   has_many :mssql_references, as: :local_object, dependent: :destroy
@@ -35,6 +37,19 @@ class Person < ApplicationRecord
       return false
     end
     return true
+  end
+
+  def move_to(person)
+    unless person.is_a? Person
+      person = Person.find(person)
+    end
+    self.mssql_references.each do |msr|
+      begin
+        msr.update(local_object_id: person)
+      rescue
+
+      end
+    end
   end
 
   # Filter drivers out

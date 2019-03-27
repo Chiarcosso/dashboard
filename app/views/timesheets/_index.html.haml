@@ -43,7 +43,7 @@
                 = form_tag(timesheet_update_path, remote: true, method: :post) do |f|
                   .row
                     .col-sm-5
-                      = t.description
+                      = "#{t.workshop_operation.worksheet.vehicle.plate} - #{t.description}"
                       - if t.minutes.nil?
                         %br
                         %b{style: 'color: #f00'}= "Errore: tempo non presente -> #{t.time_label}"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190208144424) do
+ActiveRecord::Schema.define(version: 20190313131547) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -414,6 +414,33 @@ ActiveRecord::Schema.define(version: 20190208144424) do
     t.boolean  "studio_relevant",           default: true, null: false
     t.string   "color_code"
     t.index ["code"], name: "index_leave_codes_on_code", unique: true, using: :btree
+  end
+
+  create_table "mdc_report_images", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "mdc_report_id", null: false
+    t.string   "url",           null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.index ["mdc_report_id"], name: "index_mdc_report_images_on_mdc_report_id", using: :btree
+  end
+
+  create_table "mdc_reports", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "mdc_user_id",                 null: false
+    t.string   "report_type",                 null: false
+    t.string   "description",                 null: false
+    t.integer  "vehicle_id"
+    t.boolean  "maintenance", default: false, null: false
+    t.boolean  "hr",          default: false, null: false
+    t.boolean  "logistics",   default: false, null: false
+    t.datetime "sent_at",                     null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["hr"], name: "index_mdc_reports_on_hr", using: :btree
+    t.index ["logistics"], name: "index_mdc_reports_on_logistics", using: :btree
+    t.index ["maintenance"], name: "index_mdc_reports_on_maintenance", using: :btree
+    t.index ["mdc_user_id"], name: "index_mdc_reports_on_mdc_user_id", using: :btree
+    t.index ["report_type"], name: "index_mdc_reports_on_report_type", using: :btree
+    t.index ["vehicle_id"], name: "index_mdc_reports_on_vehicle_id", using: :btree
   end
 
   create_table "mdc_users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -1132,6 +1159,8 @@ ActiveRecord::Schema.define(version: 20190208144424) do
   add_foreign_key "items", "articles"
   add_foreign_key "items", "position_codes"
   add_foreign_key "items", "transport_documents"
+  add_foreign_key "mdc_report_images", "mdc_reports"
+  add_foreign_key "mdc_reports", "vehicles"
   add_foreign_key "mdc_users", "companies", column: "assigned_to_company_id"
   add_foreign_key "mdc_users", "people", column: "assigned_to_person_id"
   add_foreign_key "mobile_workshop_items", "items", column: "storage_item_id"

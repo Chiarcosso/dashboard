@@ -43,7 +43,7 @@ module AdminHelper
       res[:manufacturer] = Company.create(name: r['manufacturer'], vehicle_manufacturer: true) if update
       # @error = " #{r['plate']} (#{r['id']}) - Invalid manufacturer: #{r['manufacturer']}"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Produttore creato: #{r['manufacturer']}</span>\n"
-      ErrorMailer.error_report("Produttore di veicoli creato: #{r['manufacturer']}","Vehicle update")
+      ErrorMailer.error_report("Produttore di veicoli creato: #{r['manufacturer']}","Vehicle update - get vehicle basis")
       # mssql_reference_logger.error(@error)
     end
     res['serie'] = nil
@@ -116,7 +116,7 @@ module AdminHelper
       res[:vehicle] = Vehicle.find_by_plate(r['plate'].tr('. *-',''))
     end
     unless @error.nil?
-      ErrorMailer.error_report(@error,"Vehicles update")
+      ErrorMailer.error_report(@error,"Vehicles update - get vehicle objects")
     end
     res
   end
@@ -129,6 +129,7 @@ module AdminHelper
       if @error.nil?
         if v.nil?
           if update
+            byebug
             v = Vehicle.create(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code])
           else
             v = Vehicle.new(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code])
@@ -141,7 +142,7 @@ module AdminHelper
           mssql_reference_logger.info("vehicle_type: #{data[:vehicle_type].name}, property: #{data[:property].name}, model: #{data[:model].complete_name}, registration_model: #{data[:registration_model]}, dismissed: #{data[:dismissed].to_s}, vehicle_typology: #{data[:vehicle_typology].name}, mileage: #{data[:mileage]}, registration_date: #{data[:registration_date].strftime("%d/%m/%Y")}, vehicle_category: #{data[:vehicle_category].name}.")
           data[:response] += "tipo: #{data[:vehicle_type].name}, proprietà: #{data[:property].name}, modello: #{data[:model].complete_name}, modello libretto: #{data[:registration_model]}, dismesso: #{data[:dismissed].to_s}, tipologia: #{data[:vehicle_typology].name}, chilometraggio: #{data[:mileage]}, data immatricolazione: #{data[:registration_date].nil?? '' : data[:registration_date].strftime("%d/%m/%Y")}, categoria: #{data[:vehicle_category].name}.\n"
 
-          VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: data[:registration_date]) unless r['chassis'].to_s == '' or r['chassis'].nil? or !update
+          VehicleInformation.create(vehicle: v, vehcle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: data[:registration_date]) unless r['chassis'].to_s == '' or r['chassis'].nil? or !update
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
           data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
 
@@ -358,7 +359,7 @@ module AdminHelper
         end
       end
     rescue Exception => e
-      ErrorMailer.error_report("#{e.message}\n#{e.backtrace.join("\n")}","Vehicle update")
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace.join("\n")}","External Vehicle update")
       mssql_reference_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
       data[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
 
@@ -554,7 +555,7 @@ module AdminHelper
         end
       end
     rescue Exception => e
-      ErrorMailer.error_report("#{r['plate']} (#{r['id']})\n\n#{e.message}\n#{e.backtrace.join("\n")}","Vehicle update")
+      ErrorMailer.error_report("#{r['plate']} (#{r['id']})\n\n#{e.message}\n#{e.backtrace.join("\n")}","Vehicle trailer update")
       mssql_reference_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}\n</span>"
 
@@ -779,7 +780,7 @@ module AdminHelper
         end
       end
     rescue Exception => e
-      ErrorMailer.error_report("#{r['plate']} (#{r['id']})\n\n#{e.message}\n#{e.backtrace.join("\n")}","Vehicle update")
+      ErrorMailer.error_report("#{r['plate']} (#{r['id']})\n\n#{e.message}\n#{e.backtrace.join("\n")}","Other vehicles update")
       mssql_reference_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
 

@@ -24,6 +24,21 @@ class WsController < ApplicationController
     render 'mdc/index'
   end
 
+  def notification_index
+    @office = params.require(:office)
+    case @office
+    when 'maintenance' then
+      @results = MdcReport.where(maintenance: true).order(sent_at: :desc)
+    when 'logistics' then
+      @results = MdcReport.where(logistics: true).order(sent_at: :desc)
+    when 'hr' then
+      @results = MdcReport.where(hr: true).order(sent_at: :desc)
+    else
+      @results = Array.new
+    end
+    render 'mdc/report_index'
+  end
+
   def codes
     render 'mdc/codes_index'
   end
@@ -89,6 +104,26 @@ class WsController < ApplicationController
     index
   end
 
+  def self.update_plates
+
+    mdc = MdcWebservice.new
+    mdc.begin_transaction
+    # tb = mdc.select_tabgen(Tabgen.new({deviceCode: "All user", key: '', order: 0, tabname: 'VEHICLES_TMP'}))
+    # byebug
+    mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'RUNNING_VEHICLES', index: 0, value: '%', deviceCode: ""})])
+    mdc.commit_transaction
+    Vehicle.where(dismissed: false).where("property_id = #{Company.chiarcosso.id} or property_id = #{Company.transest.id}").reject{ |v| v.plate.nil? }.to_a.each do |v|
+
+      # mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{MdcUser.all.map{|mu| mu.user.upcase}.join('|')}|", key: v.id, order: 0, tabname: 'VEHICLES', values: [v.plate,v.vehicle_type.name]}))
+       mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "__ALL__", key: v.id, order: 0, tabname: 'RUNNING_VEHICLES', values: [v.plate,v.vehicle_type.name]}))
+      puts "#{v.id}:  #{v.plate} has been uploaded"
+    end
+    # mdc.send_same_push_notification_ext((MdcUser.assigned.to_a),'Aggiornamento veicoli.')
+    mdc.commit_transaction
+    mdc.end_transaction
+    mdc.close_session
+
+  end
 
   def update_fares
     # user = Person.find_by_complete_name(Base64.decode64(params.require(:driver)))
@@ -133,7 +168,7 @@ class WsController < ApplicationController
     mdc = MdcWebservice.new
     params.require(:photos).each do |p|
       # p.sub!('http://chiarcosso.mobiledatacollection.it/','/var/lib/tomcat8/webapps/')
-      p.sub!('http://192.168.88.13/','/var/lib/tomcat8/webapps/')
+      p.sub!('http://outpost.chiarcosso/','/var/lib/tomcat8/webapps/')
       f = mdc.download_file(p).body[/Content-Type: image\/jpeg.?*\r\n\r\n(.?*)\r\n--MIMEBoundary/m,1]
       photos << f.force_encoding("utf-8") unless f.nil?
     end

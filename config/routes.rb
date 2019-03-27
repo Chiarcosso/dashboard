@@ -180,6 +180,7 @@ Rails.application.routes.draw do
   post '/mdc/new_code', to: 'ws#create_user', as: :new_mdc_code
   post '/mdc/update_code', to: 'ws#update_user', as: :update_mdc_code
   post   '/sendfare', to: 'ws#update_fares', as: :update_fares
+  get   '/mdc/notifications/:office', to: 'ws#notification_index', as: :notification_index
 
   get    '/output/:code', to: 'orders#output', as: :output
   post   '/output/ws/:code', to: 'orders#edit_output', as: :edit_output
