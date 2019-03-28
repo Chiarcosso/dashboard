@@ -120,7 +120,7 @@
                 .col-sm-3{style: 'background-color: #ffa'}
                   .row
                     .col-sm-12{ style: 'text-align: center;'}
-                      = 'Conferma le ore in blocco:'
+                      = 'Conferma tutte le ore:'
                   .row
                     .col-sm-6
                       = check_box_tag 'massive_chief_approval', {date: @date, name: @name, from: 'chief', ids: ts.map { |t| t.id }}.to_json, false, class: 'form-control ajax-caller massive', data: {route: set_all_time_approvals_path}

@@ -24,19 +24,23 @@ class WsController < ApplicationController
     render 'mdc/index'
   end
 
+  # GET request action
   def notification_index
-    @office = params.require(:office)
-    case @office
-    when 'maintenance' then
-      @results = MdcReport.where(maintenance: true).order(sent_at: :desc)
-    when 'logistics' then
-      @results = MdcReport.where(logistics: true).order(sent_at: :desc)
-    when 'hr' then
-      @results = MdcReport.where(hr: true).order(sent_at: :desc)
-    else
-      @results = Array.new
+    @results = get_filter
+    respond_to do |format|
+      format.html {render 'mdc/report_index'}
+      format.js {render partial: 'mdc/report_index_js'}
     end
-    render 'mdc/report_index'
+  end
+
+  # POST (JS) request action
+  def notification_filter
+    @results = get_filter
+    respond_to do |format|
+      format.html {render partial: 'mdc/report_index'}
+      format.js {render partial: 'mdc/report_index_js'}
+    end
+
   end
 
   def codes
@@ -217,6 +221,67 @@ class WsController < ApplicationController
     elsif params.require(:holder_type) == 'Company'
       @holder = Company.find_by_name(params.require(:holder))
     end
+  end
+
+  def get_filter
+    # Build filter from params and run the resulting query
+
+    @office = params.require(:office)
+
+    return Array.new if @office.nil?
+
+
+    if params[:reports].nil?
+      # First call, no params, set filter to default
+      p = get_filter_defaults
+    else
+      # Filter call, set filter to params
+      p = params.require('reports').permit(:date_from, :date_to, :types => [])
+    end
+
+    # Set dates
+    @date_to = Date.strptime(p[:date_to],"%Y-%m-%d")
+    @date_from = Date.strptime(p[:date_from],"%Y-%m-%d")
+
+    # Set correct types
+    @types = {
+      'guasto': false,
+      'furto': false,
+      'dpi': false,
+      'contravvenzione': false,
+      'sosta_prolungata': false,
+      'incidente': false,
+      'infortunio': false
+    }
+
+    p[:types].each do |t|
+      @types[t] = true
+    end
+
+    # Run query
+    MdcReport.where("sent_at between '#{@date_from.strftime("%Y%m%d")}' and '#{@date_to.strftime("%Y%m%d")}'")
+            .where("#{@office} = 1")
+            .where("report_type in (#{@types.select{ |t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
+            .order(sent_at: :desc)
+
+  end
+
+  # Set defaults for report filter
+  def get_filter_defaults
+
+    case @office
+    when 'maintenance' then
+      p = {types: ['guasto','furto']}
+    when 'logistics' then
+      p = {types: ['furto','dpi','contravvenzione','sosta_prolungata','incidente','infortunio']}
+    when 'hr' then
+      p = {types: ['furto','dpi','incidente','infortunio']}
+    end
+
+    p[:date_from] = (Time.now - 48.hours).strftime("%Y-%m-%d")
+    p[:date_to] = Time.now.strftime("%Y-%m-%d")
+
+    return p
   end
 
   def get_action
