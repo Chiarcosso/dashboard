@@ -6,8 +6,8 @@ class MdcWebservice
     password = ENV['MDC_PASSWD']
     useSharedDatabaseConnection = 0
 
-    # addr = 'chiarcosso.mobiledatacollection.it'
-    addr = "outpost.chiarcosso"
+    addr = 'chiarcosso.mobiledatacollection.it'
+    # addr = "outpost.chiarcosso"
     # addr = '192.168.88.13'
     @endpoint = 'http://'+addr+'/mdc_webservice/services/MdcServiceManager'
     @media_address = 'http://'+addr+'/server_chiarcosso/mediaanswers/'
