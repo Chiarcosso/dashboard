@@ -80,12 +80,12 @@
               .field
                 %label= "Furto"
                 %br
-                = check_box_tag 'reports[types]', 'furto', @types['furto']
+                = check_box_tag 'reports[types][]', 'furto', @types['furto']
             .col-sm-6
               .field
                 %label= "Guasto / danno"
                 %br
-                = check_box_tag 'reports[types]', 'guasto', @types['guasto']
+                = check_box_tag 'reports[types][]', 'guasto', @types['guasto']
       .col-sm-1
         .field
           = submit_tag 'Filtra', class: 'form-control'
