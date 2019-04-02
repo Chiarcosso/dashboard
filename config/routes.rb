@@ -182,6 +182,7 @@ Rails.application.routes.draw do
   post   '/sendfare', to: 'ws#update_fares', as: :update_fares
   get   '/mdc/notifications/:office', to: 'ws#notification_index', as: :notification_index
   post   '/mdc/notifications/:office', to: 'ws#notification_index', as: :notification_filter
+  post '/mdc/notification/create', to: 'ws#create_notification', as: :mdc_create_notification
 
   get    '/output/:code', to: 'orders#output', as: :output
   post   '/output/ws/:code', to: 'orders#edit_output', as: :edit_output

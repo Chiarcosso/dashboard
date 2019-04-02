@@ -30,6 +30,11 @@ body{
   width: 100%;
   border: 1px solid #aaa;
 }
+
+.centered{
+  text-align: center;
+}
+
 .close{
   margin: 1em;
   position: absolute;

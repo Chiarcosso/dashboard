@@ -259,12 +259,22 @@ function ajax_link_click_func(e) {
     if(!$(document.activeElement).hasClass('no-ajax-link')){
       activateLoadingScreen();
       e.preventDefault();
+
+      // Prepare request
       var target, method, data, complete;
       target = $(this).data('target');
-      // var method = $(this).parents('form').first().children('input[name=_method]').val();
+
       method = $(this).data('method');
-      // console.log(target,method,$(this).data('data'));
+
       data = $(this).data('data');
+
+      // If there's a related form, add its inputs to data
+      if($(this).data('relatedForm') != undefined){
+        $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
+          console.log(input);
+          data[$(input).attr('name')] = $(input).val();
+        });
+      }
 
       ajax_link_element = $(this).data('target-element');
       if ($(this).data('check-complete')) {
@@ -272,6 +282,8 @@ function ajax_link_click_func(e) {
       } else {
           complete = null;
       }
+
+      // Send request
       $.ajax({
           type: method,
           url: target,

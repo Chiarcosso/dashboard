@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190313131547) do
+ActiveRecord::Schema.define(version: 20190402151456) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -425,16 +425,17 @@ ActiveRecord::Schema.define(version: 20190313131547) do
   end
 
   create_table "mdc_reports", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "mdc_user_id",                 null: false
-    t.string   "report_type",                 null: false
-    t.string   "description",                 null: false
+    t.integer  "mdc_user_id",                          null: false
+    t.string   "report_type",                          null: false
+    t.string   "description",                          null: false
     t.integer  "vehicle_id"
-    t.boolean  "maintenance", default: false, null: false
-    t.boolean  "hr",          default: false, null: false
-    t.boolean  "logistics",   default: false, null: false
-    t.datetime "sent_at",                     null: false
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.boolean  "maintenance",          default: false, null: false
+    t.boolean  "hr",                   default: false, null: false
+    t.boolean  "logistics",            default: false, null: false
+    t.datetime "sent_at",                              null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.integer  "myofficina_reference"
     t.index ["hr"], name: "index_mdc_reports_on_hr", using: :btree
     t.index ["logistics"], name: "index_mdc_reports_on_logistics", using: :btree
     t.index ["maintenance"], name: "index_mdc_reports_on_maintenance", using: :btree

@@ -26,6 +26,18 @@ class WsController < ApplicationController
     render 'mdc/index'
   end
 
+  # Create notification from MDC report
+  def create_notification
+
+    # Get report and vehicle from params
+    MdcReport.find(params.require(:id).to_i).create_notification(current_user)
+
+    @results = get_filter
+    respond_to do |format|
+      format.js {render partial: 'mdc/report_index_js'}
+    end
+  end
+
   # GET request action
   def notification_index
     @results = get_filter
@@ -260,11 +272,11 @@ class WsController < ApplicationController
     p[:types].each do |t|
       @types[t] = true
     end
-
+    
     # Run query
     MdcReport.where("sent_at between '#{@date_from.strftime("%Y%m%d")}' and '#{@date_to.strftime("%Y%m%d")}'")
             .where("#{@office} = 1")
-            .where("report_type in (#{@types.select{ |t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
+            .where("report_type in (#{@types.select{ |k,t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
             .order(sent_at: :desc)
 
   end

@@ -96,10 +96,9 @@ class MdcWebservice
     unless dch[:data].nil?
       dch[:data].each_with_index do |ch,i|
         dd = FareDocuments.new(self.select_data_collection_rows(ch)[:data],self)
-        if dd.date > Time.now - 6.months
+        if dd.date > Time.now - 2.months
           data[i] = dd
         else
-          byebug
           self.update_data_collection_rows_status(self.select_data_collection_rows(ch)[:data])
         end
 
@@ -879,7 +878,7 @@ class ReportRequest
   def offices
     case self.type.downcase
     when 'incidente' then
-      return [:hr,:logistics]
+      return [:hr,:logistics,:maintenance]
     when 'infortunio' then
       return [:hr,:logistics]
     when 'info' then
@@ -899,7 +898,7 @@ class ReportRequest
     when 'contravvenzione' then
       return [:logistics,:maintenance]
     when 'attrezzatura' then
-      return [:logistics]
+      return [:logistics,:maintenance]
     when 'dpi' then
       return [:logistics,:hr]
     else
