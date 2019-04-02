@@ -5,7 +5,6 @@ class MdcReport < ApplicationRecord
 
   def create_notification(user)
 
-    byebug
     # Get MSSQL vehicle
     vehicle_refs = EurowinController::get_vehicle(self.vehicle)
 
