@@ -16,6 +16,8 @@ class WsController < ApplicationController
     mdc = MdcWebservice.new
 
     @results = Array.new
+    # @results << mdc.get_fares_data({applicationID: 'FARES', deviceCode: '', status: @status}).reverse[0,10]
+    # byebug
     MdcUser.assigned.each do |p|
       r = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.user.upcase, status: @status}).reverse[0,10]
       @results << r unless r.empty?
@@ -198,8 +200,8 @@ class WsController < ApplicationController
     mdc.close_session
     respond_to do |format|
       format.pdf do
-        send_data pdf.render, filename:
-        "test.pdf",
+        send_data pdf.render,
+        filename: "#{params[:id]} #{params[:driver]}",
         type: "application/pdf"
       end
     end
@@ -245,13 +247,14 @@ class WsController < ApplicationController
 
     # Set correct types
     @types = {
-      'guasto': false,
-      'furto': false,
-      'dpi': false,
+      'attrezzatura': false,
       'contravvenzione': false,
-      'sosta_prolungata': false,
+      'dpi': false,
+      'furto': false,
+      'guasto': false,
       'incidente': false,
-      'infortunio': false
+      'infortunio': false,
+      'sosta_prolungata': false
     }
 
     p[:types].each do |t|
@@ -271,11 +274,11 @@ class WsController < ApplicationController
 
     case @office
     when 'maintenance' then
-      p = {types: ['guasto','furto']}
+      p = {types: ['attrezzatura','contravvenzione','furto','guasto','incidente']}
     when 'logistics' then
-      p = {types: ['furto','dpi','contravvenzione','sosta_prolungata','incidente','infortunio']}
+      p = {types: ['attrezzatura','contravvenzione','dpi','furto','sosta_prolungata','incidente','infortunio']}
     when 'hr' then
-      p = {types: ['furto','dpi','incidente','infortunio']}
+      p = {types: ['dpi','furto','incidente','infortunio']}
     end
 
     p[:date_from] = (Time.now - 48.hours).strftime("%Y-%m-%d")

@@ -1,11 +1,12 @@
-.scrollable-panel.full-panel
-  .container
-    = "Record: #{@results.count}"
-    = button_to 'Ricarica', mdc_transport_documents_path(@status == 0 ? 'opened' : 'closed'), method: :get
-    = radio_button_tag 'status', "opened", @status == 0 ? true : false, id: 'opened'
-    Mostra viaggi aperti
-    = radio_button_tag 'status', "closed", @status == 0 ? false : true, id: 'closed'
-    Mostra viaggi chiusi
+
+.container{style: 'margin-top: 1em;'}
+  = "Record: #{@results.count}"
+  = button_to 'Ricarica', mdc_transport_documents_path(@status == 0 ? 'opened' : 'closed'), method: :get
+  = radio_button_tag 'status', "opened", @status == 0 ? true : false, id: 'opened'
+  Mostra viaggi aperti
+  = radio_button_tag 'status', "closed", @status == 0 ? false : true, id: 'closed'
+  Mostra viaggi chiusi
+  .scrollable-panel.full-panel
     - @results.each do |r|
       - r.each do |res|
         .row
@@ -30,6 +31,8 @@
               = hidden_field_tag :user, res.user.user
               = submit_tag 'Chiudi'
             = form_tag(mdc_download_ws_pdf_path(format: :pdf), method: :post, class: 'no-loader') do |f|
+              = hidden_field_tag :id, res.id
+              = hidden_field_tag :driver, res.user.holder.complete_name
               - res.photos.each do |p|
                 = hidden_field_tag 'photos[]', p
               = button_tag 'PDF', class: 'no-loader'

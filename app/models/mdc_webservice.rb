@@ -95,10 +95,14 @@ class MdcWebservice
     dch = self.select_data_collection_heads(ops)
     unless dch[:data].nil?
       dch[:data].each_with_index do |ch,i|
-        data[i] = FareDocuments.new(self.select_data_collection_rows(ch)[:data],self)
-        # data[i][:data].each do |d|
-        #   self.update_data_collection_rows_status(d.dataCollectionRowKey)
-        # end
+        dd = FareDocuments.new(self.select_data_collection_rows(ch)[:data],self)
+        if dd.date > Time.now - 6.months
+          data[i] = dd
+        else
+          byebug
+          self.update_data_collection_rows_status(self.select_data_collection_rows(ch)[:data])
+        end
+
       end
     end
     self.commit_transaction
@@ -354,6 +358,7 @@ class MdcWebservice
     #   deviceCode: string,
     #   status: int
     # }
+    ops[:deviceCode] = "|#{MdcUser.assigned.map{ |u| u.user.upcase }.join('|')}|" if ops[:deviceCode].nil?
     request = HTTPI::Request.new
     request.url = @endpoint
     request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:selectDataCollectionHeads xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:applicationID>#{ops[:applicationID]}</ns3:applicationID><ns3:deviceCode>#{ops[:deviceCode]}</ns3:deviceCode><ns3:status>#{ops[:status]}</ns3:status></ns3:selectDataCollectionHeads></soapenv:Body></soapenv:Envelope>"
@@ -753,6 +758,10 @@ class FareDocuments
     # byebug if @data[:id].nil? || @data[:id] == ''
     # @data = nil if @data[:date_from].nil? or @data[:date_to].nil?
     # mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
+  end
+
+  def date
+    @date
   end
 
   def data
