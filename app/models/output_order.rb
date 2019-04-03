@@ -18,7 +18,7 @@ class OutputOrder < ApplicationRecord
   # scope :worksheet, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('destination_id == worksheet_.id') }
   # scope :open_worksheets_filter, -> { joins('inner join worksheets on destination_id = worksheets.id').where(:destination_type => 'Worksheet').where('worksheets.closingDate is null') }
   scope :open_worksheets_filter, -> { where(:destination_type => 'Worksheet').where('destination_id in (select id from worksheets where closingDate is null )') }
-
+  scope :date_between, ->(date_from,date_to) { where("output_orders.created_at between ? and ?",date_from.strftime("%Y%m%d"),date_to.strftime("%Y%m%d")) }
 
   def to_mobile_workshop?
     self.destination_type == 'Office' and Office.mobile_workshops.include? self.destination

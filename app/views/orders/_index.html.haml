@@ -1,14 +1,25 @@
 %div{ style: 'height: 100vh; padding-bottom: 30em;' }
   %h3= 'Elenco commesse'
   = form_tag(output_orders_search_path, method: :post, remote: true, type: :script, class: 'preventCr') do |f|
-    = 'Totale: '+OutputOrder.count.to_s+' ordini'
-    = '('+OutputOrder.unprocessed.count.to_s+' non evasi)'
+    .row
+      .col-sm-4
+        = "Totale: #{@orders.count}/#{OutputOrder.count} ordini"
+        = '('+OutputOrder.unprocessed.count.to_s+' non evasi)'
+        %br
+        = check_box_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil, @open_worksheets_filter
+        = 'Solo schede officina aperte'
+      .col-sm-4
+        %b="Dal"
+        = date_field_tag :date_from, @date_from, class: 'form-control'
+      .col-sm-4
+        %b="Al"
+        = date_field_tag :date_to, @date_to, class: 'form-control'
     %br
-    = check_box_tag :open_worksheets_filter, @open_worksheets_filter ? 'on' : nil, @open_worksheets_filter
-    = 'Solo schede officina aperte'
-    %br
-    %br
-    = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': items_path, id: 'search'
+    .row
+      .col-sm-10
+        = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control', 'data-target': items_path, id: 'search'
+      .col-sm-2
+        = submit_tag 'Cerca', class: 'form-control'
     -# = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': output_orders_search_path, id: 'search'
     -# = will_paginate @orders, :params => {format: :js }
 
@@ -58,7 +69,7 @@
           - else
             = order.processed?
         .col-sm-2
-          = (l order.created_at)        
+          = (l order.created_at)
         .col-sm-1
           = button_to 'Stampa lista', output_order_pdf_path(order.id,format: :pdf), class: 'no-loader'
           = button_to 'Stampa modulo', output_order_pdf_module_path(order.id,format: :pdf), class: 'no-loader' if order.destination.class == Person or order.destination.class == Vehicle

@@ -26,9 +26,9 @@ class OrdersController < ApplicationController
   def index
     search_params
     if @open_worksheets_filter
-      @orders = OutputOrder.open_worksheets_filter #.paginate(:page => params[:page], :per_page => 5)
+      @orders = OutputOrder.date_between(@date_from, @date_to).open_worksheets_filter #.paginate(:page => params[:page], :per_page => 5)
     else
-      @orders = OutputOrder.limit(100) #.paginate(:page => params[:page], :per_page => 5)
+      @orders = OutputOrder.date_between(@date_from, @date_to) #.paginate(:page => params[:page], :per_page => 5)
     end
     if @search.nil? or @search == ''
       @orders = @orders.order(:processed => :asc, :created_at => :desc) #.paginate(:page => params[:page], :per_page => 5)
@@ -708,7 +708,16 @@ class OrdersController < ApplicationController
       else
         @from = params.require(:from)
       end
-
+      if params[:date_to].nil?
+        @date_to = Date.today
+      else
+        @date_to = Date.strptime(params.require(:date_to),'%Y-%m-%d')
+      end
+      if params[:date_from].nil?
+        @date_from = @date_to - 15.days
+      else
+        @date_from = Date.strptime(params.require(:date_from),'%Y-%m-%d')
+      end
       unless params[:open_worksheets_filter].nil? or params[:open_worksheets_filter] == ''
         @open_worksheets_filter = params[:open_worksheets_filter] == 'on' ? true : false
       end
@@ -747,7 +756,7 @@ class OrdersController < ApplicationController
       # end
       begin
         ws = Worksheet.find_or_create_by_code(params.require(:recipient)[/(\d*)$/,1])
-        
+
         @destination = 'Worksheet'
         @order = OutputOrder.findByRecipient(ws.code,Worksheet).last
         if @order.nil?
