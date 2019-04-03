@@ -217,7 +217,7 @@ class WsController < ApplicationController
           +' '+
           +ISNULL(cc.[cap partenza],'')+
           +' '+
-          +ISNULL(cc.partenza,g.partenza)+
+          +ISNULL(p.Descrizione,ISNULL(cc.partenza,g.partenza))+
           +' '+
           +ISNULL(cc.[provincia partenza],g.Pv)+
           +' Merce: '+
@@ -231,7 +231,7 @@ class WsController < ApplicationController
           +' '+
           +ISNULL(cc.[cap arrivo],'')+
           +' '+
-          +ISNULL(cc.[arrivo],g.Destinazione)+
+          +ISNULL(g.Scarico,ISNULL(cc.[arrivo],g.Destinazione))+
           +' '+
           +ISNULL(cc.[provincia arrivo],g.Pr)+
           +' '+
@@ -250,15 +250,16 @@ class WsController < ApplicationController
       left join rimorchi1 r ON g.idrimorchi = r.idrimorchio
       inner join clienti c ON g.idcliente = c.idcliente
       left join clienti d ON a.idFornitore = d.CodTraffico
+      left join piazzali p ON g.IDPiazzaleSgancio = p.IDPiazzale
 
       where
-        g.Data = '#{Date.today.strftime('%Y%m%d')}'
+        g.Data = '20190403'
       and
         g.mdc != 1
       and
         g.ProgressivoGiornata between 1 and 9
       and
-        g.IDCliente not in (9996,10336,9995,9997,9998,9985,10629,10630,10631,10632,9986,9989,2265,9994,9999)
+        g.IDCliente not in (9996,10336,9995,9997,9998,9985,10629,10630,10631,10632,9986,9989,2265,9994,9999);
     QUERY
 
     # Get fares
