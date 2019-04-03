@@ -256,12 +256,16 @@ class Worksheet < ApplicationRecord
   end
 
   def self.find_or_create_by_code(protocol)
+
+    # Safe parse protocol
     protocol = protocol.to_s[/(EWC\*)?([0-9]+).*/,2]
     # ws = Worksheet.find_by(code: "EWC*#{protocol}")
 
     # if ws.nil?
+
+    # Search MyOfficina's db for the worksheet0
       ewc = EurowinController::get_ew_client
-      res = ewc.query("select Protocollo, CodiceAutomezzo, automezzi.Tipo, FlagSchedaChiusa, "\
+      res = ewc.query("select Protocollo, CodiceAutomezzo, autoodl.Targa, automezzi.Tipo, FlagSchedaChiusa, "\
         "DataUscitaVeicolo, DataEntrataVeicolo, autoodl.Note, FlagProgrammazioneSospesa, CodiceAnagrafico, "\
         "(select descrizione from tabdesc where codice = autoodl.codicetipodanno and gruppo = 'AUTOTIPD') as TipoDanno, "\
         "(select RagioneSociale from anagrafe where codice = autoodl.CodiceAnagrafico) as NomeOfficina "\
@@ -271,16 +275,19 @@ class Worksheet < ApplicationRecord
       ewc.close
 
     # end
+    # If found sync Dashboard's, or else just look for it
     if res.count > 0
       ws = Worksheet.upsync_ws(res.first)
     else
       ws = Worksheet.find_by(code: "EWC*#{protocol}")
     end
-        # byebug if ws.nil?
+
+    raise 'ODL non trovato' if ws.nil?
     ws
   end
 
   def self.upsync_ws(odl)
+    # byebug if odl['Protocollo'] == 64896
     ws = Worksheet.find_by(code: "EWC*#{odl['Protocollo']}")
 
     case odl['Tipo']

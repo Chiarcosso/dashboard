@@ -272,7 +272,7 @@ class WsController < ApplicationController
     p[:types].each do |t|
       @types[t] = true
     end
-    
+
     # Run query
     MdcReport.where("sent_at between '#{@date_from.strftime("%Y%m%d")}' and '#{@date_to.strftime("%Y%m%d")}'")
             .where("#{@office} = 1")

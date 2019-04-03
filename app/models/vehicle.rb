@@ -64,7 +64,7 @@ class Vehicle < ApplicationRecord
     odl.each do |o|
       ws = wss.select{ |w| w.code == "EWC*#{o['Protocollo']}"}.first
       ws = Worksheet.find_or_create_by_code(o['Protocollo']) if ws.nil?
-      byebug if ws.nil?
+      raise 'ODL non trovato' if ws.nil?
       res << {odl: o, ws: ws}
     end
     res
