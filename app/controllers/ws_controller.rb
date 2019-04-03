@@ -150,28 +150,11 @@ class WsController < ApplicationController
       if user.assigned_to_person.nil? and user.assigned_to_company.nil?
         @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{user.holder.complete_name} non ha un utente assegnato."
       else
-        id = params.require(:id)
-        msg = Base64.decode64(params.require('ChatMessage'))
-        mdc = MdcWebservice.new
-        mdc.begin_transaction
-        mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: id, deviceCode: ''})])
-        mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{user.user.upcase}|", key: id, order: 0, tabname: 'FARES', values: [msg]}))
-        # Person.mdc.each do |p|
-        #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.') unless p == driver
-        # end
-        # MdcUser.all.each do |p|
-        #   mdc.send_push_notification([p.user],'Aggiornamento viaggi.') unless p == user
-        # end
-        # mdc.send_push_notification((MdcUser.all - [user]),'Aggiornamento viaggi.')
-        # mdc.send_push_notification([user],msg)
-        # MdcUser.assigned.each do |mdcu|
-        #   mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil) unless mdcu == user
-        # end
-        mdc.send_same_push_notification_ext((MdcUser.assigned.to_a - [user]),'Aggiornamento viaggi.')
-        mdc.send_push_notification_ext([user],msg,nil)
-        mdc.commit_transaction
-        mdc.end_transaction
-        mdc.close_session
+        sync_fares_table(
+          msg: Base64.decode64(params.require('ChatMessage')),
+          id: params.require(:id),
+          user: user
+        )
         @msg = "Messaggio inviato. Targa: #{params[:VehiclePlateNumber]}, #{user.holder.complete_name} (utente: #{user.user})."
       end
     else
@@ -179,6 +162,139 @@ class WsController < ApplicationController
     end
 
     render :partial => 'layouts/messages'
+  end
+
+  # Update FARES tabgen, send push notifications
+  def sync_fares_table(opts)
+
+    mdc = MdcWebservice.new
+    mdc.begin_transaction
+    mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: opts[:id], deviceCode: ''})])
+    mdc.insert_or_update_tabgen(Tabgen.new({deviceCode: "|#{opts[:user].user.upcase}|", key: opts[:id], order: 0, tabname: 'FARES', values: [opts[:msg]]}))
+    # Person.mdc.each do |p|
+    #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.') unless p == driver
+    # end
+    # MdcUser.all.each do |p|
+    #   mdc.send_push_notification([p.user],'Aggiornamento viaggi.') unless p == user
+    # end
+    # mdc.send_push_notification((MdcUser.all - [user]),'Aggiornamento viaggi.')
+    # mdc.send_push_notification([user],msg)
+    # MdcUser.assigned.each do |mdcu|
+    #   mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil) unless mdcu == user
+    # end
+    mdc.send_same_push_notification_ext((MdcUser.assigned.to_a - [opts[:user]]),'Aggiornamento viaggi.')
+    mdc.send_push_notification_ext([opts[:user]],opts[:msg],nil)
+    mdc.commit_transaction
+    mdc.end_transaction
+    mdc.close_session
+  end
+
+  # Query MSSQL for new fares, eventually send them to the mdc app and mark its mdc check on MSSQL
+  def self.send_fares_massive
+
+    # Prepare client and query
+    c = MssqlReference.get_client
+    q = <<-QUERY
+      select distinct
+        idposizione,
+        a.nominativo as driver,
+        g.mdc,
+        d.RagioneSociale as company,
+        (
+          convert(nvarchar,g.data,104)+
+          +' '+
+          +m.Targa+
+          +' - '+
+          +ISNULL(r.Targa,'')+
+          +' '+
+          +a.nominativo+
+          +'\r\n'+
+          +convert(nvarchar,g.ProgressivoGiornata)+
+          +' - Partenza: '+
+          +ISNULL(cc.[ditta partenza],'')+
+          +' '+
+          +ISNULL(cc.[via partenza],'')+
+          +' '+
+          +ISNULL(cc.[cap partenza],'')+
+          +' '+
+          +ISNULL(cc.partenza,g.partenza)+
+          +' '+
+          +ISNULL(cc.[provincia partenza],g.Pv)+
+          +' Merce: '+
+          +ISNULL(ma.merce,mg.merce)+
+          +' '+
+          +ISNULL(cc.[Descrivi Merce],'')+
+          +' '+
+          +ISNULL(cc.[ditta arrivo],'')+
+          +' '+
+          +ISNULL(cc.[via arrivo],'')+
+          +' '+
+          +ISNULL(cc.[cap arrivo],'')+
+          +' '+
+          +ISNULL(cc.[arrivo],g.Destinazione)+
+          +' '+
+          +ISNULL(cc.[provincia arrivo],g.Pr)+
+          +' '+
+          +ISNULL(cc.note,'')+
+          +' '+
+          +ISNULL(g.RifCliente,'')
+        ) as msg
+
+      from giornale g
+
+      inner join autisti a ON g.idAutista = a.IDAutista
+      left join [calcolo costi] cc ON g.idviaggi = cc.idviaggi
+      left join materiali ma ON ma.idmerce = cc.merce
+      inner join materiali mg ON mg.idmerce = g.merce
+      inner join veicoli m ON g.idtarga = m.idveicolo
+      left join rimorchi1 r ON g.idrimorchi = r.idrimorchio
+      inner join clienti c ON g.idcliente = c.idcliente
+      left join clienti d ON a.idFornitore = d.CodTraffico
+
+      where
+        g.Data = '#{Date.today.strftime('%Y%m%d')}'
+      and
+        g.mdc != 1
+      and
+        g.ProgressivoGiornata between 1 and 9
+      and
+        g.IDCliente not in (9996,10336,9995,9997,9998,9985,10629,10630,10631,10632,9986,9989,2265,9994,9999)
+    QUERY
+
+    # Get fares
+    fares = c.execute(q)
+    special_logger.info("\r\n-------------------- Timely check: #{fares.count} trips found -------------------------\r\n")
+    sent = 0
+    fares.each do |fare|
+      begin
+
+        # Find user
+        user = MdcUser.find_by_holder(fare['driver']) || MdcUser.find_by_holder(fare['company'])
+        if user.nil?
+          special_logger.info("Trip discarded: #{fare['msg']}")
+          next
+        end
+
+        # Update table
+        # sync_fares_table(
+        #   msg: Base64.decode64(params.require('ChatMessage')),
+        #   id: fare['IDPosizione'],
+        #   user: user
+        # )
+
+        # Set mdc flag in mssql
+        # MssqlReference.get_client.execute(<<-QUERY
+        #     update giornale set mdc = -1 where idposizione = #{fare['idposizione']}
+        #   QUERY
+        # )
+        sent += 1
+        special_logger.info("Trip sent: #{fare['msg']}")
+      rescue Exception => e
+        special_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
+        next
+      end
+    end
+    special_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n")
   end
 
   def print_pdf
@@ -311,4 +427,8 @@ class WsController < ApplicationController
     end
   end
 
+  def self.special_logger
+    @@fares_logger ||= Logger.new("/mnt/wshare/Traffico/log_mdc/fares.log")
+    # @@fares_logger ||= Logger.new("#{Rails.root}/log/fares.log")
+  end
 end
