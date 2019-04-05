@@ -1064,101 +1064,80 @@ function activateGallery(fullscreen = true) {
   $('.gallery-image').off('click');
   $('.gallery-image').on('click',function(){
 
-    $('body').append('<div class="popup gallery-popup'+(fullscreen ? ' fullscreen-popup' : '' )+'" id="gallery"><div class="close">Chiudi</div></div>');
-    dimX = $('#gallery').width();
-    dimY = $('#gallery').height();
-
-    $('#gallery').append('<div class=""><img src="'+this.src+'" class="gimage gi-rotate-0" width="100%" height="100%"/></div>');
-
-    var move = false;
-    var offsetX = 0;
-    var offsetY = 0;
-
-    // Zooming wheel
-    $('.gimage').on('wheel', function(event){
-
-      if(event.originalEvent.deltaY < 0){
-
-        $(this).width($(this).width() * 1.1);
-        $(this).height($(this).height() * 1.1);
-
-      } else {
-
-        if ( $(this).width() > 100 && $(this).height() > 100){
-          $(this).width($(this).width() * 0.9);
-          $(this).height($(this).height() * 0.9);
-        }
-
-      }
-    });
-
-    $('.gimage').on('mousedown',function(e){
-      offsetX = e['pageX'];
-      offsetY = e['pageY'];
-      move = true;
-      // moved = false;
-    });
-    $('.gimage').on('mouseleave',function(){
-      move = false;
-    });
-    $('.gimage').on('mouseup',function(e){
-      move = false;
-    });
-    $('.gimage').on('contextmenu',function(e){
-      // if(!moved){
-
-        e.preventDefault();
-        if($(this).hasClass('gi-rotate-0')){
-          $(this).removeClass('gi-rotate-0');
-          $(this).addClass('gi-rotate-90');
-        } else if($(this).hasClass('gi-rotate-90')){
-          $(this).removeClass('gi-rotate-90');
-          $(this).addClass('gi-rotate-180');
-        } else if($(this).hasClass('gi-rotate-180')){
-          $(this).removeClass('gi-rotate-180');
-          $(this).addClass('gi-rotate-270');
-        } else if($(this).hasClass('gi-rotate-270')){
-          $(this).removeClass('gi-rotate-270');
-          $(this).addClass('gi-rotate-0');
-        }
-      // }
-      // move = false;
-    });
-
-    // $('.gimage').on('mouseup',function(e){
-    //   if(!moved){
-    //     if($(this).hasClass('gi-rotate-0')){
-    //       $(this).removeClass('gi-rotate-0');
-    //       $(this).addClass('gi-rotate-90');
-    //     } else if($(this).hasClass('gi-rotate-90')){
-    //       $(this).removeClass('gi-rotate-90');
-    //       $(this).addClass('gi-rotate-180');
-    //     } else if($(this).hasClass('gi-rotate-180')){
-    //       $(this).removeClass('gi-rotate-180');
-    //       $(this).addClass('gi-rotate-270');
-    //     } else if($(this).hasClass('gi-rotate-270')){
-    //       $(this).removeClass('gi-rotate-270');
-    //       $(this).addClass('gi-rotate-0');
-    //     }
-    //   }
-    //   move = false;
-    // });
-    $('.gimage').on('mousemove',function(e) {
-      if(move){
-        spaceX = offsetX - e['pageX'];
-        spaceY = offsetY - e['pageY'];
-        $(this).offset({top: $(this).offset()['top'] - spaceY, left: $(this).offset()['left'] - spaceX});
-        offsetX = e['pageX'];
-        offsetY = e['pageY'];
-        // moved = true;
-      }
-    });
-
-    $('.gimage').on('dragstart',function(e){
-      e.preventDefault();
-    });
-    // activateClose();
-  });
+//     $('body').append('<div class="popup gallery-popup'+(fullscreen ? ' fullscreen-popup' : '' )+'" id="gallery"><div class="close">Chiudi</div></div>');
+//     dimX = $('#gallery').width();
+//     dimY = $('#gallery').height();
+// 
+//     $('#gallery').append('<div class=""><img src="'+this.src+'" class="gimage gi-rotate-0" width="100%" height="100%"/></div>');
+// 
+//     var move = false;
+//     var offsetX = 0;
+//     var offsetY = 0;
+// 
+//     $('.gimage').on('wheel', function(event){
+// 
+//       if(event.originalEvent.deltaY < 0){
+// 
+//         $(this).width($(this).width() * 1.1);
+//         $(this).height($(this).height() * 1.1);
+// 
+//       } else {
+// 
+//         if ( $(this).width() > 100 && $(this).height() > 100){
+//           $(this).width($(this).width() * 0.9);
+//           $(this).height($(this).height() * 0.9);
+//         }
+// 
+//       }
+//     });
+// 
+//     $('.gimage').on('mousedown',function(e){
+//       offsetX = e['pageX'];
+//       offsetY = e['pageY'];
+//       move = true;
+// 
+//     });
+//     $('.gimage').on('mouseleave',function(){
+//       move = false;
+//     });
+//     $('.gimage').on('mouseup',function(e){
+//       move = false;
+//     });
+//     $('.gimage').on('contextmenu',function(e){
+// 
+//         e.preventDefault();
+//         if($(this).hasClass('gi-rotate-0')){
+//           $(this).removeClass('gi-rotate-0');
+//           $(this).addClass('gi-rotate-90');
+//         } else if($(this).hasClass('gi-rotate-90')){
+//           $(this).removeClass('gi-rotate-90');
+//           $(this).addClass('gi-rotate-180');
+//         } else if($(this).hasClass('gi-rotate-180')){
+//           $(this).removeClass('gi-rotate-180');
+//           $(this).addClass('gi-rotate-270');
+//         } else if($(this).hasClass('gi-rotate-270')){
+//           $(this).removeClass('gi-rotate-270');
+//           $(this).addClass('gi-rotate-0');
+//         }
+// 
+//     });
+// 
+//     $('.gimage').on('mousemove',function(e) {
+//       if(move){
+//         spaceX = offsetX - e['pageX'];
+//         spaceY = offsetY - e['pageY'];
+//         $(this).offset({top: $(this).offset()['top'] - spaceY, left: $(this).offset()['left'] - spaceX});
+//         offsetX = e['pageX'];
+//         offsetY = e['pageY'];
+//         moved = true;
+//       }
+//     });
+// 
+//     $('.gimage').on('dragstart',function(e){
+//       e.preventDefault();
+//     });
+//     
+//   });
 }
 
 
