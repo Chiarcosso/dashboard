@@ -122,6 +122,11 @@ body{
   bottom: 0vh;
 }
 
+.fullscreen-popup{
+  max-width: 95vw !important;
+  max-height: 95vh !important;
+}
+
 .gallery-popup{
   padding-left: 0px;
 }

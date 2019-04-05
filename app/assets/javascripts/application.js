@@ -1060,18 +1060,42 @@ function activatePopUp() {
   });
 }
 
-function activateGallery() {
+function activateGallery(fullscreen = false) {
   $('.gallery-image').off('click');
   $('.gallery-image').on('click',function(){
-    $('body').append('<div class="popup gallery-popup" id="gallery"><div class="close">Chiudi</div><div class="scrollable-panel"><img src="'+this.src+'" class="gimage gi-rotate-0"/></div></div>');
+    $('body').append('<div class="popup gallery-popup'+(fullscreen ? ' fullscreen-popup' : '' )+'" id="gallery"><div class="close">Chiudi</div></div>');
+    dimX = $('#gallery').width();
+    dimY = $('#gallery').height();
+
+    $('#gallery').append('<div class=""><img src="'+this.src+'" class="gimage gi-rotate-0" width="100%" height="100%"/></div>');
+
     var move = false
     var offsetX = 0;
     var offsetY = 0;
+
+    // Zooming wheel
+    $('.gimage').on('wheel', function(event){
+      console.log(event.originalEvent.deltaY,);
+      if(event.originalEvent.deltaY < 0){
+        $(this).width($(this).width() * 1.1);
+        $(this).height($(this).height() * 1.1);
+      }
+      else {
+        if ( $(this).width() > 100 && $(this).height() > 100){
+          $(this).width($(this).width() * 0.9);
+          $(this).height($(this).height() * 0.9);
+        }
+      }
+    });
+
     $('.gimage').on('mousedown',function(e){
       offsetX = e['pageX']
       offsetY = e['pageY']
       move = true;
       // moved = false;
+    });
+    $('.gimage').on('mouseleave',function(){
+      move = false;
     });
     $('.gimage').on('mouseup',function(e){
       move = false;

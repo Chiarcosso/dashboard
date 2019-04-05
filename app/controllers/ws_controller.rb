@@ -367,12 +367,15 @@ class WsController < ApplicationController
       p = get_filter_defaults
     else
       # Filter call, set filter to params
-      p = params.require('reports').permit(:date_from, :date_to, :types => [])
+      p = params.require('reports').permit(:date_from, :date_to, :search, :types => [])
     end
 
     # Set dates
     @date_to = Date.strptime(p[:date_to],"%Y-%m-%d")
     @date_from = Date.strptime(p[:date_from],"%Y-%m-%d")
+
+    # Set search
+    @search = p[:search].to_s.tr("'","''")[0..255]
 
     # Set correct types
     @types = {
@@ -390,11 +393,37 @@ class WsController < ApplicationController
       @types[t] = true
     end
 
-    # Run query
-    MdcReport.where("sent_at between '#{@date_from.strftime("%Y%m%d")}' and '#{@date_to.strftime("%Y%m%d")}'")
-            .where("#{@office} = 1")
-            .where("report_type in (#{@types.select{ |k,t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
-            .order(sent_at: :desc)
+    # Set up search to look in vehicles plates, drivers names, a report descriptions
+    if @search == ''
+
+      # Run query
+      res = MdcReport.where("sent_at between '#{@date_from.strftime("%Y%m%d")}' and '#{@date_to.strftime("%Y%m%d")}'")
+              .where("#{@office} = 1")
+              .where("report_type in (#{@types.select{ |k,t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
+              .order(sent_at: :desc)
+
+    else
+      w = <<-SEARCH
+          vehicle_id in
+            (select v.id from vehicles v
+              inner join vehicle_informations vi on vi.vehicle_id = v.id
+              where vi.information like ? and vi.vehicle_information_type_id = #{VehicleInformationType.plate.id}
+            )
+          or mdc_reports.description like ?
+          or mdc_reports.mdc_user_id in
+            (select mdcu.id from mdc_users mdcu
+              inner join people p on p.id = mdcu.assigned_to_person_id
+              where (concat(p.name,' ',p.surname) like ? or concat(p.surname,' ',p.name) like ?)
+            )
+      SEARCH
+
+      # Run query
+      res = MdcReport.where("sent_at between '#{@date_from.strftime("%Y%m%d")}' and '#{@date_to.strftime("%Y%m%d")}'")
+              .where("#{@office} = 1")
+              .where("report_type in (#{@types.select{ |k,t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
+              .where(w,"%#{@search}%","%#{@search}%","%#{@search}%","%#{@search}%")
+              .order(sent_at: :desc)
+    end
 
   end
 

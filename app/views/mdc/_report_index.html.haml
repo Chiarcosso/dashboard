@@ -1,144 +1,136 @@
-.container
-  - case @office
-    - when 'hr' then
-      - office_label = 'Uff. personale'
-    - when 'maintenance' then
-      - office_label = 'Uff. manutenzioni'
-    - when 'logistics' then
-      - office_label = 'Uff. traffico'
 
-  %h3= "Ricerca segnalazioni (#{office_label}): #{@results.count}"
-  = form_tag(notification_filter_path(@office),remote: true, method: :post, id: 'reports_filter_form') do |f|
-    .row
-      .col-sm-4
-        .col-sm-1
-          %h4 Dal
-        .col-sm-5
-          = hidden_field_tag 'office', @office
-          = date_field_tag 'reports[date_from]', @date_from, class: 'form-control'
-        .col-sm-1
-          %h4 Al
-        .col-sm-5
-          = date_field_tag 'reports[date_to]', @date_to, class: 'form-control'
-      - case @office.to_sym
-        - when :hr then
-          .col-sm-7
-            .col-sm-3
-              .field.centered
-                %label= "Infortunio"
-                %br
-                = check_box_tag 'reports[types][]', 'infortunio', @types['infortunio']
-            .col-sm-3
-              .field.centered
-                %label= "Incidente"
-                %br
-                = check_box_tag 'reports[types][]', 'incidente', @types['incidente']
-            .col-sm-3
-              .field.centered
-                %label= "Furto"
-                %br
-                = check_box_tag 'reports[types][]', 'furto', @types['furto']
-            .col-sm-3
-              .field.centered
-                %label= "DPI"
-                %br
-                = check_box_tag 'reports[types][]', 'dpi', @types['dpi']
-        - when :logistics then
-          .col-sm-7
-            .col-sm-3
-              .field.centered
-                %label= "Contravvenzione"
-                %br
-                = check_box_tag 'reports[types][]', 'contravvenzione', @types['contravvenzione']
-            .col-sm-2
-              .field.centered
-                %label= "Attrezzatura"
-                %br
-                = check_box_tag 'reports[types][]', 'attrezzatura', @types['attrezzatura']
-            .col-sm-2
-              .field.centered
-                %label= "Infortunio"
-                %br
-                = check_box_tag 'reports[types][]', 'infortunio', @types['infortunio']
-            .col-sm-2
-              .field.centered
-                %label= "Incidente"
-                %br
-                = check_box_tag 'reports[types][]', 'incidente', @types['incidente']
-            .col-sm-1
-              .field.centered
-                %label= "Furto"
-                %br
-                = check_box_tag 'reports[types][]', 'furto', @types['furto']
-            .col-sm-1
-              .field.centered
-                %label= "DPI"
-                %br
-                = check_box_tag 'reports[types][]', 'dpi', @types['dpi']
-            .col-sm-1
-              .field.centered
-                %label= "Sosta"
-                %br
-                = check_box_tag 'reports[types][]', 'sosta_prolungata', @types['sosta_prolungata']
-        - when :maintenance then
-          .col-sm-7
-            .col-sm-3
-              .field.centered
-                %label= "Contravvenzione"
-                %br
-                = check_box_tag 'reports[types][]', 'contravvenzione', @types['contravvenzione']
-            .col-sm-2
-              .field.centered
-                %label= "Attrezzatura"
-                %br
-                = check_box_tag 'reports[types][]', 'attrezzatura', @types['attrezzatura']
-            .col-sm-3
-              .field.centered
-                %label= "Guasto / danno"
-                %br
-                = check_box_tag 'reports[types][]', 'guasto', @types['guasto']
-            .col-sm-2
-              .field.centered
-                %label= "Incidente"
-                %br
-                = check_box_tag 'reports[types][]', 'incidente', @types['incidente']
-            .col-sm-2
-              .field.centered
-                %label= "Furto"
-                %br
-                = check_box_tag 'reports[types][]', 'furto', @types['furto']
+- case @office
+  - when 'hr' then
+    - office_label = 'Uff. personale'
+  - when 'maintenance' then
+    - office_label = 'Uff. manutenzioni'
+  - when 'logistics' then
+    - office_label = 'Uff. traffico'
+
+= form_tag(notification_filter_path(@office),remote: true, method: :post, id: 'reports_filter_form') do |f|
+  .row
+    - case @office.to_sym
+      - when :hr then
+        .col-sm-3{style: 'margin-right: 0px; white-space: nowrap;'}
+          %h3= "segnalazioni (Personale): #{@results.count}"
+        .col-sm-7{style: 'margin-left: 0px; white-space: nowrap; top: 2.5rem; float: right;'}
+          .col-sm-3
+            .field.centered
+              %label= "Infortunio"
+              = check_box_tag 'reports[types][]', 'infortunio', @types['infortunio']
+          .col-sm-3
+            .field.centered
+              %label= "Incidente"
+              = check_box_tag 'reports[types][]', 'incidente', @types['incidente']
+          .col-sm-3
+            .field.centered
+              %label= "Furto"
+              = check_box_tag 'reports[types][]', 'furto', @types['furto']
+          .col-sm-3
+            .field.centered
+              %label= "DPI"
+              = check_box_tag 'reports[types][]', 'dpi', @types['dpi']
+      - when :logistics then
+        .col-sm-3{style: 'margin-right: 0px; white-space: nowrap;'}
+          %h3= "Segnalazioni (Traffico): #{@results.count}"
+        .col-sm-9{style: 'margin-left: 0px; white-space: nowrap; top: 2.5rem; float: right;'}
+          .col-sm-3
+            .field.centered
+              %label= "Contravvenzione"
+              = check_box_tag 'reports[types][]', 'contravvenzione', @types['contravvenzione']
+          .col-sm-2
+            .field.centered
+              %label= "Attrezzatura"
+              = check_box_tag 'reports[types][]', 'attrezzatura', @types['attrezzatura']
+          .col-sm-2
+            .field.centered
+              %label= "Infortunio"
+              = check_box_tag 'reports[types][]', 'infortunio', @types['infortunio']
+          .col-sm-2
+            .field.centered
+              %label= "Incidente"
+              = check_box_tag 'reports[types][]', 'incidente', @types['incidente']
+          .col-sm-1
+            .field.centered
+              %label= "Furto"
+              = check_box_tag 'reports[types][]', 'furto', @types['furto']
+          .col-sm-1
+            .field.centered
+              %label= "DPI"
+              = check_box_tag 'reports[types][]', 'dpi', @types['dpi']
+          .col-sm-1
+            .field.centered
+              %label= "Sosta"
+              = check_box_tag 'reports[types][]', 'sosta_prolungata', @types['sosta_prolungata']
+      - when :maintenance then
+        .col-sm-3{style: 'margin-right: 0px; white-space: nowrap;'}
+          %h3= "Segnalazioni (Manutenzioni): #{@results.count}"
+        .col-sm-7{style: 'margin-left: 0px; white-space: nowrap; top: 2.5rem; float: right;'}
+          .col-sm-3
+            .field.centered
+              %label= "Contravvenzione"
+              = check_box_tag 'reports[types][]', 'contravvenzione', @types['contravvenzione']
+          .col-sm-2
+            .field.centered
+              %label= "Attrezzatura"
+              = check_box_tag 'reports[types][]', 'attrezzatura', @types['attrezzatura']
+          .col-sm-3
+            .field.centered
+              %label= "Guasto / danno"
+              = check_box_tag 'reports[types][]', 'guasto', @types['guasto']
+          .col-sm-2
+            .field.centered
+              %label= "Incidente"
+              = check_box_tag 'reports[types][]', 'incidente', @types['incidente']
+          .col-sm-2
+            .field.centered
+              %label= "Furto"
+              = check_box_tag 'reports[types][]', 'furto', @types['furto']
+  .row
+    .col-sm-4
       .col-sm-1
-        .field
-          = submit_tag 'Filtra', class: 'form-control'
-  .scrollable-panel.full-panel{style: "padding-right: 2em; padding-left: 2em;"}
-    - @results.each do |r|
-      .row.colored
-        .row
-          .col-sm-2
-            = r.mdc_user.holder.list_name
-          .col-sm-2
-            = r.report_type.tr('_',' ').capitalize
-          .col-sm-1
-            = r.vehicle.plate unless r.vehicle.nil?
-          .col-sm-4
-            = r.description
-          .col-sm-1
-            = "#{r.sent_at.strftime("%d/%m/%Y")}"
-          .col-sm-2
-            - unless @office != 'maintenance' || r.vehicle.nil?
-              - if r.myofficina_reference.nil?
-                = button_tag 'Crea segnalazione', class: 'form-control ajax-link', data: { target: mdc_create_notification_path, method: 'post', data: {id: r.id}, related_form: 'reports_filter_form'}
-              - else
-                = "Segnalazione: #{r.myofficina_reference}"
-        .row
-          .col-sm-12
-            - r.images.each do |p|
-              = image_tag(p.url, class: 'gallery-image', style: 'height:50%;width:auto;')
-          %br
-          %br
+        %h4 Dal
+      .col-sm-5
+        = hidden_field_tag 'office', @office
+        = date_field_tag 'reports[date_from]', @date_from, class: 'form-control'
+      .col-sm-1
+        %h4 Al
+      .col-sm-5
+        = date_field_tag 'reports[date_to]', @date_to, class: 'form-control'
+    .col-sm-7
+      = text_field_tag 'reports[search]', @search, class: 'form-control', placeholder: 'Cerca fra gli autisti, le targhe, nelle note..'
+    .col-sm-1
+      .field
+        = submit_tag 'Filtra', class: 'form-control'
+.scrollable-panel.full-panel{style: "padding-right: 2em; padding-left: 2em;"}
+  - @results.each do |r|
+    .row.colored
+      .row
+        .col-sm-2
+          = r.mdc_user.holder.list_name
+        .col-sm-2
+          = r.report_type.tr('_',' ').capitalize
+        .col-sm-1
+          = r.vehicle.plate unless r.vehicle.nil?
+        .col-sm-4
+          = r.description
+        .col-sm-1
+          = "#{r.sent_at.strftime("%d/%m/%Y")}"
+        .col-sm-2
+          - unless @office != 'maintenance' || r.vehicle.nil?
+            - if r.myofficina_reference.nil?
+              = button_tag 'Crea segnalazione', class: 'form-control ajax-link', data: { target: mdc_create_notification_path, method: 'post', data: {id: r.id}, related_form: 'reports_filter_form'}
+            - else
+              = "Segnalazione: #{r.myofficina_reference}"
+      .row
+        .col-sm-12
+          - r.images.each do |p|
+            = image_tag(p.url, class: 'gallery-image', style: 'height:50%;width:auto;')
+        %br
+        %br
 
 :javascript
-  activateGallery();
+  activateGallery(true);
 
   // $('input[name=status]').on('click',function(){
   //   var form = $('input[value=Ricarica]').parent();
