@@ -1063,6 +1063,7 @@ function activatePopUp() {
 function activateGallery(fullscreen = true) {
   $('.gallery-image').off('click');
   $('.gallery-image').on('click',function(){
+
     $('body').append('<div class="popup gallery-popup'+(fullscreen ? ' fullscreen-popup' : '' )+'" id="gallery"><div class="close">Chiudi</div></div>');
     dimX = $('#gallery').width();
     dimY = $('#gallery').height();
@@ -1077,14 +1078,17 @@ function activateGallery(fullscreen = true) {
     $('.gimage').on('wheel', function(event){
 
       if(event.originalEvent.deltaY < 0){
+
         $(this).width($(this).width() * 1.1);
         $(this).height($(this).height() * 1.1);
-      }
-      else {
+
+      } else {
+
         if ( $(this).width() > 100 && $(this).height() > 100){
           $(this).width($(this).width() * 0.9);
           $(this).height($(this).height() * 0.9);
         }
+
       }
     });
 
