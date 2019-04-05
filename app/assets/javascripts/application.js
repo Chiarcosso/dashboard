@@ -1060,7 +1060,7 @@ function activatePopUp() {
   });
 }
 
-function activateGallery(fullscreen = false) {
+function activateGallery(fullscreen = true) {
   $('.gallery-image').off('click');
   $('.gallery-image').on('click',function(){
     $('body').append('<div class="popup gallery-popup'+(fullscreen ? ' fullscreen-popup' : '' )+'" id="gallery"><div class="close">Chiudi</div></div>');
@@ -1069,13 +1069,13 @@ function activateGallery(fullscreen = false) {
 
     $('#gallery').append('<div class=""><img src="'+this.src+'" class="gimage gi-rotate-0" width="100%" height="100%"/></div>');
 
-    var move = false
+    var move = false;
     var offsetX = 0;
     var offsetY = 0;
 
     // Zooming wheel
     $('.gimage').on('wheel', function(event){
-      console.log(event.originalEvent.deltaY,);
+
       if(event.originalEvent.deltaY < 0){
         $(this).width($(this).width() * 1.1);
         $(this).height($(this).height() * 1.1);
@@ -1089,8 +1089,8 @@ function activateGallery(fullscreen = false) {
     });
 
     $('.gimage').on('mousedown',function(e){
-      offsetX = e['pageX']
-      offsetY = e['pageY']
+      offsetX = e['pageX'];
+      offsetY = e['pageY'];
       move = true;
       // moved = false;
     });
