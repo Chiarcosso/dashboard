@@ -281,8 +281,8 @@ class WsController < ApplicationController
         # Find user
         user = MdcUser.find_by_holder(fare['driver']) || MdcUser.find_by_holder(fare['company'])
         if user.nil?
-          special_logger.info("Trip discarded: #{fare['msg']}")
-          logistics_logger.info("Trip discarded: #{fare['msg']}")
+          special_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}")
+          logistics_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}")
           next
         end
 
@@ -299,8 +299,8 @@ class WsController < ApplicationController
         #   QUERY
         # )
         sent += 1
-        special_logger.info("\n\nTrip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
-        logistics_logger.info("\n\nTrip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
+        special_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
+        logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
 
       rescue Exception => e
         special_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
