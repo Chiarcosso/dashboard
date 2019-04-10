@@ -300,7 +300,7 @@ class WsController < ApplicationController
         # )
         sent += 1
         special_logger.info("\n\nTrip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
-        logistics_logger.info("Trip sent: #{fare['msg']}")
+        logistics_logger.info("\n\nTrip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
 
       rescue Exception => e
         special_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
@@ -311,7 +311,7 @@ class WsController < ApplicationController
 
     special_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n")
     logistics_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n")
-    
+
   end
 
   def print_pdf
