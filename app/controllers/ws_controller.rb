@@ -294,11 +294,9 @@ class WsController < ApplicationController
           user: user
         )
 
-        Set mdc flag in mssql
-        MssqlReference.get_client.execute(<<-QUERY
-            update giornale set mdc = -1 where IDPosizione = #{fare['IDPosizione']}
-          QUERY
-        )
+        #Set mdc flag in mssql
+        MssqlReference.get_client.execute("update giornale set mdc = -1 where IDPosizione = #{fare['IDPosizione']}")
+        
         sent += 1
         special_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
         logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n") unless Rails.env = 'Development'
