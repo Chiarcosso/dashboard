@@ -196,7 +196,7 @@ class WsController < ApplicationController
     c = MssqlReference.get_client
     q = <<-QUERY
       select distinct
-        idposizione,
+        IDPosizione,
         a.nominativo as driver,
         g.mdc,
         d.RagioneSociale as company,
@@ -295,7 +295,7 @@ class WsController < ApplicationController
 
         # Set mdc flag in mssql
         # MssqlReference.get_client.execute(<<-QUERY
-        #     update giornale set mdc = -1 where idposizione = #{fare['idposizione']}
+        #     update giornale set mdc = -1 where IDPosizione = #{fare['IDPosizione']}
         #   QUERY
         # )
         sent += 1
