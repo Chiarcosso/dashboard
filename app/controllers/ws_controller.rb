@@ -205,42 +205,43 @@ class WsController < ApplicationController
           +' '+
           +m.Targa+
           +' - '+
-          +ISNULL(r.Targa,'')+
+          +COALESCE(r.Targa,'')+
           +' '+
           +a.nominativo+
           +'\r\n'+
           +convert(nvarchar,g.ProgressivoGiornata)+
           +' - Partenza: '+
-          +ISNULL(p.Descrizione,
-            ISNULL(cc.[ditta partenza],'')+
+          +COALESCE(p.Descrizione,
+            COALESCE(cc.[ditta partenza],'')+
             +' '+
-            +ISNULL(cc.[via partenza],'')+
+            +COALESCE(cc.[via partenza],'')+
             +' '+
-            +ISNULL(cc.[cap partenza],'')+
+            +COALESCE(cc.[cap partenza],'')+
             +' '+
-            +ISNULL(cc.partenza,g.partenza)+
+            +COALESCE(cc.partenza,g.partenza)+
             +' '+
-            +ISNULL(cc.[provincia partenza],g.Pv)
+            +COALESCE(cc.[provincia partenza],g.Pv)
           )
 
-          +' Merce: '+
-          +ISNULL(ma.merce,mg.merce)+
+          +' - Merce: '+
+          +COALESCE(ma.merce,mg.merce)+
           +' '+
-          +ISNULL(cc.[Descrivi Merce],'')+
+          +COALESCE(cc.[Descrivi Merce],'')+
           +' '+
-          +ISNULL(cc.[ditta arrivo],'')+
+          +' - Destinazione: '+
+          +COALESCE(cc.[ditta arrivo],'')+
           +' '+
-          +ISNULL(cc.[via arrivo],'')+
+          +COALESCE(cc.[via arrivo],'')+
           +' '+
-          +ISNULL(cc.[cap arrivo],'')+
+          +COALESCE(cc.[cap arrivo],'')+
           +' '+
-          +ISNULL(g.Scarico,ISNULL(cc.[arrivo],g.Destinazione))+
+          +COALESCE(g.Scarico,COALESCE(cc.[arrivo],g.Destinazione))+
           +' '+
-          +ISNULL(cc.[provincia arrivo],g.Pr)+
+          +COALESCE(cc.[provincia arrivo],g.Pr)+
           +' '+
-          +ISNULL(cc.note,'')+
+          +COALESCE(cc.note,'')+
           +' '+
-          +ISNULL(g.RifCliente,'')
+          +COALESCE(g.RifCliente,'')
         ) as msg
 
       from giornale g
@@ -271,7 +272,7 @@ class WsController < ApplicationController
 
     # Log found trips
     special_logger.info("\r\n-------------------- Timely check: #{fares.count} trips found -------------------------\r\n")
-    logistics_logger.info("\r\n-------------------- Timely check: #{fares.count} trips found -------------------------\r\n")
+    logistics_logger.info("\r\n-------------------- Timely check: #{fares.count} trips found -------------------------\r\n") unless Rails.env = 'Development'
 
     # Loop through trips and send the ones that have a valid MDC user
     sent = 0
@@ -282,7 +283,7 @@ class WsController < ApplicationController
         user = MdcUser.find_by_holder(fare['driver']) || MdcUser.find_by_holder(fare['company'])
         if user.nil?
           special_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}")
-          logistics_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}")
+          logistics_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}") unless Rails.env = 'Development'
           next
         end
 
@@ -300,17 +301,17 @@ class WsController < ApplicationController
         # )
         sent += 1
         special_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
-        logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
+        logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n") unless Rails.env = 'Development'
 
       rescue Exception => e
         special_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
-        logistics_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
+        logistics_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n") unless Rails.env = 'Development'
         next
       end
     end
 
     special_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n")
-    logistics_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n")
+    logistics_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n") unless Rails.env = 'Development'
 
   end
 
@@ -387,9 +388,12 @@ class WsController < ApplicationController
     end
 
     # Set dates
+    Time.zone = 'Europe/Rome'
+    date_to = Time.zone.strptime(p[:date_to]+' 23:59:59',"%Y-%m-%d %H:%M:%S")
+    date_from = Time.zone.strptime(p[:date_from]+' 00:00:00',"%Y-%m-%d %H:%M:%S")
     @date_to = Date.strptime(p[:date_to],"%Y-%m-%d")
     @date_from = Date.strptime(p[:date_from],"%Y-%m-%d")
-
+    
     # Set search
     @search = p[:search].to_s.tr("'","''")[0..255]
 
@@ -413,7 +417,7 @@ class WsController < ApplicationController
     if @search == ''
 
       # Run query
-      res = MdcReport.where("sent_at between '#{@date_from.strftime("%Y%m%d")}' and '#{@date_to.strftime("%Y%m%d")}'")
+      res = MdcReport.where("sent_at between '#{date_from.in_time_zone('UTC').strftime("%Y-%m-%d %H:%M:%S")}' and '#{date_to.in_time_zone('UTC').strftime("%Y-%m-%d %H:%M:%S")}'")
               .where("#{@office} = 1")
               .where("report_type in (#{@types.select{ |k,t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
               .order(sent_at: :desc)
@@ -434,7 +438,7 @@ class WsController < ApplicationController
       SEARCH
 
       # Run query
-      res = MdcReport.where("sent_at between '#{@date_from.strftime("%Y%m%d")}' and '#{@date_to.strftime("%Y%m%d")}'")
+      res = MdcReport.where("sent_at between '#{date_from.in_time_zone('UTC').strftime("%Y-%m-%d %H:%M:%S")}' and '#{date_to.in_time_zone('UTC').strftime("%Y-%m-%d %H:%M:%S")}'")
               .where("#{@office} = 1")
               .where("report_type in (#{@types.select{ |k,t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
               .where(w,"%#{@search}%","%#{@search}%","%#{@search}%","%#{@search}%")

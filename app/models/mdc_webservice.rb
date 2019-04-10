@@ -40,10 +40,12 @@ class MdcWebservice
     results = Array.new
     case what
     when :report then
+
       MdcUser.assigned.each do |p|
+
         puts "REPORTS Search for user #{p.user.upcase} (#{p.complete_name})"
         mdc.get_report_data({applicationID: 'REPORTS', deviceCode: p.user.upcase, status: 0}).each do |r|
-          # byebug
+
           r.register unless r.data.nil?
             # r.send_mail unless r.data.nil?
 
@@ -114,15 +116,19 @@ class MdcWebservice
     self.begin_transaction
 
     data = Array.new
+
     dch = self.select_data_collection_heads(ops)
+
     unless dch[:data].nil?
       dch[:data].each_with_index do |ch,i|
         data[i] = ReportRequest.new(self.select_data_collection_rows(ch)[:data],self)
+        
         # data[i][:data].each do |d|
         #   self.update_data_collection_rows_status(d.dataCollectionRowKey)
         # end
       end
     end
+
     self.commit_transaction
     self.end_transaction
     # self.close_session
@@ -831,7 +837,7 @@ class ReportRequest
         img = dcr.data[:description][/\/.*?([^\/]*.$)/,1] unless dcr.data[:description].nil?
         @data[:images] << mdc.media_address+img unless img.nil?
       end
-      @data[:sent_at] = Time.strptime(dcr.data[:date],"%Y%m%d") unless dcr.data[:date].nil?
+      @data[:sent_at] = Time.strptime(dcr.data[:date]+dcr.data[:time],"%Y%m%d%H%M%S") unless dcr.data[:date].nil?
       # if dcr.data[:formCode] == 'pdf_report' and dcr.dataCollectionRowKey.progressiveNo == 2
       #    @data[:form] = mdc.download_file(dcr.data[:description]).body[/%PDF.*?%%EOF/m].force_encoding("utf-8")
       # end

@@ -115,7 +115,7 @@
         .col-sm-4
           = r.description
         .col-sm-1
-          = "#{r.sent_at.strftime("%d/%m/%Y")}"
+          = "#{r.sent_at.strftime("%d/%m/%Y %H:%M:%S")}"
         .col-sm-2
           - unless @office != 'maintenance' || r.vehicle.nil?
             - if r.myofficina_reference.nil?
@@ -132,6 +132,9 @@
 :javascript
   activateGallery(true);
 
+  setTimeout(function(){
+    $('#reports_filter_form').submit();
+  },60000);
   // $('input[name=status]').on('click',function(){
   //   var form = $('input[value=Ricarica]').parent();
   //   form.attr('action','/mdc/transport_documents/'+this.id);
