@@ -211,15 +211,18 @@ class WsController < ApplicationController
           +'\r\n'+
           +convert(nvarchar,g.ProgressivoGiornata)+
           +' - Partenza: '+
-          +ISNULL(cc.[ditta partenza],'')+
-          +' '+
-          +ISNULL(cc.[via partenza],'')+
-          +' '+
-          +ISNULL(cc.[cap partenza],'')+
-          +' '+
-          +ISNULL(p.Descrizione,ISNULL(cc.partenza,g.partenza))+
-          +' '+
-          +ISNULL(cc.[provincia partenza],g.Pv)+
+          +ISNULL(p.Descrizione,
+            ISNULL(cc.[ditta partenza],'')+
+            +' '+
+            +ISNULL(cc.[via partenza],'')+
+            +' '+
+            +ISNULL(cc.[cap partenza],'')+
+            +' '+
+            +ISNULL(cc.partenza,g.partenza)+
+            +' '+
+            +ISNULL(cc.[provincia partenza],g.Pv)
+          )
+
           +' Merce: '+
           +ISNULL(ma.merce,mg.merce)+
           +' '+
@@ -242,18 +245,19 @@ class WsController < ApplicationController
 
       from giornale g
 
-      inner join autisti a ON g.idAutista = a.IDAutista
+      left join autisti a ON g.idAutista = a.IDAutista
       left join [calcolo costi] cc ON g.idviaggi = cc.idviaggi
       left join materiali ma ON ma.idmerce = cc.merce
-      inner join materiali mg ON mg.idmerce = g.merce
-      inner join veicoli m ON g.idtarga = m.idveicolo
+      left join materiali mg ON mg.idmerce = g.merce
+      left join veicoli m ON g.idtarga = m.idveicolo
       left join rimorchi1 r ON g.idrimorchi = r.idrimorchio
-      inner join clienti c ON g.idcliente = c.idcliente
+      left join clienti co ON cc.cliente = co.idcliente
+      left join clienti c ON g.idcliente = c.idcliente
       left join clienti d ON a.idFornitore = d.CodTraffico
       left join piazzali p ON g.IDPiazzaleSgancio = p.IDPiazzale
 
       where
-        g.Data = '20190403'
+        g.Data = '#{Time.now.strftime("%Y%m%d")}'
       and
         g.mdc != 1
       and
@@ -264,7 +268,12 @@ class WsController < ApplicationController
 
     # Get fares
     fares = c.execute(q)
+
+    # Log found trips
     special_logger.info("\r\n-------------------- Timely check: #{fares.count} trips found -------------------------\r\n")
+    # logistics_logger.info("\r\n-------------------- Timely check: #{fares.count} trips found -------------------------\r\n")
+
+    # Loop through trips and send the ones that have a valid MDC user
     sent = 0
     fares.each do |fare|
       begin
@@ -273,12 +282,13 @@ class WsController < ApplicationController
         user = MdcUser.find_by_holder(fare['driver']) || MdcUser.find_by_holder(fare['company'])
         if user.nil?
           special_logger.info("Trip discarded: #{fare['msg']}")
+          # logistics_logger.info("Trip discarded: #{fare['msg']}")
           next
         end
 
         # Update table
         # sync_fares_table(
-        #   msg: Base64.decode64(params.require('ChatMessage')),
+        #   msg: fare['msg'],
         #   id: fare['IDPosizione'],
         #   user: user
         # )
@@ -289,13 +299,16 @@ class WsController < ApplicationController
         #   QUERY
         # )
         sent += 1
-        special_logger.info("Trip sent: #{fare['msg']}")
+        special_logger.info("\n\nTrip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
+        # logistics_logger.info("Trip sent: #{fare['msg']}")
       rescue Exception => e
         special_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
+        # logistics_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
         next
       end
     end
     special_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n")
+    # logistics_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n")
   end
 
   def print_pdf
@@ -457,8 +470,11 @@ class WsController < ApplicationController
     end
   end
 
+  def self.logistics_logger
+    @@logistics_logger ||= Logger.new("/mnt/wshare/Traffico/log_mdc/fares.log")
+  end
+
   def self.special_logger
-    @@fares_logger ||= Logger.new("/mnt/wshare/Traffico/log_mdc/fares.log")
-    # @@fares_logger ||= Logger.new("#{Rails.root}/log/fares.log")
+    @@fares_logger ||= Logger.new("#{Rails.root}/log/fares.log")
   end
 end
