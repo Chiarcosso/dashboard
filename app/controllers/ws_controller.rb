@@ -288,17 +288,17 @@ class WsController < ApplicationController
         end
 
         # Update table
-        # sync_fares_table(
-        #   msg: fare['msg'],
-        #   id: fare['IDPosizione'],
-        #   user: user
-        # )
+        sync_fares_table(
+          msg: fare['msg'],
+          id: fare['IDPosizione'],
+          user: user
+        )
 
-        # Set mdc flag in mssql
-        # MssqlReference.get_client.execute(<<-QUERY
-        #     update giornale set mdc = -1 where IDPosizione = #{fare['IDPosizione']}
-        #   QUERY
-        # )
+        Set mdc flag in mssql
+        MssqlReference.get_client.execute(<<-QUERY
+            update giornale set mdc = -1 where IDPosizione = #{fare['IDPosizione']}
+          QUERY
+        )
         sent += 1
         special_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
         logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n") unless Rails.env = 'Development'
@@ -393,7 +393,7 @@ class WsController < ApplicationController
     date_from = Time.zone.strptime(p[:date_from]+' 00:00:00',"%Y-%m-%d %H:%M:%S")
     @date_to = Date.strptime(p[:date_to],"%Y-%m-%d")
     @date_from = Date.strptime(p[:date_from],"%Y-%m-%d")
-    
+
     # Set search
     @search = p[:search].to_s.tr("'","''")[0..255]
 
