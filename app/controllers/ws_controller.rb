@@ -165,7 +165,7 @@ class WsController < ApplicationController
   end
 
   # Update FARES tabgen, send push notifications
-  def sync_fares_table(opts)
+  def self.sync_fares_table(opts)
 
     mdc = MdcWebservice.new
     mdc.begin_transaction
@@ -187,6 +187,11 @@ class WsController < ApplicationController
     mdc.commit_transaction
     mdc.end_transaction
     mdc.close_session
+  end
+
+  def sync_fares_table(opts)
+
+    WsController.sync_fares_table(opts)
   end
 
   # Query MSSQL for new fares, eventually send them to the mdc app and mark its mdc check on MSSQL
