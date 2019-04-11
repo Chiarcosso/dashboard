@@ -12,12 +12,12 @@
             -elsif mdcu.holder.class == Company
               = 'Ditta'
             -else
-              mdcu.holder.class
+              mdcu.holder.class.to_s
         .col-sm-5
           -if mdcu.holder.nil?
             = text_field_tag 'mdc_user_name', mdcu.holder.nil?? '' : mdcu.holder.complete_name, data: { autocomplete: autocomplete_person_company_ws_path }, class: 'form-control people_companies_auto'
           -else
-            %b= mdcu.holder.list_name
+            %b= mdcu.holder.complete_list_name
           = hidden_field_tag :holder, mdcu.holder.nil?? '' : mdcu.holder.id
           = hidden_field_tag :holder_type, mdcu.holder.class
         .col-sm-3

@@ -181,6 +181,10 @@ class Company < ApplicationRecord
     self.name
   end
 
+  def complete_list_name
+    self.name
+  end
+
   def complete_name
     self.name
   end

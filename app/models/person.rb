@@ -276,4 +276,8 @@ class Person < ApplicationRecord
   def list_name
     self.surname+' '+self.name
   end
+
+  def complete_list_name
+    "#{self.surname} #{self.name} (#{companies.last.name})"
+  end
 end
