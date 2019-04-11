@@ -277,7 +277,7 @@ class WsController < ApplicationController
 
     # Log found trips
     special_logger.info("\r\n-------------------- Timely check: #{fares.count} trips found -------------------------\r\n")
-    logistics_logger.info("\r\n-------------------- Timely check: #{fares.count} trips found -------------------------\r\n") unless Rails.env = 'Development'
+    logistics_logger.info("\r\n-------------------- Timely check: #{fares.count} trips found -------------------------\r\n") unless Rails.env == 'Development'
 
     # Loop through trips and send the ones that have a valid MDC user
     sent = 0
@@ -288,7 +288,7 @@ class WsController < ApplicationController
         user = MdcUser.find_by_holder(fare['driver']) || MdcUser.find_by_holder(fare['company'])
         if user.nil?
           special_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}")
-          logistics_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}") unless Rails.env = 'Development'
+          logistics_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}") unless Rails.env == 'Development'
           next
         end
 
@@ -304,17 +304,17 @@ class WsController < ApplicationController
 
         sent += 1
         special_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
-        logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n") unless Rails.env = 'Development'
+        logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n") unless Rails.env == 'Development'
 
       rescue Exception => e
         special_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
-        logistics_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n") unless Rails.env = 'Development'
+        logistics_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n") unless Rails.env == 'Development'
         next
       end
     end
 
     special_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n")
-    logistics_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n") unless Rails.env = 'Development'
+    logistics_logger.info("\r\n----------------------- #{sent} trips sent ----------------------------\r\n") unless Rails.env == 'Development'
 
   end
 
