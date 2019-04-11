@@ -240,7 +240,7 @@ class WsController < ApplicationController
           +' '+
           +COALESCE(cc.[cap arrivo],'')+
           +' '+
-          +COALESCE(g.Scarico,COALESCE(cc.[arrivo],g.Destinazione))+
+          +COALESCE(cc.[arrivo],g.Destinazione)+
           +' '+
           +COALESCE(cc.[provincia arrivo],g.Pr)+
           +' '+
