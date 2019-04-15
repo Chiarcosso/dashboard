@@ -6,8 +6,11 @@
     - office_label = 'Uff. manutenzioni'
   - when 'logistics' then
     - office_label = 'Uff. traffico'
-
+- unless @new_entries_message.nil?
+  #notification_text{style: 'display: none'}
+    = @new_entries_message
 = form_tag(notification_filter_path(@office),remote: true, method: :post, id: 'reports_filter_form') do |f|
+  = hidden_field_tag :shown_reports, @results.map{ |r| r.id }.to_json
   .row
     - case @office.to_sym
       - when :hr then
@@ -131,6 +134,11 @@
 
 :javascript
   activateGallery(true);
+
+  if($('#notification_text').html() != undefined){
+    console.log($('#notification_text').html());
+    createNotification($('#notification_text').html());
+  }
 
   setTimeout(function(){
     $('#reports_filter_form').submit();

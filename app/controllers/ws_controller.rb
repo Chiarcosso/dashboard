@@ -285,7 +285,7 @@ class WsController < ApplicationController
       begin
 
         # Find user
-        matches = fare['driver'].match(/(?=\.([A-Z ]*) )?(.*)/)
+        matches = fare['driver'].match(/\.([A-Z ]*)? (.*)/)
         if matches[2].nil?
           driver = fare['driver']
         else
@@ -314,7 +314,7 @@ class WsController < ApplicationController
         logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n") unless Rails.env == 'development'
 
       rescue Exception => e
-        byebug
+
         special_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
         logistics_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n") unless Rails.env == 'development'
         next
@@ -455,7 +455,8 @@ class WsController < ApplicationController
               .where(w,"%#{@search}%","%#{@search}%","%#{@search}%","%#{@search}%")
               .order(sent_at: :desc)
     end
-
+    @new_entries_message = 'Ci sono nuove segnalazioni.'
+    return res
   end
 
   # Set defaults for report filter
