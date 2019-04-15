@@ -30,7 +30,26 @@ class WsController < ApplicationController
   def create_notification
 
     # Get report and vehicle from params
-    MdcReport.find(params.require(:id).to_i).create_notification(current_user)
+    rep = MdcReport.find(params.require(:id).to_i)
+    rep.create_notification(current_user)
+    rep.update(managed_at: Time.now, user: current_user)
+
+    @results = get_filter
+    respond_to do |format|
+      format.js {render partial: 'mdc/report_index_js'}
+    end
+  end
+
+  # Set MDC report as managed
+  def manage_report
+
+    # Get report from params and update it
+    rep = MdcReport.find(params.require(:id).to_i)
+    if rep.managed?
+      rep.update(managed_at: nil, user: nil)
+    else
+      rep.update(managed_at: Time.now, user: current_user)
+    end
 
     @results = get_filter
     respond_to do |format|
@@ -455,14 +474,17 @@ class WsController < ApplicationController
               .where(w,"%#{@search}%","%#{@search}%","%#{@search}%","%#{@search}%")
               .order(sent_at: :desc)
     end
-    @new_entries_message = 'Ci sono nuove segnalazioni.'
+
+    @new_entries_message = 'Ci sono nuove segnalazioni.' if current_user.new_mdc_reports_for_office(@office).count > 0
     return res
   end
 
   # Set defaults for report filter
-  def get_filter_defaults
+  def get_filter_defaults(office = nil)
 
-    case @office
+    office = @office if office.nil?
+
+    case office
     when 'maintenance' then
       p = {types: ['attrezzatura','contravvenzione','furto','guasto','incidente']}
     when 'logistics' then
@@ -475,6 +497,10 @@ class WsController < ApplicationController
     p[:date_to] = Time.now.strftime("%Y-%m-%d")
 
     return p
+  end
+
+  def self.get_filter_defaults_by_office office
+    get_filter_defaults office
   end
 
   def get_action

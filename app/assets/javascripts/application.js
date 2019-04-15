@@ -271,8 +271,15 @@ function ajax_link_click_func(e) {
       // If there's a related form, add its inputs to data
       if($(this).data('relatedForm') != undefined){
         $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
-          console.log(input);
-          data[$(input).attr('name')] = $(input).val();
+          if(data[$(input).attr('name')] === undefined){
+            data[$(input).attr('name')] = $(input).val();
+          } else {
+            if(!(data[$(input).attr('name')] instanceof Array)){
+              data[$(input).attr('name')] = [data[$(input).attr('name')]];
+            }
+            data[$(input).attr('name')].push($(input).val());
+          }
+
         });
       }
 
@@ -886,6 +893,8 @@ function activateJS() {
     $('body').on('click', '.ajax-caller', ajax_caller_click_func);
 
 }
+
+var mdc_reports_timeout;
 
 function createNotification(message) {
   // Let's check if the browser supports notifications

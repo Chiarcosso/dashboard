@@ -68,6 +68,7 @@
       - when :maintenance then
         .col-sm-3{style: 'margin-right: 0px; white-space: nowrap;'}
           %h3= "Segnalazioni (Manutenzioni): #{@results.count}"
+          = @types.inspect
         .col-sm-7{style: 'margin-left: 0px; white-space: nowrap; top: 2.5rem; float: right;'}
           .col-sm-3
             .field.centered
@@ -107,7 +108,7 @@
         = submit_tag 'Filtra', class: 'form-control'
 .scrollable-panel.full-panel{style: "padding-right: 2em; padding-left: 2em;"}
   - @results.each do |r|
-    .row.colored
+    .row.colored{style: r.managed? ? '' : 'font-weight: bolder'}
       .row
         .col-sm-2
           = r.mdc_user.holder.list_name
@@ -125,6 +126,10 @@
               = button_tag 'Crea segnalazione', class: 'form-control ajax-link', data: { target: mdc_create_notification_path, method: 'post', data: {id: r.id}, related_form: 'reports_filter_form'}
             - else
               = "Segnalazione: #{r.myofficina_reference}"
+          .col-sm-9
+            Gestita:
+          .col-sm-3
+            = check_box_tag :manage, r.id, r.managed?, class: 'form-control ajax-link', data: { target: mdc_manage_report_path, method: 'post', data: {id: r.id}, related_form: 'reports_filter_form'}
       .row
         .col-sm-12
           - r.images.each do |p|
@@ -136,13 +141,13 @@
   activateGallery(true);
 
   if($('#notification_text').html() != undefined){
-    console.log($('#notification_text').html());
     createNotification($('#notification_text').html());
   }
 
-  setTimeout(function(){
+  clearTimeout(mdc_reports_timeout);
+  mdc_reports_timeout = setTimeout(function(){
     $('#reports_filter_form').submit();
-  },60000);
+  },30000);
   // $('input[name=status]').on('click',function(){
   //   var form = $('input[value=Ricarica]').parent();
   //   form.attr('action','/mdc/transport_documents/'+this.id);

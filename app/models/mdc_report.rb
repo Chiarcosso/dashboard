@@ -1,7 +1,17 @@
 class MdcReport < ApplicationRecord
   belongs_to :vehicle
   belongs_to :mdc_user
+  belongs_to :user
   has_many :images, class_name: 'MdcReportImage'
+
+
+  def managed?
+    !self.managed_at.nil?
+  end
+
+  def self.select_by_office(office)
+    MdcReport.where("#{office.to_s} = 1")
+  end
 
   def create_notification(user)
 
