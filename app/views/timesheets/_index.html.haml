@@ -89,32 +89,34 @@
                   .row
                     .col-sm-12
                       %b= "Totale: "
-                  .row
-                    .col-sm-12
-                      %b= "Totale timbrature: "
-                  .row
-                    .col-sm-12
-                      %b= "Totale concordato: "
+                  - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                    .row
+                      .col-sm-12
+                        %b= "Totale timbrature: "
+                    .row
+                      .col-sm-12
+                        %b= "Totale concordato: "
                 .col-sm-3
                   .row
                     .col-sm-12
                       - hrs = (total / 60).floor
                       - mins = total % 60
                       %b= "#{hrs.to_s.rjust(2,'0')}:#{mins.to_s.rjust(2,'0')}"
-                  .row
-                    .col-sm-12
-                      - pr = PresenceRecord.where(date: @date, person: person).order(set_day_time: :asc).first
-                      - if pr.nil?
-                        %b= "Non sono presenti timbrature"
-                      - else
-                        %b= "#{pr.set_day_time_label}"
-                  .row
-                    .col-sm-12
-                      - ws = WorkingSchedule.get_schedule(@date,person)
-                      - if ws.nil?
-                        %b= "Non è stato concordato un orario per questa giornata."
-                      - else
-                        %b= ws.expected_hours_label
+                  - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                    .row
+                      .col-sm-12
+                        - pr = PresenceRecord.where(date: @date, person: person).order(set_day_time: :asc).first
+                        - if pr.nil?
+                          %b= "Non sono presenti timbrature"
+                        - else
+                          %b= "#{pr.set_day_time_label}"
+                    .row
+                      .col-sm-12
+                        - ws = WorkingSchedule.get_schedule(@date,person)
+                        - if ws.nil?
+                          %b= "Non è stato concordato un orario per questa giornata."
+                        - else
+                          %b= ws.expected_hours_label
                 .col-sm-2
 
                 .col-sm-3{style: 'background-color: #ffa'}
