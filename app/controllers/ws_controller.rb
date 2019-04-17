@@ -338,21 +338,21 @@ class WsController < ApplicationController
         end
 
         # Update table
-        # self.sync_fares_table(
-        #   msg: fare['msg'],
-        #   id: fare['IDPosizione'],
-        #   user: user
-        # )
+        self.sync_fares_table(
+          msg: fare['msg'],
+          id: fare['IDPosizione'],
+          user: user
+        )
 
         #Set mdc flag in mssql
-        # MssqlReference.get_client.execute("update giornale set mdc = -1 where IDPosizione = #{fare['IDPosizione']}")
+        MssqlReference.get_client.execute("update giornale set mdc = -1 where IDPosizione = #{fare['IDPosizione']}")
 
         sent += 1
         special_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
         logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n") unless Rails.env == 'development'
 
       rescue Exception => e
-        byebug
+
         special_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
         logistics_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n") unless Rails.env == 'development'
         next
