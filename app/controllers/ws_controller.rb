@@ -76,6 +76,23 @@ class WsController < ApplicationController
 
   end
 
+  # prepare new report form
+  def new_report
+    respond_to do |format|
+      format.html {render partial: 'mdc/report_index'}
+      format.js {render partial: 'mdc/new_report'}
+    end
+  end
+
+  # Register new mdc report
+  def create_report
+    @results = get_filter
+    respond_to do |format|
+      format.html {render partial: 'mdc/report_index'}
+      format.js {render partial: 'mdc/new_report'}
+    end
+  end
+
   def codes
     render 'mdc/codes_index'
   end
@@ -305,7 +322,8 @@ class WsController < ApplicationController
 
         # Find user
         matches = fare['driver'].match(/\.([A-Z ]*)? (.*)/)
-        if matches[2].nil?
+
+        if matches.nil? || matches[2].nil?
           driver = fare['driver']
         else
           driver = matches[2]
@@ -313,27 +331,28 @@ class WsController < ApplicationController
         user = MdcUser.find_by_holder(driver) || MdcUser.find_by_holder(fare['company'])
 
         if user.nil?
+
           special_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}")
           logistics_logger.info("[ #{fare['IDPosizione']} ] -- Trip discarded: #{fare['msg']}") unless Rails.env == 'development'
           next
         end
 
         # Update table
-        self.sync_fares_table(
-          msg: fare['msg'],
-          id: fare['IDPosizione'],
-          user: user
-        )
+        # self.sync_fares_table(
+        #   msg: fare['msg'],
+        #   id: fare['IDPosizione'],
+        #   user: user
+        # )
 
         #Set mdc flag in mssql
-        MssqlReference.get_client.execute("update giornale set mdc = -1 where IDPosizione = #{fare['IDPosizione']}")
+        # MssqlReference.get_client.execute("update giornale set mdc = -1 where IDPosizione = #{fare['IDPosizione']}")
 
         sent += 1
         special_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n")
         logistics_logger.info("\n\n[ #{fare['IDPosizione']} ] -- Trip sent (#{user.holder.complete_name}): #{fare['msg']}\n\n") unless Rails.env == 'development'
 
       rescue Exception => e
-
+        byebug
         special_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n")
         logistics_logger.error("\r\n#{fare.inspect}\r\n\r\n#{e.message}\r\n") unless Rails.env == 'development'
         next

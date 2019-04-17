@@ -184,7 +184,8 @@ Rails.application.routes.draw do
   post   '/mdc/notifications/:office', to: 'ws#notification_index', as: :notification_filter
   post '/mdc/notification/create', to: 'ws#create_notification', as: :mdc_create_notification
   post '/mdc/notification/manage', to: 'ws#manage_report', as: :mdc_manage_report
-
+  get  '/mdc/notification/new', to: 'ws#new_report', as: :mdc_new_report
+  
   get    '/output/:code', to: 'orders#output', as: :output
   post   '/output/ws/:code', to: 'orders#edit_output', as: :edit_output
   post   '/output/ws/', to: 'orders#edit_ws_output', as: :edit_ws_output

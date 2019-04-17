@@ -68,7 +68,6 @@
       - when :maintenance then
         .col-sm-3{style: 'margin-right: 0px; white-space: nowrap;'}
           %h3= "Segnalazioni (Manutenzioni): #{@results.count}"
-          = @types.inspect
         .col-sm-7{style: 'margin-left: 0px; white-space: nowrap; top: 2.5rem; float: right;'}
           .col-sm-3
             .field.centered
@@ -136,6 +135,11 @@
             = image_tag(p.url, class: 'gallery-image', style: 'height:50%;width:auto;')
         %br
         %br
+
+.row
+  .col-sm-12
+    %br
+    =button_tag 'Nuova segnalazione', class: 'popup-link', data: { title: 'Nuova segnalazione', name: 'mdc_new_report', target: mdc_new_report_path }
 
 :javascript
   activateGallery(true);
