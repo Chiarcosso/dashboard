@@ -5,6 +5,14 @@ class PeopleController < ApplicationController
 
 
   autocomplete :company, :name, full: true
+  autocomplete :person, :list_name, full: true
+
+  def person_autocomplete
+    name = params.require(:search)
+    people = Person.find_by_sql("select 'person' as field, 'Person' as model_name, p.id as person_id, concat(p.surname,' ',p.name) as label from people p where concat(p.surname,' ',p.name) like '%#{name}%'")
+
+    render :json => people.take(10)
+  end
 
   # GET /people
   # GET /people.json

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190415121519) do
+ActiveRecord::Schema.define(version: 20190418123954) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -425,7 +425,7 @@ ActiveRecord::Schema.define(version: 20190415121519) do
   end
 
   create_table "mdc_reports", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "mdc_user_id",                          null: false
+    t.integer  "mdc_user_id"
     t.string   "report_type",                          null: false
     t.string   "description",                          null: false
     t.integer  "vehicle_id"
@@ -438,10 +438,12 @@ ActiveRecord::Schema.define(version: 20190415121519) do
     t.integer  "myofficina_reference"
     t.integer  "user_id"
     t.datetime "managed_at"
+    t.integer  "person_id"
     t.index ["hr"], name: "index_mdc_reports_on_hr", using: :btree
     t.index ["logistics"], name: "index_mdc_reports_on_logistics", using: :btree
     t.index ["maintenance"], name: "index_mdc_reports_on_maintenance", using: :btree
     t.index ["mdc_user_id"], name: "index_mdc_reports_on_mdc_user_id", using: :btree
+    t.index ["person_id"], name: "index_mdc_reports_on_person_id", using: :btree
     t.index ["report_type"], name: "index_mdc_reports_on_report_type", using: :btree
     t.index ["user_id"], name: "index_mdc_reports_on_user_id", using: :btree
     t.index ["vehicle_id"], name: "index_mdc_reports_on_vehicle_id", using: :btree
@@ -1164,6 +1166,7 @@ ActiveRecord::Schema.define(version: 20190415121519) do
   add_foreign_key "items", "position_codes"
   add_foreign_key "items", "transport_documents"
   add_foreign_key "mdc_report_images", "mdc_reports"
+  add_foreign_key "mdc_reports", "people"
   add_foreign_key "mdc_reports", "users"
   add_foreign_key "mdc_reports", "vehicles"
   add_foreign_key "mdc_users", "companies", column: "assigned_to_company_id"

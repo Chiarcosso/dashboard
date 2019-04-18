@@ -1,0 +1,32 @@
+%h4= 'Inserisci nuova segnalazione'
+
+= form_tag(mdc_create_report_path, remote: true, method: :post, multipart: true) do |f|
+  = hidden_field_tag :authenticity_token, form_authenticity_token
+  - params.require(:reports).each do |key,value|
+    - if value.is_a? Array
+      - value.each do |v|
+        = hidden_field_tag "reports[#{key}][]", v
+    - else
+      = hidden_field_tag "reports[#{key}]", value
+
+  = hidden_field_tag :office, params.require(:office)
+  .row{style: 'margin-top: 2rem;'}
+    .col-sm-6
+      = select_tag 'notification[type]',options_for_select(MdcReport.report_types), class: 'form-control'
+    .col-sm-6
+      = text_field_tag 'notification[vehicle_plate]', nil, placeholder: 'Targa..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_external_vehicle_autocomplete_path, target: 'Notification' }
+  .row{style: 'margin-top: 1rem;'}
+    .col-sm-12
+      = text_field_tag 'notification[description]', nil, class: 'form-control', placeholder: 'Descrizone'
+  .row{style: 'margin-top: 1rem'}
+    .col-sm-6
+      = text_field_tag 'notification[driver_name]', nil, placeholder: 'Autista..', class: 'form-control custom_autocomplete', data: { route: custom_person_autocomplete_path, target: 'Person' }
+    .col-sm-6
+      = file_field_tag 'Aggiungi foto', multiple: true, name: 'notification[photos]', class: 'form-control', accept: 'image/png,image/jpeg'
+  .row{style: 'margin-top: 1rem'}
+    .col-sm-12
+      = submit_tag 'Crea segnalazione', class: 'form-control'
+
+:javascript
+
+  activateCustomAutocomplete(function(element){return $(element).data();});

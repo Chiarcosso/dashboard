@@ -79,17 +79,22 @@ class WsController < ApplicationController
   # prepare new report form
   def new_report
     respond_to do |format|
-      format.html {render partial: 'mdc/report_index'}
+      format.html {render partial: 'mdc/new_report'}
       format.js {render partial: 'mdc/new_report'}
     end
   end
 
   # Register new mdc report
   def create_report
+    pars = report_params
+    MdcReport.create(pars[:report])
+    unless pars[:photos].nil?
+      # create photos
+    end
     @results = get_filter
     respond_to do |format|
-      format.html {render partial: 'mdc/report_index'}
-      format.js {render partial: 'mdc/new_report'}
+      format.html {render 'mdc/report_index'}
+      format.js {render partial: 'mdc/new_report_js'}
     end
   end
 
@@ -299,7 +304,7 @@ class WsController < ApplicationController
       left join piazzali p ON g.IDPiazzaleSgancio = p.IDPiazzale
 
       where
-        g.Data = '#{Time.now.strftime("%Y%m%d")}'
+        g.Data = '20190416'
       and
         g.mdc != 1
       and
@@ -493,8 +498,8 @@ class WsController < ApplicationController
               .where(w,"%#{@search}%","%#{@search}%","%#{@search}%","%#{@search}%")
               .order(sent_at: :desc)
     end
-
-    @new_entries_message = 'Ci sono nuove segnalazioni.' if current_user.new_mdc_reports_for_office(@office).count > 0
+    unmanaged = current_user.new_mdc_reports_for_office(@office)
+    @new_entries_message = "Ci segnalazioni non gestite.\r\n#{unmanaged.map{ |u| "#{u.sent_at.strftime("%d/%m/%Y")} -- #{u.description}" }.join("\r\n")}" if unmanaged.count > 0
     return res
   end
 
@@ -532,6 +537,23 @@ class WsController < ApplicationController
       when 'Elimina'
         @action = :delete
     end
+  end
+
+  def report_params
+    res = params.require(:notification).permit(:description, :vehicle_plate, :type, :driver_name, :photos => [])
+    report = {
+      description: res[:description],
+      vehicle: Vehicle.find_by_plate(res[:vehicle_plate]),
+      report_type: res[:type],
+      person: Person.find_by_complete_name(res[:driver_name]),
+      sent_at: Time.now,
+      hr: MdcReport.offices(res[:type]).include?(:hr),
+      maintenance: MdcReport.offices(res[:type]).include?(:maintenance),
+      logistics: MdcReport.offices(res[:type]).include?(:logistics),
+      user: current_user
+    }
+
+    return {report: report}
   end
 
   def self.logistics_logger

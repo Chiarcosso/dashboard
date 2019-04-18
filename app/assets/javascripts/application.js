@@ -185,6 +185,7 @@ function popup_link_func(e) {
         data = $(this).form().serializeArray();
     } else {
         e.preventDefault();
+
        // activateLoadingScreen();
         if ($(this).data('method') !== undefined) {
             method = $(this).data('method');
@@ -194,7 +195,24 @@ function popup_link_func(e) {
         action = $(this).data('target');
         if ($(this).data('data') !== undefined) {
             data = $(this).data('data');
+        } else {
+          data = {};
         }
+    }
+
+    // If there's a related form, add its inputs to data
+    if($(this).data('relatedForm') != undefined){
+      $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
+        if(data[$(input).attr('name')] === undefined){
+          data[$(input).attr('name')] = $(input).val();
+        } else {
+          if(!(data[$(input).attr('name')] instanceof Array)){
+            data[$(input).attr('name')] = [data[$(input).attr('name')]];
+          }
+          data[$(input).attr('name')].push($(input).val());
+        }
+
+      });
     }
     $.ajax({
         type: method,
@@ -359,7 +377,24 @@ function popup_link_click_func() {
       method = 'get';
     }
     popup_link_name = $(this).data('name');
-    // alert(popup_link_name);
+
+      console.log($(this));
+      alert();
+    // If there's a related form, add its inputs to data
+    if($(this).data('relatedForm') != undefined){
+      $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
+        if(data[$(input).attr('name')] === undefined){
+          data[$(input).attr('name')] = $(input).val();
+        } else {
+          if(!(data[$(input).attr('name')] instanceof Array)){
+            data[$(input).attr('name')] = [data[$(input).attr('name')]];
+          }
+          data[$(input).attr('name')].push($(input).val());
+        }
+
+      });
+    }
+
     $.ajax({
         type: method,
         url: target,

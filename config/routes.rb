@@ -42,6 +42,7 @@ Rails.application.routes.draw do
 
   delete '/people/delete_role/:id', to: 'people#delete_role', as: :delete_person_role
   post '/people/add_role', to: 'people#add_role', as: :person_add_role
+  post '/people/person_autocomplete', to: 'people#person_autocomplete', as: :custom_person_autocomplete
 
   # devise_scope :user do
   #   root "devise/sessions#new"
@@ -185,7 +186,8 @@ Rails.application.routes.draw do
   post '/mdc/notification/create', to: 'ws#create_notification', as: :mdc_create_notification
   post '/mdc/notification/manage', to: 'ws#manage_report', as: :mdc_manage_report
   get  '/mdc/notification/new', to: 'ws#new_report', as: :mdc_new_report
-  
+  post  '/mdc/notification/create_report', to: 'ws#create_report', as: :mdc_create_report
+
   get    '/output/:code', to: 'orders#output', as: :output
   post   '/output/ws/:code', to: 'orders#edit_output', as: :edit_output
   post   '/output/ws/', to: 'orders#edit_ws_output', as: :edit_ws_output

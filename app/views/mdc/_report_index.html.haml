@@ -110,7 +110,7 @@
     .row.colored{style: r.managed? ? '' : 'font-weight: bolder'}
       .row
         .col-sm-2
-          = r.mdc_user.holder.list_name
+          = r.reporter_label
         .col-sm-2
           = r.report_type.tr('_',' ').capitalize
         .col-sm-1
@@ -139,7 +139,7 @@
 .row
   .col-sm-12
     %br
-    =button_tag 'Nuova segnalazione', class: 'popup-link', data: { title: 'Nuova segnalazione', name: 'mdc_new_report', target: mdc_new_report_path }
+    =button_tag 'Nuova segnalazione', class: 'popup-link form-control', data: { office: @office, title: 'Nuova segnalazione', name: 'mdc_new_report', target: mdc_new_report_path, related_form: 'reports_filter_form' }
 
 :javascript
   activateGallery(true);
