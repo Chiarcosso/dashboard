@@ -304,7 +304,7 @@ class WsController < ApplicationController
       left join piazzali p ON g.IDPiazzaleSgancio = p.IDPiazzale
 
       where
-        g.Data = '20190416'
+        g.Data = "#{Time.now.strftime("%Y%m%d")}" 
       and
         g.mdc != 1
       and
