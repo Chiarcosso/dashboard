@@ -29,7 +29,7 @@ class GrantedLeave < ApplicationRecord
   def duration(comparison_date)
 
     #if the comparison date is festive return 0
-    return 0 if Festivity.is_festive?(comparison_date)
+    # return 0 if Festivity.is_festive?(comparison_date)
 
     #if the comparison date is between the leave dates
     if comparison_date.strftime("%Y-%m-%d") >= self.from.strftime("%Y-%m-%d") && comparison_date.strftime("%Y-%m-%d") <= self.to.strftime("%Y-%m-%d")
