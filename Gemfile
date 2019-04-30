@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-source 'http://gemcutter.org'
+# source 'http://gemcutter.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.0.0'
@@ -48,6 +48,8 @@ gem 'devise'
 gem 'cancancan'
 gem 'rolify'
 gem 'sanitize-rails'
+gem 'htmlentities'
+
 
 gem 'whenever', :require => false
 # gem 'ancestry'

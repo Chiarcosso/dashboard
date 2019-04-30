@@ -207,7 +207,8 @@ class WsController < ApplicationController
 
   # Update FARES tabgen, send push notifications
   def self.sync_fares_table(opts)
-
+    
+    opts[:msg] = HTMLEntities.new.encode(opts[:msg])
     mdc = MdcWebservice.new
     mdc.begin_transaction
     mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: opts[:id], deviceCode: ''})])
@@ -304,7 +305,7 @@ class WsController < ApplicationController
       left join piazzali p ON g.IDPiazzaleSgancio = p.IDPiazzale
 
       where
-        g.Data = "#{Time.now.strftime("%Y%m%d")}" 
+        g.Data = "#{Time.now.strftime("%Y%m%d")}"
       and
         g.mdc != 1
       and
