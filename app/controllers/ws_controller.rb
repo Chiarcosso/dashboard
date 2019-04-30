@@ -207,7 +207,7 @@ class WsController < ApplicationController
 
   # Update FARES tabgen, send push notifications
   def self.sync_fares_table(opts)
-    
+
     opts[:msg] = HTMLEntities.new.encode(opts[:msg])
     mdc = MdcWebservice.new
     mdc.begin_transaction
@@ -376,8 +376,10 @@ class WsController < ApplicationController
     params.require(:photos).each do |p|
       # p.sub!('http://chiarcosso.mobiledatacollection.it/','/var/lib/tomcat8/webapps/')
       p.sub!('http://outpost.chiarcosso/','/var/lib/tomcat8/webapps/')
-      f = mdc.download_file(p).body[/Content-Type: image\/jpeg.?*\r\n\r\n(.?*)\r\n--MIMEBoundary/m,1]
-      photos << f.force_encoding("utf-8") unless f.nil?
+      
+      f = mdc.download_file(p).body[/Content-Type: image\/jpeg.*?\r\n\r\n(.*?)\r\n--MIMEBoundary/m,1]
+      # photos << f.force_encoding("utf-8") unless f.nil?
+      photos << f unless f.nil?
     end
     margins = 15
     pdf = Prawn::Document.new :filename=>'foo.pdf',
@@ -385,7 +387,7 @@ class WsController < ApplicationController
                           :margin => margins
 
     photos.each do |p|
-      file = File.open('tmp.jpg','w')
+      file = File.open('tmp.jpg','wb')
       file.write(p)
       file.close
       size = FastImage::size('tmp.jpg')
