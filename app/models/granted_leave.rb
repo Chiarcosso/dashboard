@@ -94,7 +94,7 @@ class GrantedLeave < ApplicationRecord
   def self.check_journal
 
     date = Time.now.strftime('%Y-%m-%d')
-
+    
     #get journal leaves
     journal = MssqlReference.query({table: 'GIORNALE', where: {IDViaggi: ['MAMAMA','FEFEFE','PEPEPE','INININ'], Data: date}})
 
@@ -118,7 +118,9 @@ class GrantedLeave < ApplicationRecord
       person = Person.find_or_create({mssql_id: j['IDAutista'], table: 'Autisti'})
 
       begin
-        if j['IDViaggi'] == 'PEPEPE'
+        if j['DataAl'].nil?
+          text += "IDPosizione: #{j['IDPosizione']} -- Il campo DataAl è vuoto. Data: #{j['Data'].strftime('%d/%m/%Y')} --- #{j['IDViaggi']} di #{person.list_name}.\n"
+        elsif j['IDViaggi'] == 'PEPEPE'
           if dashboard.select{ |d| d.person == person && leave_codes[:PEPEPE].include?(d.leave_code) && d.to.strftime('%Y-%m-%d') == j['DataAl'].strftime('%Y-%m-%d')}.size == 0
             text += "Il #{j['Data'].strftime('%d/%m/%Y')} e' presente sul giornale un permesso #{j['IDViaggi']} di #{person.list_name}, fino al #{j['DataAl'].nil? ? '' : j['DataAl'].strftime("%d/%m/%Y")} che manca in dashboard (IDPosizione: #{j['IDPosizione']}).\n"
           end
