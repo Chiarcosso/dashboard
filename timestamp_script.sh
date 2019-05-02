@@ -29,4 +29,4 @@ then
 fi
 
 #reenable firewall
-service iptables start
+# service iptables start
