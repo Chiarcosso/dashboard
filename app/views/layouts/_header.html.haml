@@ -30,7 +30,7 @@
           - if (current_user.has_role?('MDC personale') || current_user.has_role?(:admin))
             = navbar_item "Segnalazioni", notification_index_path(:hr)
           -# = navbar_item "Dotazione", equipment_home_path
-      - if current_user.present? && (current_user.has_role?(:admin))
+      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?('MDC traffico') || current_user.has_role?('traffico'))
         = navbar_dropdown "Traffico" do
           - if (current_user.has_role?('MDC traffico') || current_user.has_role?(:admin))
             = navbar_item "Segnalazioni", notification_index_path(:logistics)

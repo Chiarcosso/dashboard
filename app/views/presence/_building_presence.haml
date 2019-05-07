@@ -1,37 +1,23 @@
-#building_presence
-  .row
-    .col-sm-4
-      %h4
-        %b= "Personale presente, #{Time.now.strftime("%d/%m/%Y %H:%M:%S")}"
-    =form_tag reload_building_presence_path, method: :post, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#building_presence_list'} do |f|
-      -# =hidden_field_tag :person, @person.id
-      =hidden_field_tag :tab, 'building_presence'
-      .col-sm-1
-        = submit_tag 'Ricarica', class: 'form-control submitter'
-  .row
+
+.row
+  .col-sm-4
+    %h4
+      %b= "Personale presente, #{Time.now.strftime("%d/%m/%Y %H:%M:%S")}"
+  =form_tag reload_building_presence_path, method: :post, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#building_presence_list'} do |f|
+    -# =hidden_field_tag :person, @person.id
+    =hidden_field_tag :tab, 'building_presence'
     .col-sm-1
-    .col-sm-3
-      %b= "Nome"
-    .col-sm-3
-      %b= "Ultima timbratura"
-    .col-sm-5
-      %b= "Permessi"
+      = submit_tag 'Ricarica', class: 'form-control submitter'
+.row
+  .col-sm-1
+  .col-sm-3
+    %b= "Nome"
+  .col-sm-3
+    %b= "Ultima timbratura"
+  .col-sm-5
+    %b= "Permessi"
 
-  .scrollable-panel#building_presence_list{style: 'height: 75vh;'}
-    - Person.active_people.building_employees.order(surname: :asc).each do |p|
-      .row.colored{style: p.presence_check_style(Time.now)}
-        .col-sm-1
-          %button.infobox-button.no-loader{data: { method: :post, target: info_timestamps_path, name: "infobox_timestamps_#{Time.now.strftime("%y%m%d")}_#{p.id}", data: {date: Time.now, person: p.id}.to_json }}
-            Listato
-        .col-sm-3
-          = p.list_name
-        .col-sm-3
-          -pr = p.last_presence_record
-          - unless pr.nil?
-            -if pr.end_ts.nil?
-              = pr.start_ts.time.strftime('%d/%m/%Y %H:%M:%S') + " (#{pr.start_ts.sensor.name})"
-            - else
-              = pr.end_ts.time.strftime('%d/%m/%Y %H:%M:%S') + " (#{pr.end_ts.sensor.name})"
-
-        .col-sm-5
-          = p.granted_leaves_date(Time.now).map{ |gl| gl.leave_code.description + " " + gl.complete_duration_label.downcase }.join(', ')
+.scrollable-panel#building_presence_list{style: 'height: 75vh;'}
+  - Person.active_people.building_employees.order(surname: :asc).each do |p|
+    %div{id: "bp#{p.id}"}
+      = render partial: 'presence/building_records', locals: {p: p}

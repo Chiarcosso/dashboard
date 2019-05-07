@@ -1,72 +1,85 @@
-#presence
-  - @total_calculated_hours = 0
-  - @total_actual_hours = 0
-  - @total_calculated_afterhours = 0
-  - @total_actual_afterhours = 0
-  - @total_saturdays = 0
-  - @unpayed_saturdays = 0
-  - @total_calculated_saturday_hours = 0
-  - @total_actual_saturday_hours = 0
-  .row
-    =form_tag reload_presence_path, method: :post, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#presence_list'} do |f|
-      -# =hidden_field_tag :person, @person.id
-      =hidden_field_tag :tab, 'presence'
-      .col-sm-2
-        %h3="Presenze: "#{@person.list_name}"
-      .col-sm-2
-        %br
 
-        - active_date = @month == 12 ? Time.strptime("#{@year}-#{@month}-31","%Y-%m-%d") : Time.strptime("#{@year}-#{@month+1}-01","%Y-%m-%d")-1.days
+- @total_calculated_hours = 0
+- @total_actual_hours = 0
+- @total_calculated_afterhours = 0
+- @total_actual_afterhours = 0
+- @total_saturdays = 0
+- @unpayed_saturdays = 0
+- @total_calculated_saturday_hours = 0
+- @total_actual_saturday_hours = 0
+.row
+  =form_tag reload_presence_path, method: :post, remote: true, class: 'remember_scroll_form', data: {scroll_element: '#presence_list'} do |f|
+    -# =hidden_field_tag :person, @person.id
+    =hidden_field_tag :tab, 'presence'
+    .col-sm-2
+      %h3="Presenze: "#{@person.list_name}"
+    .col-sm-2
+      %br
 
-        =select_tag :person, options_for_select(Person.active_people(active_date).order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
-      .col-sm-2
-        %br
-        = select_tag :month, options_for_select(PresenceTimestamp.months, @month-1), class: 'form-control submitting-select'
-      .col-sm-2
-        %br
-        = select_tag :year, options_for_select(PresenceTimestamp.years, @year), class: 'form-control submitting-select'
-      .col-sm-1
-        %br
-        = submit_tag 'Ricarica', class: 'form-control submitter'
-    .col-sm-2{style: 'margin_top: 1em;'}
-      %button{ class: 'form-control create_popup', id: "add_leave", data: { popup_id: 'add_leave', route: add_leave_path, html: (render partial: 'presence/add_long_leave_code_popup', locals: {person: @person }) } }
-        Ferie e malattia
-  .scrollable-panel#presence_list{style: 'height: 75vh;'}
-    - for day in 1..Time.days_in_month(@month,@year)
+      - active_date = @month == 12 ? Time.strptime("#{@year}-#{@month}-31","%Y-%m-%d") : Time.strptime("#{@year}-#{@month+1}-01","%Y-%m-%d")-1.days
+
+      =select_tag :person, options_for_select(Person.active_people(active_date).order(surname: :asc).collect{|p| [p.list_name,p.id]}, @person.id), include_blank: 'Selezionare dipendente', class: 'form-control submitting-select', id: 'person-select', data: {target: manage_presence_post_path, method: :post, data:{person: @person.id, tab: @tab.nil? ? 'presence' : @tab}}
+    .col-sm-2
+      %br
+      = select_tag :month, options_for_select(PresenceTimestamp.months, @month-1), class: 'form-control submitting-select'
+    .col-sm-2
+      %br
+      = select_tag :year, options_for_select(PresenceTimestamp.years, @year), class: 'form-control submitting-select'
+    .col-sm-1
+      %br
+      = submit_tag 'Ricarica', class: 'form-control submitter'
+  .col-sm-2{style: 'margin_top: 1em;'}
+    %button{ class: 'form-control create_popup', id: "add_leave", data: { popup_id: 'add_leave', route: add_leave_path, html: (render partial: 'presence/add_long_leave_code_popup', locals: {person: @person }) } }
+      Ferie e malattia
+.scrollable-panel#presence_list{style: 'height: 75vh;'}
+  - for day in 1..Time.days_in_month(@month,@year)
+    %div{id: "pp#{day}"}
       = render partial: 'presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{day}","%Y-%m-%d"), person: @person}
-  .row
-    = form_tag presence_print_absences_path(format: :pdf), method: :post, class: 'no-loader' do |f|
-      .col-sm-2{style: 'margin-top: 1em;margin-left: 1em;'}
-        = date_field_tag :date, Date.current+1.days, class: 'form-control'
+.row
+  = form_tag presence_print_absences_path(format: :pdf), method: :post, class: 'no-loader' do |f|
+    .col-sm-2{style: 'margin-top: 1em;margin-left: 1em;'}
+      = date_field_tag :date, Date.current+1.days, class: 'form-control'
 
-      .col-sm-1{style: 'margin-top: 1em;margin-left: 1em;'}
-        .row
-          .col-sm-12
-            Motivazioni
-        .row
-          .col-sm-4
-            = radio_button_tag :motivation, true, true
-          .col-sm-8
-            = "si"
-        .row
-          .col-sm-4
-            = radio_button_tag :motivation, false, false
-          .col-sm-8
-            = "no"
+    .col-sm-1{style: 'margin-top: 1em;margin-left: 1em;'}
+      .row
+        .col-sm-12
+          Motivazioni
+      .row
+        .col-sm-4
+          = radio_button_tag :motivation, true, true
+        .col-sm-8
+          = "si"
+      .row
+        .col-sm-4
+          = radio_button_tag :motivation, false, false
+        .col-sm-8
+          = "no"
 
-      .col-sm-2{style: 'margin-top: 1em;'}
-        = button_tag 'PDF assenze', class: 'form-control no-loader'
-    = form_tag presence_download_csv_path(format: :csv), method: :post, class: 'no-loader' do |f|
-      .col-sm-2
-        = hidden_field_tag :person, @person.id
-        = hidden_field_tag :month, @month
-        = hidden_field_tag :year, @year
-        = button_tag 'CSV studio', class: 'form-control no-loader'
+    .col-sm-2{style: 'margin-top: 1em;'}
+      = button_tag 'PDF assenze', class: 'form-control no-loader'
+  = form_tag presence_download_csv_path(format: :csv), method: :post, class: 'no-loader' do |f|
     .col-sm-2
-      = "Tot. ore: #{@total_calculated_hours/3600}:#{((@total_calculated_hours%3600)/60).to_s.rjust(2,'0')} (#{@total_actual_hours/3600}:#{((@total_actual_hours%3600)/60).to_s.rjust(2,'0')})"
-      %br
-      = "Tot. straordinari: #{@total_calculated_afterhours/3600}:#{((@total_calculated_afterhours%3600)/60).to_s.rjust(2,'0')} (#{@total_actual_afterhours/3600}:#{((@total_actual_afterhours%3600)/60).to_s.rjust(2,'0')})"
-    .col-sm-2
-      = "Tot. sabati: #{(@total_saturdays - @unpayed_saturdays) < 0 ? 0 : @total_saturdays - @unpayed_saturdays} (#{@total_saturdays})"
-      %br
-      = "Tot. ore sabati: #{@total_calculated_saturday_hours/3600}:#{((@total_calculated_saturday_hours%3600)/60).to_s.rjust(2,'0')} (#{@total_actual_saturday_hours/3600}:#{((@total_actual_saturday_hours%3600)/60).to_s.rjust(2,'0')})"
+      = hidden_field_tag :person, @person.id
+      = hidden_field_tag :month, @month
+      = hidden_field_tag :year, @year
+      = button_tag 'CSV studio', class: 'form-control no-loader'
+  .col-sm-2
+    %span#tot_hours
+    -# = "Tot. ore: #{@total_calculated_hours/3600}:#{((@total_calculated_hours%3600)/60).to_s.rjust(2,'0')} (#{@total_actual_hours/3600}:#{((@total_actual_hours%3600)/60).to_s.rjust(2,'0')})"
+    -# = "#{@total_calculated_hours} -> #{@total_actual_hours}"
+    %br
+    %span#tot_afterhours
+    -# = "Tot. straordinari: #{@total_calculated_afterhours/3600}:#{((@total_calculated_afterhours%3600)/60).to_s.rjust(2,'0')} (#{@total_actual_afterhours/3600}:#{((@total_actual_afterhours%3600)/60).to_s.rjust(2,'0')})"
+    -# = "#{@total_calculated_afterhours} -> #{@total_actual_afterhours}"
+  .col-sm-2
+    %span#tot_saturdays
+    -# = "Tot. sabati: #{(@total_saturdays - @unpayed_saturdays) < 0 ? 0 : @total_saturdays - @unpayed_saturdays} (#{@total_saturdays})"
+    -# = "#{@total_saturdays}"
+    %br
+    %span#tot_saturday_hrs
+    -# = "Tot. ore sabati: #{@total_calculated_saturday_hours/3600}:#{((@total_calculated_saturday_hours%3600)/60).to_s.rjust(2,'0')} (#{@total_actual_saturday_hours/3600}:#{((@total_actual_saturday_hours%3600)/60).to_s.rjust(2,'0')})"
+    -# = "#{@total_calculated_saturday_hours} -> #{@total_actual_saturday_hours}"
+
+:javascript
+
+  calculateTotals();

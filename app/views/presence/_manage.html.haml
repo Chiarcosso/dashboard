@@ -14,24 +14,104 @@
 .row
   .tab-content
     %div{style: 'height:85%', id: 'tab-building_presence', class: @tab.nil? || @tab == 'building_presence' ? 'tab-pane active' : 'tab-pane'}
-      = render partial: 'presence/building_presence'
+      #building_presence
+        -if @tab.nil? || @tab == 'building_presence'
+          = render partial: 'presence/building_presence'
     %div{style: 'height:85%', id: 'tab-presence_day', class: @tab == 'presence_day' ? 'tab-pane active' : 'tab-pane'}
-      = render partial: 'presence/presence_day'
+      #presence_day
+        - if @tab == 'presence_day'
+          = render partial: 'presence/presence_day'
     %div{style: 'height:85%', id: 'tab-presence', class: @tab == 'presence' ? 'tab-pane active' : 'tab-pane'}
-      = render partial: 'presence/presence'
+      #presence
+        - if @tab == 'presence'
+          = render partial: 'presence/presence'
     %div{style: 'height:85%', id: 'tab-schedules', class: @tab == 'schedules' ? 'tab-pane active' : 'tab-pane'}
-      = render partial: 'presence/schedules'
+      #schedules
+        - if @tab == 'schedules'
+          = render partial: 'presence/schedules'
 
 :javascript
 
-  $('.change-tab').on('click',function(){
-    var tab = $(this).attr('href').substring(5);
-    var data = $('.person-select').data('data');
-    data['tab'] = tab;
-    data['month'] = $('select[name=month]');
-    data['year'] = $('input[name=year]');
-    data['day'] = $('input[name=day]');
+  function calculateTotals(){
 
-    $('#person-select').data('data',data);
-    $('#day').data('data',data);
+    // Initialize totals
+    var totalSaturdays = 0;
+    var totalActualSaturdays = 0;
+    var totalCalculatedSaturdayHours = 0;
+    var totalActualSaturdayHours = 0;
+    var calculatedTotal = 0;
+    var actualTotal = 0;
+    var calculatedAfterhours = 0;
+    var afterhours = 0;
+    var unpaidSaturdays = 0;
+
+    // Loop through all time blocks and sum the values to the corresponding total
+    $.each($('.time_to_add'),function(){
+
+      switch($(this).data('sum')){
+        case 'actual_total': actualTotal += parseInt($(this).data('time'));
+          // console.log($(this).data('day'), 'total',  actualTotal, parseInt($(this).data('time')));
+          break;
+        case 'calculated_total': calculatedTotal += parseInt($(this).data('time'));
+          // console.log($(this).data('day'), 'calc. total',  calculatedTotal, parseInt($(this).data('time')));
+          break;
+        case 'afterhours': afterhours += parseInt($(this).data('time'));
+          // console.log($(this).data('day'), 'afterhrs',  afterhours, parseInt($(this).data('time')));
+          break;
+        case 'calculated_afterhours': calculatedAfterhours += parseInt($(this).data('time'));
+          // console.log($(this).data('day'), 'calc. afterhrs',  calculatedAfterhours, parseInt($(this).data('time')));
+          break;
+        case 'total_saturdays': totalSaturdays += parseInt($(this).data('time'));
+          break;
+        case 'total_actual_saturdays': totalActualSaturdays += parseInt($(this).data('time'));
+          unpayedSaturdays = parseInt($(this).data('unpaid'));
+          break;
+        case 'total_actual_saturday_hours': totalActualSaturdayHours += parseInt($(this).data('time'));
+          break;
+        case 'total_calculated_saturday_hours': totalCalculatedSaturdayHours += parseInt($(this).data('time'));
+          break;
+      }
+    });
+
+    totalSaturdays = totalActualSaturdays - unpaidSaturdays;
+
+    $('#tot_hours').html('Tot. ore: '+seconds_to_clock_no_sec(calculatedTotal)+' ('+seconds_to_clock_no_sec(actualTotal)+')');
+    $('#tot_afterhours').html('Tot. straordinari: '+seconds_to_clock_no_sec(calculatedAfterhours)+' ('+seconds_to_clock_no_sec(afterhours)+')');
+    $('#tot_saturdays').html('Tot. sabati: '+totalSaturdays+' ('+totalActualSaturdays+')');
+    $('#tot_saturday_hrs').html('Tot. ore sabato: '+seconds_to_clock_no_sec(totalCalculatedSaturdayHours)+' ('+seconds_to_clock_no_sec(totalActualSaturdayHours)+')')
+
+    console.log('');
+    console.log('total_calculated_saturday_hours', seconds_to_clock(totalCalculatedSaturdayHours), totalCalculatedSaturdayHours);
+    console.log('total_actual_saturday_hours', seconds_to_clock(totalActualSaturdayHours), totalActualSaturdayHours);
+    console.log('total_actual_saturdays', totalActualSaturdays);
+    console.log('total_saturdays', totalSaturdays);
+    console.log('calculated_afterhours', seconds_to_clock(calculatedAfterhours), calculatedAfterhours);
+    console.log('afterhours', seconds_to_clock(afterhours), afterhours);
+    console.log('calculated_total', seconds_to_clock(calculatedTotal), calculatedTotal);
+    console.log('actual_total', seconds_to_clock(actualTotal), actualTotal);
+  };
+
+  $('.change-tab').on('click',function(){
+
+    // Get what tab was clicked
+    var tab = $(this).attr('href').substring(5);
+
+    // var data = $('.person-select').data('data');
+    // data['tab'] = tab;
+    // data['month'] = $('select[name=month]');
+    // data['year'] = $('input[name=year]');
+    // data['day'] = $('input[name=day]');
+    //
+    // $('#person-select').data('data',data);
+    // $('#day').data('data',data);
+
+    // If it was already loaded do nothing, else load it
+    if($('#'+tab).html() == "\n"){
+      activateLoadingScreen();
+      $.ajax({
+        url: '/presence/change_tab/'+tab,
+        method: 'get'
+      });
+    }
+
   })

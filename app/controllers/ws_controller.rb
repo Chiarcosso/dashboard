@@ -191,8 +191,10 @@ class WsController < ApplicationController
       if user.assigned_to_person.nil? and user.assigned_to_company.nil?
         @msg = "Messaggio non inviato. Targa: #{params[:VehiclePlateNumber]}, #{user.holder.complete_name} non ha un utente assegnato."
       else
+
+        msg = Base64.decode64(params.require('ChatMessage')).force_encoding(Encoding::UTF_8)
         sync_fares_table(
-          msg: Base64.decode64(params.require('ChatMessage')),
+          msg: msg,
           id: params.require(:id),
           user: user
         )
@@ -208,7 +210,7 @@ class WsController < ApplicationController
   # Update FARES tabgen, send push notifications
   def self.sync_fares_table(opts)
 
-    opts[:msg] = HTMLEntities.new.encode(opts[:msg])
+    opts[:msg] = HTMLEntities.new.encode(opts[:msg].force_encoding("ISO8859-1"))
     mdc = MdcWebservice.new
     mdc.begin_transaction
     mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: opts[:id], deviceCode: ''})])
@@ -376,7 +378,7 @@ class WsController < ApplicationController
     params.require(:photos).each do |p|
       # p.sub!('http://chiarcosso.mobiledatacollection.it/','/var/lib/tomcat8/webapps/')
       p.sub!('http://outpost.chiarcosso/','/var/lib/tomcat8/webapps/')
-      
+
       f = mdc.download_file(p).body[/Content-Type: image\/jpeg.*?\r\n\r\n(.*?)\r\n--MIMEBoundary/m,1]
       # photos << f.force_encoding("utf-8") unless f.nil?
       photos << f unless f.nil?

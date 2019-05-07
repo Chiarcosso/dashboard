@@ -968,7 +968,21 @@ function clearMemory() {
 //     // $('.error').delay(3000).fadeOut();
 // }
 function seconds_to_clock(tm){
-  return ('0'+Math.floor(tm/3600)).slice(-2)+':'+('0'+Math.floor((tm/60)%60)).slice(-2)+':'+('0'+(tm%60)).slice(-2);
+  if(Math.floor(tm/3600) > 99){
+    return (''+Math.floor(tm/3600))+':'+('0'+Math.floor((tm/60)%60)).slice(-2)+':'+('0'+(tm%60)).slice(-2);
+  } else {
+    return ('0'+Math.floor(tm/3600)).slice(-2)+':'+('0'+Math.floor((tm/60)%60)).slice(-2)+':'+('0'+(tm%60)).slice(-2);
+  }
+
+}
+
+function seconds_to_clock_no_sec(tm){
+  if(Math.floor(tm/3600) > 99){
+    return (''+Math.floor(tm/3600))+':'+('0'+Math.floor((tm/60)%60)).slice(-2);
+  } else {
+    return ('0'+Math.floor(tm/3600)).slice(-2)+':'+('0'+Math.floor((tm/60)%60)).slice(-2);
+  }
+
 }
 
 function activateCustomAutocomplete(func) {

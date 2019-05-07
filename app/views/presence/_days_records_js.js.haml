@@ -1,0 +1,5 @@
+$("##{@tab_row}").html("#{escape_javascript(render partial: '/presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{@day.strftime("%d")}","%Y-%m-%d"), person: @person}  )} ");
+$('.popup').remove();
+$('.infobox').remove();
+calculateTotals();
+deactivateLoadingScreen();

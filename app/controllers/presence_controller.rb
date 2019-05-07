@@ -8,6 +8,19 @@ class PresenceController < ApplicationController
   before_action :get_working_schedule, only: [:edit_working_schedule, :delete_working_schedule]
   before_action :get_festivity, only: [:edit_festivity, :delete_festivity]
   before_action :get_leave_code, only: [:edit_leave_code, :delete_leave_code]
+  # after_action :change_tab, only: [
+  #   :recalculate_day,
+  #   :manage_presence,
+  #   :change_presence_time,
+  #   :add_timestamp,
+  #   :delete_timestamp,
+  #   :add_long_leave,
+  #   :add_leave,
+  #   :delete_leave,
+  #   :add_working_schedule,
+  #   :edit_working_schedule,
+  #   :delete_working_schedule
+  # ]
 
   def manage_festivities
     begin
@@ -79,23 +92,38 @@ class PresenceController < ApplicationController
     PresenceRecord.recalculate(@day,@person)
 
     begin
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      #   format.html { render 'presence/index' }
+      # end
+      # change_tab
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
-        format.html { render 'presence/index' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        @pp_tab_row = "pp#{@day.strftime('%-d')}"
+        @pd_tab_row = "pd#{@person.id}"
+        @bp_tab_row = "bp#{@person.id}"
+        format.js { render partial: 'presence/presence_rows_js' }
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join('<br>')
@@ -107,26 +135,29 @@ class PresenceController < ApplicationController
 
   def manage_presence
     begin
-      respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
-        format.html { render 'presence/index' }
-      end
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      #   format.html { render 'presence/index' }
+      # end
+      change_tab
     rescue Exception => e
       @error = e.message+e.backtrace.join('<br>')
+
+      # byebug
       respond_to do |format|
         format.js { render partial: 'layouts/error' }
       end
@@ -246,28 +277,65 @@ class PresenceController < ApplicationController
     end
   end
 
+  def change_tab
+
+    respond_to do |format|
+      case @tab
+      when 'presence' then
+        @tabsub = ['#presence','presence/presence']
+        @tabsub2 = ['#presence_day','presence/presence_day']
+        @tabsub3 = ['#schedules','presence/schedules']
+      when 'presence_day' then
+        @tabsub = ['#presence_day','presence/presence_day']
+        @tabsub2 = ['#presence','presence/presence']
+      when 'building_presence' then
+        @tabsub = ['#building_presence','presence/building_presence']
+      when 'schedules' then
+        @tabsub = ['#schedules','presence/schedules']
+        @tabsub2 = ['#presence','presence/presence']
+      end
+      format.js { render partial: 'presence/manage_js' }
+      format.html { render 'presence/index' }
+    end
+  end
+
   def change_presence_time
     begin
 
       time = Time.strptime("#{params.require(:date)} #{params.require(:set_total)}","%Y-%m-%d %H:%M") - Time.strptime("#{params.require(:date)} 00:00","%Y-%m-%d %H:%M")
       PresenceRecord.where(date: Date.strptime(params.require(:date),"%Y-%m-%d"),person: @person).each { |pr| pr.update(set_day_time: time)}
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      #   format.html { render 'presence/index' }
+      # end
+      # change_tab
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
-        format.html { render 'presence/index' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        @pp_tab_row = "pp#{@day.strftime('%-d')}"
+        @pd_tab_row = "pd#{@person.id}"
+        @bp_tab_row = "bp#{@person.id}"
+        format.js { render partial: 'presence/presence_rows_js' }
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join("\n") if @error.nil?
@@ -299,23 +367,38 @@ class PresenceController < ApplicationController
       end
 
       PresenceRecord.recalculate(timestamp,person)
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      #   format.html { render 'presence/index' }
+      # end
+      # change_tab
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
-        format.html { render 'presence/index' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        @pp_tab_row = "pp#{@day.strftime('%-d')}"
+        @pd_tab_row = "pd#{@person.id}"
+        @bp_tab_row = "bp#{@person.id}"
+        format.js { render partial: 'presence/presence_rows_js' }
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join("\n") if @error.nil?
@@ -332,23 +415,38 @@ class PresenceController < ApplicationController
       person = pr.badge.day_holder(date)
       pr.update(deleted: true)
       PresenceRecord.recalculate(date,person)
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      #   format.html { render 'presence/index' }
+      # end
+      # change_tab
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
-        format.html { render 'presence/index' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        @pp_tab_row = "pp#{@day.strftime('%-d')}"
+        @pd_tab_row = "pd#{@person.id}"
+        @bp_tab_row = "bp#{@person.id}"
+        format.js { render partial: 'presence/presence_rows_js' }
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join("\n")
@@ -420,23 +518,35 @@ class PresenceController < ApplicationController
         PresenceRecord.recalculate(date,@person)
         date += 1.days
       end
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      #   format.html { render 'presence/index' }
+      # end
+      # change_tab
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
-        format.html { render 'presence/index' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        format.js { render partial: 'presence/presence_multiple_rows_js' }
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join("\n") if @error.nil?
@@ -467,23 +577,39 @@ class PresenceController < ApplicationController
       end
 
       PresenceRecord.recalculate(date,@person)
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      #   format.html { render 'presence/index' }
+      # end
+      # change_tab
+
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
-        format.html { render 'presence/index' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        @pp_tab_row = "pp#{@day.strftime('%-d')}"
+        @pd_tab_row = "pd#{@person.id}"
+        @bp_tab_row = "bp#{@person.id}"
+        format.js { render partial: 'presence/presence_rows_js' }
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join("\n") if @error.nil?
@@ -505,23 +631,38 @@ class PresenceController < ApplicationController
         PresenceRecord.recalculate(date,@person,[deleted_code])
         date += 1.days
       end
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      #   format.html { render 'presence/index' }
+      # end
+      # change_tab
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
-        format.html { render 'presence/index' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        @pp_tab_row = "pp#{@day.strftime('%-d')}"
+        @pd_tab_row = "pd#{@person.id}"
+        @bp_tab_row = "bp#{@person.id}"
+        format.js { render partial: 'presence/presence_rows_js' }
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join("\n")
@@ -618,22 +759,34 @@ class PresenceController < ApplicationController
   def add_working_schedule
     begin
       WorkingSchedule.create(working_schedule_params)
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      # end
+      # change_tab
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        format.js { render partial: 'presence/presence_multiple_rows_js' }
       end
     rescue Exception => e
       @error = e.message
@@ -646,22 +799,34 @@ class PresenceController < ApplicationController
   def edit_working_schedule
     begin
       @working_schedule.update(working_schedule_params)
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      # end
+      # change_tab
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        format.js { render partial: 'presence/presence_multiple_rows_js' }
       end
     rescue Exception => e
       @error = e.message
@@ -674,22 +839,34 @@ class PresenceController < ApplicationController
   def delete_working_schedule
     begin
       @working_schedule.destroy
+      # respond_to do |format|
+      #   case @tab
+      #   when 'presence' then
+      #     @tabsub = ['#presence','presence/presence']
+      #     @tabsub2 = ['#presence_day','presence/presence_day']
+      #     @tabsub3 = ['#schedules','presence/schedules']
+      #   when 'presence_day' then
+      #     @tabsub = ['#presence_day','presence/presence_day']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   when 'building_presence' then
+      #     @tabsub = ['#building_presence','presence/building_presence']
+      #   when 'schedules' then
+      #     @tabsub = ['#schedules','presence/schedules']
+      #     @tabsub2 = ['#presence','presence/presence']
+      #   end
+      #   format.js { render partial: 'presence/manage_js' }
+      # end
+      # change_tab
       respond_to do |format|
-        case @tab
-        when 'presence' then
-          @tabsub = ['#presence','presence/presence']
-          @tabsub2 = ['#presence_day','presence/presence_day']
-          @tabsub3 = ['#schedules','presence/schedules']
-        when 'presence_day' then
-          @tabsub = ['#presence_day','presence/presence_day']
-          @tabsub2 = ['#presence','presence/presence']
-        when 'building_presence' then
-          @tabsub = ['#building_presence','presence/building_presence']
-        when 'schedules' then
-          @tabsub = ['#schedules','presence/schedules']
-          @tabsub2 = ['#presence','presence/presence']
-        end
-        format.js { render partial: 'presence/manage_js' }
+        # case @tab
+        # when 'presence' then
+        #   @tab_row = "pp#{@day.strftime('%-d')}"
+        #   format.js { render partial: 'presence/days_records_js' }
+        # when 'presence_day' then
+        #   @tab_row = "pd#{@person.id}"
+        #   format.js { render partial: 'presence/people_records_js' }
+        # end
+        format.js { render partial: 'presence/presence_multiple_rows_js' }
       end
     rescue Exception => e
       @error = e.message

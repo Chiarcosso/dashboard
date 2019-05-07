@@ -273,6 +273,8 @@ Rails.application.routes.draw do
   post   '/presence/edit_schedule/:id', to: 'presence#edit_working_schedule', as: :edit_working_schedule
   delete   '/presence/delete_schedule/:id', to: 'presence#delete_working_schedule', as: :delete_working_schedule
 
+  get '/presence/change_tab/:tab', to: 'presence#change_tab', as: :change_tab
+
   get '/vehicle/assignation', to: 'vehicles#assignation', as: :vehicles_assignation
   post '/vehicle/massive_delete', to: 'vehicles#massive_delete', as: :massive_vehicles_delete
   post '/vehicle/massive_update', to: 'vehicles#massive_update', as: :massive_vehicles_update

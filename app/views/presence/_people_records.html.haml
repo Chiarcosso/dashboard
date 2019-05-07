@@ -1,3 +1,4 @@
+
 - presence_records = PresenceRecord.where(date: day, person: person)
 - ws = WorkingSchedule.find_by(weekday: day.strftime("%u").to_i-1, person: person)
 - saturday = day.strftime("%u").to_i-1 == 5 ? true : false
