@@ -299,6 +299,21 @@ class PresenceController < ApplicationController
     end
   end
 
+  def loadrow
+    @day = Time.strptime(params.require(:day),"%Y-%m-%d")
+    @person = Person.find(params.require(:person))
+    respond_to do |format|
+      case params.require(:area)
+      when 'bp' then
+        format.js { render partial: 'presence/building_records', locals: {p: @person}}
+      when 'pd' then
+        format.js { render partial: 'presence/people_records', locals: {person: @person, day: @day}}
+      when 'pp' then
+        format.js { render partial: 'presence/days_records', locals: {person: @person, day: @day}}
+      end
+    end
+  end
+
   def change_presence_time
     begin
 
@@ -659,10 +674,14 @@ class PresenceController < ApplicationController
         #   @tab_row = "pd#{@person.id}"
         #   format.js { render partial: 'presence/people_records_js' }
         # end
-        @pp_tab_row = "pp#{@day.strftime('%-d')}"
-        @pd_tab_row = "pd#{@person.id}"
-        @bp_tab_row = "bp#{@person.id}"
-        format.js { render partial: 'presence/presence_rows_js' }
+        if gl.long_leave?
+          format.js { render partial: 'presence/presence_multiple_rows_js' }
+        else
+          @pp_tab_row = "pp#{@day.strftime('%-d')}"
+          @pd_tab_row = "pd#{@person.id}"
+          @bp_tab_row = "bp#{@person.id}"
+          format.js { render partial: 'presence/presence_rows_js' }
+        end
       end
     rescue Exception => e
       @error = e.message+e.backtrace.join("\n")

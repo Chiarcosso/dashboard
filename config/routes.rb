@@ -236,6 +236,7 @@ Rails.application.routes.draw do
   get   '/festivities/manage', to: 'presence#manage_festivities', as: :manage_festivities
   get   '/presence/vacation_calendar', to: 'presence#vacation_calendar', as: :vacation_calendar
 
+  post   '/presence/loadrows/:area/:element', to: 'presence#loadrow', as: :presence_loadrows
   post   '/presence/add_badge_assignment/', to: 'presence#add_badge_assignment', as: :add_badge_assignment
   post   '/presence/edit_badge_assignment/:id', to: 'presence#edit_badge_assignment', as: :edit_badge_assignment
   delete   '/presence/delete_badge_assignment/:id', to: 'presence#delete_badge_assignment', as: :delete_badge_assignment

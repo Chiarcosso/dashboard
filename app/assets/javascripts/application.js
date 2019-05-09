@@ -25,6 +25,121 @@ jQuery.ajaxSetup({
     cache: false
 });
 
+// row ajax requests for the presence area
+var reqs = {bp: {}, pp: {}, pd: {}};
+
+// stop all ajax requests other than req
+function stopReqs(req){
+  switch(req){
+    case 'pp': $.each(reqs['bp'],function(k,v){
+                v.abort();
+                delete reqs['bp']['#'+k];
+                // $('#'+k).data('loading',true);
+                console.log('stop','#'+k,req);
+              });
+              $.each(reqs['pd'],function(k,v){
+                v.abort();
+                delete reqs['pd']['#'+k];
+                // $('#'+k).data('loading',true);
+                console.log('stop','#'+k,req);
+              });
+              break;
+    case 'bp': $.each(reqs['pp'],function(k,v){
+                v.abort();
+                delete reqs['pp']['#'+k];
+                // $('#'+k).data('loading',true);
+                console.log('stop','#'+k,req);
+              });
+              $.each(reqs['pd'],function(k,v){
+                v.abort();
+                delete reqs['pd']['#'+k];
+                // $('#'+k).data('loading',true);
+                console.log('stop','#'+k,req);
+              });
+              break;
+    case 'pd': $.each(reqs['bp'],function(k,v){
+                v.abort();
+                delete reqs['bp']['#'+k];
+                // $('#'+k).data('loading',true);
+                console.log('stop','#'+k,req);
+              });
+              $.each(reqs['pp'],function(k,v){
+                v.abort();
+                delete reqs['pp']['#'+k];
+                // $('#'+k).data('loading',true);
+                console.log('stop','#'+k,req);
+              });
+              break;
+  }
+}
+
+function loadrow(element){
+  $(element).html("<b>In caricamento..</b>").data('loading',true);
+
+  switch($(element).data('area')){
+    case 'pp':  $(element).html("<b>In caricamento..</b>");
+
+              if(reqs['pp'][$(element).attr('id')] != undefined){
+                reqs['pp'][$(element).attr('id')].abort();
+                delete reqs['pp'][$(element).attr('id')];
+              }
+              reqs['pp'][$(element).attr('id')] = $.ajax({
+                url: '/presence/loadrows/'+$(element).data('area')+'/'+$(element).attr('id'),
+                method: 'post',
+                data: {person: $(element).data('person'), day: $(element).data('day')},
+                complete: function(response){
+                  $(element).html(response.responseText);
+                  $(element).data('loading',false);
+
+                  // setTimeout(loadrow(element),30000);
+                  calculateTotals();
+                }
+              });
+              break;
+    case 'bp': $(element).html("<b>In caricamento..</b>");
+
+                if(reqs['bp'][$(element).attr('id')] != undefined){
+                  reqs['bp'][$(element).attr('id')].abort();
+                  delete reqs['bp'][$(element).attr('id')];
+                }
+                reqs['bp'][$(element).attr('id')] = $.ajax({
+                  url: '/presence/loadrows/'+$(element).data('area')+'/'+$(element).attr('id'),
+                  method: 'post',
+                  data: {person: $(element).data('person'), day: $(element).data('day')},
+                  complete: function(response){
+                    $(element).html(response.responseText);
+                    $(element).data('loading',false);
+
+                  }
+                });
+                break;
+    case 'pd': $(element).html("<b>In caricamento..</b>");
+
+                if(reqs['pd'][$(element).attr('id')] != undefined){
+                  reqs['pd'][$(element).attr('id')].abort();
+                  delete reqs['pd'][$(element).attr('id')];
+                }
+                reqs['pd'][$(element).attr('id')] = $.ajax({
+                  url: '/presence/loadrows/'+$(element).data('area')+'/'+$(element).attr('id'),
+                  method: 'post',
+                  data: {person: $(element).data('person'), day: $(element).data('day')},
+                  complete: function(response){
+                    $(element).html(response.responseText);
+                    $(element).data('loading',false);
+
+                    // setTimeout(loadrow(element),30000);
+                    $('.anomalies').each (function(){
+                      if($(element).val() == 'Ritardo pausa'){
+                        $(element).parents('.alert_color').first().css('background-color','#fb8');
+                      }
+                    });
+                  }
+                });
+  }
+
+
+}
+
 var lds_timeout;
 function activateLoadingScreen() {
     "use strict";
@@ -832,6 +947,15 @@ function ajax_caller_click_func(e){
   });
 }
 
+function loadable_mouseenter_func(e){
+
+  if($(this).data('loading') == true){
+
+    loadrow('#'+$(this).attr('id'));
+
+  }
+}
+
 function activateJS() {
     "use strict";
 
@@ -927,6 +1051,7 @@ function activateJS() {
 
     $('body').on('click', '.ajax-caller', ajax_caller_click_func);
 
+    // $('body').on('mouseenter', '.loadable', loadable_mouseenter_func);
 }
 
 var mdc_reports_timeout;
@@ -1326,7 +1451,7 @@ function activateDatePicker(date) {
     language: "it",
     autoclose: true,
     todayHighlight: true,
-  //  setValue: ($(this).data('no-default')=='true'?'':dt)
+  //  setValue: ($(this).data('no-default')==true?'':dt)
   });
 
 };

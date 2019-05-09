@@ -19,5 +19,42 @@
 
 .scrollable-panel#building_presence_list{style: 'height: 75vh;'}
   - Person.active_people.building_employees.order(surname: :asc).each do |p|
-    %div{id: "bp#{p.id}"}
-      = render partial: 'presence/building_records', locals: {p: p}
+    .loadable{id: "bp#{p.id}", data: {person: p.id, day: Time.now.strftime("%Y-%m-%d"), area: 'bp', loading: 'true'}}
+
+      -# = render partial: 'presence/building_records', locals: {p: p}
+
+:javascript
+
+
+
+  // function loadrow(element){
+  //
+  //   $(element).html("<b>In caricamento..</b>");
+  //   if(reqs['bp'][$(element).attr('id')] != undefined){
+  //     reqs['bp'][$(element).attr('id')].abort();
+  //     delete reqs['bp'][$(element).attr('id')];
+  //   }
+  //   reqs['bp'][$(element).attr('id')] = $.ajax({
+  //     url: '/presence/loadrows/'+$(element).data('area')+'/'+$(element).attr('id'),
+  //     method: 'post',
+  //     data: {person: $(element).data('person'), day: $(element).data('day')},
+  //     complete: function(response){
+  //       $(element).html(response.responseText);
+  //       // setTimeout(function(){loadrow(element)},30000);
+  //     }
+  //   });
+  //
+  // }
+
+  function loadrows(){
+
+    $.each($('.loadable'),function(){
+      var element = '#'+$(this).attr('id');
+
+      if($(element).children('.row').length == 0 && $(element).data('area') == 'bp'){
+        loadrow(element);
+      }
+    });
+  }
+
+  loadrows();

@@ -29,8 +29,10 @@
     -#   Ferie e malattia
 .scrollable-panel#presence_day_list{style: 'height: 75vh;'}
   - Person.active_people.building_employees.order(surname: :asc).each do |p|
-    %div{id: "pd#{p.id}"}
-      = render partial: 'presence/people_records', locals: {day: @day, person: p}
+    .loadable{id: "pd#{p.id}", data: {person: p.id, day: @day.strftime("%Y-%m-%d"), area: 'pd', loading: 'true'}}
+      %b
+        In caricamento..
+      -# = render partial: 'presence/people_records', locals: {day: @day, person: p}
 .row
   = form_tag presence_print_absences_path(format: :pdf), method: :post, class: 'no-loader' do |f|
     .col-sm-2{style: 'margin-top: 1em;margin-left: 1em;'}
@@ -69,8 +71,38 @@
       -# = "Tot. ore sabati: #{@total_calculated_saturday_hours/3600}:#{((@total_calculated_saturday_hours%3600)/60).to_s.rjust(2,'0')} (#{@total_actual_saturday_hours/3600}:#{((@total_actual_saturday_hours%3600)/60).to_s.rjust(2,'0')})"
 :javascript
 
-  $('.anomalies').each (function(){
-    if($(this).val() == 'Ritardo pausa'){
-      $(this).parents('.alert_color').first().css('background-color','#fb8');
-    }
-  });
+  // function loadrow(element){
+  //
+  //   $(element).html("<b>In caricamento..</b>");
+  //   if(reqs['pd'][$(element).attr('id')] != undefined){
+  //     reqs['pd'][$(element).attr('id')].abort();
+  //     delete reqs['pd'][$(element).attr('id')];
+  //   }
+  //   reqs['pd'][$(element).attr('id')] = $.ajax({
+  //     url: '/presence/loadrows/'+$(element).data('area')+'/'+$(element).attr('id'),
+  //     method: 'post',
+  //     data: {person: $(element).data('person'), day: $(element).data('day')},
+  //     complete: function(response){
+  //       $(element).html(response.responseText);
+  //       // setTimeout(loadrow(element),30000);
+  //       $('.anomalies').each (function(){
+  //         if($(element).val() == 'Ritardo pausa'){
+  //           $(element).parents('.alert_color').first().css('background-color','#fb8');
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
+  function loadrows(){
+    $.each($('.loadable'),function(){
+      var element = '#'+$(this).attr('id');
+
+      if($(element).children('.row').length == 0 && $(element).data('area') == 'pd'){
+        loadrow(element);
+      }
+    });
+
+  };
+
+  loadrows();

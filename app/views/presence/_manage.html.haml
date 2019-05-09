@@ -3,13 +3,13 @@
   %ul.nav.nav-tabs
 
     %li{class: (@tab.nil? || @tab == 'building_presence') ? 'active' : ''}
-      =link_to "Presenti ora", '#tab-building_presence', data: { toggle: 'tab'}, class: 'no-loader change-tab'
+      =link_to "Presenti ora", '#tab-building_presence', data: { toggle: 'tab', reqs: 'bp'}, class: 'no-loader change-tab'
     %li{class: @tab == 'presence_day' ? 'active' : ''}
-      =link_to "Presenze del giorno", '#tab-presence_day', data: { toggle: 'tab'}, class: 'no-loader change-tab'
+      =link_to "Presenze del giorno", '#tab-presence_day', data: { toggle: 'tab', reqs: 'pd'}, class: 'no-loader change-tab'
     %li{class: @tab == 'presence' ? 'active' : ''}
-      =link_to "Presenze", '#tab-presence', data: { toggle: 'tab'}, class: 'no-loader change-tab'
+      =link_to "Presenze", '#tab-presence', data: { toggle: 'tab', reqs: 'pp'}, class: 'no-loader change-tab'
     %li{class: @tab == 'schedules' ? 'active' : ''}
-      =link_to "Orari", '#tab-schedules', data: { toggle: 'tab'}, class: 'no-loader change-tab'
+      =link_to "Orari", '#tab-schedules', data: { toggle: 'tab', reqs: 'sc'}, class: 'no-loader change-tab'
 
 .row
   .tab-content
@@ -80,22 +80,23 @@
     $('#tot_saturdays').html('Tot. sabati: '+totalSaturdays+' ('+totalActualSaturdays+')');
     $('#tot_saturday_hrs').html('Tot. ore sabato: '+seconds_to_clock_no_sec(totalCalculatedSaturdayHours)+' ('+seconds_to_clock_no_sec(totalActualSaturdayHours)+')')
 
-    console.log('');
-    console.log('total_calculated_saturday_hours', seconds_to_clock(totalCalculatedSaturdayHours), totalCalculatedSaturdayHours);
-    console.log('total_actual_saturday_hours', seconds_to_clock(totalActualSaturdayHours), totalActualSaturdayHours);
-    console.log('total_actual_saturdays', totalActualSaturdays);
-    console.log('total_saturdays', totalSaturdays);
-    console.log('calculated_afterhours', seconds_to_clock(calculatedAfterhours), calculatedAfterhours);
-    console.log('afterhours', seconds_to_clock(afterhours), afterhours);
-    console.log('calculated_total', seconds_to_clock(calculatedTotal), calculatedTotal);
-    console.log('actual_total', seconds_to_clock(actualTotal), actualTotal);
+    // console.log('');
+    // console.log('total_calculated_saturday_hours', seconds_to_clock(totalCalculatedSaturdayHours), totalCalculatedSaturdayHours);
+    // console.log('total_actual_saturday_hours', seconds_to_clock(totalActualSaturdayHours), totalActualSaturdayHours);
+    // console.log('total_actual_saturdays', totalActualSaturdays);
+    // console.log('total_saturdays', totalSaturdays);
+    // console.log('calculated_afterhours', seconds_to_clock(calculatedAfterhours), calculatedAfterhours);
+    // console.log('afterhours', seconds_to_clock(afterhours), afterhours);
+    // console.log('calculated_total', seconds_to_clock(calculatedTotal), calculatedTotal);
+    // console.log('actual_total', seconds_to_clock(actualTotal), actualTotal);
   };
 
   $('.change-tab').on('click',function(){
 
     // Get what tab was clicked
     var tab = $(this).attr('href').substring(5);
-
+    var reqs = $(this).data('reqs');
+    stopReqs(reqs);
     // var data = $('.person-select').data('data');
     // data['tab'] = tab;
     // data['month'] = $('select[name=month]');
@@ -106,11 +107,22 @@
     // $('#day').data('data',data);
 
     // If it was already loaded do nothing, else load it
+
     if($('#'+tab).html() == "\n"){
       activateLoadingScreen();
       $.ajax({
         url: '/presence/change_tab/'+tab,
         method: 'get'
+      });
+    } else {
+
+      $.each($('.loadable'),function(){
+        var element = '#'+$(this).attr('id');
+
+        if($(element).children('.row').length == 0 && $(element).data('area') == reqs){
+          loadrow(element);
+          console.log('start',element,reqs);
+        }
       });
     }
 

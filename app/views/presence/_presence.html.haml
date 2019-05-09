@@ -33,8 +33,8 @@
       Ferie e malattia
 .scrollable-panel#presence_list{style: 'height: 75vh;'}
   - for day in 1..Time.days_in_month(@month,@year)
-    %div{id: "pp#{day}"}
-      = render partial: 'presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{day}","%Y-%m-%d"), person: @person}
+    .loadable{id: "pp#{day}", data: {day: "#{@year}-#{@month}-#{day}", person: @person.id, area: 'pp', loading: 'true'}}
+      -# = render partial: 'presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{day}","%Y-%m-%d"), person: @person}
 .row
   = form_tag presence_print_absences_path(format: :pdf), method: :post, class: 'no-loader' do |f|
     .col-sm-2{style: 'margin-top: 1em;margin-left: 1em;'}
@@ -82,4 +82,17 @@
 
 :javascript
 
-  calculateTotals();
+
+
+  function loadrows(){
+
+    $.each($('.loadable'),function(){
+      var element = '#'+$(this).attr('id');
+
+      if($(element).children('.row').length == 0 && $(element).data('area') == 'pp'){
+        loadrow(element);
+      }
+    });
+  }
+
+  loadrows();

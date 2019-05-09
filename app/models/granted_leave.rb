@@ -26,6 +26,10 @@ class GrantedLeave < ApplicationRecord
     self.leave_code.color
   end
 
+  def long_leave?
+    self.to - self.from > 1.days
+  end
+
   def duration(comparison_date)
 
     #if the comparison date is festive return 0
@@ -94,7 +98,7 @@ class GrantedLeave < ApplicationRecord
   def self.check_journal
 
     date = Time.now.strftime('%Y-%m-%d')
-    
+
     #get journal leaves
     journal = MssqlReference.query({table: 'GIORNALE', where: {IDViaggi: ['MAMAMA','FEFEFE','PEPEPE','INININ'], Data: date}})
 
