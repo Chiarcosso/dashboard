@@ -114,13 +114,16 @@
         .col-sm-2
           = r.report_type.tr('_',' ').capitalize
         .col-sm-1
-          = r.vehicle.plate unless r.vehicle.nil?
+          - if r.hq
+            Sede
+          - else
+            = r.vehicle.plate unless r.vehicle.nil?
         .col-sm-4
           = r.description
         .col-sm-1
           = "#{r.sent_at.strftime("%d/%m/%Y %H:%M:%S")}"
         .col-sm-2
-          - unless @office != 'maintenance' || r.vehicle.nil?
+          - unless @office != 'maintenance' || (r.vehicle.nil? && r.hq == false)
             - if r.myofficina_reference.nil?
               = button_tag 'Crea segnalazione', class: 'form-control ajax-link', data: { target: mdc_create_notification_path, method: 'post', data: {id: r.id}, related_form: 'reports_filter_form'}
             - else

@@ -94,7 +94,7 @@ class WsController < ApplicationController
     @results = get_filter
     respond_to do |format|
       format.html {render 'mdc/report_index'}
-      format.js {render partial: 'mdc/new_report_js'}
+      format.js {render partial: 'mdc/report_index_js'}
     end
   end
 
@@ -545,13 +545,14 @@ class WsController < ApplicationController
   end
 
   def report_params
-    res = params.require(:notification).permit(:description, :vehicle_plate, :type, :driver_name, :photos => [])
+    res = params.require(:notification).permit(:description, :vehicle_plate, :type, :driver_name, :hq, :photos => [])
     report = {
       description: res[:description],
-      vehicle: Vehicle.find_by_plate(res[:vehicle_plate]),
+      vehicle: res[:vehicle_plate].nil? ? nil : Vehicle.find_by_plate(res[:vehicle_plate]),
       report_type: res[:type],
       person: Person.find_by_complete_name(res[:driver_name]),
       sent_at: Time.now,
+      hq: (res[:hq].nil? ? false : true),
       hr: MdcReport.offices(res[:type]).include?(:hr),
       maintenance: MdcReport.offices(res[:type]).include?(:maintenance),
       logistics: MdcReport.offices(res[:type]).include?(:logistics),

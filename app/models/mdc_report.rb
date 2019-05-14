@@ -57,6 +57,10 @@ class MdcReport < ApplicationRecord
     end
   end
 
+  def report_label
+    "#{self.report_type.tr('_',' ').capitalize}#{self.hq ? "(Sede)" : ''}"
+  end
+
   def managed?
     !self.managed_at.nil?
   end
@@ -68,18 +72,36 @@ class MdcReport < ApplicationRecord
   def create_notification(user)
 
     # Get MSSQL vehicle
-    vehicle_refs = EurowinController::get_vehicle(self.vehicle)
+    if self.hq
+      vehicle_refs = {"CodiceAutomezzo": '999', "Targa": 'SEDE'}
+    else
+      vehicle_refs = EurowinController::get_vehicle(self.vehicle)
+    end
 
+    # Get driver
+    if self.mdc_user.nil?
+      driver = user.person.mssql_references.last.remote_object_id.to_s
+    else
+      driver = self.mdc_user.assigned_to_person.mssql_references.last.remote_object_id.to_s
+    end
+
+    # If not referred to a vehicle milage is 0
+    if self.vehicle.nil?
+      mileage = '0'
+    else
+      mileage = self.vehicle.mileage.to_s
+    end
+    
     # Prepare payload and create notification
     payload = {
       'Descrizione': self.description,
       'UserInsert': user.person.complete_name.upcase.gsub("'","\'"),
       'UserPost': "APP MDC",
-      'CodiceAutista': self.mdc_user.assigned_to_person.mssql_references.last.remote_object_id.to_s,
-      'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
-      'CodiceTarga': vehicle_refs['Targa'],
+      'CodiceAutista': driver,
+      'CodiceAutomezzo': vehicle_refs.with_indifferent_access['CodiceAutomezzo'],
+      'CodiceTarga': vehicle_refs.with_indifferent_access['Targa'],
       'TipoDanno': 'SEGNALAZIONE',
-      'Chilometraggio': self.vehicle.mileage.to_s,
+      'Chilometraggio': mileage,
       'CodiceOfficina': EurowinController::get_workshop(:workshop),
       'FlagRiparato': 'false',
       'FlagStampato': 'false',

@@ -14,7 +14,14 @@
     .col-sm-6
       = select_tag 'notification[type]',options_for_select(MdcReport.report_types), class: 'form-control'
     .col-sm-6
-      = text_field_tag 'notification[vehicle_plate]', nil, placeholder: 'Targa..', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_external_vehicle_autocomplete_path, target: 'Notification' }
+      .row
+        .col-sm-1
+          = check_box_tag 'notification[hq]', true, false, class: 'disabling_checkbox', data: {to_disable: '#vehicle_plate'}
+        .col-sm-9
+          Sede
+      .row
+        = text_field_tag 'notification[vehicle_plate]', nil, placeholder: 'Targa..', id: 'vehicle_plate', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_external_vehicle_autocomplete_path, target: 'Notification' }
+
   .row{style: 'margin-top: 1rem;'}
     .col-sm-12
       = text_field_tag 'notification[description]', nil, class: 'form-control', placeholder: 'Descrizone'

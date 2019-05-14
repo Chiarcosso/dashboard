@@ -35,39 +35,38 @@ function stopReqs(req){
                 v.abort();
                 delete reqs['bp']['#'+k];
                 // $('#'+k).data('loading',true);
-                console.log('stop','#'+k,req);
+
               });
               $.each(reqs['pd'],function(k,v){
                 v.abort();
                 delete reqs['pd']['#'+k];
                 // $('#'+k).data('loading',true);
-                console.log('stop','#'+k,req);
+
               });
               break;
     case 'bp': $.each(reqs['pp'],function(k,v){
                 v.abort();
                 delete reqs['pp']['#'+k];
                 // $('#'+k).data('loading',true);
-                console.log('stop','#'+k,req);
+
               });
               $.each(reqs['pd'],function(k,v){
                 v.abort();
                 delete reqs['pd']['#'+k];
                 // $('#'+k).data('loading',true);
-                console.log('stop','#'+k,req);
+
               });
               break;
     case 'pd': $.each(reqs['bp'],function(k,v){
                 v.abort();
                 delete reqs['bp']['#'+k];
                 // $('#'+k).data('loading',true);
-                console.log('stop','#'+k,req);
+
               });
               $.each(reqs['pp'],function(k,v){
                 v.abort();
                 delete reqs['pp']['#'+k];
                 // $('#'+k).data('loading',true);
-                console.log('stop','#'+k,req);
               });
               break;
   }
@@ -318,17 +317,30 @@ function popup_link_func(e) {
     // If there's a related form, add its inputs to data
     if($(this).data('relatedForm') != undefined){
       $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
-        if(data[$(input).attr('name')] === undefined){
-          data[$(input).attr('name')] = $(input).val();
-        } else {
-          if(!(data[$(input).attr('name')] instanceof Array)){
-            data[$(input).attr('name')] = [data[$(input).attr('name')]];
+        console.log($(input).attr('type'));
+        console.log(input.checked);
+        if($(input).attr('name').includes('[]')){
+
+          if($(input).attr('type') != 'checkbox' || input.checked){
+            if(!(data[$(input).attr('name')] instanceof Array)){
+              data[$(input).attr('name')] = [data[$(input).attr('name')]];
+            }
+            data[$(input).attr('name')].push($(input).val());
           }
-          data[$(input).attr('name')].push($(input).val());
+
+        } else {
+
+          if($(input).attr('type') != 'checkbox' || input.checked){
+            if(data[$(input).attr('name')] === undefined){
+              data[$(input).attr('name')] = $(input).val();
+            }
+          }
+
         }
 
       });
     }
+
     $.ajax({
         type: method,
         url: action,
@@ -404,13 +416,24 @@ function ajax_link_click_func(e) {
       // If there's a related form, add its inputs to data
       if($(this).data('relatedForm') != undefined){
         $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
-          if(data[$(input).attr('name')] === undefined){
-            data[$(input).attr('name')] = $(input).val();
-          } else {
-            if(!(data[$(input).attr('name')] instanceof Array)){
-              data[$(input).attr('name')] = [data[$(input).attr('name')]];
+          
+          if($(input).attr('name').includes('[]')){
+
+            if($(input).attr('type') != 'checkbox' || input.checked){
+              if(!(data[$(input).attr('name')] instanceof Array)){
+                data[$(input).attr('name')] = [data[$(input).attr('name')]];
+              }
+              data[$(input).attr('name')].push($(input).val());
             }
-            data[$(input).attr('name')].push($(input).val());
+
+          } else {
+
+            if($(input).attr('type') != 'checkbox' || input.checked){
+              if(data[$(input).attr('name')] === undefined){
+                data[$(input).attr('name')] = $(input).val();
+              }
+            }
+
           }
 
         });
@@ -956,6 +979,15 @@ function loadable_mouseenter_func(e){
   }
 }
 
+function disabling_checkbox_click_func(){
+  console.log($(this).data('to-disable'));
+  if(this.checked){
+    $($(this).data('to-disable')).prop('disabled', true);
+  } else {
+    $($(this).data('to-disable')).prop('disabled', false);
+  }
+}
+
 function activateJS() {
     "use strict";
 
@@ -1051,7 +1083,7 @@ function activateJS() {
 
     $('body').on('click', '.ajax-caller', ajax_caller_click_func);
 
-    // $('body').on('mouseenter', '.loadable', loadable_mouseenter_func);
+    $('body').on('click', '.disabling_checkbox', disabling_checkbox_click_func);
 }
 
 var mdc_reports_timeout;
