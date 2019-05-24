@@ -45,17 +45,17 @@ class Worksheet < ApplicationRecord
     WorkshopOperation.where(worksheet: self, myofficina_reference: nil)
   end
 
-  def hours
-    (self.real_duration/3600).round(1)
+  def set_hours
+    self.hours == 0.0 ? (self.real_duration/3600).round(1) : self.hours
   end
 
   def real_hours
     (self.operations.map{ |op| op.real_duration }.inject(0,:+).to_f/3600)
   end
 
-  def set_hours
-    self.update(real_duration: self.operations.map{ |op| op.real_duration }.inject(0,:+))
-  end
+  # def set_hours
+  #   self.update(real_duration: self.operations.map{ |op| op.real_duration }.inject(0,:+))
+  # end
 
   def self.on_processing
     odl = EurowinController::closed_worksheets

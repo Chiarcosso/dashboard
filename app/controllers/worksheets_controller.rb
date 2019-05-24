@@ -233,11 +233,12 @@ class WorksheetsController < ApplicationController
   end
 
   def search_params
+    
     if params[:search].nil?
       @search = {:opened => true, :closed => false, :plate => nil, :number => nil, :date_since => (Date.today - 2.months), :date_to => Date.today, :mechanic => nil, :workshop => nil, :date_select => 'DataIntervento'}
     else
       if params[:search].is_a? String
-        @search = JSON.parse(params.require(:search))
+        @search = JSON.parse(params.require(:search),:symbolize_names => true)
       else
         @search = params.require(:search).permit(:opened,:closed,:plate,:number,:date_since,:date_to,:mechanic,:workshop,:date_select)
       end
@@ -264,6 +265,7 @@ class WorksheetsController < ApplicationController
 
   # internal workshop filter
   def apply_filter
+
     filter = []
 
     if @search[:opened] and @search[:closed]
