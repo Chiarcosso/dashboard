@@ -172,7 +172,7 @@ function activateLoadingScreen() {
       clearTimeout(lds_timeout);
       lds_timeout = window.setTimeout(function(){
         if ($('.loading-screen:visible').length > 0) {
-          alert('Operazione non riuscita. Riprovare');
+          alert("Timeout - L'operazione ha richiesto piu' di 30 secondi e potrebbe essere fallita.");
           deactivateLoadingScreen();
         }
       },60000);
@@ -416,7 +416,7 @@ function ajax_link_click_func(e) {
       // If there's a related form, add its inputs to data
       if($(this).data('relatedForm') != undefined){
         $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
-          
+
           if($(input).attr('name').includes('[]')){
 
             if($(input).attr('type') != 'checkbox' || input.checked){
@@ -911,6 +911,12 @@ function ordering_cell_click_func(){
                   var date2 = b.html().split('/');
                   var dt1 = date1[2]+date1[1]+date1[0];
                   var dt2 = date2[2]+date2[1]+date2[0];
+                  if(dt1 == ''){
+                    dt1 = '1900/01/01';
+                  }
+                  if(dt2 == ''){
+                    dt2 = '1900/01/01';
+                  }
                   if(dt1 == dt2){
                     return 0;
                   } else if(dt1 > dt2){
@@ -980,11 +986,13 @@ function loadable_mouseenter_func(e){
 }
 
 function disabling_checkbox_click_func(){
-  console.log($(this).data('to-disable'));
+
   if(this.checked){
     $($(this).data('to-disable')).prop('disabled', true);
+    $($(this).data('to-enable')).prop('disabled', false);
   } else {
     $($(this).data('to-disable')).prop('disabled', false);
+    $($(this).data('to-enable')).prop('disabled', true);
   }
 }
 

@@ -1,0 +1,23 @@
+- p_check = v.last_check(@all ? nil : @checks.first)
+.row.colored{style: v.dismissed ? 'color: #f00' : ''}
+  .col-sm-1.ordered_cell{data: {ordering_id: 'plate', type: 'string'}}
+    %b= v.plate_number.nil? ? v.plate : v.plate_number
+  .col-sm-2.ordered_cell{data: {ordering_id: 'operator', type: 'string'}}
+    - unless p_check.nil?
+      -if p_check.operator.nil?
+        -# = p_check.user
+      -else
+        = p_check.operator.list_name
+
+  .col-sm-1.ordered_cell{data: {ordering_id: 'date', type: 'date'}}
+    -# = p_check.time.strftime("%d/%m/%Y") unless p_check.nil?
+  .col-sm-1.ordered_cell{data: {ordering_id: 'km', type: 'integer'}, style: 'text-align: right;'}
+    -# = number_with_delimiter(p_check.km, delimiter: ".", separator: ",") unless p_check.nil?
+  .col-sm-1.ordered_cell{data: {ordering_id: 'actual_km', type: 'integer'}, style: 'text-align: right;'}
+    -# = number_with_delimiter(v.mileage, delimiter: ".", separator: ",") unless p_check.nil?
+  .col-sm-1.ordered_cell{data: {ordering_id: 'value', type: 'string'}}
+    -# = "#{p_check.value}#{p_check.vehicle_check.measure_unit}" unless p_check.nil?
+  .col-sm-2.ordered_cell{data: {ordering_id: 'result', type: 'string'}}
+    -# %b= VehiclePerformedCheck.fixvalues.key(p_check.performed) unless p_check.nil?
+  .col-sm-2.ordered_cell{data: {ordering_id: 'notes', type: 'string'}}
+    -# = p_check.notes unless p_check.nil?

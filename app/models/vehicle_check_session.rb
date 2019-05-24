@@ -18,6 +18,50 @@ class VehicleCheckSession < ApplicationRecord
     end
   end
 
+  def self.vehicles(range,dismissed,checks)
+
+    companies = Company.us
+
+    # Select dismised or non-dismissed vehicles
+    case dismissed
+    when :undismissed then
+      dismissed_filter = "vehicles.dismissed = 0 and "
+    when :dismissed then
+      dismissed_filter = "vehicles.dismissed = 1 and "
+    else
+      dismissed_filter = nil
+    end
+
+    # Build check session where clause
+    checks = 4 if checks.nil?
+
+    query = <<-QUERY
+    select vehicles.* from vehicles
+      where
+      vehicles.dismissed = 0
+      and vehicles.id in (
+
+	      select vehicle_id from (
+
+	      	select vehicle_id, max(finished) as finish
+	      	, count(
+	          select vehicle_check_session_id from vehicle_performed_checks where performed != 0 and vehicle_check_session_id = vehicle_check_sessions.id;
+ 	        ) o as pchecks
+	        from vehicle_check_sessions
+	        group by vehicle_check_sessions.vehicle_id
+	        having pchecks >= 4
+	        and finish < '#{range.strftime("%Y%m%d")}'
+
+	      ) checks
+
+      );
+
+
+    QUERY
+
+    Vehicle.find_by_sql(query)
+  end
+
   def close
     self.update(finished: DateTime.now)
   end

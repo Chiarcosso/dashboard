@@ -2,12 +2,20 @@
   = form_tag(last_vehicle_checks_search_path, remote: true, id: 'ordering_form') do |f|
     .row
       .col-sm-6
-        -# = text_field_tag :id, nil, class: 'form-control', placeholder: 'Cerca controllo..'
-        = text_field_tag 'check[label]', nil, placeholder: 'Cerca controllo..', id: 'focus_element', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_checks_autocomplete_path, target: 'VehicleCheck' }
-        -# - @ordering = {'plate': true, 'operator': true, 'date': true, 'value': true, 'result': true, 'notes': true} #if @ordering.nil?
-        = hidden_field_tag :ordering, {'plate': true, 'operator': true, 'date': true, 'value': true, 'result': true, 'notes': true}.to_json
-        -# - @order = 'plate' #if @order.nil?
-        = hidden_field_tag :order, 'plate'
+        .row
+          -# = text_field_tag :id, nil, class: 'form-control', placeholder: 'Cerca controllo..'
+          = text_field_tag 'check[label]', nil, placeholder: 'Cerca controllo..', id: 'focus_element', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_checks_autocomplete_path, target: 'VehicleCheck' }
+          -# - @ordering = {'plate': true, 'operator': true, 'date': true, 'value': true, 'result': true, 'notes': true} #if @ordering.nil?
+          = hidden_field_tag :ordering, {'plate': true, 'operator': true, 'date': true, 'value': true, 'result': true, 'notes': true}.to_json
+          -# - @order = 'plate' #if @order.nil?
+          = hidden_field_tag :order, 'plate'
+        .row
+          .col-sm-1
+            = check_box_tag 'check[all]', true, @all, class: 'disabling_checkbox form-control', data: {to_disable: '#focus_element', to_enable: '#range'}
+          .col-sm-3{style: 'padding-top: 1em;'}
+            Nessun controllo dal
+          .col-sm-4
+            = date_field_tag 'check[range]', (@range.nil? ? Time.now - 3.months : @range).strftime("%Y-%m-%d"), class: 'form-control', id: 'range', disabled: (@all.nil? || !@all)
       .col-sm-4
         .row
           .col-sm-1

@@ -130,7 +130,7 @@ class WorkshopController < ApplicationController
         @checks = Hash.new
         vec.each do |vc|
           @checks[vc.code] = Array.new if @checks[vc.code].nil?
-          @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: vehicle.mandatory?(vc) )
+          @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_id: vehicle.id, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: vehicle.mandatory?(vc) )
         end
       else
         @worksheet = Worksheet.find_by(code: "EWC*#{odl['Protocollo']}")
@@ -183,7 +183,7 @@ class WorkshopController < ApplicationController
         end
       end
       WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil) if @worksheet.check_operations.count < 1
-      
+
       v = @worksheet.vehicle
       vec = v.vehicle_checks('workshop')
       if vec.size < 1
@@ -204,7 +204,7 @@ class WorkshopController < ApplicationController
         @checks = Hash.new
         vec.each do |vc|
           @checks[vc.code] = Array.new if @checks[vc.code].nil?
-          @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: v.mandatory?(vc) )
+          @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_id: v.id, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: v.mandatory?(vc) )
         end
 
       else
@@ -334,7 +334,7 @@ class WorkshopController < ApplicationController
       @checks = Hash.new
       vec.each do |vc|
         @checks[vc.code] = Array.new if @checks[vc.code].nil?
-        @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: vehicle.mandatory?(vc) )
+        @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_id: vehicle.id, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: vehicle.mandatory?(vc) )
       end
 
       respond_to do |format|

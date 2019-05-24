@@ -91,7 +91,7 @@ class MdcReport < ApplicationRecord
     else
       mileage = self.vehicle.mileage.to_s
     end
-    
+
     # Prepare payload and create notification
     payload = {
       'Descrizione': self.description,
@@ -100,6 +100,8 @@ class MdcReport < ApplicationRecord
       'CodiceAutista': driver,
       'CodiceAutomezzo': vehicle_refs.with_indifferent_access['CodiceAutomezzo'],
       'CodiceTarga': vehicle_refs.with_indifferent_access['Targa'],
+      'DataIntervento': self.sent_at.strftime('%Y-%m-%d'),
+      'OraIntervento': self.sent_at.strftime('%H:%M:%S'),
       'TipoDanno': 'SEGNALAZIONE',
       'Chilometraggio': mileage,
       'CodiceOfficina': EurowinController::get_workshop(:workshop),

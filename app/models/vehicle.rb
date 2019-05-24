@@ -410,15 +410,25 @@ class Vehicle < ApplicationRecord
     self.vehicle_informations.select { |i| i == self.last_information(i.vehicle_information_type) }.sort_by{ |i| i.vehicle_information_type.name }
   end
 
-  def last_check(check)
-    query = <<-QUERY
-      select * from vehicle_performed_checks
-      where (vehicle_check_session_id in (select id from vehicle_check_sessions where vehicle_id = #{self.id})
-              or vehicle_id = #{self.id})
-      and time is not null
-      and vehicle_check_id in (select id from vehicle_checks where label = '#{check.label.gsub("'","''")}')
-      order by time desc limit 1
-    QUERY
+  def last_check(check = nil)
+    if check.nil?
+      query = <<-QUERY
+        select * from vehicle_performed_checks
+        where (vehicle_check_session_id in (select id from vehicle_check_sessions where vehicle_id = #{self.id})
+                or vehicle_id = #{self.id})
+        and time is not null
+        order by time desc limit 1
+      QUERY
+    else
+      query = <<-QUERY
+        select * from vehicle_performed_checks
+        where (vehicle_check_session_id in (select id from vehicle_check_sessions where vehicle_id = #{self.id})
+                or vehicle_id = #{self.id})
+        and time is not null
+        and vehicle_check_id in (select id from vehicle_checks where label = '#{check.label.gsub("'","''")}')
+        order by time desc limit 1
+      QUERY
+    end
     pcheck = VehiclePerformedCheck.find_by_sql(query).first
     pcheck
   end

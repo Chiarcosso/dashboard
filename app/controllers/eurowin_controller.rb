@@ -284,6 +284,11 @@ class EurowinController < ApplicationController
     payload['AnnoSGN'] = "0" if payload['AnnoSGN'].nil?
     payload['ProtocolloSGN'] = "0" if payload['ProtocolloSGN'].nil?
     payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
+    if payload['OraIntervento'].nil?
+      time = Time.now.strftime('%H:%M:%S')
+    else
+      time = payload['OraIntervento']
+    end
     payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
     payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
     payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
@@ -313,9 +318,15 @@ class EurowinController < ApplicationController
     response = HTTPI.post(request)
     special_logger.info(response)
     res = JSON.parse(response.raw_body)['ProtocolloSGN']
+    year = JSON.parse(response.raw_body)['AnnoSGN']
+
 
     c = get_ew_client
-    sgn = c.query("select * from autosegnalazioni where protocollo = '#{res}'")
+    qry = "update autosegnalazioni set OraSegnalazione = '#{time}' where protocollo = '#{res}' and anno = #{year}"
+    sgn = c.query(qry)
+
+    qry = "select * from autosegnalazioni where protocollo = '#{res}'"
+    sgn = c.query(qry)
     c.close
 
     return sgn.first unless sgn.count < 1

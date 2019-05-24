@@ -99,7 +99,7 @@
 
         - if calculated_total > 0 && saturday
           - @total_saturdays += 1
-          .time_to_add{style: 'display: none;', data: {sum: 'total_actual_saturdays', time: 1, unpaid: ws.months_unpaid_days }}
+          .time_to_add{style: 'display: none;', data: {sum: 'total_actual_saturdays', time: 1, unpaid: ws.nil? ? 0 : ws.months_unpaid_days }}
           - if ws.nil? || ws.months_unpaid_days < @total_saturdays
             - @total_calculated_saturday_hours += calculated_total
             - @total_actual_saturday_hours += actual_total

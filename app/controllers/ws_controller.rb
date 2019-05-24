@@ -546,11 +546,12 @@ class WsController < ApplicationController
 
   def report_params
     res = params.require(:notification).permit(:description, :vehicle_plate, :type, :driver_name, :hq, :photos => [])
+    person = res[:driver_name].nil? || res[:driver_name] == '' ? current_user.person : Person.find_by_complete_name(res[:driver_name])
     report = {
       description: res[:description],
       vehicle: res[:vehicle_plate].nil? ? nil : Vehicle.find_by_plate(res[:vehicle_plate]),
       report_type: res[:type],
-      person: Person.find_by_complete_name(res[:driver_name]),
+      person: person,
       sent_at: Time.now,
       hq: (res[:hq].nil? ? false : true),
       hr: MdcReport.offices(res[:type]).include?(:hr),

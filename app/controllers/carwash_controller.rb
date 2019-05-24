@@ -55,7 +55,8 @@ class CarwashController < ApplicationController
 
       vec.each do |vc|
         @checks[vc.code] = Array.new if @checks[vc.code].nil?
-        @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: v.mandatory?(vc) )
+        @checks[vc.code] << VehiclePerformedCheck.create(vehicle_check_session: @check_session, vehicle_id: v.id, vehicle_check: vc, value: nil, notes: nil, performed: 0, mandatory: v.mandatory?(vc) )
+
       end
 
 
@@ -233,7 +234,80 @@ class CarwashController < ApplicationController
 
   def get_check
     @dismissed = params.require('vehicles').to_sym
-    @checks = VehicleCheck.where("label = ?",params.require('check').permit(:label)[:label])
+    if params[:check][:all].nil?
+      @all = false
+      @checks = VehicleCheck.where("label = ?",params.require('check').permit(:label)[:label])
+      @vehicles = VehicleCheck.vehicles(@checks,@dismissed).sort_by { |v| v.plate }
+    else
+      @all = true
+      @range = Time.strptime(params[:check][:range],"%Y-%m-%d")
+
+      # @checks = VehicleCheck.all
+      # @vehicles = VehiclePerformedCheck.vehicles(@dismissed,nil,@range).sort_by { |v| v.plate }
+      # @vehicles = VehicleCheck.vehicles(@checks,@dismissed).sort_by { |v| v.plate }
+      # @vehicles = Vehicle.where(dismissed: @dismissed == :dismissed ? true : false).select { |v| v.last_check.nil? || v.last_check.time < @range}.sort_by { |v| v.plate }
+      # plate_type = VehicleInformationType.plate.id
+      # query = <<-QUERY
+      #   select
+      #     vehicles.*,
+      #     (select
+      #       vehicle_informations.information
+      #     from vehicle_informations
+      #       where vehicle_id = vehicles.id and vehicle_information_type_id = #{plate_type}
+      #       order by date
+      #       limit 1
+      #     ) as plate_number
+      #   from vehicles
+      #     where vehicles.dismissed = #{ @dismissed == :dismissed ? 1 : 0}
+      #     and (
+      #       vehicles.id not in
+      #       (
+      #         select vehicle_id from vehicle_performed_checks
+      #         where performed != 0
+      #         and time > '#{@range.strftime("%Y%m%d")}'
+      #       )
+      #       or
+      #       vehicles.id not in
+      #       (
+      #         select vehicle_id from vehicle_performed_checks
+      #         where performed != 0
+      #       )
+      #     )
+      #   order by plate_number
+      # QUERY
+      #
+      # query = <<-QRY
+      #   select distinct vehicle_check_sessions.vehicle_id from vehicle_check_sessions
+    	# 	where finished is not null
+    	# 	and vehicle_check_sessions.id in (
+    	# 		select distinct vehicle_check_session_id from vehicle_performed_checks
+    	# 		where performed != 0 and performed is not null
+    	# 	)
+    	# 	group by vehicle_id
+    	# 	having max(finished) < '#{@range.strftime("%Y%m%d")}'
+      # QRY
+      query = <<-QRY
+      select distinct vehicle_check_sessions.vehicle_id from vehicle_check_sessions
+               where vehicle_id is not null
+               and ((finished is null
+               or finished >= '#{@range.strftime("%Y%m%d")}')
+               and vehicle_check_sessions.id in (
+                       select distinct vehicle_check_session_id from vehicle_performed_checks
+                       where performed != 0 and performed is not null
+               ))
+
+      QRY
+      vcs_v_ids = ActiveRecord::Base.connection.execute(query)
+      info_type = VehicleInformationType.plate.id
+      plate = <<-QRY
+        (select information from vehicle_informations
+    		where vehicle_information_type_id = 1
+        and vehicle_id = vehicles.id
+        order by date desc limit 1)
+      QRY
+      @vehicles = Vehicle.find_by_sql("select vehicles.*, #{plate} as plate_number from vehicles where dismissed = #{@dismissed == :dismissed ? 1 : 0} and vehicles.id not in (#{vcs_v_ids.to_a.flatten.join(',')})").to_a
+
+    end
   end
 
   def get_order
