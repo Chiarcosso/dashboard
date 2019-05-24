@@ -7,6 +7,7 @@ class MdcReport < ApplicationRecord
 
   def self.report_types
     return {
+      'Anomalia sede': 'anomalia_sede',
       'Attrezzatura': 'attrezzatura',
       'Contravvenzione': 'contravvenzione',
       'Dispositivo Protezione Individuale': 'dpi',
@@ -33,6 +34,8 @@ class MdcReport < ApplicationRecord
     when 'guasto' then
       return [:maintenance]
     when 'danno' then
+      return [:maintenance]
+    when 'anomalia_sede' then
       return [:maintenance]
     when 'furto' then
       return [:hr,:maintenance,:logistics]

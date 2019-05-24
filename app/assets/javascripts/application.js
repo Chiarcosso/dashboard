@@ -316,9 +316,9 @@ function popup_link_func(e) {
 
     // If there's a related form, add its inputs to data
     if($(this).data('relatedForm') != undefined){
+
       $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
-        console.log($(input).attr('type'));
-        console.log(input.checked);
+
         if($(input).attr('name').includes('[]')){
 
           if($(input).attr('type') != 'checkbox' || input.checked){
@@ -516,8 +516,7 @@ function popup_link_click_func() {
     }
     popup_link_name = $(this).data('name');
 
-      console.log($(this));
-      alert();
+
     // If there's a related form, add its inputs to data
     if($(this).data('relatedForm') != undefined){
       $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
@@ -894,7 +893,7 @@ function ordering_cell_click_func(){
         if (numb == ''){
           numb = 0;
         }
-        console.log('nums2',numa,numb);
+
         return (parseInt(numa) - parseInt(numb) * mul);
       break;
       case 'number': return (Float.parse(a.html()) - Float.parse(b.html()) * mul);
@@ -927,7 +926,7 @@ function ordering_cell_click_func(){
       break;
     }
   });
-  console.log(list);
+
   $('#ordering_box').html('');
   $.each(list,function(){
     // var parent = $(this).parent();
@@ -961,7 +960,17 @@ function load_popup_click_func(e){
 
 function ajax_submit_click_func(e){
   "use strict";
-  $(this).parents('form').first().submit();
+  var form = $(this).parents('form').first();
+  var  data = [];
+  // If there's a related form, add its inputs to form data
+  if($(this).data('relatedForm') != undefined){
+
+    $.each($('form#'+$(this).data('relatedForm')+' :input'),function(index,input){
+      $(input).appendTo(form);
+    });
+  }
+  
+  form.submit();
 }
 
 function ajax_caller_click_func(e){
@@ -1207,7 +1216,7 @@ function activateCustomAutocomplete(func) {
                         focusElement = $('.dropdown_original').first();
                         $(focusElement).focus();
                         $(focusElement).val($(focusElement).val());
-                        console.log($(focusElement));
+
                       }
                      break;
             case 13: $(focusElement).trigger('click');
@@ -1415,7 +1424,7 @@ function activateGallery(fullscreen) {
 
 function reloadSelectBoxes() {
   $('select').each(function(select){
-    console.log($('select').html());
+
   });
 };
 
@@ -1465,7 +1474,7 @@ function activateDelete() {
         url: target,
         method: 'delete',
         complete: function(data){
-          console.log(data);
+
         }
       });
       $("div[data-target='/output_order/exit/"+id+"']").remove();
@@ -1701,7 +1710,7 @@ function domInit() {
         url: target,
         data: data,
         complete: function(data){
-          console.log(data);
+          // console.log(data);
 
         }
       });
@@ -1722,7 +1731,7 @@ function domInit() {
           url: route,
           data: data,
           complete: function(data){
-            console.log(data);
+            // console.log(data);
           }
         });
     }

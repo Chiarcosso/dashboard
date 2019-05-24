@@ -66,9 +66,13 @@
               %label= "Sosta"
               = check_box_tag 'reports[types][]', 'sosta_prolungata', @types['sosta_prolungata']
       - when :maintenance then
-        .col-sm-3{style: 'margin-right: 0px; white-space: nowrap;'}
+        .col-sm-2{style: 'margin-right: 0px; white-space: nowrap;'}
           %h3= "Segnalazioni (Manutenzioni): #{@results.count}"
-        .col-sm-7{style: 'margin-left: 0px; white-space: nowrap; top: 2.5rem; float: right;'}
+        .col-sm-8{style: 'margin-left: 0px; white-space: nowrap; top: 2.5rem; float: right;'}
+          .col-sm-1
+            .field.centered
+              %label= "Sede"
+              = check_box_tag 'reports[types][]', 'anomalia_sede', @types['anomalia_sede']
           .col-sm-3
             .field.centered
               %label= "Contravvenzione"
@@ -85,7 +89,7 @@
             .field.centered
               %label= "Incidente"
               = check_box_tag 'reports[types][]', 'incidente', @types['incidente']
-          .col-sm-2
+          .col-sm-1
             .field.centered
               %label= "Furto"
               = check_box_tag 'reports[types][]', 'furto', @types['furto']
@@ -112,7 +116,12 @@
         .col-sm-2
           = r.reporter_label
         .col-sm-2
-          = r.report_type.tr('_',' ').capitalize
+          = form_tag(mdc_edit_report_path, remote: true, method: :post, multipart: true) do |f|
+            = hidden_field_tag 'id', r.id
+            = hidden_field_tag 'office', @office
+            = select_tag 'type',options_for_select(MdcReport.report_types,r.report_type), class: 'form-control', id: 'notification_type'
+            = submit_tag 'Cambia', class: 'ajax-submit', data: { related_form: 'reports_filter_form'}
+          -# =button_tag 'Cambia categoria', class: 'popup-link form-control', data: { id: r.id, office: @office, title: 'Cambia categoria', name: 'mdc_change_report_type', target: mdc_change_report_type_path(r.id), related_form: 'reports_filter_form' }
         .col-sm-1
           - if r.hq
             Sede
@@ -145,6 +154,7 @@
     =button_tag 'Nuova segnalazione', class: 'popup-link form-control', data: { office: @office, title: 'Nuova segnalazione', name: 'mdc_new_report', target: mdc_new_report_path, related_form: 'reports_filter_form' }
 
 :javascript
+
   activateGallery(true);
 
   if($('#notification_text').html() != undefined){

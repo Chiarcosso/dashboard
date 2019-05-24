@@ -12,11 +12,11 @@
   = hidden_field_tag :office, params.require(:office)
   .row{style: 'margin-top: 2rem;'}
     .col-sm-6
-      = select_tag 'notification[type]',options_for_select(MdcReport.report_types), class: 'form-control'
+      = select_tag 'notification[type]',options_for_select(MdcReport.report_types), class: 'form-control', id: 'notification_type'
     .col-sm-6
       .row
         .col-sm-1
-          = check_box_tag 'notification[hq]', true, false, class: 'disabling_checkbox', data: {to_disable: '#vehicle_plate'}
+          = check_box_tag 'notification[hq]', true, false, class: 'disabling_checkbox', data: {to_disable: '#vehicle_plate, #notification_type'}
         .col-sm-9
           Sede
       .row

@@ -94,7 +94,28 @@ class WsController < ApplicationController
     @results = get_filter
     respond_to do |format|
       format.html {render 'mdc/report_index'}
-      format.js {render partial: 'mdc/report_index_js'}
+      format.js {render partial: 'mdc/create_report_js'}
+    end
+  end
+
+  # prepare change report type form
+  # def change_report_type
+  #   @report = MdcReport.find(params.require(:id))
+  #   respond_to do |format|
+  #     format.html {render partial: 'mdc/change_report_type'}
+  #     format.js {render partial: 'mdc/change_report_type'}
+  #   end
+  # end
+
+  # Change mdc report type
+  def edit_report
+
+    MdcReport.find(params.require(:id)).update(report_type: params.require(:type))
+
+    @results = get_filter
+    respond_to do |format|
+      format.html {render 'mdc/report_index'}
+      format.js {render partial: 'mdc/create_report_js'}
     end
   end
 
@@ -458,6 +479,7 @@ class WsController < ApplicationController
 
     # Set correct types
     @types = {
+      'anomalia_sede': false,
       'attrezzatura': false,
       'contravvenzione': false,
       'dpi': false,
@@ -515,7 +537,7 @@ class WsController < ApplicationController
 
     case office
     when 'maintenance' then
-      p = {types: ['attrezzatura','contravvenzione','furto','guasto','incidente']}
+      p = {types: ['anomalia_sede','attrezzatura','contravvenzione','furto','guasto','incidente']}
     when 'logistics' then
       p = {types: ['attrezzatura','contravvenzione','dpi','furto','sosta_prolungata','incidente','infortunio']}
     when 'hr' then
@@ -547,13 +569,15 @@ class WsController < ApplicationController
   def report_params
     res = params.require(:notification).permit(:description, :vehicle_plate, :type, :driver_name, :hq, :photos => [])
     person = res[:driver_name].nil? || res[:driver_name] == '' ? current_user.person : Person.find_by_complete_name(res[:driver_name])
+    res[:type] = 'anomalia_sede' if res[:type].nil?
+
     report = {
       description: res[:description],
       vehicle: res[:vehicle_plate].nil? ? nil : Vehicle.find_by_plate(res[:vehicle_plate]),
       report_type: res[:type],
       person: person,
       sent_at: Time.now,
-      hq: (res[:hq].nil? ? false : true),
+      hq: ((res[:hq].nil? && res[:type] != 'anomalia_sede') ? false : true),
       hr: MdcReport.offices(res[:type]).include?(:hr),
       maintenance: MdcReport.offices(res[:type]).include?(:maintenance),
       logistics: MdcReport.offices(res[:type]).include?(:logistics),
