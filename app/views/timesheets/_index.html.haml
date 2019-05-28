@@ -43,7 +43,7 @@
                 = form_tag(timesheet_update_path, remote: true, method: :post) do |f|
                   .row
                     .col-sm-5
-                      %b= "ODL nr. #{t.workshop_operation.worksheet.number} - #{t.workshop_operation.worksheet.vehicle.plate}"
+                      %b= "ODL nr. #{t.workshop_operation.worksheet.number} - #{t.workshop_operation.worksheet.vehicle.plate}" unless t.workshop_operation.nil? || t.workshop_operation.worksheet.nil?
                       %br
                       = "#{t.description}"
                       - if t.minutes.nil?
