@@ -1010,13 +1010,15 @@ function checkvalue_change_func(){
   var reference = $(this).data('reference');
   var value = parseFloat($(this).val().replace(',','.'));
   var label = $(this).data('label');
+  var max = $(this).data('max');
+  var min = $(this).data('min');
   if(value === NaN){
     alert("Valore non valido: "+$(this).val())
   } else {
     // var diff = (Math.abs(reference - value) / ((reference + value)/2)) * 100;
     if(reference != 0){
       var diff = (value / reference) * 100;
-      if(Math.abs(diff) > 110 || Math.abs(diff) < 90){
+      if(Math.abs(diff) > max || Math.abs(diff) < min){
         alert(label+" e' il "+Math.round(diff)+"% dell'ultimo");
       }
     }

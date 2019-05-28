@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190514084304) do
+ActiveRecord::Schema.define(version: 20190528134307) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -299,6 +299,14 @@ ActiveRecord::Schema.define(version: 20190514084304) do
     t.string   "assigned_to_class"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+  end
+
+  create_table "general_parameters", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "parameter",             null: false
+    t.float    "value",      limit: 24, null: false
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.index ["parameter"], name: "index_general_parameters_on_parameter", unique: true, using: :btree
   end
 
   create_table "geo_cities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

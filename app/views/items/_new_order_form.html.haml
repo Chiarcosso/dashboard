@@ -61,6 +61,10 @@
         %b='Colli'
   .scrollable-panel{id: 'items-container'}
     - unless @items.empty?
+      - max_price = GeneralParameter.find_by_parameter('magazzino_limite_superiore_percentuale_prezzo').value
+      - min_price = GeneralParameter.find_by_parameter('magazzino_limite_inferiore_percentuale_prezzo').value
+      - max_discount = GeneralParameter.find_by_parameter('magazzino_limite_superiore_percentuale_sconto').value
+      - min_discount = GeneralParameter.find_by_parameter('magazzino_limite_inferiore_percentuale_sconto').value
       - @items.each_with_index do |i,k|
         .row
           .item_box{'id': 'box-'+k.to_s}
@@ -72,9 +76,9 @@
                   = select_tag "items[#{k}][article]", options_from_collection_for_select(Article.where("barcode = '#{i.article.barcode}'"), :id, :complete_name, :selected => i.article.id), class: 'form-control input-row'
               .col-sm-2
                 .col-sm-6
-                  = text_field_tag "items[#{k}][price]", i.price, placeholder: 'Prezzo', class: 'form-control input-row checkvalue', data: {reference: i.price, label: "Il nuovo prezzo"}
+                  = text_field_tag "items[#{k}][price]", i.price, placeholder: 'Prezzo', class: 'form-control input-row checkvalue', data: {reference: i.price, label: "Il nuovo prezzo", max: max_price, min: min_price}
                 .col-sm-6
-                  = text_field_tag "items[#{k}][discount]", i.discount, placeholder: 'Sconto %', class: 'form-control input-row checkvalue', data: {reference: i.discount, label: "Il nuovo sconto"}
+                  = text_field_tag "items[#{k}][discount]", i.discount, placeholder: 'Sconto %', class: 'form-control input-row checkvalue', data: {reference: i.discount, label: "Il nuovo sconto", max: max_discount, min: min_discount}
               .col-sm-2
                 = text_field_tag "items[#{k}][serial]", i.serial, placeholder: 'N. seriale / Matricola', class: 'form-control input-row'
               .col-sm-1
