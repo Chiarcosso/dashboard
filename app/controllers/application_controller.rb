@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   before_action :authenticate_user!
+  before_action :user_active?
   before_action :configure_permitted_parameters, if: :devise_controller?
   helper_method :resource_name, :resource, :devise_mapping
 
@@ -20,6 +21,11 @@ class ApplicationController < ActionController::Base
   # end
 
   protected
+  def user_active?
+    unless current_user.nil? || current_user.active
+      reset_session
+    end
+  end
 
   def configure_permitted_parameters
     # byebug

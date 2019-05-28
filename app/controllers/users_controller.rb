@@ -42,7 +42,8 @@ class UsersController < ApplicationController
   end
 
   def delete
-    @user.destroy
+    # @user.destroy
+    @user.update(active: !@user.active)
     redirect_to users_admin_path
   end
 
