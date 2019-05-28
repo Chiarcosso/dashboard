@@ -43,4 +43,5 @@
   -#   = f.text_field :transportDocument
 
   .actions.bottom-box
-    = f.submit 'Save'
+    -# = f.submit 'Save'
+    = submit_tag 'Salva', class: 'ajax-submit', data: { related_form: 'items_filter_form'}

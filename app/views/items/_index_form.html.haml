@@ -9,7 +9,7 @@
     -# = "Valore totale: #{"%.2f" % Item.total_value.to_s}€ (#{"%.2f" % Item.total_value_no_tyres.to_s}€, gomme a parte)"
     %br
     %br
-    = form_tag(items_path, method: :get, remote: true, type: :script) do |f|
+    = form_tag(items_path, method: :get, remote: true, type: :script, id: 'items_filter_form') do |f|
       = hidden_field_tag :all, @all
       = text_field_tag :search, @search, placeholder: 'Cerca..', class: 'form-control autosearch', 'data-target': items_path, id: 'search'
   .container-fluid
@@ -18,18 +18,23 @@
         Elimina
       .col-sm-2
         Articolo
-      .col-sm-1
-        Codice
+      -# .col-sm-1
+      -#   Codice
+      .col-sm-3
+        .col-sm-6
+          Prezzo
+        .col-sm-6
+          Sconto
       .col-sm-2
         Seriale
       .col-sm-1
         Stato
-      .col-sm-1
-        Scadenza
+      -# .col-sm-1
+      -#   Scadenza
       .col-sm-2
         Posizione
-      .col-sm-1
-        Stampa
+      -# .col-sm-1
+      -#   Stampa
 
   .container-fluid.scrollable-panel
     - @selected_items.each do |item|
@@ -38,18 +43,29 @@
           = button_to "x", "/items/#{item.id}/#{ Base64.encode64(@search)}", data: {:confirm => "Eliminare il pezzo nr. #{item.id}, #{item.complete_name}?"}, :method => :delete, :remote => true, class: 'on-top getsearch'
         .col-sm-2
           = item.id.to_s+' - '+item.article.complete_name.to_s
-        .col-sm-1
-          = item.actualBarcode
+        -# .col-sm-1
+        -#   = item.actualBarcode
+        .col-sm-3
+          -# = form_tag(item_update_path, method: :post, remote: true, type: :script) do |f|
+          -#   = hidden_field_tag :id, item.id
+          .col-sm-6
+            = "#{item.price} €"
+            -# = number_field_tag 'item[price]', item.price, class: 'form-control', step: :any
+            -# = submit_tag 'Cambia', class: 'ajax-submit', data: { related_form: 'items_filter_form'}
+          .col-sm-6
+            = "#{item.discount}%"
+            -# = number_field_tag 'item[discount]', item.discount, class: 'form-control', step: :any
+            -# = submit_tag 'Cambia', class: 'ajax-submit', data: { related_form: 'items_filter_form'}
         .col-sm-2
           = item.serial
         .col-sm-1
           = "#{item.state} (#{item.remaining_quantity} #{item.article.measure_unit} rim.)"
-        .col-sm-1
-          = item.expiringDate.nil?? '' : (l item.expiringDate)
+        -# .col-sm-1
+        -#   = item.expiringDate.nil?? '' : (l item.expiringDate)
         .col-sm-2
           = item.actual_position
-        .col-sm-1
-          = button_to "Stampa", "/items/print/#{item.id}", :method => :post, :remote => true, class: 'on-top no-loader'
+        -# .col-sm-1
+        -#   = button_to "Stampa", "/items/print/#{item.id}", :method => :post, :remote => true, class: 'on-top no-loader'
   -# .container-fluid.scrollable-panel
   -#   - @selected_items.all.each do |item|
   -#     .row

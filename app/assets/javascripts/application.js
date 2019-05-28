@@ -969,7 +969,7 @@ function ajax_submit_click_func(e){
       $(input).appendTo(form);
     });
   }
-  
+
   form.submit();
 }
 
@@ -1003,6 +1003,26 @@ function disabling_checkbox_click_func(){
     $($(this).data('to-disable')).prop('disabled', false);
     $($(this).data('to-enable')).prop('disabled', true);
   }
+}
+
+function checkvalue_change_func(){
+
+  var reference = $(this).data('reference');
+  var value = parseFloat($(this).val().replace(',','.'));
+  var label = $(this).data('label');
+  if(value === NaN){
+    alert("Valore non valido: "+$(this).val())
+  } else {
+    // var diff = (Math.abs(reference - value) / ((reference + value)/2)) * 100;
+    if(reference != 0){
+      var diff = (value / reference) * 100;
+      if(Math.abs(diff) > 110 || Math.abs(diff) < 90){
+        alert(label+" e' il "+Math.round(diff)+"% dell'ultimo");
+      }
+    }
+
+  }
+
 }
 
 function activateJS() {
@@ -1101,6 +1121,8 @@ function activateJS() {
     $('body').on('click', '.ajax-caller', ajax_caller_click_func);
 
     $('body').on('click', '.disabling_checkbox', disabling_checkbox_click_func);
+
+    $('body').on('change', '.checkvalue', checkvalue_change_func);
 }
 
 var mdc_reports_timeout;

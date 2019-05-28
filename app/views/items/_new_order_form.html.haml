@@ -56,7 +56,7 @@
       %b='Scadenza'
     .col-sm-2
       .col-sm-6
-        %b='Pz. cont.'
+        %b='Qt. cont.'
       .col-sm-6
         %b='Colli'
   .scrollable-panel{id: 'items-container'}
@@ -72,9 +72,9 @@
                   = select_tag "items[#{k}][article]", options_from_collection_for_select(Article.where("barcode = '#{i.article.barcode}'"), :id, :complete_name, :selected => i.article.id), class: 'form-control input-row'
               .col-sm-2
                 .col-sm-6
-                  = text_field_tag "items[#{k}][price]", i.price, placeholder: 'Prezzo', class: 'form-control input-row'
+                  = text_field_tag "items[#{k}][price]", i.price, placeholder: 'Prezzo', class: 'form-control input-row checkvalue', data: {reference: i.price, label: "Il nuovo prezzo"}
                 .col-sm-6
-                  = text_field_tag "items[#{k}][discount]", i.discount, placeholder: 'Sconto %', class: 'form-control input-row'
+                  = text_field_tag "items[#{k}][discount]", i.discount, placeholder: 'Sconto %', class: 'form-control input-row checkvalue', data: {reference: i.discount, label: "Il nuovo sconto"}
               .col-sm-2
                 = text_field_tag "items[#{k}][serial]", i.serial, placeholder: 'N. seriale / Matricola', class: 'form-control input-row'
               .col-sm-1

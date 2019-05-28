@@ -184,8 +184,12 @@ class Article < ApplicationRecord
     self.minimalReserve.to_f > self.availability(checked).size
   end
 
+  def lastItem
+    Item.newestItem(self).first
+  end
+
   def lastPrice
-    i = Item.newestItem(self).first
+    i = self.lastItem
     unless i.nil?
       i.complete_price
     end

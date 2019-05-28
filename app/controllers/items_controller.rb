@@ -1,11 +1,11 @@
 class ItemsController < ApplicationController
-  before_action :set_item, only: [:show, :edit, :update, :destroy, :print]
+  before_action :set_item, only: [:show, :edit, :update, :destroy, :print, :change]
   before_action :set_article_for_order, only: [:add_item_to_storage]
   before_action :set_items_for_order, only: [:add_item_to_storage]
   before_action :set_vehicle_for_order, only: [:add_item_to_storage]
   before_action :get_reposition_items, only: [:reposition]
   before_action :get_pricing_items, only: [:pricing]
-  before_action :search_params, only: [:index,:edit,:update]
+  before_action :search_params, only: [:index,:edit,:update,:change]
   before_action :destroy_search_params, only: [:destroy]
 
   autocomplete :article, :manufacturerCode, full: true, :id_element => '#article_id'
@@ -42,6 +42,10 @@ class ItemsController < ApplicationController
   # GET /items/1
   # GET /items/1.json
   def show
+  end
+
+  def change
+    @item.update(change_params)
   end
 
   def print
@@ -154,8 +158,11 @@ class ItemsController < ApplicationController
     # unless @article.nil? || @save ||
 
     if @addItem
+      li = @article.lastItem
       item = Item.new
       item.article = @article
+      item.price = li.nil? ? nil : li.price
+      item.discount = li.nil? ? nil : li.discount
       item.setAmount 1
       item.barcode = nil #item.generateBarcode #SecureRandom.base58(10)
       item.position_code = PositionCode.findByCode('P0 #0 0-@')
@@ -255,10 +262,14 @@ class ItemsController < ApplicationController
   # PATCH/PUT /items/1.json
   def update
     # @selected_items = Item.filter(@search).distinct.limited
-    unless @all
-      @selected_items = Item.unassigned.filter(@search).distinct
+    if @search.nil? or @search == ''
+      @selected_items = Array.new
     else
-      @selected_items = Item.filter(@search).distinct.limited
+      unless @all
+        @selected_items = Item.available_items.filter(@search).distinct
+      else
+        @selected_items = Item.filter(@search).distinct
+      end
     end
     # render :partial => 'items/index'
     respond_to do |format|
@@ -296,6 +307,10 @@ class ItemsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_item
       @item = Item.find(params[:id])
+    end
+
+    def change_params
+      params.require(:item).permit(:id, :price, :discount)
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
