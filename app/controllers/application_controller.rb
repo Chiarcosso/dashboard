@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :user_active?
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :get_scroll
   helper_method :resource_name, :resource, :devise_mapping
 
   # # GET /autocomplete/:model/:search.json
@@ -32,4 +33,10 @@ class ApplicationController < ActionController::Base
     # devise_parameter_sanitizer.for(:account_update) << :person
   end
 
+  def get_scroll
+    unless params[:relatedScrollElement].nil?
+      @scrollElement = params.require('relatedScrollElement').to_s
+      @scroll = params.require('scroll').to_i
+    end
+  end
 end

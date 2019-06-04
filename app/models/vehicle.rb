@@ -544,6 +544,10 @@ class Vehicle < ApplicationRecord
     end
   end
 
+  def split_plate
+    self.plate.match(/([A-Za-z]{2})([0-9]{3,5})([A-Za-z]{2})?/).to_a[1..3].join(' ').strip
+  end
+
   def last_information(information_type)
     if information_type.class != VehicleInformationType
       information_type = VehicleInformationType.find_by_name(information_type)

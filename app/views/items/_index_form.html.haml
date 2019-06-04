@@ -43,6 +43,8 @@
           = button_to "x", "/items/#{item.id}/#{ Base64.encode64(@search)}", data: {:confirm => "Eliminare il pezzo nr. #{item.id}, #{item.complete_name}?"}, :method => :delete, :remote => true, class: 'on-top getsearch'
         .col-sm-2
           = item.id.to_s+' - '+item.article.complete_name.to_s
+          %br
+          = button_to "Stampa codice", "/items/print/#{item.id}", :method => :post, :remote => true, class: 'on-top no-loader'
         -# .col-sm-1
         -#   = item.actualBarcode
         .col-sm-3

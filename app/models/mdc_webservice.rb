@@ -122,7 +122,7 @@ class MdcWebservice
     unless dch[:data].nil?
       dch[:data].each_with_index do |ch,i|
         data[i] = ReportRequest.new(self.select_data_collection_rows(ch)[:data],self)
-        
+
         # data[i][:data].each do |d|
         #   self.update_data_collection_rows_status(d.dataCollectionRowKey)
         # end
@@ -927,9 +927,44 @@ class ReportRequest
       }
 
       report = MdcReport.create(data)
-      self.images.each do |i|
-        MdcReportImage.create(mdc_report: report, url: i)
+
+      # Write photos
+      unless pars[:photos].nil?
+
+        if report.vehicle.nil?
+          path = "Sede"
+        else
+          vehicle = rep.vehicle
+          path = "Mezzi/#{vehicle.mssql_references.count > 0 ? vehicle.mssql_references.first.remote_object_id : '0000'} - #{vehicle.split_plate}"
+        end
+        cpath = "#{ENV['RAILS_REPORT_PHOTOS_PATH']}/#{path}/#{rep.sent_at.strftime("%Y%m%d")}"
+        rpath = "FotoSegnalazioni\\#{path.gsub('/',"\\")}\\#{rep.sent_at.strftime("%Y%m%d")}"
+        url = "#{ENV['RAILS_IIS_URL']}/FotoSegnalazioni/#{path}/#{rep.sent_at.strftime("%Y%m%d")}"
+        `mkdir -p #{cpath.gsub(' ','\ ')}/`
+
+        pars[:photos].each do |photo|
+
+          # Check whether filename already exists
+          serial = 1
+          ext = File.extname(url)
+          while File.file? "#{cpath}/foto_#{serial.to_s.rjust(2,"0")}#{ext}" do
+            serial += 1
+          end
+           filename = "foto_#{serial.to_s.rjust(2,"0")}#{ext}"
+
+          # Download and write file
+          data = open(url).read
+          fh = File.open("#{cpath}/#{filename}",'wb')
+          fh.write(data)
+          fh.close
+
+          # url = ''
+          MdcReportImage.create(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}")
+
+        end
+        report.update(description: "#{rep.description}\n#{rpath}")
       end
+
       @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
     rescue Exception => e
       # byebug

@@ -40,10 +40,18 @@
               - total = 0
               - ts.each do |t|
                 - total += t.minutes.to_i
-                = form_tag(timesheet_update_path, remote: true, method: :post) do |f|
-                  .row
+
+                .row
+                  - unless t.workshop_operation.nil? || t.workshop_operation.worksheet.nil?
+                    - ws = t.workshop_operation.worksheet
+                    %b
+                      -# = button_tag "ODL nr. #{ws.number} - #{ws.vehicle.plate}", class: 'no-loader ajax-link', data: { target: worksheet_get_pdf_path(ws.id,format: :pdf), method: :post}
+                      = button_to "ODL nr. #{ws.number} - #{ws.vehicle.plate}", worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+                  -# %b= "ODL nr. #{t.workshop_operation.worksheet.number} - #{t.workshop_operation.worksheet.vehicle.plate}" unless t.workshop_operation.nil? || t.workshop_operation.worksheet.nil?
+                  = form_tag(timesheet_update_path, remote: true, method: :post) do |f|
                     .col-sm-5
-                      %b= "ODL nr. #{t.workshop_operation.worksheet.number} - #{t.workshop_operation.worksheet.vehicle.plate}" unless t.workshop_operation.nil? || t.workshop_operation.worksheet.nil?
+
+
                       %br
                       = "#{t.description}"
                       - if t.minutes.nil?

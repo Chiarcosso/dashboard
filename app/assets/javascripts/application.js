@@ -341,6 +341,12 @@ function popup_link_func(e) {
       });
     }
 
+    // If there's a related container whose scroll needs to be kept add line to data
+    if($(this).data('relatedScrollElement') != undefined){
+      data['scrollElement'] = $(this).data('relatedScrollElement');
+      data['scroll'] = $(this).data('relatedScrollElement').scrollTop();
+    }
+
     $.ajax({
         type: method,
         url: action,
@@ -446,6 +452,12 @@ function ajax_link_click_func(e) {
           complete = null;
       }
 
+      // If there's a related container whose scroll needs to be kept add line to data
+      if($(this).data('relatedScrollElement') != undefined){
+        data['scrollElement'] = $(this).data('relatedScrollElement');
+        data['scroll'] = $(this).data('relatedScrollElement').scrollTop();
+      }
+
       // Send request
       $.ajax({
           type: method,
@@ -530,6 +542,12 @@ function popup_link_click_func() {
         }
 
       });
+    }
+
+    // If there's a related container whose scroll needs to be kept add line to data
+    if($(this).data('relatedScrollElement') != undefined){
+      data['scrollElement'] = $(this).data('relatedScrollElement');
+      data['scroll'] = $(this).data('relatedScrollElement').scrollTop();
     }
 
     $.ajax({
@@ -969,6 +987,11 @@ function ajax_submit_click_func(e){
       $(input).appendTo(form);
     });
   }
+  // If there's a related container whose scroll needs to be kept add line to data
+  if($(this).data('relatedScrollElement') != undefined){
+    $('<input type="hidden" name="relatedScrollElement" value="'+$(this).data('relatedScrollElement')+'">').appendTo(form);
+    $('<input type="hidden" name="scroll" value="'+$(this).data('relatedScrollElement').scrollTop()+'">').appendTo(form);
+  }
 
   form.submit();
 }
@@ -1025,6 +1048,11 @@ function checkvalue_change_func(){
 
   }
 
+}
+
+function form_submit_scroll_func(){
+  $('<input type="hidden" name="relatedScrollElement" value="'+$(this).data('relatedscrollelement')+'">').appendTo($(this).parents('form').first());
+  $('<input type="hidden" name="scroll" value="'+$($(this).data('relatedscrollelement')).scrollTop()+'">').appendTo($(this).parents('form').first());
 }
 
 function activateJS() {
@@ -1125,6 +1153,8 @@ function activateJS() {
     $('body').on('click', '.disabling_checkbox', disabling_checkbox_click_func);
 
     $('body').on('change', '.checkvalue', checkvalue_change_func);
+
+    $('body').on('click','input[type=submit]', form_submit_scroll_func);
 }
 
 var mdc_reports_timeout;

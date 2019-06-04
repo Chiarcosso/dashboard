@@ -1,3 +1,5 @@
+= hidden_field_tag 'relatedScrollElement', @scrollElement
+= hidden_field_tag 'scroll', @scroll
 
 - case @office
   - when 'hr' then
@@ -120,27 +122,27 @@
             = hidden_field_tag 'id', r.id
             = hidden_field_tag 'office', @office
             = select_tag 'type',options_for_select(MdcReport.report_types,r.report_type), class: 'form-control', id: 'notification_type'
-            = submit_tag 'Cambia', class: 'ajax-submit', data: { related_form: 'reports_filter_form'}
-          -# =button_tag 'Cambia categoria', class: 'popup-link form-control', data: { id: r.id, office: @office, title: 'Cambia categoria', name: 'mdc_change_report_type', target: mdc_change_report_type_path(r.id), related_form: 'reports_filter_form' }
+            = submit_tag 'Cambia', class: 'ajax-submit', data: { related_form: 'reports_filter_form', relatedScrollElement: '.scrollable-panel'}
+          -# =button_tag 'Cambia categoria', class: 'popup-link form-control', data: { id: r.id, office: @office, title: 'Cambia categoria', name: 'mdc_change_report_type', target: mdc_change_report_type_path(r.id), related_form: 'reports_filter_form', relatedScrollElement: '.scrollable-panel' }
         .col-sm-1
           - if r.hq
             Sede
           - else
             = r.vehicle.plate unless r.vehicle.nil?
         .col-sm-4
-          = r.description
+          = r.description.gsub("\n","<br/>").html_safe
         .col-sm-1
           = "#{r.sent_at.strftime("%d/%m/%Y %H:%M:%S")}"
         .col-sm-2
           - unless @office != 'maintenance' || (r.vehicle.nil? && r.hq == false)
             - if r.myofficina_reference.nil?
-              = button_tag 'Crea segnalazione', class: 'form-control ajax-link', data: { target: mdc_create_notification_path, method: 'post', data: {id: r.id}, related_form: 'reports_filter_form'}
+              = button_tag 'Crea segnalazione', class: 'form-control ajax-link', data: { target: mdc_create_notification_path, method: 'post', data: {id: r.id}, related_form: 'reports_filter_form', relatedScrollElement: '.scrollable-panel'}
             - else
               = "Segnalazione: #{r.myofficina_reference}"
           .col-sm-9
             Gestita:
           .col-sm-3
-            = check_box_tag :manage, r.id, r.managed?, class: 'form-control ajax-link', data: { target: mdc_manage_report_path, method: 'post', data: {id: r.id}, related_form: 'reports_filter_form'}
+            = check_box_tag :manage, r.id, r.managed?, class: 'form-control ajax-link', data: { target: mdc_manage_report_path, method: 'post', data: {id: r.id}, related_form: 'reports_filter_form', relatedScrollElement: '.scrollable-panel'}
       .row
         .col-sm-12
           - r.images.each do |p|
@@ -151,11 +153,13 @@
 .row
   .col-sm-12
     %br
-    =button_tag 'Nuova segnalazione', class: 'popup-link form-control', data: { office: @office, title: 'Nuova segnalazione', name: 'mdc_new_report', target: mdc_new_report_path, related_form: 'reports_filter_form' }
+    =button_tag 'Nuova segnalazione', class: 'popup-link form-control', data: { office: @office, title: 'Nuova segnalazione', name: 'mdc_new_report', target: mdc_new_report_path, related_form: 'reports_filter_form', relatedScrollElement: '.scrollable-panel' }
 
 :javascript
 
   activateGallery(true);
+
+  $($('input[name=relatedScrollElement]').val()).scrollTop($('input[name=scroll]').val());
 
   if($('#notification_text').html() != undefined){
     createNotification($('#notification_text').html());
@@ -163,7 +167,10 @@
 
   clearTimeout(mdc_reports_timeout);
   mdc_reports_timeout = setTimeout(function(){
-    $('#reports_filter_form').submit();
+    var form = $('#reports_filter_form');
+    $('<input type="hidden" name="relatedScrollElement" value=".scrollable-panel">').appendTo(form);
+    $('<input type="hidden" name="scroll" value="'+$('.scrollable-panel').scrollTop()+'">').appendTo(form);
+    form.submit();
   },30000);
   // $('input[name=status]').on('click',function(){
   //   var form = $('input[value=Ricarica]').parent();

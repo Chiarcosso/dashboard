@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190528141741) do
+ActiveRecord::Schema.define(version: 20190528163005) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -429,6 +429,7 @@ ActiveRecord::Schema.define(version: 20190528141741) do
     t.string   "url",           null: false
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+    t.string   "path"
     t.index ["mdc_report_id"], name: "index_mdc_report_images_on_mdc_report_id", using: :btree
   end
 
