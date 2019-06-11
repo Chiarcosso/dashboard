@@ -6,6 +6,6 @@ class MdcReportImage < ApplicationRecord
     unless /https?:\/\/.*/ =~ url
       url = "http://#{ENV['RAILS_IIS_URL']}/#{url}"
     end
-    return url.gsub(' ','%20')
+    return URI.escape(url)
   end
 end
