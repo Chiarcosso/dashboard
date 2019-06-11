@@ -23,7 +23,7 @@ def authorize
     # render text:"No access for you!"
     render "home/_agenda"
   else
-    roles = [:base, "amministratore utenti", :magazzino, "mod. ditte"]
+    roles = [:base, "utenti", 'magazzino', "ditte"]
     if current_user.has_role? :admin
       roles << :admin
     end

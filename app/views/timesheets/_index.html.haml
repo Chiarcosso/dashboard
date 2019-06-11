@@ -64,7 +64,7 @@
                       = hidden_field_tag :date, @date.strftime("%Y-%m-%d")
                       = hidden_field_tag :name, @name
                     .col-sm-2
-                      - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                      - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
                         = time_field_tag 'timesheet[minutes]', (t.minutes.to_i < (24 * 60)) ? t.time_label : nil, class: 'form-control'
                       - else
                         = t.time_label
@@ -79,7 +79,7 @@
                           - else
                             = image_tag('ok.png', size: "20x20", alt: "Confermato dal responsabile")
                       .col-sm-6
-                        - if (current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
+                        - if (current_user.has_role?(:admin) || current_user.has_role?('presenze e orari'))
                           = check_box_tag 'timesheet[hr_approval]', true, !t.hr_approval.nil?, class: 'form-control ajax-submit'
                         - else
                           = hidden_field_tag 'timesheet[hr_approval]', !t.hr_approval.nil?
@@ -89,7 +89,7 @@
                             = image_tag('ok.png', size: "20x20", alt: "Confermato dall'ufficio personale")
 
                     .col-sm-2
-                      - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                      - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
                         = submit_tag 'Conferma', class: 'form-control'
 
               .row
@@ -97,7 +97,7 @@
                   .row
                     .col-sm-12
                       %b= "Totale: "
-                  - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                  - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
                     .row
                       .col-sm-12
                         %b= "Totale timbrature: "
@@ -110,7 +110,7 @@
                       - hrs = (total / 60).floor
                       - mins = total % 60
                       %b= "#{hrs.to_s.rjust(2,'0')}:#{mins.to_s.rjust(2,'0')}"
-                  - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                  - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
                     .row
                       .col-sm-12
                         - pr = PresenceRecord.where(date: @date, person: person).order(set_day_time: :asc).first
@@ -126,7 +126,7 @@
                         - else
                           %b= ws.expected_hours_label
                 .col-sm-2
-                - if (current_user.has_role?('gestione orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
                   .col-sm-3{style: 'background-color: #ffa'}
                     .row
                       .col-sm-12{ style: 'text-align: center;'}

@@ -35,7 +35,7 @@ class Ability
     if user.has_role? :admin
       can :manage, :all
     end
-    if user.has_role? "amministratore utenti"
+    if user.has_role? "utenti"
       can :manage, User
       can :manage, Person
       can :manage, Company

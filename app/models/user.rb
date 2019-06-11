@@ -42,4 +42,64 @@ class User < ApplicationRecord
       self.email
     end
   end
+
+  def has_roles_for?(area)
+    return true if self.admin?
+    if self.has_role?(area)
+      case area
+      when :personale then
+        return true unless (self.roles.map{ |r| r.name} & [
+          'persone',
+          'presenze e orari',
+          'controllo ore officina',
+          'calendario assenze',
+          'badge festivita e permessi',
+          'amministratore carte prepagate',
+          'carte prepagate',
+          'amministratore carte prepagate',
+          'utenti',
+          'badge lavaggio',
+          'codici mdc',
+          'segnalazioni personale'
+          ]).empty?
+      when :traffico then
+        return true unless (self.roles.map{ |r| r.name} & [
+          'segnalazioni traffico',
+          'mezzi agenzie'
+          ]).empty?
+      when :officina then
+        return true unless (self.roles.map{ |r| r.name} & [
+          'lavaggio',
+          'checkup point',
+          'odl aperti',
+          'attualmente in lavorazione',
+          'gestione odl',
+          'controllo ore officina',
+          'magazzino'
+          ]).empty?
+      when :manutenzioni then
+        return true unless (self.roles.map{ |r| r.name} & [
+          'segnalazioni manutenzioni',
+          'odl off. esterne',
+          'mezzi',
+          'ultimi controlli',
+          'modelli veicolo',
+          'tipi di veicolo',
+          'magazzino'          
+          ]).empty?
+      when :amministrazione then
+        return true unless (self.roles.map{ |r| r.name} & [
+          'ordini di trasporto',
+          'totali',
+          'ditte',
+          'persone',
+          'ruoli aziendali'
+          ]).empty?
+      end
+    end
+  end
+
+  def admin?
+    self.has_role?(:admin)
+  end
 end

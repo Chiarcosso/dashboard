@@ -5,7 +5,7 @@
   .col-sm-2{ style: 'padding-top: 2.1em;'}
     ="Selezionati: #{@filteredPeople.size}" unless @filteredPeople.nil?
   .col-sm-8{ style: 'padding-top: 1.1em;'}
-    =link_to "Inserisci nuova persona", new_person_path, class: "btn btn-primary" if current_user.has_role?("personale") || current_user.has_role?(:admin)
+    =link_to "Inserisci nuova persona", new_person_path, class: "btn btn-primary" if current_user.has_role?("persone") || current_user.has_role?(:admin)
 
 .container
   = form_tag(people_path, method: :get, type: :script) do |f|
@@ -40,7 +40,7 @@
       .col-sm-3
         = 'MDC: '+p.mdc_user.to_s+' - ' unless p.mdc_user.nil?
         = p.notes.to_s
-      -  if current_user.has_role?("personale") || current_user.has_role?(:admin)
+      -  if current_user.has_role?("persone") || current_user.has_role?(:admin)
         .col-sm-1
           =button_to 'Modifica', edit_person_path(p.id), class: 'inline', method: :get
         .col-sm-1

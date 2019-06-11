@@ -27,7 +27,7 @@ class StorageController < ApplicationController
   end
 
   def authorize
-    if (!current_user.has_role? :admin) && (!current_user.has_role? :magazzino)
+    if (!current_user.has_role? :admin) && (!current_user.has_role? 'magazzino')
       # render text:"No access for you!"
       render "home/_agenda"
     end

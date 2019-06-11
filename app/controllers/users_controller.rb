@@ -62,14 +62,14 @@ class UsersController < ApplicationController
   private
 
   def authorize
-    if (!current_user.has_role? :admin) && (!current_user.has_role? :amministratore_utenti)
+    if (!current_user.has_role? :admin) && (!current_user.has_role? 'utenti')
       # render text:"No access for you!"
       if (current_user.has_role? 'officina') || (current_user.has_role? 'amministratore officina')
         render "workshop/index"
       end
       render "home/_agenda"
     else
-      roles = [:base, "amministratore utenti", :magazzino, "mod. ditte"]
+      roles = [:base, "utenti", :magazzino, "ditte"]
       if current_user.has_role? :admin
         roles << :admin
       end

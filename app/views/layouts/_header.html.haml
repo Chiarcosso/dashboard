@@ -5,85 +5,87 @@
 
   = navbar_collapse style: 'width: 100vw; padding-right: 15px' do
     = navbar_group class: 'foo', id: 'menu', align: 'left' do
-      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:personale) || current_user.has_role?('amministratore utenti') || current_user.has_role?('gestione tessere') || current_user.has_role?(:traffico) || current_user.has_role?('amministratore carte prepagate') || current_user.has_role?('carte prepagate'))
+      - if current_user.present? && current_user.has_roles_for?(:personale)
         = navbar_dropdown "Personale" do
           -# = navbar_dropdown_header 'Personale'
           -# = navbar_dropdown_divider
-          - if (current_user.has_role?(:personale) || current_user.has_role?(:admin))
+          - if (current_user.has_role?(:admin) || current_user.has_role?('persone'))
             = navbar_item "Persone", people_path
-          - if (current_user.has_role?(:personale) || current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
+          - if (current_user.has_role?(:admin) || current_user.has_role?('presenze e orari'))
             = navbar_item "Presenze e orari", manage_presence_path
-          - if (current_user.has_role?(:personale) || current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
+          - if (current_user.has_role?(:admin) || current_user.has_role?('controllo ore officina'))
             = navbar_item "Controllo ore officina", '/timesheets/index'
-          - if (current_user.has_role?(:personale) || current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
+          - if (current_user.has_role?(:admin) || current_user.has_role?('calendario assenze'))
             = navbar_item "Calendario assenze", vacation_calendar_path
-          - if (current_user.has_role?(:personale) || current_user.has_role?(:admin) || current_user.has_role?('gestione orari'))
+          - if (current_user.has_role?(:admin) || current_user.has_role?('badge festivita e permessi'))
             = navbar_item "Badge, festività e permessi", manage_festivities_path
           - if (current_user.has_role?('amministratore carte prepagate') || current_user.has_role?('carte prepagate') || current_user.has_role?(:admin))
             = navbar_item "Carte prepagate", prepaid_cards_path
-          - if (current_user.has_role?('amministratore utenti') || current_user.has_role?(:admin))
+          - if (current_user.has_role?('utenti') || current_user.has_role?(:admin))
             = navbar_item "Utenti", users_admin_path
-          - if (current_user.has_role?('gestione tessere') || current_user.has_role?(:admin))
+          - if (current_user.has_role?('badge lavaggio') || current_user.has_role?(:admin))
             = navbar_item "Badge lavaggio", codes_path
-          - if (current_user.has_role?(:traffico) || current_user.has_role?(:admin))
+          - if (current_user.has_role?('codici mdc') || current_user.has_role?(:admin))
             = navbar_item "Codici MDC", mdc_codes_path
-          - if (current_user.has_role?('MDC personale') || current_user.has_role?(:admin))
+          - if (current_user.has_role?('segnalazioni personale') || current_user.has_role?(:admin))
             = navbar_item "Segnalazioni", notification_index_path(:hr)
           -# = navbar_item "Dotazione", equipment_home_path
-      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?('MDC traffico') || current_user.has_role?('traffico'))
+      - if current_user.present? && current_user.has_roles_for?(:traffico)
         = navbar_dropdown "Traffico" do
-          - if (current_user.has_role?('MDC traffico') || current_user.has_role?(:admin))
+          - if (current_user.has_role?('segnalazioni traffico') || current_user.has_role?(:admin))
             = navbar_item "Segnalazioni", notification_index_path(:logistics)
           -# = navbar_item "Assegnazione mezzi", vehicles_assignation_path
-          = navbar_item "Mezzi agenzie", external_vehicles_path
-      - if current_user.present? && (current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?(:lavaggio)|| current_user.has_role?(:officina)|| current_user.has_role?('amministratore officina'))
+          - if (current_user.has_role?('mezzi agenzie') || current_user.has_role?(:admin))
+            = navbar_item "Mezzi agenzie", external_vehicles_path
+      - if current_user.present? && current_user.has_roles_for?(:officina)
         = navbar_dropdown "Officina" do
-          - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina'))
+          - if (current_user.has_role?('lavaggio') || current_user.has_role?(:admin))
             = navbar_item "Lavaggio", carwash_path
-          - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina')|| current_user.has_role?(:officina))
+          - if (current_user.has_role?('checkup point') || current_user.has_role?(:admin))
             = navbar_item "Checkup point", carwash_checks_path
-          - if (current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina')|| current_user.has_role?(:officina))
+          - if (current_user.has_role?(:admin) || current_user.has_role?('odl aperti'))
             = navbar_item "ODL aperti", worksheets_path
-          - if (current_user.has_role?(:admin)|| current_user.has_role?('amministratore officina'))
+          - if (current_user.has_role?(:admin)|| current_user.has_role?('attualmente in lavorazione'))
             = navbar_item "Attualmente in lavorazione", worksheets_on_processing_path
-          - if (current_user.has_role?(:admin)|| current_user.has_role?('gestione officina'))
+          - if (current_user.has_role?(:admin)|| current_user.has_role?('gestione odl'))
             = navbar_item "Gestione ODL", manage_worksheets_path
-          - if (current_user.has_role?('officina') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+          - if (current_user.has_role?(:admin) || current_user.has_role?('controllo ore officina'))
             = navbar_item "Controllo ore officina", '/timesheets/index'
           -# - if (current_user.has_role?(:officina) || current_user.has_role?(:admin))
           -#   = navbar_item "Segnalazioni", vehicle_notifications_path
           -# - if (current_user.has_role?(:officina) || current_user.has_role?(:admin))
           -#   = navbar_item "Officina", workshop_path
-          - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
+          - if (current_user.has_role?('magazzino') || current_user.has_role?(:admin))
             = navbar_item "Magazzino", storage_path
           -# - if (current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
             -# = navbar_item "Gestione oli", oils_path
-      - if current_user.present?
+      - if current_user.present? && current_user.has_roles_for?(:manutenzioni)
         = navbar_dropdown "Manutenzioni" do
           -# - if (current_user.has_role?(:lavaggio) || current_user.has_role?(:admin)|| current_user.has_role?("amministratore manutenzioni") || current_user.has_role?("manutenzioni"))
           -#   = navbar_item "Lavaggio", carwash_path
-          - if (current_user.has_role?('MDC manutenzioni') || current_user.has_role?(:admin))
+          - if (current_user.has_role?('segnalazioni manutenzioni') || current_user.has_role?(:admin))
             = navbar_item "Segnalazioni", notification_index_path(:maintenance)
-          - if (current_user.has_role?('visione odl esterni') || current_user.has_role?(:admin) || current_user.has_role?("amministratore manutenzioni") || current_user.has_role?("amministratore officina"))
+          - if (current_user.has_role?('odl off. esterne') || current_user.has_role?(:admin))
             = navbar_item "Odl off. esterne", manage_external_worksheets_path
-
-          = navbar_item "Mezzi", vehicles_path
-          = navbar_item "Ultimi controlli", last_vehicle_checks_path
-          - if (current_user.has_role?(:admin)|| current_user.has_role?("amministratore manutenzioni"))
+          - if (current_user.has_role?('mezzi') || current_user.has_role?(:admin))
+            = navbar_item "Mezzi", vehicles_path
+          - if (current_user.has_role?('ultimi controlli') || current_user.has_role?(:admin))
+            = navbar_item "Ultimi controlli", last_vehicle_checks_path
+          - if (current_user.has_role?(:admin)|| current_user.has_role?("modelli veicolo"))
             = navbar_item "Modelli veicolo", vehicle_models_path
-          - if (current_user.has_role?(:admin) || current_user.has_role?("amministratore manutenzioni"))
+          - if (current_user.has_role?(:admin) || current_user.has_role?("tipi di veicolo"))
             = navbar_item "Tipi di veicolo", vehicle_types_path
-      - if current_user.present? && (current_user.has_role?(:amministrazione) || current_user.has_role?(:admin) || current_user.has_role?(:magazzino) || current_user.has_role?(:ddt) || current_user.has_role?('mod. ditte'))
+      - if current_user.present? && current_user.has_roles_for?(:amministrazione)
         = navbar_dropdown "Amministrazione" do
-          - if (current_user.has_role?(:ddt) || current_user.has_role?(:traffico) || current_user.has_role?(:admin))
+          - if (current_user.has_role?('ordini di trasporto') || current_user.has_role?(:admin))
             = navbar_item "Ordini di trasporto", mdc_transport_documents_path('opened')
-          - if (current_user.has_role?(:amministrazione) || current_user.has_role?(:magazzino) || current_user.has_role?(:admin))
+          - if (current_user.has_role?('totali') || current_user.has_role?(:admin))
             = navbar_item "Totali", admin_totals_path
-          - if (current_user.has_role?('mod. ditte') || current_user.has_role?(:admin))
+          - if (current_user.has_role?('ditte') || current_user.has_role?(:admin))
             = navbar_item "Ditte", companies_path
-          - if (current_user.has_role?(:personale) || current_user.has_role?(:admin))
+          - if (current_user.has_role?('persone') || current_user.has_role?(:admin))
             = navbar_item "Persone", people_path
-          - if (current_user.has_role?(:personale) || current_user.has_role?(:admin))
+          - if (current_user.has_role?('ruoli aziendali') || current_user.has_role?(:admin))
             = navbar_item "Ruoli aziendali", company_relations_path
       - if current_user.present? && current_user.has_role?(:admin)
         = navbar_dropdown "Admin" do
