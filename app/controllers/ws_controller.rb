@@ -109,7 +109,7 @@ class WsController < ApplicationController
         end
         cpath = "#{ENV['RAILS_REPORT_PHOTOS_PATH']}/#{path}/#{rep.sent_at.strftime("%Y%m%d")}"
         rpath = "FotoSegnalazioni\\#{path.gsub('/',"\\")}\\#{rep.sent_at.strftime("%Y%m%d")}"
-        url = "FotoSegnalazioni/#{path}/#{rep.sent_at.strftime("%Y%m%d")}"
+        url = "/FotoSegnalazioni/#{path}/#{rep.sent_at.strftime("%Y%m%d")}"
         `mkdir -p #{cpath.gsub(' ','\ ')}/`
 
         pars[:photos].each do |photo|

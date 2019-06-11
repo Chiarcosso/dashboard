@@ -939,7 +939,7 @@ class ReportRequest
         end
         cpath = "#{ENV['RAILS_REPORT_PHOTOS_PATH']}/#{path}/#{report.sent_at.strftime("%Y%m%d")}"
         rpath = "FotoSegnalazioni\\#{path.gsub('/',"\\")}\\#{report.sent_at.strftime("%Y%m%d")}"
-        url = "FotoSegnalazioni/#{path}/#{report.sent_at.strftime("%Y%m%d")}"
+        url = "/FotoSegnalazioni/#{path}/#{report.sent_at.strftime("%Y%m%d")}"
         `mkdir -p #{cpath.gsub(' ','\ ')}/`
 
         @data[:images].each do |photo|
@@ -968,6 +968,7 @@ class ReportRequest
       @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
     rescue Exception => e
       report_logger.error("#{e.message}\n\n#{e.backtrace.join("\n")}")
+      @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
     end
   end
 

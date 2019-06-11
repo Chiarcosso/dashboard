@@ -3,10 +3,9 @@ class MdcReportImage < ApplicationRecord
 
   def complete_url
     url = self.url
-    if /https?:\/\/.*/ =~ url
-      return self.url
-    else
-      return "http://#{ENV['RAILS_IIS_URL']}#{self.url}"
+    unless /https?:\/\/.*/ =~ url
+      url = "http://#{ENV['RAILS_IIS_URL']}/#{ERB::Util.url_encode(url)}"
     end
+    return url
   end
 end
