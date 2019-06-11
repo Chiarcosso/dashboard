@@ -939,7 +939,7 @@ class ReportRequest
         end
         cpath = "#{ENV['RAILS_REPORT_PHOTOS_PATH']}/#{path}/#{report.sent_at.strftime("%Y%m%d")}"
         rpath = "FotoSegnalazioni\\#{path.gsub('/',"\\")}\\#{report.sent_at.strftime("%Y%m%d")}"
-        url = "#{ENV['RAILS_IIS_URL']}/FotoSegnalazioni/#{path}/#{report.sent_at.strftime("%Y%m%d")}"
+        url = "FotoSegnalazioni/#{path}/#{report.sent_at.strftime("%Y%m%d")}"
         `mkdir -p #{cpath.gsub(' ','\ ')}/`
 
         @data[:images].each do |photo|
@@ -953,7 +953,7 @@ class ReportRequest
            filename = "foto_#{serial.to_s.rjust(2,"0")}#{ext}"
 
           # Download and write file
-          data = open(url).read
+          data = open(photo).read
           fh = File.open("#{cpath}/#{filename}",'wb')
           fh.write(data)
           fh.close
