@@ -929,7 +929,7 @@ class ReportRequest
       report = MdcReport.create(data)
 
       # Write photos
-      unless pars[:photos].nil?
+      unless @data[:images].nil?
 
         if report.vehicle.nil?
           path = "Sede"
@@ -942,7 +942,7 @@ class ReportRequest
         url = "#{ENV['RAILS_IIS_URL']}/FotoSegnalazioni/#{path}/#{rep.sent_at.strftime("%Y%m%d")}"
         `mkdir -p #{cpath.gsub(' ','\ ')}/`
 
-        pars[:photos].each do |photo|
+        @data[:images].each do |photo|
 
           # Check whether filename already exists
           serial = 1
@@ -967,7 +967,7 @@ class ReportRequest
 
       @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
     rescue Exception => e
-      @@report_logger.error("#{e.message}\n\n#{e.backtrace.join("\n")}")
+      report_logger.error("#{e.message}\n\n#{e.backtrace.join("\n")}")
     end
   end
 
@@ -990,7 +990,7 @@ class ReportRequest
 
   private
 
-  def self.report_logger
+  def report_logger
     @@report_logger ||= Logger.new("#{Rails.root}/log/mdc_report.log")
   end
 end
