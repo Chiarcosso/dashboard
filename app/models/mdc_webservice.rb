@@ -947,7 +947,7 @@ class ReportRequest
           # Check whether filename already exists
           serial = 1
           ext = File.extname(photo)
-          
+
           while File.file? "#{cpath}/foto_#{serial.to_s.rjust(2,"0")}#{ext}" do
             serial += 1
           end
@@ -966,10 +966,10 @@ class ReportRequest
         report.update(description: "#{report.description}\n#{rpath}")
       end
 
-      # @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
+      @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
     rescue Exception => e
       report_logger.error("#{e.message}\n\n#{e.backtrace.join("\n")}")
-      # @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
+      @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
     end
   end
 
