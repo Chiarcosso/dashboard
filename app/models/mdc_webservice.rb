@@ -967,7 +967,7 @@ class ReportRequest
 
       @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
     rescue Exception => e
-      # byebug
+      @@report_logger.error("#{e.message}\n\n#{e.backtrace.join("\n")}")
     end
   end
 
@@ -986,6 +986,12 @@ class ReportRequest
     # end
     # tmp
     @data[:images]
+  end
+
+  private
+
+  def self.report_logger
+    @@report_logger ||= Logger.new("#{Rails.root}/log/mdc_report.log")
   end
 end
 
@@ -1268,5 +1274,6 @@ class GearRequest
       @date.strftime(format)
     end
   end
+
 
 end
