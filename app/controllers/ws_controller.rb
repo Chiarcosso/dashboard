@@ -138,7 +138,6 @@ class WsController < ApplicationController
         format.js {render partial: 'mdc/create_report_js'}
       end
     rescue Exception => e
-      byebug
       @error = e.message+"\n"+e.backtrace.join("\n")
       respond_to do |format|
         format.html {render 'mdc/report_index'}
@@ -160,7 +159,11 @@ class WsController < ApplicationController
   def edit_report
 
     begin
-      MdcReport.find(params.require(:id)).update(report_type: params.require(:type))
+      rep = MdcReport.find(params.require(:id))
+      rep.update(report_type: params.require(:type),maintenance: false,hr: false, logistics: false)
+      rep.offices.each do |o|
+        rep.update(o.to_sym => true)
+      end
 
       @results = get_filter
       respond_to do |format|

@@ -146,7 +146,7 @@
       .row
         .col-sm-12
           - r.images.each do |p|
-            = image_tag(p.url, class: 'gallery-image', style: 'height:50%;width:auto;')
+            = image_tag(p.complete_url, class: 'gallery-image', style: 'height:50%;width:auto;')
         %br
         %br
 
