@@ -20,6 +20,9 @@
             = hidden_field_tag 'VehicleCheckSession[station]', 'carwash'
           .col-sm-2
             = submit_tag 'Inizia controlli', class: 'form-control'
+        .col-sm-3
+          %button{ class: 'load_popup no-loader form-control', data: { popup_id: 'new_timesheet_record', route: '/timesheets/timesheet_popup' }, style: 'margin-top: -1em;' }
+            Operazione fuori scheda
           -# = render partial: 'carwash/checks'
       .row
         .col-sm-1
