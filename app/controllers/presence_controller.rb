@@ -1153,14 +1153,37 @@ class PresenceController < ApplicationController
     p[:flexibility] = params[:working_schedule][:flexibility]
     p[:agreement] = params[:working_schedule][:agreement] == 'true' ? true : false
 
-    if p[:agreement_from_s].nil? ^ p[:agreement_to_s].nil?
+
+    if p[:weekday].nil? || p[:weekday] == ''
+      raise "Non è stato impostato il giorno della settimana."
+    end
+    if p[:months_unpaid_days].nil? || p[:months_unpaid_days] == ""
+      raise "Non sono stati impostati i giorni non pagati."
+    end
+    if p[:expected_hours].nil? || p[:expected_hours] == ""
+      raise "Non sono state impostate la ore previste."
+    end
+    if p[:break].nil? || p[:break] == ""
+      raise "Non è stata impostata la pausa."
+    end
+    if p[:person].nil? || p[:person] == ""
+      raise "Non è stato impostato il dipendente."
+    end
+    if p[:flexibility].nil? || p[:flexibility] == ""
+      raise "Non è stata impostata la flessibilità."
+    end
+    if p[:agreement_from_s].nil? || p[:agreement_to_s].nil? || p[:agreement_from_s] == "" || p[:agreement_to_s] == ""
       raise "L'orario concordato non e' completo."
     end
-    if p[:contract_from_s].nil? ^ p[:contract_to_s].nil?
+    if p[:contract_from_s].nil? || p[:contract_to_s].nil? || p[:contract_from_s] == "" || p[:contract_to_s] == ""
       raise "L'orario da contratto non e' completo."
     end
     if p[:contract_from_s].nil? && p[:contract_to_s].nil? && p[:agreement_from_s].nil? && p[:agreement_to_s].nil?
       raise "Non sono stati impostati gli orari."
+    end
+
+    if !WorkingSchedule.find_by(weekday: p[:weekday], person: @person).nil? && params[:commit] == 'Inserisci'
+      raise "#{@person.list_name} ha già un orario per il #{WorkingSchedule.weekdays.key(p[:weekday].to_i)}."
     end
     p
   end

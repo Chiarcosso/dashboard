@@ -41,7 +41,7 @@
               - ts.each do |t|
                 - total += t.minutes.to_i
 
-                .row
+                .row.colored{style: 'padding-top: 1em; padding-bottom: 1em;'}
                   - unless t.workshop_operation.nil? || t.workshop_operation.worksheet.nil?
                     - ws = t.workshop_operation.worksheet
                     %b
