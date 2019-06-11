@@ -853,12 +853,12 @@ class ReportRequest
   end
 
   def definition
-    request = HTTPI::Request.new
-    request.url = "http://portale.chiarcosso/invia-viaggi/rest.php?id=#{self.id}"
+    # request = HTTPI::Request.new
+    # request.url = "http://portale.chiarcosso/invia-viaggi/rest.php?id=#{self.id}"
     # request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendPushNotificationExt xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:notificationExtList>#{nots}</ns3:notificationExtList></ns3:sendPushNotificationExt></soapenv:Body></soapenv:Envelope>"
     # request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
-
-    HTTPI.post(request).body
+    @data[:description]
+    # HTTPI.post(request).body
   end
 
   def dataCollectionRows
