@@ -56,7 +56,7 @@ class UsersController < ApplicationController
   def rem_role
     role = Role.find(params[:role])
     # @user.remove_role(role.name.to_sym)
-    @user.roles.delete(roles.where(:name => role.name))
+    @user.roles.delete(role)
     redirect_back fallback_location: edit_user_admin_url(@user)
   end
 
