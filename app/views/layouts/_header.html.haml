@@ -19,7 +19,7 @@
             = navbar_item "Calendario assenze", vacation_calendar_path
           - if (current_user.has_role?(:admin) || current_user.has_role?('badge festivita e permessi'))
             = navbar_item "Badge, festività e permessi", manage_festivities_path
-          - if (current_user.has_role?('amministratore carte prepagate') || current_user.has_role?('carte prepagate') || current_user.has_role?(:admin))
+          - if (current_user.has_role?('carte prepagate') || current_user.has_role?(:admin))
             = navbar_item "Carte prepagate", prepaid_cards_path
           - if (current_user.has_role?('utenti') || current_user.has_role?(:admin))
             = navbar_item "Utenti", users_admin_path

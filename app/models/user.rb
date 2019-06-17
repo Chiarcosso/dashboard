@@ -56,7 +56,6 @@ class User < ApplicationRecord
           'badge festivita e permessi',
           'amministratore carte prepagate',
           'carte prepagate',
-          'amministratore carte prepagate',
           'utenti',
           'badge lavaggio',
           'codici mdc',
@@ -85,7 +84,7 @@ class User < ApplicationRecord
           'ultimi controlli',
           'modelli veicolo',
           'tipi di veicolo',
-          'magazzino'          
+          'magazzino'
           ]).empty?
       when :amministrazione then
         return true unless (self.roles.map{ |r| r.name} & [
