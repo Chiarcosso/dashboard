@@ -52,7 +52,8 @@ class TimesheetController < ApplicationController
         timesheet.update(p)
         get_timesheets
       else
-        raise "Operazione non concessa, l'utente non possiede il ruolo per questa modifica."
+        @error = "Operazione non concessa, l'utente non possiede il ruolo per questa modifica."
+        raise @error
       end
 
       respond_to do |format|
@@ -60,7 +61,7 @@ class TimesheetController < ApplicationController
       end
     rescue Exception => e
       respond_to do |format|
-        @error = e.message+"\n"+e.backtrace.join("\n")
+        @error = e.message+"\n"+e.backtrace.join("\n") if @error.nil?
         format.html { render partial: 'layouts/error_html' }
         format.js { render partial: 'layouts/error' }
       end

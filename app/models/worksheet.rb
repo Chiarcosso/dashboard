@@ -451,7 +451,12 @@ class Worksheet < ApplicationRecord
   end
 
   def get_pdf
-    File.open(self.get_pdf_path,'r') rescue self.write_sheet
+    begin
+      File.open(self.get_pdf_path,'r')
+    rescue
+      self.write_sheet
+      File.open(self.get_pdf_path,'r')
+    end
   end
 
   def self.move_pdf
@@ -611,7 +616,7 @@ class Worksheet < ApplicationRecord
         ops = Array.new
         WorkshopOperation.where(myofficina_reference: n['Protocollo'].to_i).to_a.each do |wo|
           operator = wo.operator.nil?? 'Operatore mancante' : wo.operator.complete_name
-          ops << ["#{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",operator,wo.real_duration_label]
+          ops << ["#{wo.id} - #{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",operator,wo.real_duration_label]
         end
         ops = [['','','']] if ops.count < 1
 
@@ -630,7 +635,7 @@ class Worksheet < ApplicationRecord
       ops = Array.new
       self.check_operations.to_a.each do |wo|
         operator = wo.operator.nil?? 'Operatore mancante' : wo.operator.complete_name
-        ops << ["#{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",operator,wo.real_duration_label]
+        ops << ["#{wo.id} - #{wo.name}#{wo.notes.nil? ? '' : "\nNote: #{wo.notes}"}",operator,wo.real_duration_label]
       end
       ops = [['','','']] if ops.count < 1
 

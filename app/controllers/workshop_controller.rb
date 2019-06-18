@@ -179,7 +179,7 @@ class WorkshopController < ApplicationController
       end
       @worksheet.notifications.each do |sgn|
         if WorkshopOperation.to_notification(sgn['Protocollo']).count < 1
-          WorkshopOperation.create(name: "Lavorazione", worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+          WorkshopOperation.create(name: "Lavorazione", worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: nil, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         end
       end
       WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil) if @worksheet.check_operations.count < 1
@@ -530,22 +530,40 @@ class WorkshopController < ApplicationController
 
   def start_operation
     begin
-      wo = WorkshopOperation.find(params.require(:operation).to_i)
-
+      # wo = WorkshopOperation.find(params.require(:operation).to_i)
+      wo = @workshop_operation
       #if the current user is different from the registered one create a new operation
       if !wo.nil? && wo.user != current_user
         if wo.user.nil?
-          wo.update(name: wo.name, paused: false, worksheet: wo.worksheet, myofficina_reference: wo.myofficina_reference, user: current_user, starting_time: Time.now, last_starting_time: Time.now, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+          wo.update(
+            name: wo.name,
+            paused: false,
+            worksheet: wo.worksheet,
+            myofficina_reference: wo.myofficina_reference,
+            user: current_user,
+            starting_time: Time.now,
+            last_starting_time: Time.now)
+          new_log = "Operazione nr. #{@workshop_operation.id} iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
         else
-          @workshop_operation = WorkshopOperation.create(name: wo.name, paused: false, worksheet: wo.worksheet, myofficina_reference: wo.myofficina_reference, user: current_user, starting_time: Time.now, last_starting_time: Time.now, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+          @workshop_operation = WorkshopOperation.create(
+            name: wo.name,
+            paused: false,
+            worksheet: wo.worksheet,
+            myofficina_reference: wo.myofficina_reference,
+            user: current_user,
+            starting_time: Time.now,
+            last_starting_time: Time.now)
+          new_log = "Operazione nr. #{@workshop_operation.id} iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
         end
       else
-        @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "#{@workshop_operation.log}\n Operazione #{wo.starting_time.nil?? 'iniziata' : 'ripresa'} da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+        new_log = "Operazione nr. #{@workshop_operation.id} ripresa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
+        @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "#{@workshop_operation.log}\n #{new_log}")
         # @workshop_operation.update(starting_time: DateTime.now)
         @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
 
       end
 
+      @worksheet.update(log: "#{@worksheet.log}\n #{new_log}")
       TimesheetRecord.create(person: current_user.person, workshop_operation: @workshop_operation, description: params.require(:description), start: Time.now)
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
@@ -565,12 +583,13 @@ class WorkshopController < ApplicationController
       else
         duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
       end
-      @workshop_operation.update(real_duration: duration, paused: true,  last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log}\n Operazione interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+      new_log = "Operazione nr. #{@workshop_operation.id} interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
+      @workshop_operation.update(real_duration: duration, paused: true,  last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log}\n #{new_log}")
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
-      @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
+      @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false, log: "#{@worksheet.log}\n #{new_log}") unless @worksheet.paused
 
       tr = TimesheetRecord.where(person: current_user.person, workshop_operation: @workshop_operation).order(:created_at => :asc).last
-      if tr.count < 1
+      if tr.nil?
         tr = TimesheetRecord.create(person: current_user.person, workshop_operation: @workshop_operation, description: "#{@workshop_operation.name}", start: @workshop_operation.starting_time)
       end
       tr.update(stop: Time.now, minutes: ((Time.now - tr.start) / 60).ceil)
@@ -593,7 +612,8 @@ class WorkshopController < ApplicationController
       else
         duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
       end
-      @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log}\n Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
+      new_log = "Operazione nr. #{@workshop_operation.id} conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
+      @workshop_operation.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log}\n #{new_log}", notes: params['notes'].tr("'","''"))
 
       tr = TimesheetRecord.where(person: current_user.person, workshop_operation: @workshop_operation).order(:created_at => :asc).last
       if tr.nil?
@@ -603,7 +623,7 @@ class WorkshopController < ApplicationController
 
       # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
       @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
-      @worksheet.update(log: "#{@worksheet.log}\n #{@workshop_operation.log}")
+      @worksheet.update(log: "#{@worksheet.log}\n #{new_log}")
       #close notification there are no more operations
       if !@workshop_operation.myofficina_reference.nil? && WorkshopOperation.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
 

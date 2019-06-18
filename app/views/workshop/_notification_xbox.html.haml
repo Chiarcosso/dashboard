@@ -4,7 +4,7 @@
   .col-sm-2#scroll-element
     = "#{sgn['UserInsert']} (#{sgn['UserPost']})"
   .col-sm-2#scroll-element
-    = sgn['DataSegnalazione'].strftime('%d/%m/%Y')
+    = sgn['DataSegnalazione'].strftime('%d/%m/%Y') unless sgn['DataSegnalazione'].nil?
 
 
 .row
