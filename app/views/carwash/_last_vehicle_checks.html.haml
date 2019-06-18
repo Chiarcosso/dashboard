@@ -40,18 +40,21 @@
         -#       %b= check.label unless check.nil?
         -# .row{style: 'padding-left: 2em; padding-right: 2em;'}
         .col-sm-1.ordered_cell{data: {ordering_id: 'plate', type: 'string'}}
-          %b= v.plate#v.plate_number.nil? ? v.plate : v.plate_number
+          %b= @all ? v.plate_number : v.plate
         .col-sm-2.ordered_cell{data: {ordering_id: 'operator', type: 'string'}}
           - unless p_check.nil?
-            -if p_check.operator.nil?
-              = p_check.user
-            -else
-              = p_check.operator.list_name
-
+            -# -if p_check.operator.nil?
+            -#   = p_check.user
+            -# -else
+            -#   = p_check.operator.list_name
+            = p_check.operators_name
+            - if p_check.km.nil? && !p_check.worksheet.nil?
+              - p_check.update(km: p_check.worksheet.mileage)
         .col-sm-1.ordered_cell{data: {ordering_id: 'date', type: 'date'}}
           = p_check.time.strftime("%d/%m/%Y") unless p_check.nil?
           -# = cs.finished.strftime("%d/%m/%Y") unless cs.nil? || cs.finished.nil?
         .col-sm-1.ordered_cell{data: {ordering_id: 'km', type: 'integer'}, style: 'text-align: right;'}
+
           = number_with_delimiter(p_check.km, delimiter: ".", separator: ",") unless p_check.nil?
         .col-sm-1.ordered_cell{data: {ordering_id: 'actual_km', type: 'integer'}, style: 'text-align: right;'}
           = number_with_delimiter(v.mileage, delimiter: ".", separator: ",") unless p_check.nil?

@@ -91,17 +91,18 @@ class CarwashController < ApplicationController
     begin
       @tab = params['tab']
       pc = VehiclePerformedCheck.find(params.require(:field)[/check\[(\d*)\]\[.*\]$/,1].to_i)
+      v = pc.vehicle
       case params.require(:field)[/check\[\d*\]\[(.*)\]$/,1]
       when 'value' then
-        pc.update(value: params.require(:value), time: DateTime.now, user: current_user)
+        pc.update(value: params.require(:value), time: DateTime.now, user: current_user, km: v.mileage)
       when 'notes' then
-        pc.update(notes: params.require(:value), user: current_user)
+        pc.update(notes: params.require(:value), user: current_user, km: v.mileage)
       when 'performed' then
-        pc.update(performed: params.require(:value).to_i, user: current_user, time: DateTime.now)
+        pc.update(performed: params.require(:value).to_i, user: current_user, time: DateTime.now, km: v.mileage)
       end
       @line = "##{pc.id}"
       @check_session = pc.vehicle_check_session
-      @check_session.update(real_duration: params.require(:additional))
+      @check_session.update(real_duration: params.require(:additional), real_km: v.mileage)
       @checks = @check_session.vehicle_ordered_performed_checks
       if params['station'] == 'carwash'
         @station = 'carwash'
@@ -305,7 +306,16 @@ class CarwashController < ApplicationController
         and vehicle_id = vehicles.id
         order by date desc limit 1)
       QRY
-      @vehicles = Vehicle.find_by_sql("select vehicles.*, #{plate} as plate_number from vehicles where dismissed = #{@dismissed == :dismissed ? 1 : 0} and vehicles.id not in (#{vcs_v_ids.to_a.flatten.join(',')})").to_a
+      at = Company.chiarcosso.id
+      te = Company.transest.id
+      ed = Company.edilizia.id
+      property = <<-QRY
+        (vehicles.property_id in (#{at},#{te},#{ed})
+        or vehicles.id in (select distinct vehicle_id from vehicle_properties
+    		where vehicle_properties.owner_id in (#{at},#{te},#{ed})
+        and vehicle_properties.date_to is null))
+      QRY
+      @vehicles = Vehicle.find_by_sql("select vehicles.*, #{plate} as plate_number from vehicles where #{property} and dismissed = #{@dismissed == :dismissed ? 1 : 0} and vehicles.id not in (#{vcs_v_ids.to_a.flatten.join(',')})").to_a
 
     end
   end

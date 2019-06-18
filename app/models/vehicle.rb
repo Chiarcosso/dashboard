@@ -413,7 +413,9 @@ class Vehicle < ApplicationRecord
   def last_check(check = nil)
     if check.nil?
       query = <<-QUERY
-        select * from vehicle_performed_checks
+        select vehicle_performed_checks.*,
+        (select concat(people.surname, ' ', people.name) from users left join people on people.id = users.person_id where users.id = vehicle_performed_checks.user_id limit 1) as operators_name
+        from vehicle_performed_checks
         where (vehicle_check_session_id in (select id from vehicle_check_sessions where vehicle_id = #{self.id})
                 or vehicle_id = #{self.id})
         and time is not null
@@ -421,7 +423,9 @@ class Vehicle < ApplicationRecord
       QUERY
     else
       query = <<-QUERY
-        select * from vehicle_performed_checks
+        select vehicle_performed_checks.*,
+        (select concat(people.surname, ' ', people.name) from users left join people on people.id = users.person_id where users.id = vehicle_performed_checks.user_id) as operators_name
+        from vehicle_performed_checks
         where (vehicle_check_session_id in (select id from vehicle_check_sessions where vehicle_id = #{self.id})
                 or vehicle_id = #{self.id})
         and time is not null

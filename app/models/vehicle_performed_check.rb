@@ -28,9 +28,9 @@ class VehiclePerformedCheck < ApplicationRecord
     self.performed == VehiclePerformedCheck.fixvalues['Non ok bloccante'].to_i
   end
 
-  def km
-    self.worksheet.mileage unless self.worksheet.nil?
-  end
+  # def km
+  #   self.worksheet.mileage unless self.worksheet.nil?
+  # end
 
   def self.last_check(vehicle,check)
     query = <<-QUERY
