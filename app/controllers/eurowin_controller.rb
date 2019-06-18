@@ -19,7 +19,7 @@ class EurowinController < ApplicationController
       ewc = get_ew_client
       q = "select *, "\
       "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
-      "from autosegnalazioni where codiceAutomezzo in (#{mrs.join(',')}) "\
+      "from autosegnalazioni where DataSegnalazione is not null and codiceAutomezzo in (#{mrs.join(',')}) "\
       "#{printed} and FlagChiuso not like 'true' and FlagRiparato not like 'true' "\
       "and (serialODL is null or serialODL not in (select serial from autoodl where protocollo = #{except}));"
       r = ewc.query(q)
@@ -68,13 +68,13 @@ class EurowinController < ApplicationController
       query = "select *, "\
       "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
       "from autosegnalazioni where "\
-      "#{printed} (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';"
+      "#{printed} (serialODL is null or serialODL = 0) and DataSegnalazione is not null and FlagChiuso not like 'true' and FlagRiparato not like 'true';"
     else
 
       query = "select *, "\
       "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
       "from autosegnalazioni where codiceAutomezzo in (#{mrs.map{|mr| mr.remote_object_id}.join(',')}) "\
-      "and #{printed} (serialODL is null or serialODL = 0) and FlagChiuso not like 'true' and FlagRiparato not like 'true';"
+      "and #{printed} (serialODL is null or serialODL = 0) and DataSegnalazione is not null and FlagChiuso not like 'true' and FlagRiparato not like 'true';"
 
     end
     r = ewc.query(query)
@@ -100,7 +100,7 @@ class EurowinController < ApplicationController
       r = ewc.query("select *, "\
       "(select RagioneSociale from anagrafe where codice = CodiceAutista) as NomeAutista, "\
       "(select descrizione from tabdesc where codice = tipodanno and gruppo = 'AUTOTIPD') as TipoDanno "\
-      "from autosegnalazioni where serialODL = #{odl['Serial']}#{w};")
+      "from autosegnalazioni where DataSegnalazione is not null and serialODL = #{odl['Serial']}#{w};")
       ewc.close
       r
     end
