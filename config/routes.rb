@@ -188,7 +188,7 @@ Rails.application.routes.draw do
   post '/mdc/notification/manage', to: 'ws#manage_report', as: :mdc_manage_report
   get  '/mdc/notification/new', to: 'ws#new_report', as: :mdc_new_report
   post  '/mdc/notification/create_report', to: 'ws#create_report', as: :mdc_create_report
-  get  '/mdc/notification/change/:id', to: 'ws#change_report_type', as: :mdc_change_report_type
+  get  '/mdc/notification/change/:id', to: 'ws#change_report', as: :mdc_change_report
   post  '/mdc/notification/edit_report_type', to: 'ws#edit_report', as: :mdc_edit_report
 
   get    '/output/:code', to: 'orders#output', as: :output

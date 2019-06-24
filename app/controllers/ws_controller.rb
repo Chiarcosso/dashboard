@@ -91,6 +91,16 @@ class WsController < ApplicationController
     end
   end
 
+  # prepare change report form
+  def change_report
+    @office = params.require(:office)
+    @report = MdcReport.find(params.require(:id))
+    respond_to do |format|
+      format.html {render partial: 'mdc/change_report'}
+      format.js {render partial: 'mdc/change_report'}
+    end
+  end
+
   # Register new mdc report
   def create_report
 
@@ -146,27 +156,54 @@ class WsController < ApplicationController
     end
   end
 
-  # prepare change report type form
-  # def change_report_type
-  #   @report = MdcReport.find(params.require(:id))
-  #   respond_to do |format|
-  #     format.html {render partial: 'mdc/change_report_type'}
-  #     format.js {render partial: 'mdc/change_report_type'}
-  #   end
-  # end
-
   # Change mdc report type
   def edit_report
-
     begin
+      pars = report_params
       rep = MdcReport.find(params.require(:id))
-      rep.update(report_type: params.require(:type),
-            maintenance: rep.offices.include?(:maintenance),
-            hr: rep.offices.include?(:hr),
-            logistics: rep.offices.include?(:logistics)
-          )
 
-        @results = get_filter
+      # Don't update send time
+      pars[:report][:sent_at] = rep.sent_at
+
+      rep.update(pars[:report])
+
+      # Write photos
+      unless pars[:photos].nil?
+
+        if rep.vehicle.nil?
+          path = "Sede"
+        else
+          vehicle = rep.vehicle
+          path = "Mezzi/#{vehicle.mssql_references.count > 0 ? vehicle.mssql_references.first.remote_object_id : '0000'} - #{vehicle.split_plate}"
+        end
+        cpath = "#{ENV['RAILS_REPORT_PHOTOS_PATH']}/#{path}/#{rep.sent_at.strftime("%Y%m%d")}"
+        rpath = "FotoSegnalazioni\\#{path.gsub('/',"\\")}\\#{rep.sent_at.strftime("%Y%m%d")}"
+        url = "/FotoSegnalazioni/#{path}/#{rep.sent_at.strftime("%Y%m%d")}"
+        `mkdir -p #{cpath.gsub(' ','\ ')}/`
+
+        pars[:photos].each do |photo|
+          # Check whether filename already exists
+          serial = 1
+
+          ext = File.extname(photo.tempfile)
+          while File.file? "#{cpath}/foto_#{serial.to_s.rjust(2,"0")}#{ext}" do
+            serial += 1
+          end
+           filename = "foto_#{serial.to_s.rjust(2,"0")}#{ext}"
+          # Copy temp file
+          FileUtils.cp photo.tempfile, "#{cpath}/#{filename}"
+          # fh = File.open("#{cpath}/foto_#{serial.to_s.rjust(2,"0")}.jpg",'wb')
+          # fh.write(data)
+          # fh.close
+
+          MdcReportImage.create(mdc_report: rep, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}")
+
+        end
+        rep.update(description: "#{rep.description}\n#{rpath}")
+      end
+
+      @results = get_filter
+
       respond_to do |format|
         format.html {render 'mdc/report_index'}
         format.js {render partial: 'mdc/create_report_js'}
@@ -627,6 +664,7 @@ class WsController < ApplicationController
   end
 
   def report_params
+
     res = params.require(:notification).permit(:description, :vehicle_plate, :type, :driver_name, :hq, :photos => [])
     person = res[:driver_name].nil? || res[:driver_name] == '' ? current_user.person : Person.find_by_complete_name(res[:driver_name])
     res[:type] = 'anomalia_sede' if res[:type].nil?

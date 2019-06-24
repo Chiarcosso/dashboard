@@ -1,0 +1,41 @@
+%h4= 'Modifica segnalazione'
+
+= form_tag(mdc_edit_report_path, remote: true, method: :post, multipart: true) do |f|
+  = hidden_field_tag :authenticity_token, form_authenticity_token
+  - params.require(:reports).each do |key,value|
+    - if value.is_a? Array
+      - value.each do |v|
+        = hidden_field_tag "reports[#{key}][]", v
+    - else
+      = hidden_field_tag "reports[#{key}]", value
+
+  = hidden_field_tag :office, params.require(:office)
+  = hidden_field_tag 'id', @report.id
+  = hidden_field_tag 'office', @office
+  .row{style: 'margin-top: 2rem;'}
+    .col-sm-6
+      = select_tag 'notification[type]',options_for_select(MdcReport.report_types,@report.report_type), class: 'form-control', id: 'notification_type'
+    .col-sm-6
+      .row
+        .col-sm-1
+          = check_box_tag 'notification[hq]', true, @report.hq, class: 'disabling_checkbox', data: {to_disable: '#vehicle_plate, #notification_type'}
+        .col-sm-9
+          Sede
+      .row
+        = text_field_tag 'notification[vehicle_plate]', @report.vehicle.nil? ? nil : @report.vehicle.plate, placeholder: 'Targa..', id: 'vehicle_plate', class: 'form-control custom_autocomplete', data: { route: custom_vehicle_external_vehicle_autocomplete_path, target: 'Notification' }
+
+  .row{style: 'margin-top: 1rem;'}
+    .col-sm-12
+      = text_field_tag 'notification[description]', @report.description, class: 'form-control', placeholder: 'Descrizone'
+  .row{style: 'margin-top: 1rem'}
+    .col-sm-6
+      = text_field_tag 'notification[driver_name]', @report.reporter_label, placeholder: 'Autista..', class: 'form-control custom_autocomplete', data: { route: custom_person_autocomplete_path, target: 'Person' }
+    .col-sm-6
+      = file_field_tag 'Aggiungi foto', multiple: true, name: 'notification[photos][]', class: 'form-control', accept: 'image/png,image/jpeg'
+  .row{style: 'margin-top: 1rem'}
+    .col-sm-12
+      = submit_tag 'Modifica segnalazione', class: 'form-control', data: { relatedScrollElement: '.scrollable-panel', disable_with: false }
+
+:javascript
+
+  activateCustomAutocomplete(function(element){return $(element).data();});

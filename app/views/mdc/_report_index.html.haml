@@ -118,11 +118,13 @@
         .col-sm-2
           = r.reporter_label
         .col-sm-2
-          = form_tag(mdc_edit_report_path, remote: true, method: :post, multipart: true) do |f|
-            = hidden_field_tag 'id', r.id
+          = form_tag(mdc_change_report_path(r.id), remote: true, method: :post, multipart: true) do |f|
+
             = hidden_field_tag 'office', @office
-            = select_tag 'type',options_for_select(MdcReport.report_types,r.report_type), class: 'form-control', id: 'notification_type'
-            = submit_tag 'Cambia', class: 'ajax-submit', data: { related_form: 'reports_filter_form', relatedScrollElement: '.scrollable-panel'}
+            -# = select_tag 'type',options_for_select(MdcReport.report_types,r.report_type), class: 'form-control', id: 'notification_type'
+            = MdcReport.report_types.key(r.report_type)
+            -# = submit_tag 'Cambia', class: 'ajax-submit', data: { related_form: 'reports_filter_form', relatedScrollElement: '.scrollable-panel'}
+            =button_tag 'Modifica', class: 'popup-link form-control', data: { office: @office, title: 'Modifica segnalazione', name: 'mdc_change_report', target: mdc_change_report_path(r.id), related_form: 'reports_filter_form', relatedScrollElement: '.scrollable-panel' }
           -# =button_tag 'Cambia categoria', class: 'popup-link form-control', data: { id: r.id, office: @office, title: 'Cambia categoria', name: 'mdc_change_report_type', target: mdc_change_report_type_path(r.id), related_form: 'reports_filter_form', relatedScrollElement: '.scrollable-panel' }
         .col-sm-1
           - if r.hq

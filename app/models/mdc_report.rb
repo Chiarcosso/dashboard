@@ -57,10 +57,10 @@ class MdcReport < ApplicationRecord
   end
 
   def reporter_label
-    if self.mdc_user.nil?
-      self.person.list_name
-    else
+    if self.person.nil?
       self.mdc_user.holder.list_name
+    else
+      self.person.list_name
     end
   end
 
