@@ -160,12 +160,13 @@ class WsController < ApplicationController
 
     begin
       rep = MdcReport.find(params.require(:id))
-      rep.update(report_type: params.require(:type),maintenance: false,hr: false, logistics: false)
-      rep.offices.each do |o|
-        rep.update(o.to_sym => true)
-      end
+      rep.update(report_type: params.require(:type),
+            maintenance: rep.offices.include?(:maintenance),
+            hr: rep.offices.include?(:hr),
+            logistics: rep.offices.include?(:logistics)
+          )
 
-      @results = get_filter
+        @results = get_filter
       respond_to do |format|
         format.html {render 'mdc/report_index'}
         format.js {render partial: 'mdc/create_report_js'}
@@ -173,7 +174,7 @@ class WsController < ApplicationController
     rescue Exception => e
       @error = e.message+"\n"+e.backtrace.join("\n")
       respond_to do |format|
-        format.js {render partial: 'layout/error'}
+        format.js {render partial: 'layouts/error'}
       end
     end
   end

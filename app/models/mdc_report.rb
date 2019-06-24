@@ -52,6 +52,10 @@ class MdcReport < ApplicationRecord
     end
   end
 
+  def offices
+    MdcReport.offices(self.report_type)
+  end
+
   def reporter_label
     if self.mdc_user.nil?
       self.person.list_name
