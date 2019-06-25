@@ -38,6 +38,8 @@ class CarwashController < ApplicationController
 
         @worksheet = Worksheet.create(code: "EWC*#{res}", vehicle: v, vehicle_type: v.class.to_s, opening_date: Date.current, station: @station.to_s)
         @check_session = VehicleCheckSession.create(date: Date.today,external_vehicle: v, operator: current_user, theoretical_duration: v.vehicle_checks(p[:station]).map{ |c| c.duration }.inject(0,:+), log: "Sessione iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", myofficina_reference: odl, worksheet: @worksheet, station: @station.to_s)
+
+
       elsif p[:model_name] == 'Vehicle'
         v = Vehicle.find(p[:vehicle_id])
         vec = v.vehicle_checks(p[:station])
@@ -51,6 +53,15 @@ class CarwashController < ApplicationController
       else
         raise "Veicolo non specificato (#{p[:model_name].inspect})"
       end
+
+      # Assign checks operation if missing
+      wo_nil = WorkshopOperation.find_by(worksheet: @worksheet, myofficina_reference: nil, user: nil)
+      if wo_nil.nil?
+        WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: current_user) if WorkshopOperation.find_by(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: current_user).nil?
+      else
+        wo_nil.update(user: current_user)
+      end
+
       @checks = Hash.new
 
       vec.each do |vc|

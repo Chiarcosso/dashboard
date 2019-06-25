@@ -41,8 +41,12 @@ class Worksheet < ApplicationRecord
     end
   end
 
-  def check_operations
-    WorkshopOperation.where(worksheet: self, myofficina_reference: nil)
+  def check_operations(user = nil)
+    if user.nil?
+      WorkshopOperation.where(worksheet: self, myofficina_reference: nil)
+    else
+      WorkshopOperation.where(worksheet: self, myofficina_reference: nil, user: user)
+    end
   end
 
   def set_hours

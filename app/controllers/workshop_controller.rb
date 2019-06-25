@@ -182,7 +182,14 @@ class WorkshopController < ApplicationController
           WorkshopOperation.create(name: "Lavorazione", worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: nil, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
         end
       end
-      WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil) if @worksheet.check_operations.count < 1
+
+      # Assign checks operation if missing
+      wo_nil = WorkshopOperation.find_by(worksheet: @worksheet, myofficina_reference: nil, user: nil)
+      if wo_nil.nil?
+        WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: current_user) if WorkshopOperation.find_by(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: current_user).nil?
+      else
+        wo_nil.update(user: current_user)
+      end
 
       v = @worksheet.vehicle
       vec = v.vehicle_checks('workshop')
