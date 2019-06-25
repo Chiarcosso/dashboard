@@ -51,19 +51,19 @@
                   .col-sm-1
                     - if wo.user == current_user
                       - if wo.paused
-                        %button{ class: 'btn_small timer_control start_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: 'checks', description: 'Controlli' } }
+                        %button{ class: 'btn_small timer_control start_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: 'checks', description: 'Controlli', station: @station } }
                           = wo.real_duration.to_i > 0 ? 'Riprendi' : 'Inizia'
                       - else
-                        %button{ class: 'btn_small timer_control pause_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: 'checks', description: 'Controlli' } }
+                        %button{ class: 'btn_small timer_control pause_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: 'checks', description: 'Controlli', station: @station } }
                           = 'Pausa'
                     - elsif WorkshopOperation.where(myofficina_reference: wo.myofficina_reference, name: wo.name, user: current_user).count == 0
-                      %button{ class: 'btn_small timer_control start_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: 'checks', description: 'Controlli' } }
+                      %button{ class: 'btn_small timer_control start_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: 'checks', description: 'Controlli', station: @station } }
                         = 'Inizia'
                   .col-sm-1.timer{'data-time': wo.real_duration.to_i, 'data-paused': wo.paused.to_s, id: "timer-#{wo.id}"}
                     = wo.real_duration_label
                   .col-sm-1
                     - if wo.user == current_user || current_user.has_role?('amministratore officina')  || current_user.has_role?('admin')
-                      %button{ class: 'stop_timer create_popup no-loader', id: "stop-#{wo.id}", data: { checks: 'true', new_elements: ["#worksheet-duration-op-#{wo.id}","#timesend-#{wo.id}"], popup_id: 'close_operation', html: (render partial: 'workshop/close_operation_popup', locals: {protocol: @worksheet.number, time: wo.real_duration.to_i, id: wo.id, tm: @worksheet.real_duration.to_i}) }, disabled: !wo.ending_time.nil? }
+                      %button{ class: 'stop_timer create_popup no-loader', id: "stop-#{wo.id}", data: { checks: 'true', new_elements: ["#worksheet-duration-op-#{wo.id}","#timesend-#{wo.id}","#station","#notes"], popup_id: 'close_operation', station: @station, html: (render partial: 'workshop/close_operation_popup', locals: {description: wo.notes, protocol: @worksheet.number, time: wo.real_duration.to_i, id: wo.id, tm: @worksheet.real_duration.to_i, station: @station}) }, disabled: !wo.ending_time.nil? }
                         Concludi
               %ul.nav.nav-tabs
                 - @checks.each do |k,v|
@@ -240,12 +240,13 @@
     var id = /start-(\d*)/.exec($(this).attr('id'))[1];
     var protocol = $(this).data('protocol');
     var description = $(this).data('description');
+    var station = $(this).data('station');
 
     if($(this).hasClass('start_timer')){
 
       if(!(active_notification === null)){
         var route = $('#start-'+active_notification).data('route')[1];
-        var data = { operation: active_notification, time: active_timer, worksheet_duration: tm, description: description };
+        var data = { operation: active_notification, time: active_timer, worksheet_duration: tm, description: description, station: station };
         $.ajax({
           url: route,
           method: 'post',
@@ -266,7 +267,7 @@
       check_disabled_close();
 
       var route = $(this).data('route')[0];
-      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol, description: description };
+      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol, description: description, station: station };
       $.ajax({
         url: route,
         method: 'post',
@@ -276,7 +277,7 @@
     } else if($(this).hasClass('pause_timer')){
 
       var route = $(this).data('route')[1];
-      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol, description: description };
+      var data = { operation: id, time: active_timer, worksheet_duration: tm, protocol: protocol, description: description, station: station };
       $.ajax({
         url: route,
         method: 'post',
@@ -298,6 +299,8 @@
     // if(confirm('Chiudere la segnalazione?')){
       var id = /stop-(\d*)/.exec($(this).attr('id'))[1];
       var route = $(this).data('route');
+      var station = $(this).data('station');
+      var notes = $(this).data('notes');
       if(active_timer === null){
         var time = parseInt($('#timer-'+id).data('time'));
       } else {
@@ -309,6 +312,8 @@
       setTimeout(function(){
         new_elements['#worksheet-duration-op-'+id].val(tm);
         new_elements['#timesend-'+id].val(time);
+        new_elements['#station'].val(station);
+        new_elements['#notes'].val(notes);
         // $(document).filter('#worksheet-duration-op-'+id).val(tm);
         // $(document).filter('#timesend-'+id).val(time);
       },1000);
