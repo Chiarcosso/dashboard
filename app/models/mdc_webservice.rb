@@ -760,6 +760,8 @@ class FareDocuments
       # end
 
     end
+
+    self.register_photos
     # byebug if @data[:id].nil? || @data[:id] == ''
     # @data = nil if @data[:date_from].nil? or @data[:date_to].nil?
     # mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
@@ -805,6 +807,63 @@ class FareDocuments
     # end
     # tmp
     @data[:photos]
+  end
+
+  def register_photos
+    # Write photos
+    unless @data[:photos].nil?
+
+      query = "select  CONVERT(VARCHAR(6), data, 12) as data from giornale where idposizione = #{self.id};"
+
+      client = MssqlReference::get_client
+      fare = client.execute(query)
+      path = "DocumentiViaggio/#{fare.first['data']}"
+      client.close
+
+      cpath = "#{ENV['RAILS_FARE_PHOTOS_PATH']}/#{path}/"
+      # rpath = "FotoSegnalazioni\\#{path.gsub('/',"\\")}\\#{report.sent_at.strftime("%Y%m%d")}"
+      # url = "/FotoViaggio/#{path}/"
+      `mkdir -p #{cpath.gsub(' ','\ ')}/`
+
+      @data[:photos].each do |photo|
+
+        # Download file
+        begin
+          data = open(photo).read
+          fh = File.open("tmp_fare_photo.jpg",'wb')
+          fh.write(data)
+          fh.close
+        rescue Exception => e
+          next
+        end
+
+        # Check whether the photo was already registered
+        already_downloaded = false
+        Dir.glob("#{cpath}/*.jpg").each do |img|
+          already_downloaded = true if FileUtils.compare_file(img,"tmp_fare_photo.jpg")
+        end
+        next if already_downloaded
+
+        # Check whether filename already exists
+        serial = 1
+        ext = File.extname(photo)
+
+        while File.file? "#{cpath}/#{self.id}_#{serial.to_s.rjust(2,"0")}#{ext}" do
+          serial += 1
+        end
+         filename = "#{self.id}_#{serial.to_s.rjust(2,"0")}#{ext}"
+
+        # Write file
+        fh = File.open("#{cpath}/#{filename}",'wb')
+        fh.write(data)
+        fh.close
+
+        # url = ''
+        # MdcReportImage.create(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}")
+
+      end
+      # report.update(description: "#{report.description}\n#{rpath}")
+    end
   end
 end
 
