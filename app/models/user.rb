@@ -48,7 +48,7 @@ class User < ApplicationRecord
     if self.has_role?(area)
       case area
       when :comune then
-        return true if !self.admin? && self.has_role?('comune') && !(['calendario assenze'] - self.roles.map{ |r| r.name}).empty?
+        return true if self.has_role?('comune') && !(['calendario assenze'] - self.roles.map{ |r| r.name}).empty?
       when :personale then
         return true unless (self.roles.map{ |r| r.name} & [
           'persone',

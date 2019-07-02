@@ -1,4 +1,5 @@
-$("##{@pp_tab_row}").html("#{escape_javascript(render partial: '/presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{@day.strftime("%d")}","%Y-%m-%d"), person: @person}  )} ");
+-# $("##{@pp_tab_row}").html("#{escape_javascript(render partial: '/presence/days_records', locals: {day: Date.strptime("#{@year}-#{@month}-#{@day.strftime("%d")}","%Y-%m-%d"), person: @person}  )} ");
+$("##{@pp_tab_row}").html("#{escape_javascript(render partial: '/presence/days_records', locals: {day: @day, person: @person}  )} ");
 $("##{@pd_tab_row}").html("#{escape_javascript(render partial: '/presence/people_records', locals: {day: @day, person: @person}  )} ");
 $("##{@bp_tab_row}").html("#{escape_javascript(render partial: '/presence/building_records', locals: {p: @person})} ");
 $('.popup').remove();
