@@ -828,7 +828,15 @@ class WorkshopController < ApplicationController
 
   def set_station
     # @station = params['station'].nil? ? 'workshop' : params['station']
-    @station = params.require('station').to_s
+    if params['station'].nil?
+      if current_user.has_role?('odl aperti') || current_user.has_role?('amministratore officina')
+        @station = 'workshop'
+      else
+        @station = 'carwash'
+      end
+    else
+      @station = params.require('station').to_s
+    end
   end
 
 end

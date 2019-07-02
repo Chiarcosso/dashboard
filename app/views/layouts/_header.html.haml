@@ -5,6 +5,9 @@
 
   = navbar_collapse style: 'width: 100vw; padding-right: 15px' do
     = navbar_group class: 'foo', id: 'menu', align: 'left' do
+      - if current_user.present? && current_user.has_roles_for?(:comune)
+        = navbar_dropdown "Comune" do          
+          = navbar_item "Calendario assenze", vacation_calendar_path
       - if current_user.present? && current_user.has_roles_for?(:personale)
         = navbar_dropdown "Personale" do
           -# = navbar_dropdown_header 'Personale'

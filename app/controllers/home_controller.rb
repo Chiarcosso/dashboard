@@ -1,7 +1,10 @@
 class HomeController < ApplicationController
 
   def dashboard
-    if (current_user.has_role? 'odl aperti') || (current_user.has_role? 'amministratore officina')
+    if (current_user.has_role? 'presenze e orari')
+      redirect_to '/presence/manage/'
+      return 0
+    elsif (current_user.has_role? 'odl aperti') || (current_user.has_role? 'amministratore officina')
       # @search = {:opened => true, :closed => false, :plate => nil, :number => nil, :date_since => nil, :date_to => nil, :mechanic => nil}
       # view =  "workshop/index"
       redirect_to '/worksheets/'
@@ -13,9 +16,6 @@ class HomeController < ApplicationController
       return 0
     elsif (current_user.has_role? 'magazzino')
       redirect_to '/storage/'
-      return 0
-    elsif (current_user.has_role? 'presenze e orari')
-      redirect_to '/presence/manage/'
       return 0
     else
       view = "_agenda"
