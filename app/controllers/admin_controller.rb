@@ -276,7 +276,7 @@ class AdminController < ApplicationController
   end
 
   def send_query_vehicles
-    @result = RestClient.get "http://portale.chiarcosso/queries/vehicles.php"
+    @result = RestClient.get "http://#{ENV['RAILS_PHPSERVER_ADDRESS']}/queries/vehicles.php"
     @result = JSON.parse @result.body
     @results = Array.new
     @type = :vehicles
@@ -328,7 +328,7 @@ class AdminController < ApplicationController
   end
 
   def send_query_carwash
-    result = RestClient.get "http://portale.chiarcosso/queries/carwash.php"
+    result = RestClient.get "http://#{ENV['RAILS_PHPSERVER_ADDRESS']}/queries/carwash.php"
     result = JSON.parse result.body
     results = {:people => Array.new, :vehicles => Array.new}
     result['people'].each do |row|
@@ -351,7 +351,7 @@ class AdminController < ApplicationController
   end
 
   def send_query_people
-    @result = RestClient.get "http://portale.chiarcosso/queries/people.php"
+    @result = RestClient.get "http://#{ENV['RAILS_PHPSERVER_ADDRESS']}/queries/people.php"
     @result = JSON.parse @result.body
     @results = Array.new
     @type = :people

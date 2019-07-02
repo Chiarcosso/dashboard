@@ -7,8 +7,10 @@ class MdcWebservice
     useSharedDatabaseConnection = 0
 
     # addr = 'chiarcosso.mobiledatacollection.it'
-    addr = "outpost.chiarcosso"
+    # addr = "outpost.chiarcosso"
     # addr = '192.168.88.13'
+    addr = ENV['RAILS_MDC_ADDRESS']
+
     @endpoint = 'http://'+addr+'/mdc_webservice/services/MdcServiceManager'
     @media_address = 'http://'+addr+'/server_chiarcosso/mediaanswers/'
 
@@ -777,7 +779,7 @@ class FareDocuments
 
   def definition
     request = HTTPI::Request.new
-    request.url = "http://portale.chiarcosso/invia-viaggi/rest.php?id=#{self.id}"
+    request.url = "http://#{ENV['RAILS_PHPSERVER_ADDRESS']}/invia-viaggi/rest.php?id=#{self.id}"
     # request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendPushNotificationExt xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:notificationExtList>#{nots}</ns3:notificationExtList></ns3:sendPushNotificationExt></soapenv:Body></soapenv:Envelope>"
     # request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
 
@@ -918,7 +920,7 @@ class ReportRequest
 
   def definition
     # request = HTTPI::Request.new
-    # request.url = "http://portale.chiarcosso/invia-viaggi/rest.php?id=#{self.id}"
+    # request.url = "http://#{ENV['RAILS_PHPSERVER_ADDRESS']}/invia-viaggi/rest.php?id=#{self.id}"
     # request.body = "<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns3:sendPushNotificationExt xmlns:ns3=\"http://ws.dataexchange.mdc.gullivernet.com\"><ns3:sessionId>#{@sessionID.xml}</ns3:sessionId><ns3:deviceList>#{dc}</ns3:deviceList><ns3:notificationExtList>#{nots}</ns3:notificationExtList></ns3:sendPushNotificationExt></soapenv:Body></soapenv:Envelope>"
     # request.headers = {'Content-type': 'application/xop+xml; charset=UTF-8; type=text/xml', 'Content-Transfer-encoding': 'binary', 'Content-ID': '<0.155339ee45be667b7fb6bd4a93dfbdb675d93cb4dc97da9b@apache.org>'}
     @data[:description]

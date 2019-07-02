@@ -46,11 +46,11 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
-  config.action_mailer.default_url_options = { host: '10.0.0.215:3000' }
+  config.action_mailer.default_url_options = { host: ENV['RAILS_OWN_ADDRESS'] }
   config.action_mailer.delivery_method = :smtp
 # SMTP settings for gmail
 config.action_mailer.smtp_settings = {
- :address              => "10.0.0.100",
+ :address              => ENV['RAILS_MAILSERVER_ADDRESS'],
  :port                 => 25,
 #  :user_name            => 'auto-mailer',
 #  :password             => '12345678',

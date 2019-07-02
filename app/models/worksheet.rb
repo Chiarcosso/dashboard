@@ -436,7 +436,7 @@ class Worksheet < ApplicationRecord
         # end
         if path.nil?
           list.scan(/.*-#{self.number}-.*\.lnk/i) do |line|
-            url = "http://10.0.0.101/linkexplode/default.asp?strPath=\\\\10.0.0.99\\Comune\\#{line[/\/mnt\/wshare\/(.*)$/,1].gsub("\/","\\")}"
+            url = "http://#{ENV['RAILS_MSSQL_HOST']}/linkexplode/default.asp?strPath=\\\\#{ENV['RAILS_AD_ADDRESS']}\\Comune\\#{line[/\/mnt\/wshare\/(.*)$/,1].gsub("\/","\\")}"
             path = HTTPI.get(url).raw_body.gsub('Z:\\','/mnt/wshare/').tr('\\','/')
           end
         end

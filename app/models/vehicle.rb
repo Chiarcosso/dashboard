@@ -113,7 +113,7 @@ class Vehicle < ApplicationRecord
     request.headers['Content-Type'] = 'text/xml; charset=utf-8'
     request.headers['Expect'] = '100-continue'
     request.headers['Connection'] = 'Keep-Alive'
-    request.headers['SOAPAction'] = "http://selecta.ve.it/selsystem/ISelSystemExport/GetTotalsKmList"
+    request.headers['SOAPAction'] = "#{ENV['RAILS_SELECTA_SOAP_URL']}/selsystem/ISelSystemExport/GetTotalsKmList"
     request.body = '<?xml version="1.0" encoding="UTF-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><GetTotalsKmList xmlns="http://selecta.ve.it/selsystem"><request xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><SecurityToken i:type="UserNamePasswordCompanyToken"><CompanyID>'+ENV['RAILS_SELECTA_COMPANY_ID']+'</CompanyID><Password>'+ENV['RAILS_SELECTA_PASS']+'</Password><UserName>'+ENV['RAILS_SELECTA_USERNAME']+'</UserName></SecurityToken><UniqueId>'+ENV['RAILS_SELECTA_UNIQUE_ID']+'</UniqueId></request></GetTotalsKmList></s:Body></s:Envelope>'
     res = HTTPI.post(request)
     res.body.scan(/<TotalKmInfo><CC>.*?<\/CC><DV>.*?<\/DV><KM>(.*?)<\/KM><PL>(.*?)<\/PL><\/TotalKmInfo>/) do |line|
