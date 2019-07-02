@@ -813,11 +813,16 @@ class FareDocuments
     # Write photos
     unless @data[:photos].nil?
 
-      query = "select  CONVERT(VARCHAR(6), data, 12) as data from giornale where idposizione = #{self.id};"
 
-      client = MssqlReference::get_client
-      fare = client.execute(query)
-      path = "DocumentiViaggio/#{fare.first['data']}"
+      begin
+        query = "select  CONVERT(VARCHAR(6), data, 12) as data from giornale where idposizione = #{self.id};"
+
+        client = MssqlReference::get_client
+        fare = client.execute(query)
+        path = "DocumentiViaggio/#{fare.first['data']}"
+      rescue Exception => e
+        path = "DocumentiViaggio/viaggi_sconosciuti"
+      end
       client.close
 
       cpath = "#{ENV['RAILS_FARE_PHOTOS_PATH']}/#{path}/"
