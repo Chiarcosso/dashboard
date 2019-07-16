@@ -976,7 +976,8 @@ class PresenceController < ApplicationController
     codes = LeaveCode.where(afterhours: true)
 
 
-    leaves = GrantedLeave.where("('#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date) or '#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
+    leaves = GrantedLeave.where("('#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date) or ('#{(date+1.days).strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)) and datediff(granted_leaves.to,granted_leaves.from) > 1) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
+
     driver_role = CompanyRelation.find_by(name: 'Autista')
     mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
     roaming_mechanic_role = CompanyRelation.find_by(name: 'Meccanico trasfertista')

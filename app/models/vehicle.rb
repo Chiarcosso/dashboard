@@ -570,7 +570,7 @@ class Vehicle < ApplicationRecord
   end
 
   def complete_name
-    self.plate+' '+self.model.complete_name
+    self.plate+' '+(self.model.nil? ? 'Modello sconosciuto' : self.model.complete_name)
   end
 
 

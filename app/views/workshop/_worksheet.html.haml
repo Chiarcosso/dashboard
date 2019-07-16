@@ -122,10 +122,11 @@
       .overlay-screen
         .overlay-content
           = form_tag( update_vehicle_mileage_path, remote: true, method: :post, format: :js) do |f|
-            = number_field_tag :mileage, nil, class: 'form-control', placeholder: 'Inserire Km!'
+            = number_field_tag :mileage, vehicle.mileage, class: 'form-control', placeholder: 'Inserire Km!'
             = hidden_field_tag :vehicle_id, vehicle.id
             = hidden_field_tag :vehicle_class, vehicle.class
             = hidden_field_tag :worksheet, @worksheet.id
+            = hidden_field_tag :station, @station
             = submit_tag 'Ok'
 
 .row

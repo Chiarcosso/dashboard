@@ -1,6 +1,7 @@
 class VehicleCheckSession < ApplicationRecord
   resourcify
   belongs_to :operator, class_name: User
+  # belongs_to :operator, class_name: Person
   belongs_to :worksheet
   belongs_to :vehicle
   belongs_to :external_vehicle

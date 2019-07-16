@@ -14,6 +14,18 @@ class PresenceRecord < ApplicationRecord
     end
   end
 
+  def start
+    self.start_ts.time
+  end
+
+  def end
+    self.end_ts.time
+  end
+
+  def timesheet_records
+    TimesheetRecord.where(person: self.person).where("start between ? and ?",self.start,self.end)
+  end
+
   def set_day_time_label
     "#{(self.set_day_time/3600).to_s.rjust(2,'0')}:#{((self.set_day_time%3600)/60).to_s.rjust(2,'0')}"
   end
@@ -205,7 +217,12 @@ class PresenceRecord < ApplicationRecord
                             calculated_duration: next_pts.nil? ? 0 : (calculated_end.to_i - calculated_start.to_i),
                             anomaly: anomaly,
                             break: false)
-
+        unless previous_record.end_ts.nil?
+          previous_record.timesheet_records.where("stop is null").each do |tr|
+            tr.close
+            tr.workshop_operation.pause unless tr.workshop_operation.nil?
+          end
+        end
         actual_total += next_pts.nil? ? 0 : (next_pts.time - pts.time).round
       else
 

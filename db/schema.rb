@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190618132359) do
+ActiveRecord::Schema.define(version: 20190715092858) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -1206,7 +1206,7 @@ ActiveRecord::Schema.define(version: 20190618132359) do
   add_foreign_key "transport_documents", "companies", column: "vector_id"
   add_foreign_key "transport_documents", "orders"
   add_foreign_key "vehicle_check_sessions", "external_vehicles"
-  add_foreign_key "vehicle_check_sessions", "people", column: "operator_id"
+  add_foreign_key "vehicle_check_sessions", "users", column: "operator_id"
   add_foreign_key "vehicle_check_sessions", "vehicles"
   add_foreign_key "vehicle_check_sessions", "worksheets"
   add_foreign_key "vehicle_checks", "vehicle_types"

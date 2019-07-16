@@ -448,7 +448,7 @@ class WorkshopController < ApplicationController
         else
           duration = wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i
         end
-        wo.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "#{wo.log}\n Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].tr("'","''"))
+        wo.update(ending_time: DateTime.now, real_duration: duration, paused: true, last_starting_time: nil, last_stopping_time: Time.now, log: "#{wo.log}\n Operazione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.", notes: params['notes'].nil? ? '' : params['notes'].tr("'","''"))
         # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
         @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
         @worksheet.update(log: "#{@worksheet.log}\n #{wo.log}")
@@ -505,15 +505,21 @@ class WorkshopController < ApplicationController
           'FlagStampato': 'false'
         })
       end
-
+      WorkshopMailer.notify_moving_sgn(sgn,odl).deliver_now
       respond_to do |format|
-        if params[:area].nil?
-          format.js { render partial: 'workshop/worksheet_js' }
-        elsif @station.to_s == 'carwash'
-          format.js { render 'carwash/checks_index_js' }
-        elsif params[:area] == 'on_processing'
+        if params[:area] == 'on_processing'
+
           @notifications = @worksheet.notifications(:all)
           format.js { render partial: 'workshop/xbox_js' }
+
+        elsif @station.to_s == 'carwash'
+
+          format.js { render 'carwash/checks_index_js' }
+
+        elsif params[:area].nil?
+
+          format.js { render partial: 'workshop/worksheet_js' }
+
         end
       end
     rescue Exception => e
@@ -537,44 +543,13 @@ class WorkshopController < ApplicationController
 
   def start_operation
     begin
-      # wo = WorkshopOperation.find(params.require(:operation).to_i)
-      wo = @workshop_operation
-      #if the current user is different from the registered one create a new operation
-      if !wo.nil? && wo.user != current_user
-        if wo.user.nil?
-          wo.update(
-            name: wo.name,
-            paused: false,
-            worksheet: wo.worksheet,
-            myofficina_reference: wo.myofficina_reference,
-            user: current_user,
-            starting_time: Time.now,
-            last_starting_time: Time.now)
-          new_log = "Operazione nr. #{@workshop_operation.id} iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
-        else
-          @workshop_operation = WorkshopOperation.create(
-            name: wo.name,
-            paused: false,
-            worksheet: wo.worksheet,
-            myofficina_reference: wo.myofficina_reference,
-            user: current_user,
-            starting_time: Time.now,
-            last_starting_time: Time.now)
-          new_log = "Operazione nr. #{@workshop_operation.id} iniziata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
-        end
-      else
-        new_log = "Operazione nr. #{@workshop_operation.id} ripresa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
-        @workshop_operation.update(ending_time: nil, paused: false, last_starting_time: Time.now, log: "#{@workshop_operation.log}\n #{new_log}")
-        # @workshop_operation.update(starting_time: DateTime.now)
-        @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
 
-      end
+      @workshop_operation.start(ts: DateTime.now, user: current_user)
 
-      @worksheet.update(log: "#{@worksheet.log}\n #{new_log}")
-      TimesheetRecord.create(person: current_user.person, workshop_operation: @workshop_operation, description: params.require(:description), start: Time.now)
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
       end
+
     rescue Exception => e
       @error = e.message+"\n\n#{e.backtrace}"
       respond_to do |format|
@@ -585,27 +560,8 @@ class WorkshopController < ApplicationController
 
   def pause_operation
     begin
-      if @workshop_operation.paused
-        duration = @workshop_operation.real_duration
-      else
-        duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
-      end
-      new_log = "Operazione nr. #{@workshop_operation.id} interrotta da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
-      @workshop_operation.update(real_duration: duration, paused: true,  last_starting_time: nil, last_stopping_time: Time.now, log: "#{@workshop_operation.log}\n #{new_log}")
-      # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
-      @worksheet.update(
-        starting_time: @workshop_operation.starting_time.nil? ? @workshop_operation.created_at : @workshop_operation.starting_time,
-        last_starting_time: Time.now,
-        last_stopping_time: nil,
-        real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i,
-        paused: false,
-        log: "#{@worksheet.log}\n #{new_log}") unless @worksheet.paused
 
-      tr = TimesheetRecord.where(person: current_user.person, workshop_operation: @workshop_operation, stop: nil).order(:created_at => :asc).last
-      if tr.nil?
-        tr = TimesheetRecord.create(person: current_user.person, workshop_operation: @workshop_operation, description: "#{@workshop_operation.name}", start: @workshop_operation.starting_time)
-      end
-      tr.update(stop: Time.now, minutes: ((Time.now - tr.start) / 60).ceil)
+      @workshop_operation.pause(ts: DateTime.now, user: current_user)
 
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
@@ -620,61 +576,8 @@ class WorkshopController < ApplicationController
 
   def finish_operation
     begin
-      if @workshop_operation.paused
-        duration = @workshop_operation.real_duration
-      else
-        duration = @workshop_operation.real_duration + Time.now.to_i - @workshop_operation.last_starting_time.to_i
-      end
-      new_log = "Operazione nr. #{@workshop_operation.id} conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}."
-      @workshop_operation.update(
-        starting_time: @workshop_operation.starting_time.nil? ? @workshop_operation.created_at : @workshop_operation.starting_time,
-        ending_time: DateTime.now,
-        real_duration: duration,
-        paused: true,
-        last_starting_time: nil,
-        last_stopping_time: Time.now,
-        log: "#{@workshop_operation.log}\n #{new_log}",
-        notes: params['notes'].tr("'","''"))
 
-      tr = TimesheetRecord.where(person: current_user.person, workshop_operation: @workshop_operation, stop: nil).order(:created_at => :asc).last
-      if tr.nil?
-        tr = TimesheetRecord.create(person: current_user.person, workshop_operation: @workshop_operation, description: "#{@workshop_operation.name}", start: @workshop_operation.starting_time)
-      end
-      tr.update(start: @workshop_operation.starting_time) if tr.start.nil?
-      tr.update(stop: Time.now, minutes: ((Time.now - tr.start) / 60).ceil) unless tr.nil?
-
-      # @worksheet.update(real_duration: params.require('worksheet_duration').to_i)
-      @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
-      @worksheet.update(log: "#{@worksheet.log}\n #{new_log}")
-      #close notification there are no more operations
-      if !@workshop_operation.myofficina_reference.nil? && WorkshopOperation.where(myofficina_reference: @workshop_operation.myofficina_reference).select{|wo| wo.ending_time.nil?}.size < 1
-
-        sgn = @workshop_operation.ew_notification
-
-        if sgn.nil? || sgn['SchedaInterventoProtocollo'].nil? || sgn['SchedaInterventoProtocollo'] == ''
-          error = <<-ERR
-            Error retriveing sgn:
-            #{sgn.inspect}
-
-            Operation:
-            #{@workshop_operation.inspect}
-
-            Worksheet:
-            #{@worksheet.inspect}
-          ERR
-
-          ErrorMailer.error_report(error,"Chiusura operazione - SGN nr. #{sgn['Protocollo']}").deliver_now
-        end
-        EurowinController::create_notification({
-          'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,
-          'AnnoODL': sgn['SchedaInterventoAnno'].to_s,
-          'ProtocolloSGN': sgn['Protocollo'].to_s,
-          'AnnoSGN': sgn['Anno'].to_s,
-          'DataIntervento': sgn['DataSegnalazione'].to_s,
-          'FlagRiparato': 'true',
-          'CodiceOfficina': "0"
-        })
-      end
+      @workshop_operation.close(ts: DateTime.now, user: current_user, notes: params['notes'].tr("'","''"))
 
       respond_to do |format|
         if params[:area].nil?
@@ -729,14 +632,13 @@ class WorkshopController < ApplicationController
       else
         ops = @worksheet.operations(current_user)
       end
-      ops.each do |wo|
-        wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
-      end
+
 
       @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: duration, paused: true)
       if params.require('perform') == 'stop'
         ops.each do |wo|
-          wo.update(ending_time: Time.now)
+          # wo.update(ending_time: Time.now)
+          wo.close
           unless wo.myofficina_reference.nil?
             sgn = EurowinController::get_notification(wo.myofficina_reference)
             EurowinController::create_notification({
@@ -781,6 +683,10 @@ class WorkshopController < ApplicationController
         WorkshopMailer.send_to_logistics(@worksheet).deliver_now
       else
         # @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: @worksheet.real_duration + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: true)
+        ops.each do |wo|
+          # wo.update(real_duration: wo.real_duration + Time.now.to_i - wo.last_starting_time.to_i , last_stopping_time: Time.now, last_starting_time: nil, paused: true) unless wo.paused
+          wo.pause
+        end
       end
 
       respond_to do |format|
