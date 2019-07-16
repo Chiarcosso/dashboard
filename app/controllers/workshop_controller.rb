@@ -505,7 +505,7 @@ class WorkshopController < ApplicationController
           'FlagStampato': 'false'
         })
       end
-      WorkshopMailer.notify_moving_sgn(sgn,odl).deliver_now
+      # WorkshopMailer.notify_moving_sgn(sgn,odl).deliver_now
       respond_to do |format|
         if params[:area] == 'on_processing'
 
