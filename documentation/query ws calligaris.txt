@@ -1,0 +1,59 @@
+query calligaris
+
+creazione odl nuovo:
+select * from autosegnalazioni
+SHOW TABLES FROM chiarcosso LIKE 'autosegnalazioni'
+SHOW FULL COLUMNS FROM chiarcosso.autosegnalazioni LIKE '%'
+SELECT Protocollo FROM autosegnalazioni WHERE Anno=2019 ORDER BY Anno, Protocollo DESC
+SELECT SerialODL FROM autosegnalazioni WHERE Anno=2019 ORDER BY Anno, SerialODL DESC
+INSERT INTO autosegnalazioni (Anno, Protocollo, Sezione, SerialODL)VALUES('2019', '75138', 'A', '45248')
+select * from autosegnalazioni
+SELECT serial FROM autoodl WHERE anno = 2019 AND protocollo = 66778
+SHOW TABLES FROM chiarcosso LIKE 'autoodl'
+SHOW FULL COLUMNS FROM chiarcosso.autoodl LIKE '%'
+SHOW KEYS FROM chiarcosso.autosegnalazioni
+UPDATE chiarcosso.autosegnalazioni SET DataSegnalazione='2019-07-17',CodiceAutista='001237',Targa='FC038NW',DescrizioneSegnalazione='riparazione telecomando',TipoDanno='14',FlagStampato='false',FlagRiparato='false',Km=393102,UserInsert='001237',UserPost='OFFICINA',SchedaInterventoAnno=2019,SchedaInterventoProtocollo=66778,CodiceAutomezzo='2172',CodiceFornitore='OFF00001',SerialODL=44873 WHERE Sezione='A' AND Anno=2019 AND Protocollo=75138 AND Estensione=''
+
+apertura odl:
+select * from autoodl
+SHOW TABLES FROM chiarcosso LIKE 'autoodl'
+SHOW FULL COLUMNS FROM chiarcosso.autoodl LIKE '%'
+SHOW KEYS FROM chiarcosso.autoodl
+UPDATE chiarcosso.autoodl SET DataEntrataVeicolo='2019-07-17' WHERE Anno=2019 AND Protocollo=67079
+
+chiusura odl:
+select * from autoodl
+SHOW TABLES FROM chiarcosso LIKE 'autoodl'
+SHOW FULL COLUMNS FROM chiarcosso.autoodl LIKE '%'
+SHOW KEYS FROM chiarcosso.autoodl
+UPDATE chiarcosso.autoodl SET DataUscitaVeicolo='2019-07-17',FlagSchedaChiusa='true' WHERE Anno=2019 AND Protocollo=67148
+
+creazione sgn nuova:
+select * from autosegnalazioni
+SHOW TABLES FROM chiarcosso LIKE 'autosegnalazioni'
+SHOW FULL COLUMNS FROM chiarcosso.autosegnalazioni LIKE '%'
+SELECT Protocollo FROM autosegnalazioni WHERE Anno=2019 ORDER BY Anno, Protocollo DESC
+INSERT INTO autosegnalazioni (Anno, Protocollo, Sezione, SerialODL)VALUES('2019', '75139', 'A', '45248')
+SELECT SerialODL FROM autosegnalazioni WHERE Anno=2019 ORDER BY Anno, SerialODL DESC
+select * from autosegnalazioni
+SELECT serial FROM autoodl WHERE anno = 2019 AND protocollo = 66831
+SHOW TABLES FROM chiarcosso LIKE 'autoodl'
+SHOW FULL COLUMNS FROM chiarcosso.autoodl LIKE '%'
+SHOW KEYS FROM chiarcosso.autosegnalazioni
+UPDATE chiarcosso.autosegnalazioni SET DataSegnalazione='2019-07-17',CodiceAutista='001237',Targa='XA686AG',DescrizioneSegnalazione='controllo luci, satellitare',TipoDanno='14',FlagStampato='false',FlagRiparato='false',Km=457060,UserInsert='001237',UserPost='OFFICINA',SchedaInterventoAnno=2019,SchedaInterventoProtocollo=66831,CodiceAutomezzo='3179',CodiceFornitore='OFF00001',SerialODL=44928 WHERE Sezione='A' AND Anno=2019 AND Protocollo=75139 AND Estensione=''
+
+sganciamento sgn:
+select * from autosegnalazioni
+SHOW TABLES FROM chiarcosso LIKE 'autosegnalazioni'
+SHOW FULL COLUMNS FROM chiarcosso.autosegnalazioni LIKE '%'
+SHOW KEYS FROM chiarcosso.autosegnalazioni
+UPDATE chiarcosso.autosegnalazioni SET SchedaInterventoAnno=NULL,SchedaInterventoProtocollo=NULL,SerialODL=NULL WHERE Sezione='A' AND Anno=2019 AND Protocollo=75148 AND Estensione=''
+
+spostamento sgn:
+select * from autosegnalazioni
+SHOW TABLES FROM chiarcosso LIKE 'autosegnalazioni'
+SHOW FULL COLUMNS FROM chiarcosso.autosegnalazioni LIKE '%'
+SHOW KEYS FROM chiarcosso.autosegnalazioni
+UPDATE chiarcosso.autosegnalazioni SET SchedaInterventoAnno=NULL,SchedaInterventoProtocollo=NULL,SerialODL=NULL WHERE Sezione='A' AND Anno=2019 AND Protocollo=75148 AND Estensione=''
+
+chisura sgn:
