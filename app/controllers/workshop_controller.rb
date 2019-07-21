@@ -643,7 +643,7 @@ class WorkshopController < ApplicationController
       if params.require('perform') == 'stop'
         ops.each do |wo|
           # wo.update(ending_time: Time.now)
-          wo.close(Time.now,current_user)
+          wo.close(time: Time.now, user: current_user)
           unless wo.myofficina_reference.nil?
             sgn = EurowinController::get_notification(wo.myofficina_reference)
             EurowinController::create_notification({
