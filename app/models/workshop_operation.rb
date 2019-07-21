@@ -68,9 +68,11 @@ class WorkshopOperation < ApplicationRecord
 
     worksheet.update(last_starting_time: opts[:ts], last_stopping_time: nil, real_duration: worksheet.real_duration + opts[:ts].to_i - worksheet.last_starting_time.to_i, paused: false) unless worksheet.paused
     worksheet.update(log: "#{worksheet.log}\n #{new_log}")
-    TimesheetRecord.close_all(opts[:user].person)
+    TimesheetRecord.close_all(opts[:user].person,Time.now)
     TimesheetRecord.create(person: opts[:user].person, workshop_operation: @workshop_operation, description: @workshop_operation.name, start: opts[:ts])
-
+    WorkshopOperation.where(user: self.user,paused: false).reject{ |w| w == self }.each do |wo|
+      wo.pause
+    end
   end
 
   def pause(opts = {ts: nil, user: nil, note: nil})
@@ -96,12 +98,14 @@ class WorkshopOperation < ApplicationRecord
       log: "#{self.log}\n #{new_log}"
     )
 
-    tr = TimesheetRecord.where(person: opts[:user].person, workshop_operation: self, stop: nil).order(:created_at => :asc).last
-    if tr.nil?
-      tr = TimesheetRecord.create(person: opts[:user].person, workshop_operation: self, description: "#{self.name}", start: self.starting_time)
+    # tr = TimesheetRecord.where(person: opts[:user].person, workshop_operation: self, stop: nil).order(:created_at => :asc).last
+    # if tr.nil?
+    #   tr = TimesheetRecord.create(person: opts[:user].person, workshop_operation: self, description: "#{self.name}", start: self.starting_time)
+    # end
+    # tr.update(start: self.starting_time) if tr.start.nil?
+    self.timesheet_records.where(stop: nil).each do |tr|
+      tr.close(Time.now)
     end
-    tr.update(start: self.starting_time) if tr.start.nil?
-    tr.update(stop: opts[:ts], minutes: ((opts[:ts].to_i - tr.start.to_i) / 60).ceil) unless tr.nil?
 
     worksheet.update(last_starting_time: opts[:ts], last_stopping_time: nil, real_duration: worksheet.real_duration + opts[:ts].to_i - worksheet.last_starting_time.to_i, paused: false) unless worksheet.paused
     worksheet.update(log: "#{worksheet.log}\n #{new_log}")
@@ -129,14 +133,18 @@ class WorkshopOperation < ApplicationRecord
       log: "#{self.log}\n #{new_log}",
       notes: opts[:notes])
 
-    tr = TimesheetRecord.where(person: opts[:user].person, workshop_operation: self, stop: nil).order(:created_at => :asc).last
-    if tr.nil?
-      tr = TimesheetRecord.create(person: opts[:user].person, workshop_operation: self, description: "#{self.name}", start: self.starting_time)
+    # unless opts[:user].nil?
+    #   tr = TimesheetRecord.where(person: opts[:user].person, workshop_operation: self, stop: nil).order(:created_at => :asc).last
+    #   if tr.nil?
+    #     tr = TimesheetRecord.create(person: opts[:user].person, workshop_operation: self, description: "#{self.name}", start: self.starting_time)
+    #   end
+    #   tr.update(start: self.starting_time) if tr.start.nil?
+    #
+    #   tr.update(stop: opts[:ts], minutes: ((opts[:ts].to_i - tr.start.to_i) / 60).ceil) unless tr.nil?
+    # end
+    self.timesheet_records.where(stop: nil).each do |tr|
+      tr.close(Time.now)
     end
-    tr.update(start: self.starting_time) if tr.start.nil?
-
-    tr.update(stop: opts[:ts], minutes: ((opts[:ts].to_i - tr.start.to_i) / 60).ceil) unless tr.nil?
-
     worksheet.update(last_starting_time: opts[:ts], last_stopping_time: nil, real_duration: worksheet.real_duration + opts[:ts].to_i - worksheet.last_starting_time.to_i, paused: false) unless worksheet.paused
     worksheet.update(log: "#{worksheet.log}\n #{new_log}")
     #close notification there are no more operations
@@ -158,15 +166,15 @@ class WorkshopOperation < ApplicationRecord
 
         ErrorMailer.error_report(error,"Chiusura operazione - SGN nr. #{sgn['Protocollo']}").deliver_now
       end
-      # EurowinController::create_notification({
-      #   'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,
-      #   'AnnoODL': sgn['SchedaInterventoAnno'].to_s,
-      #   'ProtocolloSGN': sgn['Protocollo'].to_s,
-      #   'AnnoSGN': sgn['Anno'].to_s,
-      #   'DataIntervento': sgn['DataSegnalazione'].to_s,
-      #   'FlagRiparato': 'true',
-      #   'CodiceOfficina': "0"
-      # })
+      EurowinController::create_notification({
+        'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,
+        'AnnoODL': sgn['SchedaInterventoAnno'].to_s,
+        'ProtocolloSGN': sgn['Protocollo'].to_s,
+        'AnnoSGN': sgn['Anno'].to_s,
+        'DataIntervento': sgn['DataSegnalazione'].to_s,
+        'FlagRiparato': 'true',
+        'CodiceOfficina': "0"
+      })
     end
 
   end

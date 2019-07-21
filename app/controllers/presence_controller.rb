@@ -976,7 +976,24 @@ class PresenceController < ApplicationController
     codes = LeaveCode.where(afterhours: true)
 
 
-    leaves = GrantedLeave.where("('#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date) or ('#{(date+1.days).strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)) and datediff(granted_leaves.to,granted_leaves.from) > 1) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})")
+    where = <<-QRY
+
+    ('#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date)
+    or (
+      '#{(date+1.days).strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)
+      and datediff(granted_leaves.to,granted_leaves.from) > 1
+      and ( date(granted_leaves.from) <> '#{(date+1.days).strftime("%Y-%m-%d")}'
+        or (
+        select id from granted_leaves pr
+        where granted_leaves.person_id = pr.person_id
+        and '#{date.strftime("%Y-%m-%d")}' = date(pr.date)
+        and pr.leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})
+        ) is not null)
+    )) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})
+
+    QRY
+
+    leaves = GrantedLeave.where(where)
 
     driver_role = CompanyRelation.find_by(name: 'Autista')
     mechanic_role = CompanyRelation.find_by(name: 'Meccanico')

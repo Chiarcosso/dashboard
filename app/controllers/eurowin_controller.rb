@@ -277,7 +277,7 @@ class EurowinController < ApplicationController
     r
   end
 
-  def create_ew_notification(payload)
+  def self.create_ew_notification(payload)
     puts payload.inspect
     byebug
 
@@ -287,7 +287,7 @@ class EurowinController < ApplicationController
     protocollo = res['Protocollo']
     unless args['']
 
-
+    end
     fields = []
     values = []
     args.each do |field,value|
@@ -316,7 +316,7 @@ class EurowinController < ApplicationController
     return sgn.first
   end
 
-  def edit_ew_notification(*args)
+  def self.edit_ew_notification(*args)
     puts args.inspect
 
     c = get_ew_client
@@ -334,64 +334,64 @@ class EurowinController < ApplicationController
 
   def self.create_notification(payload)
 
-    if payload['ProtocolloSGN'].nil?
-      return create_ew_notification(payload)
-    else
-      return edit_ew_notification(payload)
-    end
-    # payload = payload.stringify_keys
-    #
-    # payload['AnnoODL'] = "-1" if payload['AnnoODL'].nil?
-    # payload['ProtocolloODL'] = "-1" if payload['ProtocolloODL'].nil?
-    # payload['AnnoSGN'] = "0" if payload['AnnoSGN'].nil?
-    # payload['ProtocolloSGN'] = "0" if payload['ProtocolloSGN'].nil?
-    # payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
-    # if payload['OraIntervento'].nil?
-    #   time = Time.now.strftime('%H:%M:%S')
+    # if payload['ProtocolloSGN'].nil?
+    #   return create_ew_notification(payload)
     # else
-    #   time = payload['OraIntervento']
+    #   return edit_ew_notification(payload)
     # end
-    # payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
-    # payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
-    # payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
-    # payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
-    # payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
-    # payload['UserInsert'] = payload['CodiceAutista'].to_s.gsub("'","\\'") unless payload['UserInsert'].nil?
-    # # payload['DataPost'] = "0" if payload['DataPost'].nil?
-    # # payload['UserPost'] = "0" if payload['UserPost'].nil?
-    # # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
-    # # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
-    # # payload['FlagStampato'] = "0"
-    # # payload['TipoDanno'] = "0" if payload['TipoDanno'].nil?
-    # # payload['FlagRiparato'] = "0" if payload['FlagRiparato'].nil?
-    # payload['FlagRiparato'] = "null" if payload['FlagRiparato'].nil?
-    # payload['FlagStampato'] = "null" if payload['FlagStampato'].nil?
-    # payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
-    # payload['FlagJSONType'] = "sgn"
-    #
-    # payload.each { |k,v| payload.delete(k) if v.nil? }
-    #
-    # request = HTTPI::Request.new
-    # request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
-    # request.body = payload.to_json
-    # request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    #
-    # special_logger.info(request)
-    # response = HTTPI.post(request)
-    # special_logger.info(response)
-    # res = JSON.parse(response.raw_body)['ProtocolloSGN']
-    # year = JSON.parse(response.raw_body)['AnnoSGN']
-    #
-    #
-    # c = get_ew_client
-    # qry = "update autosegnalazioni set OraSegnalazione = '#{time}' where protocollo = '#{res}' and anno = #{year}"
-    # sgn = c.query(qry)
-    #
-    # qry = "select * from autosegnalazioni where protocollo = '#{res}'"
-    # sgn = c.query(qry)
-    # c.close
+    payload = payload.stringify_keys
 
-    # return sgn.first unless sgn.count < 1
+    payload['AnnoODL'] = "-1" if payload['AnnoODL'].nil?
+    payload['ProtocolloODL'] = "-1" if payload['ProtocolloODL'].nil?
+    payload['AnnoSGN'] = "0" if payload['AnnoSGN'].nil?
+    payload['ProtocolloSGN'] = "0" if payload['ProtocolloSGN'].nil?
+    payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
+    if payload['OraIntervento'].nil?
+      time = Time.now.strftime('%H:%M:%S')
+    else
+      time = payload['OraIntervento']
+    end
+    payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
+    payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
+    payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
+    payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
+    payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
+    payload['UserInsert'] = payload['CodiceAutista'].to_s.gsub("'","\\'") unless payload['UserInsert'].nil?
+    # payload['DataPost'] = "0" if payload['DataPost'].nil?
+    # payload['UserPost'] = "0" if payload['UserPost'].nil?
+    # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
+    # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
+    # payload['FlagStampato'] = "0"
+    # payload['TipoDanno'] = "0" if payload['TipoDanno'].nil?
+    # payload['FlagRiparato'] = "0" if payload['FlagRiparato'].nil?
+    payload['FlagRiparato'] = "null" if payload['FlagRiparato'].nil?
+    payload['FlagStampato'] = "null" if payload['FlagStampato'].nil?
+    payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
+    payload['FlagJSONType'] = "sgn"
+
+    payload.each { |k,v| payload.delete(k) if v.nil? }
+
+    request = HTTPI::Request.new
+    request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
+    request.body = payload.to_json
+    request.headers['Content-Type'] = 'application/json; charset=utf-8'
+
+    special_logger.info(request)
+    response = HTTPI.post(request)
+    special_logger.info(response)
+    res = JSON.parse(response.raw_body)['ProtocolloSGN']
+    year = JSON.parse(response.raw_body)['AnnoSGN']
+
+
+    c = get_ew_client
+    qry = "update autosegnalazioni set OraSegnalazione = '#{time}' where protocollo = '#{res}' and anno = #{year}"
+    sgn = c.query(qry)
+
+    qry = "select * from autosegnalazioni where protocollo = '#{res}'"
+    sgn = c.query(qry)
+    c.close
+
+    return sgn.first unless sgn.count < 1
 
   end
 

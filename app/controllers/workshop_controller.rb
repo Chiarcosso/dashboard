@@ -183,13 +183,16 @@ class WorkshopController < ApplicationController
         end
       end
 
-      # Assign checks operation if missing
-      wo_nil = WorkshopOperation.find_by(worksheet: @worksheet, myofficina_reference: nil, user: nil)
-      if wo_nil.nil?
-        WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: current_user) if WorkshopOperation.find_by(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: current_user).nil?
-      else
-        wo_nil.update(user: current_user)
-      end
+      # # Assign checks operation if missing
+      # wo_nil = WorkshopOperation.find_by(worksheet: @worksheet, myofficina_reference: nil, user: nil)
+      # if wo_nil.nil?
+      #   WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: current_user) if WorkshopOperation.find_by(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: current_user).nil?
+      # else
+      #   wo_nil.update(user: current_user)
+      # end
+
+      # Create checks operation if missing
+      WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: nil) if WorkshopOperation.find_by(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil).nil?
 
       v = @worksheet.vehicle
       vec = v.vehicle_checks('workshop')
@@ -281,7 +284,7 @@ class WorkshopController < ApplicationController
       }
 
       sgn = EurowinController::create_notification(payload)
-      WorkshopOperation.create(name: 'Lavorazione', worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: current_user, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
+      WorkshopOperation.create(name: 'Lavorazione', worksheet: @worksheet, myofficina_reference: sgn['Protocollo'], user: nil, log: "Operazione creata da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.")
 
       respond_to do |format|
         format.js { render partial: 'workshop/worksheet_js' }
@@ -328,6 +331,8 @@ class WorkshopController < ApplicationController
       if vec.size < 1
         raise "Non ci sono controlli da fare per questo mezzo (targa: #{v.plate})."
       end
+
+      WorkshopOperation.create(name: 'Controlli', worksheet: @worksheet, myofficina_reference: nil, user: nil)
 
       if vehicle.class == ExternalVehicle
 
@@ -638,7 +643,7 @@ class WorkshopController < ApplicationController
       if params.require('perform') == 'stop'
         ops.each do |wo|
           # wo.update(ending_time: Time.now)
-          wo.close
+          wo.close(Time.now,current_user)
           unless wo.myofficina_reference.nil?
             sgn = EurowinController::get_notification(wo.myofficina_reference)
             EurowinController::create_notification({
