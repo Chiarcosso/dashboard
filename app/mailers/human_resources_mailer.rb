@@ -5,6 +5,7 @@ class HumanResourcesMailer < ApplicationMailer
   # default to: 'ufficioit@chiarcosso.com'
 
   def vacation_request(application)
+    return if Rails.env == "development"
     @application = application
     attachments[application.filename] = {:mime_type => 'application/pdf', :content => application.form }
     mail(body: application.text, subject: 'Richiesta '+application.type+', '+application.person.complete_name)

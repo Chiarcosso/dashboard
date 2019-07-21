@@ -3,6 +3,7 @@ class CarwashMailer < ApplicationMailer
   default to: 'officina@chiarcosso.it'
 
   def check_up(vcs)
+    return if Rails.env == "development"
     vpcs = vcs.vehicle_performed_checks.not_ok
 
     vehicle = vcs.vehicle

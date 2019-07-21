@@ -164,7 +164,7 @@ class WorkshopOperation < ApplicationRecord
           #{@worksheet.inspect}
         ERR
 
-        ErrorMailer.error_report(error,"Chiusura operazione - SGN nr. #{sgn['Protocollo']}").deliver_now
+        ErrorMailer.error_report(error,"Chiusura operazione - SGN nr. #{self.myofficina_reference}").deliver_now
       end
       EurowinController::create_notification({
         'ProtocolloODL': sgn['SchedaInterventoProtocollo'].to_s,

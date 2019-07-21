@@ -3,7 +3,7 @@ class WorkshopMailer < ApplicationMailer
   default to: 'officina@chiarcosso.it'
 
   def send_worksheet(ws,pdf)
-
+    return if Rails.env == "development"
     # notify_to = ['officina@chiarcosso.it','ufficioit@chiarcosso.com']
     notify_to = ['schede.officina@chiarcosso.com']
     vehicle = ws.vehicle
@@ -20,6 +20,7 @@ class WorkshopMailer < ApplicationMailer
   end
 
   def send_to_logistics(ws)
+    return if Rails.env == "development"
     notify_to = ['mezzipronti@chiarcosso.com']
     vehicle = ws.vehicle
     case ws.station
@@ -45,7 +46,7 @@ class WorkshopMailer < ApplicationMailer
   end
 
   def notify_moving_sgn(sgn,old_odl)
-
+    return if Rails.env == "development"
     notify_to = ['officina@chiarcosso.it','ufficioit@chiarcosso.com']
 
     if old_odl.nil?

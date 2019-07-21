@@ -4,12 +4,14 @@ class StorageMailer < ApplicationMailer
   default to: 'magazzino@chiarcosso.it'
 
   def reserve_alert(article)
+    return if Rails.env == "development"
     text = "L'articolo #{article.complete_name} è sceso sotto la scorta minima di #{article.minimal_reserve}."
     text += "\n\nQuesta è una mail automatica interna. Non rispondere direttamente a questo indirizzo.\nIn caso di problemi scrivere a ufficioit@chiarcosso.com o contattare direttamente l'amministratore del sistema."
     mail(body: text, subject: 'Avviso scorta '+article.complete_name)
   end
 
   def gear_request(application,department)
+    return if Rails.env == "development"
     @application = application
     # attachments[application.filename] = {:mime_type => 'application/pdf', :content => application.form }
     case department

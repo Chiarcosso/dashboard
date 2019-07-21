@@ -4,9 +4,9 @@ class ErrorMailer < ApplicationMailer
   # default to: 'ufficioit@chiarcosso.com'
 
   def error_report(text,area)
-
+    return if Rails.env == "development"
     mail(body: text, subject: "Report errori - #{area}")
-  
+
   end
 
 end
