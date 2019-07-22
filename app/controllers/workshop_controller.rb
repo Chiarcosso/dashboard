@@ -640,6 +640,7 @@ class WorkshopController < ApplicationController
 
 
       @worksheet.update(last_starting_time: nil, last_stopping_time: Time.now, real_duration: duration, paused: true)
+      
       if params.require('perform') == 'stop'
         ops.each do |wo|
           # wo.update(ending_time: Time.now)

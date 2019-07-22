@@ -979,6 +979,7 @@ class PresenceController < ApplicationController
     where = <<-QRY
 
     ('#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date)
+    or '#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)
     or (
       '#{(date+1.days).strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)
       and datediff(granted_leaves.to,granted_leaves.from) > 1
