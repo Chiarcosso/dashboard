@@ -12,14 +12,14 @@
         = submit_tag 'Ricarica', class: 'form-control'
         = hidden_field_tag :status, 0
       .col-sm-9
-        = select_tag :user_id, options_for_select(mdc_users.collect{|p| [p.complete_name,p.user]},@mdc_user), include_blank: 'Selezionare autista', class: 'form-control submitting-select', id: 'mdc_user-select'
+        = select_tag :user_id, options_for_select(mdc_users.collect{|p| [p.complete_name,p.user]},@mdc_user.user), include_blank: 'Selezionare autista', class: 'form-control submitting-select', id: 'mdc_user-select'
 
   -# = radio_button_tag 'status', "opened", @status == 0 ? true : false, id: 'opened'
   -# Mostra viaggi aperti
   -# = radio_button_tag 'status', "closed", @status == 0 ? false : true, id: 'closed'
   -# Mostra viaggi chiusi
   .scrollable-panel.full-panel#fares-panel
-    - render partial: 'mdc/index_part'
+    - render partial: 'mdc/index_part', locals: {result: @result, mdc_user: @mdc_user.user}
     -# - MdcUser.assigned.each do |p|
     -#   .loadable{data: {route: "/mdc/transport_documents/#{@status == 0 ? 'opened' : 'closed'}/load/#{p.user.upcase}"}}
 

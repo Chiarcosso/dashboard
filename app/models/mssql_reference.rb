@@ -307,8 +307,7 @@ class MssqlReference < ApplicationRecord
       query = "select 'Autisti' as table_name, a.Idautista as id, a.ditta as employer, a.nome as name, a.cognome as surname, "\
                   "Mansione.Descrizione as role, a.attivo as dismissed "\
                   "from Autisti a "\
-                  "left join Mansione on a.idmansione = mansione.idmansione "\
-                  "where a.ditta is not null and a.ditta != '' and a.nome is not null and a.nome != '' "\
+                  "left join Mansione on a.idmansione = mansione.idmansione "
                   "and a.cognome is not null and a.cognome != ''"\
                   "order by a.cognome,a.nome"
       list = client.execute(query)
@@ -324,11 +323,11 @@ class MssqlReference < ApplicationRecord
         r['name'] = r['name'].strip.titleize
         r['surname'] = r['surname'].strip.titleize
 
-        if employer.nil?
-          @error = " #{r['cognome']} #{r['nome']} (#{r['id']}) - Invalid employer: #{r['employer']}"
-          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['cognome']} #{r['nome']} (#{r['id']}) - Ditta non valida: #{r['employer']}</span>\n"
-          special_logger.error(@error)
-        end
+        # if employer.nil?
+        #   @error = " #{r['cognome']} #{r['nome']} (#{r['id']}) - Invalid employer: #{r['employer']}"
+        #   response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['cognome']} #{r['nome']} (#{r['id']}) - Ditta non valida: #{r['employer']}</span>\n"
+        #   special_logger.error(@error)
+        # end
         if r['notdismissed'] == false
           notdismissed = false
         else
@@ -381,7 +380,8 @@ class MssqlReference < ApplicationRecord
             elsif p.check_properties(r)
 
               response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:S")} #{p.surname} #{p.name} (#{r['id']}) - A posto (id: #{p.id}).\n"
-              unless p.has_relation?(employer,company_relation)
+
+              unless employer.nil? || p.has_relation?(employer,company_relation)
                 CompanyPerson.create(person: p, company: employer, company_relation: company_relation, acting: notdismissed) if update
                 special_logger.info(" - #{p.id} -> #{p.surname} #{p.name} (#{r['id']}) - CompanyPerson added -> #{employer}: #{r['role']} -> #{notdismissed ? 'acting' : 'non acting'} (id: #{p.id}).")
                 response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - Aggiunto ruolo -> #{employer}: #{r['role']} -> #{notdismissed ? 'attivo' : 'non attivo'} (id: #{p.id}).\n"

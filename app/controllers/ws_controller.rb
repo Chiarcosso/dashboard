@@ -1,7 +1,7 @@
 class WsController < ApplicationController
   skip_before_action :authenticate_user!, :only => :update_fares
   protect_from_forgery except: :update_fares
-  before_action :set_status, :only => [:index,:index_load]
+  before_action :set_status, :only => [:index,:index_load,:close_fare]
   before_action :get_action, only: [:update_user]
   before_action :get_holder, only: [:update_user]
 
@@ -27,15 +27,18 @@ class WsController < ApplicationController
   end
 
   def index_load
+    # @result = Array.new
 
     mdc = MdcWebservice.new
-    @res = mdc.get_fares_data({applicationID: 'FARES', deviceCode: params.require(:user_id), status: @status}).reverse[0,10]
+    @result = mdc.get_fares_data({applicationID: 'FARES', deviceCode: params.require(:user_id).upcase, status: 0})#.reverse[0,10]
+
     mdc.close_session
-    if @res.nil? || @res.empty?
-      @res = Array.new
-    end
+
+    @mdc_user = MdcUser.find_by(user: params.require(:user_id))
+
     respond_to do |format|
-      format.js { render partial: 'mdc/index_part' }
+      format.js { render partial: 'mdc/index_part_js' }
+      format.html { render partial: 'mdc/index' }
     end
   end
 
@@ -274,24 +277,39 @@ class WsController < ApplicationController
   end
 
   def close_fare
-    mdc = MdcWebservice.new
-    mdc.begin_transaction
-    mdc.update_data_collection_rows_status(Base64.decode64(params.require(:data_collection_rows)))
-    mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: params.require(:id), deviceCode: ''})])
-    # Person.mdc.each do |p|
-    #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
-    # end
-    mdc.send_same_push_notification_ext(MdcUser.assigned.to_a,'Chiusura viaggio.')
-    # MdcUser.assigned.each do |mdcu|
-    #   mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil)
-    # end
-    # mdc.send_push_notification(['ALL'],'Aggiornamento viaggi.')
-    # mdc.send_push_notification(Person.mdc.pluck(:mdc_user),'Aggiornamento viaggi.')
-    mdc.commit_transaction
-    mdc.end_transaction
+    begin
+      mdc = MdcWebservice.new
+      mdc.begin_transaction
+      mdc.update_data_collection_rows_status(Base64.decode64(params.require(:data_collection_rows)))
+      mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'FARES', index: 0, value: params.require(:id), deviceCode: ''})])
+      # Person.mdc.each do |p|
+      #   mdc.send_push_notification([p.mdc_user],'Aggiornamento viaggi.')
+      # end
+      mdc.send_same_push_notification_ext(MdcUser.assigned.to_a,'Chiusura viaggio.')
+      # MdcUser.assigned.each do |mdcu|
+      #   mdc.send_push_notification_ext([mdcu],'Aggiornamento viaggi.',nil)
+      # end
+      # mdc.send_push_notification(['ALL'],'Aggiornamento viaggi.')
+      # mdc.send_push_notification(Person.mdc.pluck(:mdc_user),'Aggiornamento viaggi.')
+      mdc.commit_transaction
+      mdc.end_transaction
+      # @status = 0
+    rescue Exception => e
+      @error = e.message+"\n"+e.backtrace.join("\n")
+      respond_to do |format|
+        format.js {render partial: 'layouts/error'}
+      end
+    end
+
+    @result = mdc.get_fares_data({applicationID: 'FARES', deviceCode: params.require(:user_id).upcase, status: 0})#.reverse[0,10]
+
     mdc.close_session
-    @status = 0
-    index
+
+    @mdc_user = MdcUser.find_by(user: params.require(:user_id))
+
+    respond_to do |format|
+      format.js { render partial: 'mdc/index_part_js' }
+    end
   end
 
   def self.update_plates
