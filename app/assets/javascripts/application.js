@@ -47,7 +47,7 @@ function loadrowGeneric(element,result_element,loading_element,method, data){
   var route = $(element).data('route');
 
   // debugger
-  $(loading_element).html('Caricamento.. Record rimanenti: '+loading);
+  $(loading_element).html('Caricamento.. Autisti da controllare: '+loading);
   $.ajax({
     url: route,
     method: method,
@@ -59,7 +59,7 @@ function loadrowGeneric(element,result_element,loading_element,method, data){
         results += 1;
         $(element).html(response.responseText);
       }
-      $(result_element).html('Record: '+results);
+      $(result_element).html('Autisti: '+results);
       loading -= 1;
       if(loading <= 0){
         $(loading_element).html('');
