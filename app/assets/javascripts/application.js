@@ -27,11 +27,23 @@ jQuery.ajaxSetup({
 
 var loading = 0;
 var results = 0;
-function loadrowGeneric(element,result_element = "#results",loading_element = "#loading",method = 'get', data = null){
+function loadrowGeneric(element,result_element,loading_element,method, data){
   // if(load_mutex){
   //   setTimeout(loadrowGeneric(containingElement,route,method, data),1000);
   //   return;
   // }
+  if(result_element == undefined){
+    result_element = "#results";
+  }
+  if(loading_element == undefined){
+    loading_element = "#loading";
+  }
+  if(method == undefined){
+    method = "get";
+  }
+  if(data == undefined){
+    data = null;
+  }
   var route = $(element).data('route');
 
   // debugger
@@ -43,7 +55,8 @@ function loadrowGeneric(element,result_element = "#results",loading_element = "#
     complete: function(response){
 
       if(element.next() != null) {
-        setTimeout(function(){loadrowGeneric(element.next(),result_element,loading_element,method, data)},1000);
+        // setTimeout(function(){loadrowGeneric(element.next(),result_element,loading_element,method, data)},1000);
+        loadrowGeneric(element.next(),result_element,loading_element,method, data);
       }
       if(response.responseText != '')
       {
@@ -55,7 +68,7 @@ function loadrowGeneric(element,result_element = "#results",loading_element = "#
       if(loading <= 0){
         $(result_element).html('');
       }
-      
+
     }
   });
 
