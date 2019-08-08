@@ -1,7 +1,7 @@
 class WsController < ApplicationController
   skip_before_action :authenticate_user!, :only => :update_fares
   protect_from_forgery except: :update_fares
-  before_action :set_status, :only => [:index]
+  before_action :set_status, :only => [:index,:index_load]
   before_action :get_action, only: [:update_user]
   before_action :get_holder, only: [:update_user]
 
@@ -13,17 +13,30 @@ class WsController < ApplicationController
   end
 
   def index
-    mdc = MdcWebservice.new
-
-    @results = Array.new
-    # @results << mdc.get_fares_data({applicationID: 'FARES', deviceCode: '', status: @status}).reverse[0,10]
-    # byebug
-    MdcUser.assigned.each do |p|
-      r = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.user.upcase, status: @status}).reverse[0,10]
-      @results << r unless r.empty?
-    end
-    mdc.close_session
+    # mdc = MdcWebservice.new
+    #
+    # @results = Array.new
+    # # @results << mdc.get_fares_data({applicationID: 'FARES', deviceCode: '', status: @status}).reverse[0,10]
+    # # byebug
+    # MdcUser.assigned.each do |p|
+    #   r = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.user.upcase, status: @status}).reverse[0,10]
+    #   @results << r unless r.empty?
+    # end
+    # mdc.close_session
     render 'mdc/index'
+  end
+
+  def index_load
+
+    mdc = MdcWebservice.new
+    @res = mdc.get_fares_data({applicationID: 'FARES', deviceCode: params.require(:user_id), status: @status}).reverse[0,10]
+    mdc.close_session
+    if @res.nil? || @res.empty?
+      @res = Array.new
+    end
+    respond_to do |format|
+      format.js { render partial: 'mdc/index_part' }
+    end
   end
 
   # Create notification from MDC report

@@ -1,53 +1,39 @@
 
 .container{style: 'margin-top: 1em;'}
-  = "Record: #{@results.count}"
+  - results = 0
+  %span#results="Record: #{results}"
   = button_to 'Ricarica', mdc_transport_documents_path(@status == 0 ? 'opened' : 'closed'), method: :get
   = radio_button_tag 'status', "opened", @status == 0 ? true : false, id: 'opened'
   Mostra viaggi aperti
   = radio_button_tag 'status', "closed", @status == 0 ? false : true, id: 'closed'
   Mostra viaggi chiusi
-  .scrollable-panel.full-panel
-    - @results.each do |r|
-      - r.each do |res|
-        .row
-          .col-sm-12
-            %hr
-            %b IDPosizione:
-            = res.id
-            %b Autista:
-            = res.user.holder.complete_name
-            %br
-            -begin
-              = res.definition.force_encoding('UTF-8')
-            -rescue Exception => e
-              -# - byebug
-            -# = res.inspect
-            - keys  = ''
-            - res.dataCollectionRows.each do |dcr|
-              - keys += "<ns3:keys>#{dcr.dataCollectionRowKey.xml}</ns3:keys>"
-            = form_tag(mdc_close_fare_path, method: :post) do |f|
-              = hidden_field_tag :data_collection_rows, Base64.encode64(keys)
-              = hidden_field_tag :id, res.id
-              = hidden_field_tag :user, res.user.user
-              = submit_tag 'Chiudi'
-            = form_tag(mdc_download_ws_pdf_path(format: :pdf), method: :post, class: 'no-loader') do |f|
-              = hidden_field_tag :id, res.id
-              = hidden_field_tag :driver, res.user.holder.complete_name
-              - res.photos.each do |p|
-                = hidden_field_tag 'photos[]', p
-              = button_tag 'PDF', class: 'no-loader'
-        .row
-          .col-sm-12
-            - res.photos.each do |p|
-              = image_tag(p, class: 'gallery-image', style: 'height:50%;width:auto;')
-            %br
-            %br
+  .scrollable-panel.full-panel#fares-panel
+
+    - MdcUser.assigned.each do |p|
+      .loadable{data: {route: "/mdc/transport_documents/#{@status == 0 ? 'opened' : 'closed'}/load/#{p.user.upcase}"}}
+
+
+  #loading
+    %b="Caricamento.."
 
 :javascript
   activateGallery();
+
 
   $('input[name=status]').on('click',function(){
     var form = $('input[value=Ricarica]').parent();
     form.attr('action','/mdc/transport_documents/'+this.id);
     form.submit();
   });
+
+  loading = $('.loadable').length;
+  results = 0;
+  var res;
+  loadrowGeneric($('.loadable').first());
+  // $.each($('.loadable'),function(){
+  //
+  //
+  //
+  //   res = loadrowGeneric($(this),$(this).next());
+  //   console.log(res,'res');
+  // });

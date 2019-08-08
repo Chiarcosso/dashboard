@@ -1,4 +1,5 @@
 class EurowinController < ApplicationController
+  include AppHelper
 
   def self.get_notification(protocol)
     ewc = get_ew_client
@@ -277,48 +278,52 @@ class EurowinController < ApplicationController
     r
   end
 
-  def self.create_ew_notification(payload)
-    puts payload.inspect
-    byebug
+  def self.create_ew_notification(args)
 
-    c = get_ew_client
-    qry = "select Protocollo from autosegnalazioni order by Protocollo desc limit 1;"
-    res = c.query(qry).first
-    protocollo = res['Protocollo']
-    unless args['']
+    args.each { |k,v| args.delete(k) if v.nil? }
+    puts args.inspect
 
-    end
+
+    # qry = "select Protocollo from autosegnalazioni order by Protocollo desc limit 1;"
+    # res = c.query(qry).first
+    # protocollo = res['Protocollo']
+    # unless args['']
+    #
+    # end
     fields = []
     values = []
     args.each do |field,value|
       fields << field
+      if value.is_a? String
+        value = "'#{value}'"
+      end
       values << value
     end
-    qry = <<-QRY
-      insert into autosegnalazioni (Anno,Protocollo,Sezione,#{fields.join(',')})
-          values (
-            #{Date.today.strftime('%Y')},
-            convert(
-              (
-                select convert(autosegnalazioni.Protocollo,integer)+1
-                from autosegnalazioni order by autosegnalazioni.Protocollo desc limit 1
-              ),varchar
-            ),
-            'A',
-            #{values.join(',')}
-            );
-      select * from autosegnalazioni where protocollo = LAST_INSERT_ID();
-    QRY
-    byebug
+
+
+    unless args[:schedainterventoprotocollo].nil?
+      fields << 'SerialODL'
+      values << "(select serial from autoodl where protocollo = #{args[:schedainterventoprotocollo]})"
+    end
+    unless args[:codiceautomezzo].nil?
+      fields << 'targa'
+      values << "(select targa from automezzi where codice = '#{args[:codiceautomezzo]}')"
+    end
+    anno = args[:datasegnalazione].match(/^([0-9]{4})-.*/)[1]
+
+    qry = 'set @nextprotocol = (select max(protocollo)+1 from autosegnalazioni); '
+    qry += "insert into autosegnalazioni (Anno,Protocollo,Sezione,#{fields.join(',')}) values (#{anno},@nextprotocol,'A',#{values.join(',')}); "
+    qry += 'select * from autosegnalazioni where protocollo = @nextprotocol '
+    c = get_ew_client
     sgn = c.query(qry)
-    c.close
     byebug
+    c.close
     return sgn.first
   end
 
   def self.edit_ew_notification(*args)
     puts args.inspect
-
+    byebug
     c = get_ew_client
     qry = "select Anno, Protocollo from autosegnalazioni order by Anno desc, Protocollo desc limit 1;"
     res = c.query(qry).first
@@ -333,9 +338,85 @@ class EurowinController < ApplicationController
   end
 
   def self.create_notification(payload)
-
+    # byebug
+    ## '0' means new one
+    ## '-1' means don't change
+    ## 'null' means write null
+    # payload = payload.stringify_keys
+    #
+    # payload['AnnoODL'] = nil if payload['AnnoODL'] == '-1'
+    # payload['ProtocolloODL'] = nil if payload['ProtocolloODL'] == '-1'
+    # payload['AnnoSGN'] = nil if payload['AnnoSGN'] == '0'
+    # payload['ProtocolloSGN'] = nil if payload['ProtocolloSGN'] == '0'
+    #
+    # payload['CodiceOfficina'] = nil if payload['CodiceOfficina'] == '0'
+    # payload['CodiceAutomezzo'] = nil if payload['CodiceAutomezzo'] == '0'
+    #
+    # payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
+    # payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
+    # payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
+    # payload['UserInsert'] = payload['UserInsert'].to_s.gsub("'","\\'") unless payload['UserInsert'].nil?
+    #
+    # # payload['DataPost'] = "0" if payload['DataPost'].nil?
+    # # payload['UserPost'] = "0" if payload['UserPost'].nil?
+    # # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
+    # # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
+    # # payload['FlagStampato'] = "0"
+    # # payload['TipoDanno'] = "0" if payload['TipoDanno'].nil?
+    # # payload['FlagRiparato'] = "0" if payload['FlagRiparato'].nil?
+    # payload['FlagRiparato'] = nil if payload['FlagRiparato'] == 'null'
+    # payload['FlagStampato'] = nil if payload['FlagStampato'] == 'null'
+    # payload['FlagSvolto'] = nil if payload['FlagSvolto'] == 'null'
+    #
     # if payload['ProtocolloSGN'].nil?
-    #   return create_ew_notification(payload)
+    #
+    #   payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
+    #   payload['OraIntervento'] = Time.now.strftime('%H:%M:%S') if payload['OraIntervento'].nil?
+    #
+    #   unless payload['CodiceAutomezzo'].nil?
+    #     c = get_ew_client
+    #     qry = "select codiceProvenienza from automezzi where codice = '#{payload['CodiceAutomezzo']}'"
+    #     am = c.query(qry).first['codiceProvenienza'].split(' ')
+    #     c.close
+    #     vehicle = Vehicle.find_by_reference(am[0],am[1])
+    #     lm = last_maintainance(vehicle)
+    #     lc = vehicle.last_check
+    #     payload['DataUltimaManutenzione'] = lm['DataUscitaVeicolo'].strftime("%Y-%m-%d") unless lm.nil?
+    #     payload['DataUltimoControllo'] = lc.time.strftime("%Y-%m-%d") unless lc.nil?
+    #   end
+    #
+    #   payload['DataInsert'] = Date.today.strftime("%Y-%m-%d") if payload['DataInsert'].nil?
+    #
+    #   payload['FlagRiparato'] = 'false' if payload['FlagRiparato'].nil?
+    #   payload['FlagStampato'] = 'false' if payload['FlagStampato'].nil?
+    #   payload['FlagSvolto'] = 'false' if payload['FlagSvolto'].nil?
+    #
+    #   payload['UserInsert'] = 'DASHBOARD' if payload['UserInsert'].nil?
+    # end
+    # # payload.each { |k,v| payload.delete(k) if v.nil? }
+    #
+    # if payload['ProtocolloSGN'].nil?
+    #   return create_ew_notification(
+    #     datasegnalazione: payload['DataIntervento'],
+    #     orasegnalazione: payload['OraIntervento'],
+    #     codiceautista: payload['CodiceAutista'].to_s,
+    #     descrizionesegnalazione: payload['Descrizione'],
+    #     tipodanno: payload['TipoDanno'],
+    #     flagstampato: payload['FlagStampato'].to_s,
+    #     flagchiuso: payload['FlagSvolto'].to_s,
+    #     flagriparato: payload['FlagRiparato'].to_s,
+    #     dataultimamanutenzione: payload['DataUltimaManutenzione'],
+    #     dataultimocontrollo: payload['DataUltimoControlo'],
+    #     km: payload['Chilometraggio'].to_i,
+    #     datainsert: payload['DataInsert'],
+    #     userinsert: payload['UserInsert'],
+    #     datapost: payload['DataPost'],
+    #     userpost: payload['UserPost'],
+    #     schedainterventoanno: payload['AnnoODL'].to_i,
+    #     schedainterventoprotocollo: payload['ProtocolloODL'].to_i,
+    #     codiceautomezzo: payload['CodiceAutomezzo'],
+    #     codicefornitore: payload['CodiceOfficina']
+    #   )
     # else
     #   return edit_ew_notification(payload)
     # end
@@ -542,7 +623,7 @@ class EurowinController < ApplicationController
   private
 
   def self.get_ew_client(db = ENV['RAILS_EUROS_DB'])
-    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db
+    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db, flags: Mysql2::Client::MULTI_STATEMENTS
   end
 
   def self.special_logger

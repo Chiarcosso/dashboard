@@ -176,6 +176,7 @@ Rails.application.routes.draw do
   post   '/items_new_order', to: 'orders#add_item_to_new_order', as: :add_item_to_new_order
 
   get  '/mdc/transport_documents/:status', to: 'ws#index', as: :mdc_transport_documents
+  get  '/mdc/transport_documents/:status/load/:user_id', to: 'ws#index_load', as: :mdc_transport_documents_load
   post 'mdc/close_fare', to: 'ws#close_fare', as: :mdc_close_fare
   post 'mdc/download_ws_pdf', to: 'ws#print_pdf', as: :mdc_download_ws_pdf
   get  '/mdc/codes', to: 'ws#codes', as: :mdc_codes

@@ -25,6 +25,42 @@ jQuery.ajaxSetup({
     cache: false
 });
 
+var loading = 0;
+var results = 0;
+function loadrowGeneric(element,result_element = "#results",loading_element = "#loading",method = 'get', data = null){
+  // if(load_mutex){
+  //   setTimeout(loadrowGeneric(containingElement,route,method, data),1000);
+  //   return;
+  // }
+  var route = $(element).data('route');
+
+  // debugger
+  $(loading_element).html('Caricamento.. Record rimanenti: '+loading);
+  $.ajax({
+    url: route,
+    method: method,
+    data: data,
+    complete: function(response){
+
+      if(element.next() != null) {
+        setTimeout(function(){loadrowGeneric(element.next(),result_element,loading_element,method, data)},1000);
+      }
+      if(response.responseText != '')
+      {
+        results += 1;
+        $(element).html(response.responseText);
+      }
+      $(result_element).html('Record: '+results);
+      loading -= 1;
+      if(loading <= 0){
+        $(result_element).html('');
+      }
+      
+    }
+  });
+
+}
+
 // row ajax requests for the presence area
 var reqs = {bp: {}, pp: {}, pd: {}};
 
@@ -72,6 +108,8 @@ function stopReqs(req){
   }
 }
 
+
+// loadrow function works for presence area, for other uses execute loadrowGeneric()
 function loadrow(element){
   $(element).html("<b>In caricamento..</b>").data('loading',true);
 
