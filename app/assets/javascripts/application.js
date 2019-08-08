@@ -54,10 +54,6 @@ function loadrowGeneric(element,result_element,loading_element,method, data){
     data: data,
     complete: function(response){
 
-      if(element.next() != null) {
-        // setTimeout(function(){loadrowGeneric(element.next(),result_element,loading_element,method, data)},1000);
-        loadrowGeneric(element.next(),result_element,loading_element,method, data);
-      }
       if(response.responseText != '')
       {
         results += 1;
@@ -66,7 +62,9 @@ function loadrowGeneric(element,result_element,loading_element,method, data){
       $(result_element).html('Record: '+results);
       loading -= 1;
       if(loading <= 0){
-        $(result_element).html('');
+        $(loading_element).html('');
+      } else {
+        loadrowGeneric(element.next(),result_element,loading_element,method, data);
       }
 
     }
