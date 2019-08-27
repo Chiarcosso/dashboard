@@ -44,6 +44,7 @@ Rails.application.routes.draw do
   post '/people/add_role', to: 'people#add_role', as: :person_add_role
   post '/people/person_autocomplete', to: 'people#person_autocomplete', as: :custom_person_autocomplete
 
+  post '/user/sethome/', to: 'users#sethome', as: :set_user_homepage
   # devise_scope :user do
   #   root "devise/sessions#new"
   # end

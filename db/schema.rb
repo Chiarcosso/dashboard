@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190715092858) do
+ActiveRecord::Schema.define(version: 20190827152928) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -700,6 +700,7 @@ ActiveRecord::Schema.define(version: 20190715092858) do
     t.string   "last_sign_in_ip"
     t.integer  "person_id",                             null: false
     t.boolean  "active",                 default: true, null: false
+    t.string   "homepage",               default: "/",  null: false
     t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
     t.index ["person_id"], name: "index_users_on_person_id", using: :btree
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
@@ -801,7 +802,7 @@ ActiveRecord::Schema.define(version: 20190715092858) do
     t.datetime "updated_at",                              null: false
     t.integer  "vehicle_information_type_id", default: 1, null: false
     t.index ["vehicle_id"], name: "index_vehicle_informations_on_vehicle_id", using: :btree
-    t.index ["vehicle_information_type_id"], name: "index_vehicle_informations_on_vehicle_information_type_id", using: :btree
+    t.index ["vehicle_information_type_id", "information"], name: "index_vehicle_informations_on_vehicle_information_type_id", using: :btree
   end
 
   create_table "vehicle_model_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -1024,6 +1025,17 @@ ActiveRecord::Schema.define(version: 20190715092858) do
     t.integer "leave_to",    limit: 1, null: false
     t.integer "hr",          limit: 1, null: false
     t.integer "gg",          limit: 1, null: false
+  end
+
+  create_table "vw_movmag", id: false, force: :cascade, options: "ENGINE=MyISAM DEFAULT CHARSET=utf8" do |t|
+    t.integer "barcode",          limit: 1, null: false
+    t.integer "manufacturerCode", limit: 1, null: false
+    t.integer "quantity",         limit: 1, null: false
+    t.integer "created_at",       limit: 1, null: false
+    t.integer "destination_type", limit: 1, null: false
+    t.integer "Ufficio_Persona",  limit: 1, null: false
+    t.integer "Targa",            limit: 1, null: false
+    t.integer "ODL",              limit: 1, null: false
   end
 
   create_table "working_schedules", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

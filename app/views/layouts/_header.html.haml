@@ -6,7 +6,7 @@
   = navbar_collapse style: 'width: 100vw; padding-right: 15px' do
     = navbar_group class: 'foo', id: 'menu', align: 'left' do
       - if current_user.present? && current_user.has_roles_for?(:comune)
-        = navbar_dropdown "Comune" do          
+        = navbar_dropdown "Comune" do
           = navbar_item "Calendario assenze", vacation_calendar_path
       - if current_user.present? && current_user.has_roles_for?(:personale)
         = navbar_dropdown "Personale" do
@@ -107,12 +107,14 @@
 
     = navbar_group align: 'right', style: 'margin-right: unset' do
       - if current_user.present?
-        - unless current_user.has_role?(:admin)
-          = navbar_text current_user.name
+        -# - unless current_user.has_role?(:admin)
+        -#   = navbar_text current_user.name
         -# = navbar_text current_user.roles.pluck(:name).join(', ')
-        = navbar_item "Impostazioni", edit_user_registration_path
-        %li
-          = link_to "Log Out", destroy_user_session_path, method: :delete, :class => 'navbar_item'
+        = navbar_dropdown current_user.name do
+          = navbar_item "Impostazioni", edit_user_registration_path
+          = navbar_item "imposta pagina iniziale", nil, id: "homesetter"
+          %li
+            = link_to "Log Out", destroy_user_session_path, method: :delete, :class => 'navbar_item'
       - else
         = navbar_item "Log In", new_user_session_path
 -# %body
@@ -154,3 +156,14 @@
 -#         <div class="col-sm-1"><a href="/ideas">Note</a></div>
 -#         <div class="col-sm-1"><a href="/ideas">Manuali</a></div>
 -#         </div>
+:javascript
+
+  $('#homesetter').on('click',function(){
+    var data = { home: window.location.pathname };
+
+    $.ajax({
+      url: '/user/sethome',
+      method: 'post',
+      data: data
+    });
+  });

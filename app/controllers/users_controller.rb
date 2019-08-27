@@ -12,6 +12,22 @@ class UsersController < ApplicationController
     render 'user/modify'
   end
 
+  def sethome
+    begin
+      
+      current_user.update(homepage: params['home'])
+      @message = "Pagina iniziale impostata."
+      respond_to do |format|
+        format.js { render partial: 'layouts/confirmation'}
+      end
+    rescue Exception => e
+      respond_to do |format|
+        @error = e.message+"\n\n#{e.backtrace}"
+        format.js { render partial: 'layouts/error'}
+      end
+    end
+  end
+
   def index
 
     @users = User.all.sort_by { |u| u.person.nil?? u.email : u.person.surname }

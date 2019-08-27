@@ -39,6 +39,8 @@ class Ability
       can :manage, User
       can :manage, Person
       can :manage, Company
+    else
+      can :manage, User, id: user.id
     end
   end
 end

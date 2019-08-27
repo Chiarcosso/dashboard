@@ -170,7 +170,7 @@ class TimesheetController < ApplicationController
       @name = params[:name]
     end
     # If the user does not have manage_timesheets role filter just his timesheet records
-    if current_user.has_role?('amministratore officina') || current_user.has_role?(:admin) || current_user.has_role?('presenze e orari')
+    if current_user.has_role?('amministratore officina') || current_user.has_role?(:admin) || current_user.has_role?('presenze e orari') || current_user.has_role?('visione ore officina')
       trs = TimesheetRecord.find_by_sql(<<-SQL
           select timesheet_records.*,
           (select concat(people.surname,' ',people.name) from people where people.id = timesheet_records.person_id) as name

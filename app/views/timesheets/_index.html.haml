@@ -91,7 +91,7 @@
                             = image_tag('ok.png', size: "20x20", alt: "Confermato dall'ufficio personale")
 
                     .col-sm-2
-                      - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                      - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina') || current_user.has_role?('visione ore officina'))
                         = submit_tag 'Conferma', class: 'form-control'
 
               .row
@@ -99,7 +99,7 @@
                   .row
                     .col-sm-12
                       %b= "Totale: "
-                  - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                  - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina') || current_user.has_role?('visione ore officina'))
                     .row
                       .col-sm-12
                         %b= "Totale timbrature: "
@@ -112,7 +112,7 @@
                       - hrs = (total / 60).floor
                       - mins = total % 60
                       %b= "#{hrs.to_s.rjust(2,'0')}:#{mins.to_s.rjust(2,'0')}"
-                  - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                  - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina') || current_user.has_role?('visione ore officina'))
                     .row
                       .col-sm-12
                         - pr = PresenceRecord.where(date: @date, person: person).order(set_day_time: :asc).first

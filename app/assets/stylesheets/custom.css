@@ -9,7 +9,8 @@ body{
 
 #center{
   height: 80vh;
-  margin-top: 3em;
+  margin-top: 4em;
+  padding-bottom: 1.5em;
 }
 
 #articles_content{
@@ -53,6 +54,26 @@ body{
 
 .colored2:nth-child(odd){
   background-color: #def;
+}
+
+.confirmation{
+  background-color: #eef;
+  font-weight: bold;
+  /* font-size-adjust: +1; */
+  font-size: medium;
+  max-width: 80vw;
+  max-height: 90vh;
+  overflow-x: auto;
+  color: blue;
+  position: fixed;
+  border: .3em solid blue;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  border-radius: 1em;
+  padding: 2em;
+  white-space: pre-line;
+  z-index: 3000;
 }
 
 .custom-autocomplete-choice{
