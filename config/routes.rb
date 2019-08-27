@@ -176,7 +176,7 @@ Rails.application.routes.draw do
   post   '/items_new_order', to: 'orders#add_item_to_new_order', as: :add_item_to_new_order
 
   get  '/mdc/transport_documents/:status', to: 'ws#index', as: :mdc_transport_documents
-  
+
   get  '/mdc/transport_documents/:status/load/:user_id', to: 'ws#index_load', as: :mdc_transport_documents_load
   post  '/mdc/transport_documents/load/', to: 'ws#index_load', as: :mdc_transport_documents_load_post
   post 'mdc/close_fare', to: 'ws#close_fare', as: :mdc_close_fare
@@ -322,6 +322,7 @@ Rails.application.routes.draw do
   post   '/timesheet/update', to: 'timesheet#update', as: :timesheet_update
   post   '/timesheets/massive_approval', to: 'timesheet#massive_approval', as: :set_all_time_approvals
 
+  get 'workshop/loadrow/:id', to: 'workshop#load_ws_row', as: :workshop_loadrow
   get   '/worksheet/manage_worksheets', to: 'worksheets#manage_worksheets_index', as: :manage_worksheets
   get   '/worksheet/manage_external_worksheets', to: 'worksheets#manage_external_worksheets_index', as: :manage_external_worksheets
   get   '/worksheet/worksheets_on_processing', to: 'worksheets#on_processing_index', as: :worksheets_on_processing

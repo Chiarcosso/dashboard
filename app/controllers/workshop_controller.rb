@@ -1,10 +1,10 @@
 class WorkshopController < ApplicationController
 
   before_action :authenticate_user!
-  before_action :get_worksheet, except: [:get_sheet,:create_worksheet,:index,:open_notification,:timesheet_popup,:timesheet_start,:timesheet_stop]
-  before_action :get_check_session, except: [:index,:timesheet_popup,:timesheet_start,:timesheet_stop]
+  before_action :get_worksheet, except: [:get_sheet,:load_ws_row,:create_worksheet,:index,:open_notification,:timesheet_popup,:timesheet_start,:timesheet_stop]
+  before_action :get_check_session, except: [:index,:load_ws_row,:timesheet_popup,:timesheet_start,:timesheet_stop]
   before_action :get_workshop_operation, only: [:start_operation, :pause_operation, :finish_operation,  :delete_operation]
-  before_action :set_protocol, except: [:index]
+  before_action :set_protocol, except: [:index,:load_ws_row]
   before_action :set_station
 
   def get_sheet
@@ -21,18 +21,72 @@ class WorkshopController < ApplicationController
 
   def index
     unless params[:list].nil?
-      unless params[:list][:search_number].nil?
+      unless params[:list][:search_number].nil? || params[:list][:search_number] == ''
         @search_number = params[:list][:search_number]
       end
-      unless params[:list][:search_operator].nil?
+      unless params[:list][:search_operator].nil? || params[:list][:search_operator] == ''
         @search_operator = params[:list][:search_operator]
       end
-      unless params[:list][:search_plate].nil?
+      unless params[:list][:search_plate].nil? || params[:list][:search_plate] == ''
         @search_plate = params[:list][:search_plate]
       end
+
     end
 
     begin
+
+      if params[:commit] == 'Aggiorna'
+        @open_worksheets = Worksheet.get_incoming({number: @search_number, operator: @search_operator, plate: @search_plate})
+      else
+        # @open_worksheets = Worksheet.open
+        where = [
+          "exit_time is null",
+          "suspended = 0",
+          "closingDate is null",
+          "closed = 0"
+        ]
+        unless @search_number.nil?
+          # @open_worksheets = @open_worksheets.where(number: @search_number)
+          where << "(code like 'EWC*%#{@search_number.to_i}%')"
+        end
+        unless @search_operator.nil?
+          ops = EurowinController::get_operators(@search_operator)
+          c = EurowinController::get_ew_client
+          # @open_worksheets = @open_worksheets.where("number in #{c.query("select protocollo from autoodl where codiceoperatore in (#{ops.map{ |o| "'#{o['Codice']}'" }.join(',')})")}")
+          where << "(code in (#{c.query("select concat('EWC*',protocollo) as code from autoodl where codicemanutentore in (#{ops.map{ |o| "'#{o['Codice']}'" }.join(',')})").map{ |odl| "'#{odl['code']}'" }.join(',')}))"
+          c.close
+        end
+        unless @search_plate.nil?
+          # @open_worksheets = @open_worksheets.where("vehicle_id in (select vehicle_id from vehicle_informations where information like #{ActiveRecord::Base::sanitize("%#{@search_plate}%")})")
+          # where << "(vehicle_id in (select vehicle_id from vehicle_informations where information like #{ActiveRecord::Base::sanitize("%#{@search_plate}%")}))"
+          # where << "plate_number like '#{ActiveRecord::Base::sanitize("%#{@search_plate}%")}'"
+        end
+        qry = <<-QRY
+          select worksheets.*, (
+            if(
+              worksheets.vehicle_type = 'Vehicle',
+                (select information from vehicle_informations
+                  where vehicle_informations.vehicle_id = worksheets.vehicle_id
+                    and vehicle_informations.vehicle_information_type_id = (select id from vehicle_information_types where name = 'Targa')
+                  order by date desc limit 1
+                ),
+                (select plate from external_vehicles where external_vehicles.id = worksheets.vehicle_id )
+            )
+          ) as plate_number
+          from worksheets
+          where #{where.join(' and ')}
+          #{"having plate_number like #{ActiveRecord::Base::sanitize("%#{@search_plate}%")}" unless @search_plate.nil?}
+          order by plate_number
+        QRY
+
+        wks = Worksheet.find_by_sql(qry)
+
+        @open_worksheets = Array.new
+        wks.each do |wos|
+          v = wos.vehicle
+          @open_worksheets << {ws: wos, plate: wos.plate_number, vehicle: wos.vehicle_id, no_satellite: (Time.now - v.last_gps.to_i > 7.days)}
+        end
+      end
       respond_to do |format|
         format.html { render 'workshop/index' }
         format.js { render partial: 'workshop/index_js' }
@@ -43,6 +97,30 @@ class WorkshopController < ApplicationController
         format.html { render partial: 'layouts/error_html' }
         format.js { render partial: 'layouts/error' }
       end
+    end
+  end
+
+  def load_ws_row
+    qry = <<-QRY
+      select worksheets.*, (
+        if(
+          worksheets.vehicle_type = 'Vehicle',
+            (select information from vehicle_informations
+              where vehicle_informations.vehicle_id = worksheets.vehicle_id
+                and vehicle_informations.vehicle_information_type_id = (select id from vehicle_information_types where name = 'Targa')
+              order by date desc limit 1
+            ),
+            (select plate from external_vehicles where external_vehicles.id = worksheets.vehicle_id )
+        )
+      ) as plate_number
+      from worksheets
+      where id = #{params[:id].to_i}
+    QRY
+    wos = Worksheet.find_by_sql(qry).first
+    v = wos.vehicle
+    @ws = {ws: wos, plate: wos.plate_number, vehicle: wos.vehicle_id, no_satellite: (Time.now - v.last_gps.to_i > 7.days)}
+    respond_to do |format|
+      format.js { render partial: 'workshop/loadable_ws_row_js'}
     end
   end
 

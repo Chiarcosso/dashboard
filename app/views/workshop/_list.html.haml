@@ -1,24 +1,9 @@
 - worksheets.each_with_index do |ws,i|
   -# - @vehicle = ws.vehicle if i == 0
   -# .row.colored.hilight.selectable.ajax-link{ data: { sbox: "#sbox-#{ws.id}", method: :post, target: info_for_workshop_path(id: ws.vehicle.id) } }
+  .loadable{ data: { route: workshop_loadrow_path(ws[:ws].id)}}
 
-  .row.colored.hilight.selectable.xbox{ data: { data: {protocol: ws[:ws].number}.to_json, route: worksheet_notifications_xbox_path, xbox: "#sbox-#{ws[:ws].id}" }}
-    .col-sm-1
-      =button_to ws[:ws].number, open_worksheet_path(ws[:ws].number), remote: true, class: 'no-ajax-link'
-    .col-sm-2
-      - op = ws[:ws].ew_operator
-      = op['Descrizione'] unless op.nil?
-    .col-sm-1
-      -# - v = ws.vehicle
-      %b= ws[:plate]#, vehicles_path(search: ws.vehicle.plate), class: 'no-ajax-link'
-      = "Inserire Km" if ws[:no_satellite]
-    .col-sm-2
+:javascript
 
-      =button_tag 'c', class: 'infobox-button no-loader', data: { target: info_vehicle_checks_path(ws[:vehicle]), name: "infobox_vehicle_checks_#{ws[:vehicle]}" }
-      =button_tag 'i', class: 'infobox-button no-loader', data: { target: info_vehicle_path(ws[:vehicle]), name: "infobox_vehicle_#{ws[:vehicle]}" }
-      =button_tag 'o', class: 'infobox-button no-loader', data: { target: info_vehicle_workshop_path(ws[:vehicle]), name: "infobox_vehicle_workshop_#{ws[:vehicle]}" }
-    .col-sm-2
-      ="#{I18n.l ws[:ws].opening_date}" unless ws[:ws].opening_date.nil?
-    .col-sm-3
-      %b=ws[:ws].notes
-    .sbox{id: "sbox-#{ws[:ws].id}", style: "display: none;"}
+  loading = $('.loadable').length;
+  loadrowGeneric($('.loadable').first());

@@ -25,8 +25,11 @@ jQuery.ajaxSetup({
     cache: false
 });
 
+
+
 var loading = 0;
 var results = 0;
+var location
 function loadrowGeneric(element,result_element,loading_element,method, data){
   // if(load_mutex){
   //   setTimeout(loadrowGeneric(containingElement,route,method, data),1000);
@@ -47,7 +50,7 @@ function loadrowGeneric(element,result_element,loading_element,method, data){
   var route = $(element).data('route');
 
   // debugger
-  $(loading_element).html('Caricamento.. Autisti da controllare: '+loading);
+  $(loading_element).html("Caricamento..<br/>Elementi mancanti: "+loading);
   $.ajax({
     url: route,
     method: method,
@@ -64,7 +67,11 @@ function loadrowGeneric(element,result_element,loading_element,method, data){
       if(loading <= 0){
         $(loading_element).html('');
       } else {
-        loadrowGeneric(element.next(),result_element,loading_element,method, data);
+        
+        if($(loading_element).length > 0){
+          loadrowGeneric(element.next(),result_element,loading_element,method, data);
+        }
+
       }
 
     }
