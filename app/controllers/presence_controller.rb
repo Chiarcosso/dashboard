@@ -970,26 +970,45 @@ class PresenceController < ApplicationController
     motivation = params[:motivation] == 'true'
 
     pdf = Prawn::Document.new
-    date = Date.strptime(params.require(:date),"%Y-%m-%d")
+    date = DateTime.strptime(params.require(:date),"%Y-%m-%d")
     pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}",size: 26, font_style: :bold, align: :center
     pdf.move_down 40
     codes = LeaveCode.where(afterhours: true)
 
 
+    # where = <<-QRY
+    #
+    # ('#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date)
+    # or '#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)
+    # or (
+    #   '#{(date+1.days).strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)
+    #   and datediff(granted_leaves.to,granted_leaves.from) > 1
+    #   and ( date(granted_leaves.from) <> '#{(date+1.days).strftime("%Y-%m-%d")}'
+    #     or (
+    #     select id from granted_leaves pr
+    #     where granted_leaves.person_id = pr.person_id
+    #     and '#{date.strftime("%Y-%m-%d")}' = date(pr.date)
+    #     and pr.leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})
+    #     ) is not null)
+    # )) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})
+    #
+    # QRY
+    # tz = self.actual_offset(date) == -1 ? "-01:00" : "+02:00"
+    # ntz = self.actual_offset(date+1.days) == -1 ? "-01:00" : "+02:00"
+
     where = <<-QRY
 
-    ('#{date.strftime("%Y-%m-%d")}' = date(granted_leaves.date)
-    or '#{date.strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)
+    ('#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' = date(granted_leaves.date)
+    or '#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(granted_leaves.from,'+00:00','+02:00')) and date(convert_tz(granted_leaves.to,'+00:00','+02:00'))
     or (
-      '#{(date+1.days).strftime("%Y-%m-%d")}' between date(granted_leaves.from) and date(granted_leaves.to)
-      and datediff(granted_leaves.to,granted_leaves.from) > 1
-      and ( date(granted_leaves.from) <> '#{(date+1.days).strftime("%Y-%m-%d")}'
-        or (
-        select id from granted_leaves pr
-        where granted_leaves.person_id = pr.person_id
-        and '#{date.strftime("%Y-%m-%d")}' = date(pr.date)
-        and pr.leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})
-        ) is not null)
+      ('#{(date.in_time_zone('Europe/Rome')+1.days).utc.strftime("%Y-%m-%d")}' = date(convert_tz(granted_leaves.date,'+00:00','+02:00'))
+        or '#{(date+1.days).in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(granted_leaves.from,'+00:00','+02:00')) and date(convert_tz(granted_leaves.to,'+00:00','+02:00')))
+      and (
+        select count(id) from granted_leaves subq where ('#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' = date(convert_tz(subq.from,'+00:00','+02:00'))
+        or '#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(subq.from,'+00:00','+02:00')) and date(convert_tz(subq.to,'+00:00','+02:00')))
+        and granted_leaves.person_id = subq.person_id
+
+      ) > 0
     )) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})
 
     QRY

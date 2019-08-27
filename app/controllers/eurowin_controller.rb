@@ -311,30 +311,62 @@ class EurowinController < ApplicationController
     end
     anno = args[:datasegnalazione].match(/^([0-9]{4})-.*/)[1]
 
-    qry = 'set @nextprotocol = (select max(protocollo)+1 from autosegnalazioni); '
-    qry += "insert into autosegnalazioni (Anno,Protocollo,Sezione,#{fields.join(',')}) values (#{anno},@nextprotocol,'A',#{values.join(',')}); "
-    qry += 'select * from autosegnalazioni where protocollo = @nextprotocol '
+    # qry = "set @nextprotocol = (select max(protocollo)+1 from autosegnalazioni);\n"
+    # qry += "insert into autosegnalazioni (Anno,Protocollo,Sezione,#{fields.join(',')}) values (#{anno},@nextprotocol,'A',#{values.join(',')});\n"
+    # qry += "select * from autosegnalazioni where protocollo = @nextprotocol"
+    qry = [
+      "set @nextprotocol = (select max(protocollo)+1 from autosegnalazioni);",
+      "insert into autosegnalazioni (Anno,Protocollo,Sezione,#{fields.join(',')}) values (#{anno},@nextprotocol,'A',#{values.join(',')});",
+      "select * from autosegnalazioni where protocollo = @nextprotocol;"
+    ]
+    # c = get_ew_client
+    # c.query(qry)
+    multi_query(qry)
+    # prot =  c.query("select @nextprotocol")
+    # sgn = c.async_result
+
+    # c.close
+
+    qry = "select * from autosegnalazioni where #{args.map{|f,v| "#{f} = #{v.is_a?(String) ? "'#{v}'" : v}"}.join(' and ')}"
     c = get_ew_client
     sgn = c.query(qry)
-    byebug
+    # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
+
     c.close
+
     return sgn.first
   end
 
-  def self.edit_ew_notification(*args)
+  def self.edit_ew_notification(args)
     puts args.inspect
+    args.each { |k,v| args[k] = 'null' if v.nil? }
 
+    updates = Array.new
+    args.each do |field,value|
+      updates << "#{field} = #{value.is_a?(String) && value != 'null' ? "'#{value}'" : value}"
+    end
+    unless args[:schedainterventoprotocollo].nil?
+      updates << "SerialODL = (select serial from autoodl where protocollo = #{args[:schedainterventoprotocollo]})"
+    end
+    qry = [
+      "update autosegnalazioni set #{updates.join(', ')} where protocollo = #{args[:protocollo]} ;",
+      "select * from autosegnalazioni where protocollo = #{args[:protocollo]};"
+    ]
+    # c = get_ew_client
+    # sgn = c.query(qry)
+    # prot =  c.query("select @nextprotocol")
+    # sgn = c.async_result
+    multi_query(qry)
+    # c.close
+
+    qry = "select * from autosegnalazioni where protocollo = #{args[:protocollo]};"
     c = get_ew_client
-    qry = "select Anno, Protocollo from autosegnalazioni order by Anno desc, Protocollo desc limit 1;"
-    res = c.query(qry).first
-    protocollo = res['Protocollo']
-    anno = res['Anno']
-
-    qry = "select * from autosegnalazioni where protocollo = '#{protocollo}'"
     sgn = c.query(qry)
-    c.close
+    # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
+    #
+    # c.close
 
-    return sgn.first unless sgn.count < 1
+    return sgn.first
   end
 
   def self.create_notification(payload)
@@ -342,21 +374,130 @@ class EurowinController < ApplicationController
     ## '0' means new one
     ## '-1' means don't change
     ## 'null' means write null
+    payload = payload.stringify_keys
+
+    payload['AnnoODL'] = nil if payload['AnnoODL'] == '-1'
+    if payload['AnnoODL'] == '0'
+      payload.delete('AnnoODL')
+    end
+    if payload['ProtocolloODL'] == '0'
+      payload.delete('ProtocolloODL')
+    end
+    payload['ProtocolloODL'] = nil if payload['ProtocolloODL'] == '-1'
+
+    payload['AnnoSGN'] = nil if payload['AnnoSGN'] == '0'
+    payload['ProtocolloSGN'] = nil if payload['ProtocolloSGN'] == '0'
+
+    payload['CodiceOfficina'] = nil if payload['CodiceOfficina'] == '0'
+    payload['CodiceAutomezzo'] = nil if payload['CodiceAutomezzo'] == '0'
+
+    payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
+    payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
+    payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
+    payload['UserInsert'] = payload['UserInsert'].to_s.gsub("'","\\'") unless payload['UserInsert'].nil?
+
+    # payload['DataPost'] = "0" if payload['DataPost'].nil?
+    # payload['UserPost'] = "0" if payload['UserPost'].nil?
+    # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
+    # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
+    # payload['FlagStampato'] = false
+    # payload['TipoDanno'] = "0" if payload['TipoDanno'].nil?
+    # payload['FlagRiparato'] = "0" if payload['FlagRiparato'].nil?
+    payload['FlagRiparato'] = nil if payload['FlagRiparato'] == 'null'
+    payload['FlagStampato'] = nil if payload['FlagStampato'] == 'null'
+    payload['FlagSvolto'] = nil if payload['FlagSvolto'] == 'null'
+
+    if payload['ProtocolloSGN'].nil?
+
+      payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
+      payload['OraIntervento'] = Time.now.strftime('%H:%M:%S') if payload['OraIntervento'].nil?
+
+      unless payload['CodiceAutomezzo'].nil?
+        c = get_ew_client
+        qry = "select codiceProvenienza from automezzi where codice = '#{payload['CodiceAutomezzo']}'"
+        am = c.query(qry).first['codiceProvenienza'].split(' ')
+        c.close
+        vehicle = Vehicle.find_by_reference(am[0],am[1])
+        lm = last_maintainance(vehicle)
+        lc = vehicle.last_check
+        payload['DataUltimaManutenzione'] = lm['DataUscitaVeicolo'].strftime("%Y-%m-%d") unless lm.nil?
+        payload['DataUltimoControllo'] = lc.time.strftime("%Y-%m-%d") unless lc.nil?
+      end
+
+      payload['DataInsert'] = Date.today.strftime("%Y-%m-%d") if payload['DataInsert'].nil?
+
+      payload['FlagRiparato'] = 'false' if payload['FlagRiparato'].nil?
+      payload['FlagStampato'] = 'false' if payload['FlagStampato'].nil?
+      payload['FlagSvolto'] = 'false' if payload['FlagSvolto'].nil?
+
+      payload['UserInsert'] = 'DASHBOARD' if payload['UserInsert'].nil?
+    end
+    # payload.each { |k,v| payload.delete(k) if v.nil? }
+
+    if payload['ProtocolloSGN'].nil?
+      return create_ew_notification(
+        datasegnalazione: payload['DataIntervento'],
+        orasegnalazione: payload['OraIntervento'],
+        codiceautista: payload['CodiceAutista'].to_s,
+        descrizionesegnalazione: payload['Descrizione'],
+        tipodanno: payload['TipoDanno'],
+        flagstampato: payload['FlagStampato'].to_s,
+        flagchiuso: payload['FlagSvolto'].to_s,
+        flagriparato: payload['FlagRiparato'].to_s,
+        dataultimamanutenzione: payload['DataUltimaManutenzione'],
+        dataultimocontrollo: payload['DataUltimoControlo'],
+        km: payload['Chilometraggio'].to_i,
+        datainsert: payload['DataInsert'],
+        userinsert: payload['UserInsert'],
+        datapost: payload['DataPost'],
+        userpost: payload['UserPost'],
+        schedainterventoanno: payload['AnnoODL'].to_i,
+        schedainterventoprotocollo: payload['ProtocolloODL'].to_i,
+        codiceautomezzo: payload['CodiceAutomezzo'],
+        codicefornitore: payload['CodiceOfficina']
+      )
+    else
+      args = Hash.new
+      args[:protocollo] = payload['ProtocolloSGN']
+      args[:datasegnalazione] = payload['DataIntervento'] if payload.has_key? 'DataIntervento'
+      args[:orasegnalazione] = payload['OraIntervento'] if payload.has_key? 'OraIntervento'
+      args[:codiceautista] = payload['CodiceAutista'] if payload.has_key? 'CodiceAutista'
+      args[:descrizionesegnalazione] = payload['Descrizione'] if payload.has_key? 'Descrizione' && payload['Descrizione'] != ''
+      args[:tipodanno] = payload['TipoDanno'] if payload.has_key? 'TipoDanno'
+      args[:flagstampato] = payload['FlagStampato'].to_s if payload.has_key? 'FlagStampato'
+      args[:flagchiuso] = payload['FlagSvolto'].to_s if payload.has_key? 'FlagSvolto'
+      args[:flagriparato] = payload['FlagRiparato'].to_s if payload.has_key? 'FlagRiparato'
+      args[:dataultimamanutenzione] = payload['DataUltimaManutenzione'] if payload.has_key? 'DataUltimaManutenzione'
+      args[:dataultimocontrollo] = payload['DataUltimoControllo'] if payload.has_key? 'DataUltimoControllo'
+      args[:km] = payload['Chilometraggio'].to_i if payload.has_key? 'Chilometraggio'
+      args[:datainsert] = payload['DataInsert'] if payload.has_key? 'DataInsert'
+      args[:userinsert] = payload['UserInsert'] if payload.has_key? 'UserInsert'
+      args[:datapost] = payload['DataPost'] if payload.has_key? 'DataPost'
+      args[:userpost] = payload['UserPost'] if payload.has_key? 'UserPost'
+      args[:schedainterventoanno] = payload['AnnoODL'] if payload.has_key? 'AnnoODL'
+      args[:schedainterventoprotocollo] = payload['ProtocolloODL'] if payload.has_key? 'ProtocolloODL'
+      args[:codiceautomezzo] = payload['CodiceAutomezzo'] if payload.has_key? 'CodiceAutomezzo'
+      args[:codicefornitore] = payload['CodiceOfficina'] if payload.has_key? 'CodiceOfficina'
+      return edit_ew_notification(args)
+    end
     # payload = payload.stringify_keys
     #
-    # payload['AnnoODL'] = nil if payload['AnnoODL'] == '-1'
-    # payload['ProtocolloODL'] = nil if payload['ProtocolloODL'] == '-1'
-    # payload['AnnoSGN'] = nil if payload['AnnoSGN'] == '0'
-    # payload['ProtocolloSGN'] = nil if payload['ProtocolloSGN'] == '0'
-    #
-    # payload['CodiceOfficina'] = nil if payload['CodiceOfficina'] == '0'
-    # payload['CodiceAutomezzo'] = nil if payload['CodiceAutomezzo'] == '0'
-    #
+    # payload['AnnoODL'] = "-1" if payload['AnnoODL'].nil?
+    # payload['ProtocolloODL'] = "-1" if payload['ProtocolloODL'].nil?
+    # payload['AnnoSGN'] = "0" if payload['AnnoSGN'].nil?
+    # payload['ProtocolloSGN'] = "0" if payload['ProtocolloSGN'].nil?
+    # payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
+    # if payload['OraIntervento'].nil?
+    #   time = Time.now.strftime('%H:%M:%S')
+    # else
+    #   time = payload['OraIntervento']
+    # end
+    # payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
+    # payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
     # payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
     # payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
     # payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
-    # payload['UserInsert'] = payload['UserInsert'].to_s.gsub("'","\\'") unless payload['UserInsert'].nil?
-    #
+    # payload['UserInsert'] = payload['CodiceAutista'].to_s.gsub("'","\\'") unless payload['UserInsert'].nil?
     # # payload['DataPost'] = "0" if payload['DataPost'].nil?
     # # payload['UserPost'] = "0" if payload['UserPost'].nil?
     # # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
@@ -364,154 +505,269 @@ class EurowinController < ApplicationController
     # # payload['FlagStampato'] = "0"
     # # payload['TipoDanno'] = "0" if payload['TipoDanno'].nil?
     # # payload['FlagRiparato'] = "0" if payload['FlagRiparato'].nil?
-    # payload['FlagRiparato'] = nil if payload['FlagRiparato'] == 'null'
-    # payload['FlagStampato'] = nil if payload['FlagStampato'] == 'null'
-    # payload['FlagSvolto'] = nil if payload['FlagSvolto'] == 'null'
+    # payload['FlagRiparato'] = "null" if payload['FlagRiparato'].nil?
+    # payload['FlagStampato'] = "null" if payload['FlagStampato'].nil?
+    # payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
+    # payload['FlagJSONType'] = "sgn"
     #
-    # if payload['ProtocolloSGN'].nil?
+    # payload.each { |k,v| payload.delete(k) if v.nil? }
     #
-    #   payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
-    #   payload['OraIntervento'] = Time.now.strftime('%H:%M:%S') if payload['OraIntervento'].nil?
+    # request = HTTPI::Request.new
+    # request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
+    # request.body = payload.to_json
+    # request.headers['Content-Type'] = 'application/json; charset=utf-8'
     #
-    #   unless payload['CodiceAutomezzo'].nil?
-    #     c = get_ew_client
-    #     qry = "select codiceProvenienza from automezzi where codice = '#{payload['CodiceAutomezzo']}'"
-    #     am = c.query(qry).first['codiceProvenienza'].split(' ')
-    #     c.close
-    #     vehicle = Vehicle.find_by_reference(am[0],am[1])
-    #     lm = last_maintainance(vehicle)
-    #     lc = vehicle.last_check
-    #     payload['DataUltimaManutenzione'] = lm['DataUscitaVeicolo'].strftime("%Y-%m-%d") unless lm.nil?
-    #     payload['DataUltimoControllo'] = lc.time.strftime("%Y-%m-%d") unless lc.nil?
-    #   end
+    # special_logger.info(request)
+    # response = HTTPI.post(request)
+    # special_logger.info(response)
+    # res = JSON.parse(response.raw_body)['ProtocolloSGN']
+    # year = JSON.parse(response.raw_body)['AnnoSGN']
     #
-    #   payload['DataInsert'] = Date.today.strftime("%Y-%m-%d") if payload['DataInsert'].nil?
     #
-    #   payload['FlagRiparato'] = 'false' if payload['FlagRiparato'].nil?
-    #   payload['FlagStampato'] = 'false' if payload['FlagStampato'].nil?
-    #   payload['FlagSvolto'] = 'false' if payload['FlagSvolto'].nil?
+    # c = get_ew_client
+    # qry = "update autosegnalazioni set OraSegnalazione = '#{time}' where protocollo = '#{res}' and anno = #{year}"
+    # sgn = c.query(qry)
     #
-    #   payload['UserInsert'] = 'DASHBOARD' if payload['UserInsert'].nil?
-    # end
-    # # payload.each { |k,v| payload.delete(k) if v.nil? }
+    # qry = "select * from autosegnalazioni where protocollo = '#{res}'"
+    # sgn = c.query(qry)
+    # c.close
     #
-    # if payload['ProtocolloSGN'].nil?
-    #   return create_ew_notification(
-    #     datasegnalazione: payload['DataIntervento'],
-    #     orasegnalazione: payload['OraIntervento'],
-    #     codiceautista: payload['CodiceAutista'].to_s,
-    #     descrizionesegnalazione: payload['Descrizione'],
-    #     tipodanno: payload['TipoDanno'],
-    #     flagstampato: payload['FlagStampato'].to_s,
-    #     flagchiuso: payload['FlagSvolto'].to_s,
-    #     flagriparato: payload['FlagRiparato'].to_s,
-    #     dataultimamanutenzione: payload['DataUltimaManutenzione'],
-    #     dataultimocontrollo: payload['DataUltimoControlo'],
-    #     km: payload['Chilometraggio'].to_i,
-    #     datainsert: payload['DataInsert'],
-    #     userinsert: payload['UserInsert'],
-    #     datapost: payload['DataPost'],
-    #     userpost: payload['UserPost'],
-    #     schedainterventoanno: payload['AnnoODL'].to_i,
-    #     schedainterventoprotocollo: payload['ProtocolloODL'].to_i,
-    #     codiceautomezzo: payload['CodiceAutomezzo'],
-    #     codicefornitore: payload['CodiceOfficina']
-    #   )
-    # else
-    #   return edit_ew_notification(payload)
-    # end
-    payload = payload.stringify_keys
+    # return sgn.first unless sgn.count < 1
 
-    payload['AnnoODL'] = "-1" if payload['AnnoODL'].nil?
-    payload['ProtocolloODL'] = "-1" if payload['ProtocolloODL'].nil?
-    payload['AnnoSGN'] = "0" if payload['AnnoSGN'].nil?
-    payload['ProtocolloSGN'] = "0" if payload['ProtocolloSGN'].nil?
-    payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
-    if payload['OraIntervento'].nil?
-      time = Time.now.strftime('%H:%M:%S')
-    else
-      time = payload['OraIntervento']
+  end
+
+  def self.create_ew_worksheet(args)
+
+    args.each { |k,v| args.delete(k) if v.nil? }
+    puts args.inspect
+
+    fields = []
+    values = []
+    args.each do |field,value|
+      fields << field
+      if value.is_a? String
+        value = "'#{value}'"
+      end
+      values << value
     end
-    payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
-    payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
-    payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
-    payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
-    payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
-    payload['UserInsert'] = payload['CodiceAutista'].to_s.gsub("'","\\'") unless payload['UserInsert'].nil?
-    # payload['DataPost'] = "0" if payload['DataPost'].nil?
-    # payload['UserPost'] = "0" if payload['UserPost'].nil?
-    # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
-    # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
-    # payload['FlagStampato'] = "0"
-    # payload['TipoDanno'] = "0" if payload['TipoDanno'].nil?
-    # payload['FlagRiparato'] = "0" if payload['FlagRiparato'].nil?
-    payload['FlagRiparato'] = "null" if payload['FlagRiparato'].nil?
-    payload['FlagStampato'] = "null" if payload['FlagStampato'].nil?
-    payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
-    payload['FlagJSONType'] = "sgn"
 
-    payload.each { |k,v| payload.delete(k) if v.nil? }
+    unless args[:codiceautista].is_a? String || args[:codiceautista].nil?
+      args[:codiceautista] = args[:codiceautista].to_s.rjust(6,'0')
+    end
 
-    request = HTTPI::Request.new
-    request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
-    request.body = payload.to_json
-    request.headers['Content-Type'] = 'application/json; charset=utf-8'
-
-    special_logger.info(request)
-    response = HTTPI.post(request)
-    special_logger.info(response)
-    res = JSON.parse(response.raw_body)['ProtocolloSGN']
-    year = JSON.parse(response.raw_body)['AnnoSGN']
-
+    raise "Mezzo mancante." if args[:codiceautomezzo].nil?
+    if args[:targa].nil?
+      fields << 'targa'
+      values << "(select targa from automezzi where codice = '#{args[:codiceautomezzo]}')"
+    end
 
     c = get_ew_client
-    qry = "update autosegnalazioni set OraSegnalazione = '#{time}' where protocollo = '#{res}' and anno = #{year}"
-    sgn = c.query(qry)
+    qry = "select codiceProvenienza from automezzi where codice = '#{args[:codiceautomezzo]}'"
+    am = c.query(qry).first['codiceProvenienza'].split(' ')
+    c.close
+    vehicle = Vehicle.find_by_reference(am[0],am[1])
+    lw = vehicle.last_washing
 
-    qry = "select * from autosegnalazioni where protocollo = '#{res}'"
-    sgn = c.query(qry)
+    unless lw.nil?
+      fields << 'datalavaggio'
+      values << "'#{lw.ending_time.strftime("%Y-%m-%d")}'"
+    end
+    anno = args[:dataintervento].match(/^([0-9]{4})-.*/)[1]
+
+    # qry = "set @nextprotocol = (select max(protocollo)+1 from autosegnalazioni);\n"
+    # qry += "insert into autosegnalazioni (Anno,Protocollo,Sezione,#{fields.join(',')}) values (#{anno},@nextprotocol,'A',#{values.join(',')});\n"
+    # qry += "select * from autosegnalazioni where protocollo = @nextprotocol"
+    qry = [
+      "set @nextprotocol = (select max(protocollo)+1 from autoodl);",
+      "insert into autoodl (Anno,Protocollo,#{fields.join(',')}) values (#{anno},@nextprotocol,#{values.join(',')});",
+      "select * from autoodl where protocollo = @nextprotocol;"
+    ]
+
+    # c = get_ew_client
+    # c.automatic_close = false
+    multi_query(qry)
+    # prot =  c.query("select @nextprotocol")
+    # sgn = c.async_result
+
+    # c.close
+
+    qry = "select * from autoodl where #{args.map{|f,v| "#{f} = #{v.is_a?(String) ? "'#{v}'" : v}"}.join(' and ')}"
+    c = get_ew_client
+    odl = c.query(qry)
+    # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
+
     c.close
 
-    return sgn.first unless sgn.count < 1
+    return odl.first
+  end
 
+  def self.edit_ew_worksheet(args)
+    puts args.inspect
+    args.each { |k,v| args[k] = 'null' if v.nil? }
+
+    updates = Array.new
+    args.each do |field,value|
+      updates << "#{field} = #{value.is_a?(String) && value != 'null' ? "'#{value}'" : value}"
+    end
+
+    qry = [
+      "update autoodl set #{updates.join(', ')} where protocollo = #{args[:protocollo]} ;",
+      "select * from autoodl where protocollo = #{args[:protocollo]};"
+    ]
+    # c = get_ew_client
+    # sgn = c.query(qry)
+    # prot =  c.query("select @nextprotocol")
+    # sgn = c.async_result
+    multi_query(qry)
+    # c.close
+
+    qry = "select * from autoodl where protocollo = #{args[:protocollo]};"
+    c = get_ew_client
+    sgn = c.query(qry)
+    # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
+    #
+    # c.close
+
+    return sgn.first
   end
 
   def self.create_worksheet(payload)
 
+    ## '0' means new one
+    ## '-1' means don't change
+    ## 'null' means write null
     payload = payload.stringify_keys
 
-    payload['AnnoODL'] = "0" if payload['AnnoODL'].nil?
-    payload['ProtocolloODL'] = "0" if payload['ProtocolloODL'].nil?
-    payload['AnnoSGN'] = "-1" if payload['AnnoSGN'].nil?
-    payload['ProtocolloSGN'] = "-1" if payload['ProtocolloSGN'].nil?
-    payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
-    payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
-    payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
+    payload['AnnoODL'] = nil if payload['AnnoODL'] == '-1' || payload['AnnoODL'] == '0'
+    payload['ProtocolloODL'] = nil if payload['ProtocolloODL'] == '-1' || payload['ProtocolloODL'] == '0'
+
+    payload['CodiceOfficina'] = nil if payload['CodiceOfficina'] == '0'
+    payload['CodiceAutomezzo'] = nil if payload['CodiceAutomezzo'] == '0'
+
     payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
     payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
+    payload['CodiceAutista'] = payload['CodiceAutista'].rjust(6,'0') unless payload['CodiceAutista'].nil?
 
+    # payload['DataPost'] = "0" if payload['DataPost'].nil?
+    # payload['UserPost'] = "0" if payload['UserPost'].nil?
     # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
     # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
-    # payload['TipoDanno'] = '55' if payload['TipoDanno'].nil?
-    payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
-    payload['FlagJSONType'] = "odl"
+    # payload['FlagStampato'] = false
+    # payload['TipoDanno'] = "0" if payload['TipoDanno'].nil?
+    # payload['FlagRiparato'] = "0" if payload['FlagRiparato'].nil?
+    # payload['FlagRiparato'] = nil if payload['FlagRiparato'] == 'null'
+    # payload['FlagStampato'] = nil if payload['FlagStampato'] == 'null'
+    # payload['FlagSvolto'] = nil if payload['FlagSvolto'] == 'null'
 
-    payload.each { |k,v| payload.delete(k) if v.nil? }
-    request = HTTPI::Request.new
-    request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
-    request.body = payload.to_json
-    request.headers['Content-Type'] = 'application/json; charset=utf-8'
-    special_logger.info(request)
-    response = HTTPI.post(request)
-    special_logger.info(response)
+    # payload['AnnoODL'] = "0" if payload['AnnoODL'].nil?
+    # payload['ProtocolloODL'] = "0" if payload['ProtocolloODL'].nil?
+    # payload['AnnoSGN'] = "-1" if payload['AnnoSGN'].nil?
+    # payload['ProtocolloSGN'] = "-1" if payload['ProtocolloSGN'].nil?
+    # payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
+    # payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
+    # payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
+    # payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
+    # payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
+    #
+    # # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
+    # # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
+    # # payload['TipoDanno'] = '55' if payload['TipoDanno'].nil?
+    # payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
+    # payload['FlagJSONType'] = "odl"
+    #
+    payload.each { |k,v| payload.delete(k) if v == '0' || v == '-1' }
 
-    res = JSON.parse(response.raw_body)['ProtocolloODL']
+    if payload['ProtocolloSGN'].nil?
 
-    c = get_ew_client
-    odl = c.query("select * from autoodl where protocollo = #{res}")
-    c.close
+      payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
 
-    return odl.first unless odl.count < 1
+      unless payload['CodiceAutomezzo'].nil?
+        c = get_ew_client
+        qry = "select codiceProvenienza from automezzi where codice = '#{payload['CodiceAutomezzo']}'"
+        am = c.query(qry).first['codiceProvenienza'].split(' ')
+        c.close
+        vehicle = Vehicle.find_by_reference(am[0],am[1])
+        lm = last_maintainance(vehicle)
+        lc = vehicle.last_check
+        payload['DataUltimaManutenzione'] = lm['DataUscitaVeicolo'].strftime("%Y-%m-%d") unless lm.nil?
+        payload['DataUltimoControllo'] = lc.time.strftime("%Y-%m-%d") unless lc.nil?
+      end
+
+      payload['DataInsert'] = Date.today.strftime("%Y-%m-%d") if payload['DataInsert'].nil?
+
+      payload['FlagRiparato'] = 'false' if payload['FlagRiparato'].nil?
+      payload['FlagStampato'] = 'false' if payload['FlagStampato'].nil?
+      payload['FlagSvolto'] = 'false' if payload['FlagSvolto'].nil?
+
+      payload['UserInsert'] = 'DASHBOARD' if payload['UserInsert'].nil?
+    end
+    # payload.each { |k,v| payload.delete(k) if v.nil? }
+
+    if payload['ProtocolloODL'].nil?
+      return create_ew_worksheet(
+        dataintervento: payload['DataIntervento'],
+        codiceanagrafico: payload['CodiceOfficina'],
+        codiceautomezzo: payload['CodiceAutomezzo'].to_s,
+        dataentrataveicolo: payload['DataEntrataVeicolo'],
+        km: payload['Chilometraggio'],
+        note: payload['Descrizione'],
+        flagschedachiusa: payload['FlagSvolto'].to_s,
+        codiceautista: payload['CodiceAutista'],
+        datalavaggio: payload['DataLavaggio'],
+        codicetipodanno: payload['TipoDanno'],
+        targa: payload['CodiceTarga'],
+        flagdafatturare: payload['FlagDaFatturare']
+      )
+    else
+      args = Hash.new
+      args[:protocollo] = payload['ProtocolloODL']
+      args[:dataintervento] = payload['DataIntervento'] if payload.has_key? 'DataIntervento'
+      args[:codiceanagrafico] = payload['CodiceOfficina'] if payload.has_key? 'CodiceOfficina'
+      args[:codiceautomezzo] = payload['CodiceAutomezzo'] if payload.has_key? 'CodiceAutomezzo'
+      args[:dataentrataveicolo] = payload['DataEntrataVeicolo'] if payload.has_key? 'DataEntrataVeicolo'
+      args[:km] = payload['Chilometraggio'].to_i if payload.has_key? 'Chilometraggio'
+      args[:note] = payload['Descrizione'] if payload.has_key? 'Descrizione' && payload['Descrizione'] != ''
+      args[:flagschedachiusa] = payload['FlagSvolto'].to_s if payload.has_key? 'FlagSvolto'
+      args[:datalavaggio] = payload['DataLavaggio'] if payload.has_key? 'DataLavaggio'
+      args[:codicetipodanno] = payload['TipoDanno'] if payload.has_key? 'TipoDanno'
+      args[:targa] = payload['CodiceTarga'] if payload.has_key? 'CodiceTarga'
+      args[:flagdafatturare] = payload['FlagDaFatturare'] if payload.has_key? 'FlagDaFatturare'
+      return edit_ew_worksheet(args)
+    end
+    # payload = payload.stringify_keys
+    #
+    # payload['AnnoODL'] = "0" if payload['AnnoODL'].nil?
+    # payload['ProtocolloODL'] = "0" if payload['ProtocolloODL'].nil?
+    # payload['AnnoSGN'] = "-1" if payload['AnnoSGN'].nil?
+    # payload['ProtocolloSGN'] = "-1" if payload['ProtocolloSGN'].nil?
+    # payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
+    # payload['CodiceOfficina'] = "0" if payload['CodiceOfficina'].nil?
+    # payload['CodiceAutomezzo'] = "0" if payload['CodiceAutomezzo'].nil?
+    # payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
+    # payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
+    #
+    # # payload['DataUltimaManutenzione'] = "0000-00-00" if payload['DataUltimaManutenzione'].nil?
+    # # payload['DataUltimoControllo'] = "0000-00-00" if payload['DataUltimoControllo'].nil?
+    # # payload['TipoDanno'] = '55' if payload['TipoDanno'].nil?
+    # payload['FlagSvolto'] = "null" if payload['FlagSvolto'].nil?
+    # payload['FlagJSONType'] = "odl"
+    #
+    # payload.each { |k,v| payload.delete(k) if v.nil? }
+    # request = HTTPI::Request.new
+    # request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
+    # request.body = payload.to_json
+    # request.headers['Content-Type'] = 'application/json; charset=utf-8'
+    # special_logger.info(request)
+    # response = HTTPI.post(request)
+    # special_logger.info(response)
+    #
+    # res = JSON.parse(response.raw_body)['ProtocolloODL']
+    #
+    # c = get_ew_client
+    # odl = c.query("select * from autoodl where protocollo = #{res}")
+    # c.close
+    #
+    # return odl.first unless odl.count < 1
 
   end
 
@@ -622,8 +878,23 @@ class EurowinController < ApplicationController
 
   private
 
+
+  def self.multi_query(*queries)
+    # Adding injection protection
+    if queries[0].is_a? Array
+      queries = queries[0]
+    end
+    queries.map! { |q| q.tr(';','')}
+    # queries.map! { |q| q.tr("'","''")}
+
+    c = Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB'], flags: Mysql2::Client::MULTI_STATEMENTS
+    res = c.query(queries.join(';'))
+    c.close
+    return res
+  end
+
   def self.get_ew_client(db = ENV['RAILS_EUROS_DB'])
-    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db, flags: Mysql2::Client::MULTI_STATEMENTS
+    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db
   end
 
   def self.special_logger

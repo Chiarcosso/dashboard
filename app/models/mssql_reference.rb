@@ -84,7 +84,7 @@ class MssqlReference < ApplicationRecord
 
             elsif c.check_properties(r)
 
-              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:S")} #{c.name} (#{r['id']}) - A posto (id: #{c.id}).\n"
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{c.name} (#{r['id']}) - A posto (id: #{c.id}).\n"
 
             else
               c.update(name: r['name'], vat_number: r['vat_number']) if update
@@ -307,8 +307,10 @@ class MssqlReference < ApplicationRecord
       query = "select 'Autisti' as table_name, a.Idautista as id, a.ditta as employer, a.nome as name, a.cognome as surname, "\
                   "Mansione.Descrizione as role, a.attivo as dismissed "\
                   "from Autisti a "\
-                  "left join Mansione on a.idmansione = mansione.idmansione "
-                  "and a.cognome is not null and a.cognome != ''"\
+                  "left join Mansione on a.idmansione = mansione.idmansione "\
+                  "where "\
+                  "a.cognome is not null and a.cognome != ''"\
+                  "and a.nome is not null and a.nome != ''"\
                   "order by a.cognome,a.nome"
       list = client.execute(query)
 
@@ -316,39 +318,40 @@ class MssqlReference < ApplicationRecord
       special_logger.info(query)
       response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - Trovati #{list.count} record nella tabella Autisti, dove ditta, nome e cognome sono compilati.\n"
       list.each do |r|
-        @error = nil
+        begin
+          @error = nil
+          byebug if r['name'].nil?
+          employer = atc if r['employer'] == 'A'
+          employer = te if r['employer'] == 'T'
+          r['name'] = r['name'].strip.titleize
+          r['surname'] = r['surname'].strip.titleize
 
-        employer = atc if r['employer'] == 'A'
-        employer = te if r['employer'] == 'T'
-        r['name'] = r['name'].strip.titleize
-        r['surname'] = r['surname'].strip.titleize
-
-        # if employer.nil?
-        #   @error = " #{r['cognome']} #{r['nome']} (#{r['id']}) - Invalid employer: #{r['employer']}"
-        #   response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['cognome']} #{r['nome']} (#{r['id']}) - Ditta non valida: #{r['employer']}</span>\n"
-        #   special_logger.error(@error)
-        # end
-        if r['notdismissed'] == false
-          notdismissed = false
-        else
-          notdismissed = true
-        end
-
-        company_relation = CompanyRelation.find_by(:name => r['role'])
-        if company_relation.nil?
-          if update
-            company_relation = CompanyRelation.create(:name => r['role'])
+          # if employer.nil?
+          #   @error = " #{r['cognome']} #{r['nome']} (#{r['id']}) - Invalid employer: #{r['employer']}"
+          #   response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['cognome']} #{r['nome']} (#{r['id']}) - Ditta non valida: #{r['employer']}</span>\n"
+          #   special_logger.error(@error)
+          # end
+          if r['notdismissed'] == false
+            notdismissed = false
           else
-            company_relation = CompanyRelation.new(:name => r['role'])
+            notdismissed = true
           end
 
-          response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")}  #{r['cognome']} #{r['nome']} (#{r['id']}) - Creata mansione: #{r['role']}</span>\n"
-          special_logger.info("Company realtion created: #{company_relation.name}")
-        end
+          company_relation = CompanyRelation.find_by(:name => r['role'])
+          if company_relation.nil?
+            if update
+              company_relation = CompanyRelation.create(:name => r['role'])
+            else
+              company_relation = CompanyRelation.new(:name => r['role'])
+            end
 
-        p = Person.find_by(name: r['name'], surname: r['surname'])
+            response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")}  #{r['cognome']} #{r['nome']} (#{r['id']}) - Creata mansione: #{r['role']}</span>\n"
+            special_logger.info("Company realtion created: #{company_relation.name}")
+          end
 
-        begin
+          p = Person.find_by(name: r['name'], surname: r['surname'])
+
+
           if @error.nil?
             if p.nil?
               if update
@@ -379,7 +382,7 @@ class MssqlReference < ApplicationRecord
 
             elsif p.check_properties(r)
 
-              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:S")} #{p.surname} #{p.name} (#{r['id']}) - A posto (id: #{p.id}).\n"
+              response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{p.surname} #{p.name} (#{r['id']}) - A posto (id: #{p.id}).\n"
 
               unless employer.nil? || p.has_relation?(employer,company_relation)
                 CompanyPerson.create(person: p, company: employer, company_relation: company_relation, acting: notdismissed) if update
