@@ -1,7 +1,8 @@
 -# $("#presence").html("#{escape_javascript(render partial: '/presence/presence', locals: {day: Date.strptime("#{@year}-#{@month}-#{@day.strftime("%d")}","%Y-%m-%d"), person: @person}  )} ");
 -# $("#presence_day").html("#{escape_javascript(render partial: '/presence/presence_day', locals: {day: @day, person: @person}  )} ");
 -# $("#building_presence").html("#{escape_javascript(render partial: 'presence/building_presence', locals: {day: @day, person: @person}  )} ");
-$("#schedules").html("#{escape_javascript(render partial: 'presence/schedules', locals: {person: @person}  )} ");
+-# $("#schedules").html("#{escape_javascript(render partial: 'presence/schedules', locals: {person: @person}  )} ");
+$('##{@tab} [value=Ricarica]').trigger('click');
 $('.popup').remove();
 $('.infobox').remove();
 calculateTotals();
