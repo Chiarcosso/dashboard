@@ -59,7 +59,7 @@
                     -# - elsif WorkshopOperation.where(myofficina_reference: wo.myofficina_reference, name: wo.name, user: current_user).count == 0
                     -#   %button{ class: 'btn_small timer_control start_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: sgn['Protocollo'], description: sgn['DescrizioneSegnalazione'] } }
                     -#     = 'Inizia'
-                    
+
                     - if wo.user == current_user
                       - if wo.paused
                         %button{ class: 'btn_small timer_control start_timer', id: "start-#{wo.id}", data: { route: [start_workshop_operation_path(@worksheet.number),pause_workshop_operation_path(@worksheet.number)], protocol: 'checks', description: 'Controlli', station: @station } }
@@ -77,22 +77,23 @@
                       %button{ class: 'stop_timer create_popup no-loader', id: "stop-#{wo.id}", data: { checks: 'true', new_elements: ["#worksheet-duration-op-#{wo.id}","#timesend-#{wo.id}","#station","#notes"], popup_id: 'close_operation', station: @station, html: (render partial: 'workshop/close_operation_popup', locals: {description: wo.notes, protocol: @worksheet.number, time: wo.real_duration.to_i, id: wo.id, tm: @worksheet.real_duration.to_i, station: @station}) }, disabled: !wo.ending_time.nil? }
                         Concludi
               %ul.nav.nav-tabs
-                - @checks.each do |k,v|
-                  -# %style
-                  -#   a:visited,a:link,a:hver,a:active{ color: black; font-style: normal; font-size: +2; }
-                  - unperformed = v.reject{ |cc| cc.performed? }.size
-                  - if @tab.nil?
-                    - if v == @checks.values.first
-                      - active = 'active'
+                - unless @checks.nil? || @checks.empty?
+                  - @checks.each do |k,v|
+                    -# %style
+                    -#   a:visited,a:link,a:hver,a:active{ color: black; font-style: normal; font-size: +2; }
+                    - unperformed = v.reject{ |cc| cc.performed? }.size
+                    - if @tab.nil?
+                      - if v == @checks.values.first
+                        - active = 'active'
+                      - else
+                        - active = ''
                     - else
-                      - active = ''
-                  - else
-                    - if @tab == 'tab-'+k.tr(' ','_')
-                      - active = 'active'
-                    - else
-                      - active = ''
-                  %li{ class: active}
-                    =link_to "#{k}#{unperformed > 0 ? " (#{unperformed})" : ''}", '#tab-'+k.tr(' ','_'), data: { toggle: 'tab'}, class: 'no-loader'
+                      - if @tab == 'tab-'+k.tr(' ','_')
+                        - active = 'active'
+                      - else
+                        - active = ''
+                    %li{ class: active}
+                      =link_to "#{k}#{unperformed > 0 ? " (#{unperformed})" : ''}", '#tab-'+k.tr(' ','_'), data: { toggle: 'tab'}, class: 'no-loader'
 
               .col-sm-3
                 %b= "Controllo"
@@ -108,26 +109,27 @@
             .row
               .col-sm-12
                 .tab-content
-                  - @checks.each do |k,v|
-                    - if @tab.nil?
-                      - if v == @checks.values.first
-                        - active = 'active'
+                  - unless @checks.nil? || @checks.empty?
+                    - @checks.each do |k,v|
+                      - if @tab.nil?
+                        - if v == @checks.values.first
+                          - active = 'active'
+                        - else
+                          - active = ''
                       - else
-                        - active = ''
-                    - else
-                      - if @tab == 'tab-'+k.tr(' ','_')
-                        - active = 'active'
-                      - else
-                        - active = ''
+                        - if @tab == 'tab-'+k.tr(' ','_')
+                          - active = 'active'
+                        - else
+                          - active = ''
 
-                    -#
-                    -# - if v == @checks.values.first
-                    -#   - active = ' active'
-                    -# - else
-                    -#   - active = ''
-                    %div{style: 'margin-left: 1em; width: 99%;', id: 'tab-'+k.tr(' ','_'), class: 'tab-pane '+active}
-                      .scrollable-panel#scroll-element
-                        = render partial: 'carwash/check_view', locals: {list: v}
+                      -#
+                      -# - if v == @checks.values.first
+                      -#   - active = ' active'
+                      -# - else
+                      -#   - active = ''
+                      %div{style: 'margin-left: 1em; width: 99%;', id: 'tab-'+k.tr(' ','_'), class: 'tab-pane '+active}
+                        .scrollable-panel#scroll-element
+                          = render partial: 'carwash/check_view', locals: {list: v}
 
     - if Time.now - vehicle.last_gps.to_i > 7.days
       .overlay-screen

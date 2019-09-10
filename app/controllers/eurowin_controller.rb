@@ -13,7 +13,7 @@ class EurowinController < ApplicationController
   def self.get_open_notifications_complete(vehicle,except,unprinted = false)
     mrs = vehicle.mssql_references.map{ |msr| msr.remote_object_id }
     printed = "and FlagStampato not like 'true'" if unprinted
-    # byebug
+    
     if mrs.empty?
       Array.new
     else
@@ -80,6 +80,7 @@ class EurowinController < ApplicationController
     end
     r = ewc.query(query)
     ewc.close
+
     r
   end
 
@@ -376,7 +377,7 @@ class EurowinController < ApplicationController
   def self.create_notification(payload)
     @token = SecureRandom.hex
     ew_query_logger.info("#{@token} (old notification method request) => #{payload.inspect}")
-    # byebug
+
     ## '0' means new one
     ## '-1' means don't change
     ## 'null' means write null
@@ -551,9 +552,11 @@ class EurowinController < ApplicationController
     values = []
     args.each do |field,value|
       fields << field
-      if value.is_a? String
-        value = "'#{value}'"
-      end
+      # if value.is_a? String
+      #   value = "'#{value}'"
+      # end
+      value = value.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
+      value = value.is_a?(String) && !value.nil? ? "'#{value}'" : value
       values << value
     end
 
@@ -610,11 +613,15 @@ class EurowinController < ApplicationController
 
   def self.edit_ew_worksheet(args)
     ew_query_logger.info("#{@token} (new edit worksheet request) => #{args.inspect}")
-    args.each { |k,v| args[k] = 'null' if v.nil? }
+    args.each do |k,v|
+      args[k] = 'null' if v.nil?
+      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
+      args[k] = "'#{args[k]}'" if args[k].is_a?(String) && args[k] != 'null'
+    end
 
     updates = Array.new
     args.each do |field,value|
-      updates << "#{field} = #{value.is_a?(String) && value != 'null' ? "'#{value}'" : value}"
+      updates << "#{field} = #{value}"
     end
 
     qry = [
