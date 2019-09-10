@@ -143,11 +143,11 @@
 
 :javascript
 
-  $('body').on('click','.panel-title',function(){
-    $('input[name=name]').val($(this).data('name'));
-    var opts = JSON.parse($('.massive').first().val());
-    opts['name'] = $(this).data('name');
-    $('.massive').val(JSON.stringify(opts));
-    console.log(JSON.parse($('.massive').val()));
-  });
+  // $('body').on('click','.panel-title',function(){
+  //   $('input[name=name]').val($(this).data('name'));
+  //   var opts = JSON.parse($('.massive').first().val());
+  //   opts['name'] = $(this).data('name');
+  //   $('.massive').val(JSON.stringify(opts));
+  //   console.log(JSON.parse($('.massive').val()));
+  // });
   deactivateLoadingScreen();

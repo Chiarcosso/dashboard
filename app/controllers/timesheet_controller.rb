@@ -123,6 +123,7 @@ class TimesheetController < ApplicationController
 
   def massive_approval
     begin
+
       if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
         # Get strong params
         from = params.require('from')
@@ -138,6 +139,7 @@ class TimesheetController < ApplicationController
           when 'hr'
             TimesheetRecord.find(ts.to_i).update(hr_approval: Time.now)
           end
+          
         end
 
         get_timesheets
