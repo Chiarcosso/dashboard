@@ -13,7 +13,7 @@ class EurowinController < ApplicationController
   def self.get_open_notifications_complete(vehicle,except,unprinted = false)
     mrs = vehicle.mssql_references.map{ |msr| msr.remote_object_id }
     printed = "and FlagStampato not like 'true'" if unprinted
-    
+
     if mrs.empty?
       Array.new
     else
@@ -283,7 +283,9 @@ class EurowinController < ApplicationController
     ew_query_logger.info("#{@token} (new create notification request) => #{args.inspect}")
     args.each { |k,v| args.delete(k) if v.nil? }
     puts args.inspect
-
+    if args[:datasegnalazione].nil?
+      args[:datasegnalazione] = DateTime.now
+    end
 
     # qry = "select Protocollo from autosegnalazioni order by Protocollo desc limit 1;"
     # res = c.query(qry).first
@@ -293,11 +295,18 @@ class EurowinController < ApplicationController
     # end
     fields = []
     values = []
+    args.each do |k,v|
+      # args[k] = 'null' if v.nil?
+      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
+      args[k] = "'#{args[k].tr("'","")}'" if args[k].is_a?(String) && args[k] != 'null'
+    end
     args.each do |field,value|
       fields << field
-      if value.is_a? String
-        value = "'#{value}'"
-      end
+      # if value.is_a? String
+      #   value = "'#{value}'"
+      # end
+      # value = value.strftime('%Y-%m-%d') if value.is_a?(Date) || value.is_a?(DateTime)
+      # value = value.is_a?(String) && !value.nil? ? "'#{value.tr("'","")}'" : value
       values << value
     end
 
@@ -308,9 +317,9 @@ class EurowinController < ApplicationController
     end
     unless args[:codiceautomezzo].nil?
       fields << 'targa'
-      values << "(select targa from automezzi where codice = '#{args[:codiceautomezzo]}')"
+      values << "(select targa from automezzi where codice = #{args[:codiceautomezzo]})"
     end
-    anno = args[:datasegnalazione].match(/^([0-9]{4})-.*/)[1]
+    anno = args[:datasegnalazione].match(/^'?([0-9]{4})-.*/)[1]
 
     # qry = "set @nextprotocol = (select max(protocollo)+1 from autosegnalazioni);\n"
     # qry += "insert into autosegnalazioni (Anno,Protocollo,Sezione,#{fields.join(',')}) values (#{anno},@nextprotocol,'A',#{values.join(',')});\n"
@@ -329,25 +338,38 @@ class EurowinController < ApplicationController
 
     # c.close
 
-    qry = "select * from autosegnalazioni where #{args.map{|f,v| "#{f} = #{v.is_a?(String) ? "'#{v}'" : v}"}.join(' and ')}"
+    qry = "select * from autosegnalazioni where #{args.map{|f,v| "#{f} = #{v}"}.join(' and ')} order by Protocollo desc limit 1"
 
     c = get_ew_client
     sgn = c.query(qry)
     # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
 
     c.close
-    ew_query_logger.info("#{@token} (new create notification result) => #{sgn.nil? ? 'null' : sgn.first.inspect}")
+    if sgn.first.nil?
+      sleep 1
+      c = get_ew_client
+      sgn = c.query(qry)
+      # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
+      c.close
+    end
+
+    ew_query_logger.info("#{@token} (new create notification result) => #{qry}\n#{sgn.nil? ? 'SQL error' : sgn.first.inspect}")
     return sgn.first
   end
 
   def self.edit_ew_notification(args)
     ew_query_logger.info("#{@token} (new edit notification request) => #{args.inspect}")
     puts args.inspect
-    args.each { |k,v| args[k] = 'null' if v.nil? }
+
+    args.each do |k,v|
+      args[k] = 'null' if v.nil?
+      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
+      args[k] = "'#{args[k].tr("'","")}'" if args[k].is_a?(String) && args[k] != 'null'
+    end
 
     updates = Array.new
     args.each do |field,value|
-      updates << "#{field} = #{value.is_a?(String) && value != 'null' ? "'#{value}'" : value}"
+      updates << "#{field} = #{value}"
     end
     unless args[:schedainterventoprotocollo].nil?
       updates << "SerialODL = (select serial from autoodl where protocollo = #{args[:schedainterventoprotocollo]})"
@@ -545,43 +567,56 @@ class EurowinController < ApplicationController
 
   def self.create_ew_worksheet(args)
     ew_query_logger.info("#{@token} (new create worksheet request) => #{args.inspect}")
-    args.each { |k,v| args.delete(k) if v.nil? }
+    args.each { |k,v| args.delete(k) if v.nil? || v == '' }
     puts args.inspect
-
-    fields = []
-    values = []
-    args.each do |field,value|
-      fields << field
-      # if value.is_a? String
-      #   value = "'#{value}'"
-      # end
-      value = value.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      value = value.is_a?(String) && !value.nil? ? "'#{value}'" : value
-      values << value
+    if args[:dataintervento].nil?
+      args[:dataintervento] = DateTime.now
     end
 
     unless args[:codiceautista].is_a? String || args[:codiceautista].nil?
       args[:codiceautista] = args[:codiceautista].to_s.rjust(6,'0')
     end
+    args.delete(:codiceautista) if args[:codiceautista] == '000000'
+
+    fields = []
+    values = []
+    args.each do |k,v|
+      # args[k] = 'null' if v.nil?
+      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
+      args[k] = "'#{args[k].tr("'","")}'" if args[k].is_a?(String) && args[k] != 'null'
+    end
+    args.each do |field,value|
+      fields << field
+      # if value.is_a? String
+      #   value = "'#{value}'"
+      # end
+      # value = value.strftime('%Y-%m-%d') if value.is_a?(Date) || value.is_a?(DateTime)
+      # value = value.is_a?(String) && !value.nil? ? "'#{value.tr("'","")}'" : value
+      values << value
+    end
+
 
     raise "Mezzo mancante." if args[:codiceautomezzo].nil?
     if args[:targa].nil?
       fields << 'targa'
-      values << "(select targa from automezzi where codice = '#{args[:codiceautomezzo]}')"
+      values << "(select targa from automezzi where codice = #{args[:codiceautomezzo]})"
     end
 
     c = get_ew_client
-    qry = "select codiceProvenienza from automezzi where codice = '#{args[:codiceautomezzo]}'"
+    qry = "select codiceProvenienza from automezzi where codice = #{args[:codiceautomezzo]}"
     am = c.query(qry).first['codiceProvenienza'].split(' ')
     c.close
     vehicle = Vehicle.find_by_reference(am[0],am[1])
     lw = vehicle.last_washing
 
     unless lw.nil?
-      fields << 'datalavaggio'
-      values << "'#{lw.ending_time.strftime("%Y-%m-%d")}'"
+      if args[:datalavaggio].nil?
+        fields << 'datalavaggio'
+        values << "'#{lw.ending_time.strftime("%Y-%m-%d")}'"
+      end
     end
-    anno = args[:dataintervento].match(/^([0-9]{4})-.*/)[1]
+
+    anno = args[:dataintervento].match(/^'?([0-9]{4})-.*/)[1]
 
     # qry = "set @nextprotocol = (select max(protocollo)+1 from autosegnalazioni);\n"
     # qry += "insert into autosegnalazioni (Anno,Protocollo,Sezione,#{fields.join(',')}) values (#{anno},@nextprotocol,'A',#{values.join(',')});\n"
@@ -601,13 +636,23 @@ class EurowinController < ApplicationController
 
     # c.close
 
-    qry = "select * from autoodl where #{args.map{|f,v| "#{f} = #{v.is_a?(String) ? "'#{v}'" : v}"}.join(' and ')}"
+    qry = "select * from autoodl where #{args.map{|f,v| "#{f} = #{v}"}.join(' and ')} order by protocollo desc limit 1"
+
     c = get_ew_client
     odl = c.query(qry)
     # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
 
     c.close
-    ew_query_logger.info("#{@token} (new create worksheet result) => #{odl.nil? ? 'null' : odl.first.inspect}")
+    if odl.first.nil?
+      sleep 1
+      c = get_ew_client
+      odl = c.query(qry)
+      # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
+
+      c.close
+    end
+
+    ew_query_logger.info("#{@token} (new create worksheet result) =>  #{qry}\n#{odl.nil? ? 'null' : odl.first.inspect}")
     return odl.first
   end
 
@@ -616,7 +661,7 @@ class EurowinController < ApplicationController
     args.each do |k,v|
       args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k]}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].tr("'","")}'" if args[k].is_a?(String) && args[k] != 'null'
     end
 
     updates = Array.new
@@ -703,6 +748,7 @@ class EurowinController < ApplicationController
         am = c.query(qry).first['codiceProvenienza'].split(' ')
         c.close
         vehicle = Vehicle.find_by_reference(am[0],am[1])
+        
         lm = last_maintainance(vehicle)
         lc = vehicle.last_check
         payload['DataUltimaManutenzione'] = lm['DataUscitaVeicolo'].strftime("%Y-%m-%d") unless lm.nil?

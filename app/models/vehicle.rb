@@ -177,6 +177,9 @@ class Vehicle < ApplicationRecord
 
   def self.find_by_reference(table,id)
     v = MssqlReference.find_by(remote_object_table: table, remote_object_id: id)
+    if v.nil? && table.downcase == 'altrimezzi'
+      v = MssqlReference.find_by(remote_object_table: 'Altri mezzi', remote_object_id: id)
+    end
 	  v.local_object unless v.nil?
     # find and create new vehicle if v.nil?
   end

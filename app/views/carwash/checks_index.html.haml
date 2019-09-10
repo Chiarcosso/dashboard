@@ -53,9 +53,10 @@
                   -# - byebug if cs.actual_vehicle.nil?
                   - if current_user.has_role?('amministratore lavaggio') || current_user.has_role?(:admin) || cs.finished.nil?
                     -# = form_tag(continue_check_session_path(cs.id), method: :post, remote: true) do |f|
-                    = form_tag(open_worksheet_path(cs.myofficina_reference), method: :post, remote: true) do |f|
-                      = hidden_field_tag :station, 'carwash'
-                      = submit_tag (cs.finished.nil?? 'Continua' : 'Riapri'), 'data-confirmation': "#{cs.finished.nil?? 'Continuare' : 'Riprendere'} la sessione nr. #{cs.myofficina_reference} (#{cs.actual_vehicle.complete_name})?", class: 'loading_screen'
+                    - unless cs.nil? || cs.myofficina_reference.nil?
+                      = form_tag(open_worksheet_path(cs.myofficina_reference), method: :post, remote: true) do |f|
+                        = hidden_field_tag :station, 'carwash'
+                        = submit_tag (cs.finished.nil?? 'Continua' : 'Riapri'), 'data-confirmation': "#{cs.finished.nil?? 'Continuare' : 'Riprendere'} la sessione nr. #{cs.myofficina_reference} (#{cs.actual_vehicle.complete_name})?", class: 'loading_screen'
                 .col-sm-1
                   = link_to cs.actual_vehicle.plate, vehicles_path(search: cs.actual_vehicle.plate)
                 .col-sm-2
