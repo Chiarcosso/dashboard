@@ -1035,7 +1035,7 @@ class ReportRequest
       @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
     rescue Exception => e
       report_logger.error("#{e.message}\n\n#{e.backtrace.join("\n")}")
-      @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
+      # @mdc.update_data_collection_rows_status(dataCollectionRows) unless @data.nil?
     end
   end
 

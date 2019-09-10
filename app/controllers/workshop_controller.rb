@@ -742,7 +742,7 @@ class WorkshopController < ApplicationController
         vcs = @worksheet.vehicle_check_session
         unless vcs.nil?
           vcs.vehicle_performed_checks.each do |vpc|
-            vpc.create_notification(current_user)
+            vpc.create_notification()
           end
           vcs.update(finished: DateTime.now, real_duration: 0, log: vcs.log.to_s+"\nSessione conclusa da #{current_user.person.complete_name}, il #{Date.today.strftime('%d/%m/%Y')} alle #{DateTime.now.strftime('%H:%M:%S')}.") unless vcs.nil?
         end

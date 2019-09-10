@@ -146,17 +146,18 @@ class VehicleCheckSession < ApplicationRecord
     payload['FlagSvolto'] = "false"
     payload['FlagJSONType'] = "odl"
 
-    request = HTTPI::Request.new
-    request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
-    request.body = payload.to_json
-    request.headers['Content-Type'] = 'application/json; charset=utf-8'
-
-    special_logger.info(request)
-
-    res = HTTPI.post(request)
-
-    special_logger.info(res)
-    JSON.parse(res.body)['ProtocolloODL'].to_i
+    EurowinController::create_worksheet(payload)
+    # request = HTTPI::Request.new
+    # request.url = "http://#{ENV['RAILS_EUROS_HOST']}:#{ENV['RAILS_EUROS_WS_PORT']}"
+    # request.body = payload.to_json
+    # request.headers['Content-Type'] = 'application/json; charset=utf-8'
+    #
+    # special_logger.info(request)
+    #
+    # res = HTTPI.post(request)
+    #
+    # special_logger.info(res)
+    # JSON.parse(res.body)['ProtocolloODL'].to_i
     # self.update(myofficina_reference: res, worksheet: Worksheet.create(code: "EWC*#{res}", vehicle: self.vehicle, vehicle_type: self.vehicle.class.to_s, opening_date: Date.current))
 
   end

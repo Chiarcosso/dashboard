@@ -121,7 +121,7 @@ class VehiclePerformedCheck < ApplicationRecord
     self.vehicle_check.notify_to
   end
 
-  def create_notification(user)
+  def create_notification(user = nil)
 
     #if the result is 'Aggiustato', 'Non ok' o 'Bloccante'
     unless self.performed == 0 or self.performed == 1 or self.performed == 3
@@ -130,7 +130,7 @@ class VehiclePerformedCheck < ApplicationRecord
       vcs = self.vehicle_check_session
       vehicle = self.vehicle
       mssql = vehicle.mssql_references.first
-
+      user = self.user if user.nil?
       #differentiate tables for the query
       case mssql.remote_object_table
       when 'Veicoli' then
@@ -147,7 +147,7 @@ class VehiclePerformedCheck < ApplicationRecord
       ewc.close
 
       #get the operator code
-      opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+user.person.mssql_references.last.remote_object_id.to_s).first['nominativo'].to_s.gsub("'","''") unless vehicle.last_driver.nil?
+      opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+user.person.mssql_references.last.remote_object_id.to_s).first['nominativo'].to_s.gsub("'","''") #unless vehicle.last_driver.nil?
 
       # plate = VehiclePerformedCheck.get_ms_client.execute("select targa from #{mssql.remote_object_table} where #{field} = #{mssql.remote_object_id}").first['targa'] unless vehicle.last_driver.nil?
       ewc = VehiclePerformedCheck.get_ew_client(ENV['RAILS_EUROS_DB'])

@@ -279,7 +279,7 @@ class EurowinController < ApplicationController
   end
 
   def self.create_ew_notification(args)
-
+    ew_query_logger.info("#{@token} (new create notification request) => #{args.inspect}")
     args.each { |k,v| args.delete(k) if v.nil? }
     puts args.inspect
 
@@ -321,6 +321,7 @@ class EurowinController < ApplicationController
     ]
     # c = get_ew_client
     # c.query(qry)
+    ew_query_logger.info("#{@token} (new create notification query) => #{qry.inspect}")
     multi_query(qry)
     # prot =  c.query("select @nextprotocol")
     # sgn = c.async_result
@@ -328,16 +329,18 @@ class EurowinController < ApplicationController
     # c.close
 
     qry = "select * from autosegnalazioni where #{args.map{|f,v| "#{f} = #{v.is_a?(String) ? "'#{v}'" : v}"}.join(' and ')}"
+
     c = get_ew_client
     sgn = c.query(qry)
     # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
 
     c.close
-
+    ew_query_logger.info("#{@token} (new create notification result) => #{sgn.nil? ? 'null' : sgn.first.inspect}")
     return sgn.first
   end
 
   def self.edit_ew_notification(args)
+    ew_query_logger.info("#{@token} (new edit notification request) => #{args.inspect}")
     puts args.inspect
     args.each { |k,v| args[k] = 'null' if v.nil? }
 
@@ -356,6 +359,7 @@ class EurowinController < ApplicationController
     # sgn = c.query(qry)
     # prot =  c.query("select @nextprotocol")
     # sgn = c.async_result
+    ew_query_logger.info("#{@token} (new edit notification query) => #{qry.inspect}")
     multi_query(qry)
     # c.close
 
@@ -365,11 +369,13 @@ class EurowinController < ApplicationController
     # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
     #
     # c.close
-
+    ew_query_logger.info("#{@token} (new edit notification result) => #{sgn.nil? ? 'null' : sgn.first.inspect}")
     return sgn.first
   end
 
   def self.create_notification(payload)
+    @token = SecureRandom.hex
+    ew_query_logger.info("#{@token} (old notification method request) => #{payload.inspect}")
     # byebug
     ## '0' means new one
     ## '-1' means don't change
@@ -537,7 +543,7 @@ class EurowinController < ApplicationController
   end
 
   def self.create_ew_worksheet(args)
-
+    ew_query_logger.info("#{@token} (new create worksheet request) => #{args.inspect}")
     args.each { |k,v| args.delete(k) if v.nil? }
     puts args.inspect
 
@@ -583,6 +589,7 @@ class EurowinController < ApplicationController
       "select * from autoodl where protocollo = @nextprotocol;"
     ]
 
+    ew_query_logger.info("#{@token} (new create worksheet query)=> #{qry.inspect}")
     # c = get_ew_client
     # c.automatic_close = false
     multi_query(qry)
@@ -597,12 +604,12 @@ class EurowinController < ApplicationController
     # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
 
     c.close
-
+    ew_query_logger.info("#{@token} (new create worksheet result) => #{odl.nil? ? 'null' : odl.first.inspect}")
     return odl.first
   end
 
   def self.edit_ew_worksheet(args)
-    puts args.inspect
+    ew_query_logger.info("#{@token} (new edit worksheet request) => #{args.inspect}")
     args.each { |k,v| args[k] = 'null' if v.nil? }
 
     updates = Array.new
@@ -618,21 +625,23 @@ class EurowinController < ApplicationController
     # sgn = c.query(qry)
     # prot =  c.query("select @nextprotocol")
     # sgn = c.async_result
+    ew_query_logger.info("#{@token} (new edit worksheet query) => #{qry.inspect}")
     multi_query(qry)
     # c.close
 
     qry = "select * from autoodl where protocollo = #{args[:protocollo]};"
     c = get_ew_client
-    sgn = c.query(qry)
+    odl = c.query(qry)
     # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
     #
     # c.close
-
-    return sgn.first
+    ew_query_logger.info("#{@token} (new edit worksheet result) => #{odl.nil? ? 'null' : odl.first.inspect}")
+    return odl.first
   end
 
   def self.create_worksheet(payload)
-
+    @token = SecureRandom.hex
+    ew_query_logger.info("#{@token} (old worksheet method request) => #{payload.inspect}")
     ## '0' means new one
     ## '-1' means don't change
     ## 'null' means write null
@@ -899,5 +908,9 @@ class EurowinController < ApplicationController
 
   def self.special_logger
     @@ew_logger ||= Logger.new("#{Rails.root}/log/eurowin_ws.log")
+  end
+
+  def self.ew_query_logger
+    @@ew_logger ||= Logger.new("#{Rails.root}/log/eurowin_ws_query.log")
   end
 end
