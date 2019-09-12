@@ -694,16 +694,17 @@ class EurowinController < ApplicationController
   def self.create_worksheet(payload)
     @token = SecureRandom.hex
     ew_query_logger.info("#{@token} (old worksheet method request) => #{payload.inspect}")
-    ## '0' means new one
-    ## '-1' means don't change
+    ## '-1' means new one
+    ## '0' means don't change
     ## 'null' means write null
     payload = payload.stringify_keys
 
     payload['AnnoODL'] = nil if payload['AnnoODL'] == '-1' || payload['AnnoODL'] == '0'
     payload['ProtocolloODL'] = nil if payload['ProtocolloODL'] == '-1' || payload['ProtocolloODL'] == '0'
 
-    payload['CodiceOfficina'] = nil if payload['CodiceOfficina'] == '0'
-    payload['CodiceAutomezzo'] = nil if payload['CodiceAutomezzo'] == '0'
+    payload.delete('CodiceOfficina') if payload['CodiceOfficina'] == '0'
+    payload.delete('CodiceAutomezzo') if payload['CodiceAutomezzo'] == '0'
+
 
     payload['TipoDanno'] = get_tipo_danno(payload['TipoDanno']) unless payload['TipoDanno'].nil?
     payload['Descrizione'] = payload['Descrizione'][0..199] unless payload['Descrizione'].nil?
@@ -748,7 +749,7 @@ class EurowinController < ApplicationController
         am = c.query(qry).first['codiceProvenienza'].split(' ')
         c.close
         vehicle = Vehicle.find_by_reference(am[0],am[1])
-        
+
         lm = last_maintainance(vehicle)
         lc = vehicle.last_check
         payload['DataUltimaManutenzione'] = lm['DataUscitaVeicolo'].strftime("%Y-%m-%d") unless lm.nil?
@@ -761,6 +762,10 @@ class EurowinController < ApplicationController
       payload['FlagStampato'] = 'false' if payload['FlagStampato'].nil?
       payload['FlagSvolto'] = 'false' if payload['FlagSvolto'].nil?
 
+      payload.delete('FlagRiparato') if payload['FlagRiparato'] == '0'
+      payload.delete('FlagStampato') if payload['FlagStampato'] == '0'
+      payload.delete('FlagSvolto') if payload['FlagSvolto'] == '0'
+      
       payload['UserInsert'] = 'DASHBOARD' if payload['UserInsert'].nil?
     end
     # payload.each { |k,v| payload.delete(k) if v.nil? }
@@ -787,6 +792,7 @@ class EurowinController < ApplicationController
       args[:codiceanagrafico] = payload['CodiceOfficina'] if payload.has_key? 'CodiceOfficina'
       args[:codiceautomezzo] = payload['CodiceAutomezzo'] if payload.has_key? 'CodiceAutomezzo'
       args[:dataentrataveicolo] = payload['DataEntrataVeicolo'] if payload.has_key? 'DataEntrataVeicolo'
+      args[:datauscitaveicolo] = payload['DataUscitaVeicolo'] if payload.has_key? 'DataUscitaVeicolo'
       args[:km] = payload['Chilometraggio'].to_i if payload.has_key? 'Chilometraggio'
       args[:note] = payload['Descrizione'] if payload.has_key? 'Descrizione' && payload['Descrizione'] != ''
       args[:flagschedachiusa] = payload['FlagSvolto'].to_s if payload.has_key? 'FlagSvolto'

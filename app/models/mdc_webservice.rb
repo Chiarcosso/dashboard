@@ -992,7 +992,8 @@ class ReportRequest
         sent_at: self.sent_at
       }
 
-      report = MdcReport.create(data)
+      report = MdcReport.find_by(data)
+      report = MdcReport.create(data) if report.nil?
 
       # Write photos
       unless @data[:images].nil?
