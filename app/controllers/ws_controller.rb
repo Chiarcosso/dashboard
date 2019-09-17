@@ -83,6 +83,7 @@ class WsController < ApplicationController
   # GET request action
   def notification_index
     @results = get_filter
+
     respond_to do |format|
       format.html {render 'mdc/report_index'}
       format.js {render partial: 'mdc/report_index_js'}
@@ -91,7 +92,9 @@ class WsController < ApplicationController
 
   # POST (JS) request action
   def notification_filter
+
     @results = get_filter
+    
     respond_to do |format|
       format.html {render partial: 'mdc/report_index'}
       format.js {render partial: 'mdc/report_index_js'}
@@ -581,20 +584,22 @@ class WsController < ApplicationController
   end
 
   def get_filter
-    # Build filter from params and run the resulting query
 
+    # Build filter from params and run the resulting query
     @office = params.require(:office)
 
     return Array.new if @office.nil?
-
 
     if params[:reports].nil?
       # First call, no params, set filter to default
       p = get_filter_defaults
     else
       # Filter call, set filter to params
-      p = params.require('reports').permit(:date_from, :date_to, :search, :types => [])
+      p = params.require('reports').permit(:managed, :date_from, :date_to, :search, :types => [])
     end
+
+    # Filter already managed
+    @managed = !p[:managed].nil?
 
     # Set dates
     Time.zone = 'Europe/Rome'
@@ -629,6 +634,7 @@ class WsController < ApplicationController
       # Run query
       res = MdcReport.where("sent_at between '#{date_from.in_time_zone('UTC').strftime("%Y-%m-%d %H:%M:%S")}' and '#{date_to.in_time_zone('UTC').strftime("%Y-%m-%d %H:%M:%S")}'")
               .where("#{@office} = 1")
+              .where("#{@managed ? "1 = 1" : "managed_at is null"}")
               .where("report_type in (#{@types.select{ |k,t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
               .order(sent_at: :desc)
 
@@ -650,6 +656,7 @@ class WsController < ApplicationController
       # Run query
       res = MdcReport.where("sent_at between '#{date_from.in_time_zone('UTC').strftime("%Y-%m-%d %H:%M:%S")}' and '#{date_to.in_time_zone('UTC').strftime("%Y-%m-%d %H:%M:%S")}'")
               .where("#{@office} = 1")
+              .where("#{@managed ? "1 = 1" : "managed_at is null"}")
               .where("report_type in (#{@types.select{ |k,t| t }.map{ |k,t| "'#{k}'"}.join(',')})")
               .where(w,"%#{@search}%","%#{@search}%","%#{@search}%","%#{@search}%")
               .order(sent_at: :desc)

@@ -76,6 +76,7 @@ class WorkingSchedule < ApplicationRecord
       selected_time = self.contract_to
     end
     DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{selected_time.strftime("%H:%M")} #{PresenceController.actual_timezone(date)}","%Y-%m-%d %H:%M %Z")
+    # DateTime.strptime("#{date.strftime("%Y-%m-%d")} #{selected_time.strftime("%H:%M")}","%Y-%m-%d %H:%M").in_time_zone('Europe/Rome')
   end
 
   def self.upsync_all

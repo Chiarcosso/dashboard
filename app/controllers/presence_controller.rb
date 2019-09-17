@@ -971,16 +971,17 @@ class PresenceController < ApplicationController
 
     pdf = Prawn::Document.new
 
-    date = DateTime.strptime(params.require(:date),"%Y-%m-%d")
+    date = DateTime.strptime(params.require(:date),"%Y-%m-%d").in_time_zone('Europe/Rome')
     ndate = date + 1.days
+
+    date_wd = date.strftime('%u').to_i-1
+    ndate_wd = ndate.strftime('%u').to_i-1
 
     pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}",size: 26, font_style: :bold, align: :center
     pdf.move_down 40
 
     codes = LeaveCode.where(afterhours: true).to_a
 
-    wday = date.strftime('%u').to_i-1
-    nwday = ndate.strftime('%u').to_i-1
 
     # where = <<-QRY
     #
@@ -1007,19 +1008,40 @@ class PresenceController < ApplicationController
     ('#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' = date(granted_leaves.date)
     or '#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(granted_leaves.from,'+00:00','+02:00')) and date(convert_tz(granted_leaves.to,'+00:00','+02:00'))
     or (
-      ('#{(date.in_time_zone('Europe/Rome')+1.days).utc.strftime("%Y-%m-%d")}' = date(convert_tz(granted_leaves.date,'+00:00','+02:00'))
-        or '#{(ndate).in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(granted_leaves.from,'+00:00','+02:00')) and date(convert_tz(granted_leaves.to,'+00:00','+02:00')))
-      and (
-        select count(id) from granted_leaves subq where ('#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' = date(convert_tz(subq.from,'+00:00','+02:00'))
-        or '#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(subq.from,'+00:00','+02:00')) and date(convert_tz(subq.to,'+00:00','+02:00')))
-        and granted_leaves.person_id = subq.person_id
-
-      ) > 0
-    )) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})
+        ('#{(date.in_time_zone('Europe/Rome')+1.days).utc.strftime("%Y-%m-%d")}' = date(convert_tz(granted_leaves.date,'+00:00','+02:00'))
+          or '#{(ndate).in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}'
+            between date(convert_tz(granted_leaves.from,'+00:00','+02:00'))
+                and date(convert_tz(granted_leaves.to,'+00:00','+02:00'))
+        )
+        and
+        (
+          select count(id) from granted_leaves subq where ('#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' = date(convert_tz(subq.from,'+00:00','+02:00'))
+          or '#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(subq.from,'+00:00','+02:00')) and date(convert_tz(subq.to,'+00:00','+02:00')))
+          and granted_leaves.person_id = subq.person_id
+          and subq.leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})
+        ) > 0
+      )
+    ) and leave_code_id in (#{codes.map{|lc| lc.id}.join(',')})
 
     QRY
 
-    leaves = GrantedLeave.where(where)
+    leaves = GrantedLeave.where(where).order(:from => :asc).to_a
+    excl = Array.new
+    nextdayz = Array.new
+
+    leaves.each do |v|
+      dayz = leaves.select{ |d| d.person_id == v.person_id }.sort{ |y| y.from }.reverse
+      if dayz.count > 1
+        if dayz[0].to < WorkingSchedule.find_by(person: dayz[0].person, weekday: date_wd).transform_to_date(date, :contract_to) ||
+          dayz[1].from > WorkingSchedule.find_by(person: dayz[1].person, weekday: ndate_wd).transform_to_date(ndate, :contract_from)
+          excl << dayz[1].id
+        else
+          nextdayz << dayz[1].id
+        end
+      end
+    end
+
+    leaves.reject! { |l| excl.include? l.id }
 
     driver_role = CompanyRelation.find_by(name: 'Autista')
     mechanic_role = CompanyRelation.find_by(name: 'Meccanico')
@@ -1034,7 +1056,7 @@ class PresenceController < ApplicationController
     office_workers.sort_by{|d| d.person.list_name }.each_with_index do |d,i|
       pdf.table [[pdf.make_cell(content: (i+1).to_s,size: 26, font_style: :bold,height: 27, align: :center, valign: :center),
         pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 17, font_style: :bold,height: 27,borders: [])],
-          [pdf.make_cell(content: d.complete_duration_label,size: 13,borders: [],width: 240),
+          [pdf.make_cell(content: d.complete_duration_label(nextdayz.include? d.id),size: 13,borders: [],width: 240),
           pdf.make_cell(content: motivation ? "Per: #{d.leave_code.description.downcase}" : '',size: 13,borders: [],width: 240)]],width: 480)]],
 
         # pdf.table [pdf.make_table([[pdf.make_cell(content: d.person.list_name,size: 13, font_style: :bold,height: 25)],[pdf.make_cell(content: d.complete_duration_label,size: 26)],],width: 75)],

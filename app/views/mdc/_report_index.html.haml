@@ -106,7 +106,11 @@
         %h4 Al
       .col-sm-5
         = date_field_tag 'reports[date_to]', @date_to, class: 'form-control'
-    .col-sm-7
+    .col-sm-3
+      .field.centered
+        %label= "Anche già gestite"
+        = check_box_tag 'reports[managed]', 'managed', @managed
+    .col-sm-4
       = text_field_tag 'reports[search]', @search, class: 'form-control', placeholder: 'Cerca fra gli autisti, le targhe, nelle note..'
     .col-sm-1
       .field

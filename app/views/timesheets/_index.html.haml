@@ -135,9 +135,11 @@
                         = 'Conferma tutte le ore:'
                     .row
                       .col-sm-6
-                        = check_box_tag 'massive_chief_approval', {date: @date, name: @name, from: 'chief', ids: ts.map { |t| t.id }}.to_json, false, class: 'form-control ajax-caller massive', data: {route: set_all_time_approvals_path}
+                        - if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                          = check_box_tag 'massive_chief_approval', {date: @date, name: @name, from: 'chief', ids: ts.map { |t| t.id }}.to_json, false, class: 'form-control ajax-caller massive', data: {route: set_all_time_approvals_path}
                       .col-sm-6
-                        = check_box_tag 'massive_hr_approval', {date: @date, name: @name, from: 'hr', ids: ts.map { |t| t.id }}.to_json, false, class: 'form-control ajax-caller massive', data: {route: set_all_time_approvals_path}
+                        - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin))
+                          = check_box_tag 'massive_hr_approval', {date: @date, name: @name, from: 'hr', ids: ts.map { |t| t.id }}.to_json, false, class: 'form-control ajax-caller massive', data: {route: set_all_time_approvals_path}
 
 
 
