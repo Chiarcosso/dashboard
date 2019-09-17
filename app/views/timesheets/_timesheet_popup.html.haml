@@ -7,6 +7,7 @@
   .col-sm-12
     = hidden_field_tag 'person_id', person.id
     = text_field_tag 'description', nil, placeholder: 'Descrizione', class: 'form-control'
+    = hidden_field_tag :station, @station
 .row
   .col-sm-12
     %hr

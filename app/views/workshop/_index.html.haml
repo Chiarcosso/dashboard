@@ -17,6 +17,7 @@
             =text_field_tag 'list[search_operator]', @search_operator, placeholder: 'Manutentore..', class: 'form-control'
           .col-sm-2
             =text_field_tag 'list[search_plate]', @search_plate, placeholder: 'Targa..', class: 'form-control'
+            = hidden_filed_tag :station, @station
           -# .col-sm-2
           -#   =check_box_tag 'list[opened]', 'on', @opened_list
           -#   Entrati
@@ -38,7 +39,7 @@
           %b="Note"
 
       .scrollable-panel{ style: 'padding-bottom: 7em; height: 100%;'}
-        =render :partial => 'workshop/list', :locals => { :worksheets => @open_worksheets }
+        =render :partial => 'workshop/list', :locals => { :worksheets => @open_worksheets, :station => @station }
   .row
     .col-sm-12{ style: 'padding-bottom: 3.5em; height: 45%;'}
 

@@ -311,11 +311,11 @@ class EurowinController < ApplicationController
     end
 
     if args[:schedainterventoprotocollo].nil? || args[:schedainterventoprotocollo] == 0 || args[:schedainterventoprotocollo] == "0"
-      agrs.delete(:schedainterventoprotocollo)
+      args.delete(:schedainterventoprotocollo)
     end
 
     if args[:schedainterventoanno].nil? || args[:schedainterventoanno] == 0 || args[:schedainterventoanno] == "0"
-      agrs.delete(:schedainterventoanno)
+      args.delete(:schedainterventoanno)
     end
 
     unless args[:schedainterventoprotocollo].nil?
