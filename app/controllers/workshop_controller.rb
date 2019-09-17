@@ -553,7 +553,7 @@ class WorkshopController < ApplicationController
           'CodiceAutomezzo': vehicle_refs['CodiceAutomezzo'],
           'CodiceTarga': vehicle_refs['Targa'],
           'Chilometraggio': vehicle_refs['Km'].to_s,
-          'TipoDanno': params.require('damage_type').to_s,
+          'TipoDanno': params['damage_type'].to_s,
           'CodiceOfficina': EurowinController::get_workshop(:workshop),
           'FlagStampato': 'false'
         })

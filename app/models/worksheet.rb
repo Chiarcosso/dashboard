@@ -114,6 +114,7 @@ class Worksheet < ApplicationRecord
 
     wks.sort_by{|ws| ws[:plate]}
   end
+  
   #filter operator from incoming worksheets from eurowin
   def self.incoming_operator(search)
     # ewc = EurowinController::get_ew_client
