@@ -310,6 +310,13 @@ class EurowinController < ApplicationController
       values << value
     end
 
+    if args[:schedainterventoprotocollo].nil? || args[:schedainterventoprotocollo] == 0 || args[:schedainterventoprotocollo] == "0"
+      agrs.delete(:schedainterventoprotocollo)
+    end
+
+    if args[:schedainterventoanno].nil? || args[:schedainterventoanno] == 0 || args[:schedainterventoanno] == "0"
+      agrs.delete(:schedainterventoanno)
+    end
 
     unless args[:schedainterventoprotocollo].nil?
       fields << 'SerialODL'

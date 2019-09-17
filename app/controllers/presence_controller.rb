@@ -970,11 +970,17 @@ class PresenceController < ApplicationController
     motivation = params[:motivation] == 'true'
 
     pdf = Prawn::Document.new
+
     date = DateTime.strptime(params.require(:date),"%Y-%m-%d")
+    ndate = date + 1.days
+
     pdf.text "Assenze del #{date.strftime("%d/%m/%Y")}",size: 26, font_style: :bold, align: :center
     pdf.move_down 40
-    codes = LeaveCode.where(afterhours: true)
 
+    codes = LeaveCode.where(afterhours: true).to_a
+
+    wday = date.strftime('%u').to_i-1
+    nwday = ndate.strftime('%u').to_i-1
 
     # where = <<-QRY
     #
@@ -1002,7 +1008,7 @@ class PresenceController < ApplicationController
     or '#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(granted_leaves.from,'+00:00','+02:00')) and date(convert_tz(granted_leaves.to,'+00:00','+02:00'))
     or (
       ('#{(date.in_time_zone('Europe/Rome')+1.days).utc.strftime("%Y-%m-%d")}' = date(convert_tz(granted_leaves.date,'+00:00','+02:00'))
-        or '#{(date+1.days).in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(granted_leaves.from,'+00:00','+02:00')) and date(convert_tz(granted_leaves.to,'+00:00','+02:00')))
+        or '#{(ndate).in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(granted_leaves.from,'+00:00','+02:00')) and date(convert_tz(granted_leaves.to,'+00:00','+02:00')))
       and (
         select count(id) from granted_leaves subq where ('#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' = date(convert_tz(subq.from,'+00:00','+02:00'))
         or '#{date.in_time_zone('Europe/Rome').strftime("%Y-%m-%d")}' between date(convert_tz(subq.from,'+00:00','+02:00')) and date(convert_tz(subq.to,'+00:00','+02:00')))
