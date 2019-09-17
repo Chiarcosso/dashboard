@@ -224,7 +224,7 @@ class PresenceRecord < ApplicationRecord
                             calculated_duration: next_pts.nil? ? 0 : (calculated_end.to_i - calculated_start.to_i),
                             anomaly: anomaly,
                             break: false)
-                          byebug
+                          
         unless previous_record.end_ts.nil?
           previous_record.check_timesheets(previous_record.end_ts.time)
         end

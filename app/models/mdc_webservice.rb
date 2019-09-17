@@ -1027,7 +1027,7 @@ class ReportRequest
           fh.close
 
           # url = ''
-          MdcReportImage.create(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}")
+          MdcReportImage.create(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}") if MdcReportImage.find_by(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}").nil?
 
         end
         report.update(description: "#{report.description}\n#{rpath}")
