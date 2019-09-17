@@ -477,9 +477,9 @@ class EurowinController < ApplicationController
         dataultimocontrollo: payload['DataUltimoControlo'],
         km: payload['Chilometraggio'].to_i,
         datainsert: payload['DataInsert'],
-        userinsert: payload['UserInsert'],
+        userinsert: payload['UserInsert'][0..19],
         datapost: payload['DataPost'],
-        userpost: payload['UserPost'],
+        userpost: payload['UserPost'][0..19],
         schedainterventoanno: payload['AnnoODL'].to_i,
         schedainterventoprotocollo: payload['ProtocolloODL'].to_i,
         codiceautomezzo: payload['CodiceAutomezzo'],
@@ -500,9 +500,9 @@ class EurowinController < ApplicationController
       args[:dataultimocontrollo] = payload['DataUltimoControllo'] if payload.has_key? 'DataUltimoControllo'
       args[:km] = payload['Chilometraggio'].to_i if payload.has_key? 'Chilometraggio'
       args[:datainsert] = payload['DataInsert'] if payload.has_key? 'DataInsert'
-      args[:userinsert] = payload['UserInsert'] if payload.has_key? 'UserInsert'
+      args[:userinsert] = payload['UserInsert'][0..19] if payload.has_key? 'UserInsert'
       args[:datapost] = payload['DataPost'] if payload.has_key? 'DataPost'
-      args[:userpost] = payload['UserPost'] if payload.has_key? 'UserPost'
+      args[:userpost] = payload['UserPost'][0..19] if payload.has_key? 'UserPost'
       args[:schedainterventoanno] = payload['AnnoODL'] if payload.has_key? 'AnnoODL'
       args[:schedainterventoprotocollo] = payload['ProtocolloODL'] if payload.has_key? 'ProtocolloODL'
       args[:codiceautomezzo] = payload['CodiceAutomezzo'] if payload.has_key? 'CodiceAutomezzo'
@@ -765,7 +765,7 @@ class EurowinController < ApplicationController
       payload.delete('FlagRiparato') if payload['FlagRiparato'] == '0'
       payload.delete('FlagStampato') if payload['FlagStampato'] == '0'
       payload.delete('FlagSvolto') if payload['FlagSvolto'] == '0'
-      
+
       payload['UserInsert'] = 'DASHBOARD' if payload['UserInsert'].nil?
     end
     # payload.each { |k,v| payload.delete(k) if v.nil? }
