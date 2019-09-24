@@ -286,6 +286,13 @@ class EurowinController < ApplicationController
     if args[:datasegnalazione].nil?
       args[:datasegnalazione] = DateTime.now
     end
+    if args[:schedainterventoprotocollo].nil? || args[:schedainterventoprotocollo] == 0 || args[:schedainterventoprotocollo] == "0"
+      args.delete(:schedainterventoprotocollo)
+    end
+
+    if args[:schedainterventoanno].nil? || args[:schedainterventoanno] == 0 || args[:schedainterventoanno] == "0"
+      args.delete(:schedainterventoanno)
+    end
 
     # qry = "select Protocollo from autosegnalazioni order by Protocollo desc limit 1;"
     # res = c.query(qry).first
@@ -308,14 +315,6 @@ class EurowinController < ApplicationController
       # value = value.strftime('%Y-%m-%d') if value.is_a?(Date) || value.is_a?(DateTime)
       # value = value.is_a?(String) && !value.nil? ? "'#{value.tr("'","")}'" : value
       values << value
-    end
-
-    if args[:schedainterventoprotocollo].nil? || args[:schedainterventoprotocollo] == 0 || args[:schedainterventoprotocollo] == "0"
-      args.delete(:schedainterventoprotocollo)
-    end
-
-    if args[:schedainterventoanno].nil? || args[:schedainterventoanno] == 0 || args[:schedainterventoanno] == "0"
-      args.delete(:schedainterventoanno)
     end
 
     unless args[:schedainterventoprotocollo].nil?
@@ -374,13 +373,23 @@ class EurowinController < ApplicationController
       args[k] = "'#{args[k].tr("'","")}'" if args[k].is_a?(String) && args[k] != 'null'
     end
 
+    if args[:schedainterventoprotocollo].nil? || args[:schedainterventoprotocollo] == 0 || args[:schedainterventoprotocollo] == "0"
+      args.delete(:schedainterventoprotocollo)
+    end
+
+    if args[:schedainterventoanno].nil? || args[:schedainterventoanno] == 0 || args[:schedainterventoanno] == "0"
+      args.delete(:schedainterventoanno)
+    end
+
     updates = Array.new
     args.each do |field,value|
       updates << "#{field} = #{value}"
     end
+
     unless args[:schedainterventoprotocollo].nil?
       updates << "SerialODL = (select serial from autoodl where protocollo = #{args[:schedainterventoprotocollo]})"
     end
+    
     qry = [
       "update autosegnalazioni set #{updates.join(', ')} where protocollo = #{args[:protocollo]} ;",
       "select * from autosegnalazioni where protocollo = #{args[:protocollo]};"
@@ -453,7 +462,9 @@ class EurowinController < ApplicationController
         qry = "select codiceProvenienza from automezzi where codice = '#{payload['CodiceAutomezzo']}'"
         am = c.query(qry).first['codiceProvenienza'].split(' ')
         c.close
+
         vehicle = Vehicle.find_by_reference(am[0],am[1])
+
         lm = last_maintainance(vehicle)
         lc = vehicle.last_check
         payload['DataUltimaManutenzione'] = lm['DataUscitaVeicolo'].strftime("%Y-%m-%d") unless lm.nil?

@@ -79,9 +79,10 @@ module AdminHelper
         res[:vehicle_typology] = VehicleTypology.find_by(:name => r['typology'])
       end
       if res[:vehicle_typology].nil?
-        @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
-        res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
-        mssql_reference_logger.error(@error)
+        # @error = " #{r['plate']} (#{r['id']}) - Invalid vehicle typology: #{r['typology']}"
+        # res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Tipologia non valida: #{r['typology']}</span>\n"
+        # mssql_reference_logger.error(@error)
+        res[:vehicle_typology] = VehicleTypology.create(name: r['typology'])
       end
     end
     res[:mileage] = r['mileage'].to_i
@@ -198,39 +199,45 @@ module AdminHelper
 
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
           data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
-          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.nil? ? '' : v.vehicle_type.name}, property: #{v.property.nil? ? '' : v.property.name}, model: #{v.model.nil?? '' : v.model.complete_name}, registration_model: #{v.registration_model}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.vehicle_typology.nil? ? '' : v.vehicle_typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.vehicle_category.nil? ? '' :v.vehicle_category.name}, carwash_code: #{v.carwash_code}.")
-          data[:response] += "Dashboard - tipo: #{v.vehicle_type.nil? ? '' : v.vehicle_type.name}, proprietà: #{v.property.nil? ? '' : v.property.name}, modello: #{v.model.nil?? '' : v.model.complete_name}, modello libretto: #{v.registration_model}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.vehicle_typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.vehicle_category.name}, codice_lavaggio: #{v.carwash_code}.\n"
-          v.update(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage] > v.mileage ? data[:mileage].to_i : v.mileage, registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code]) if update
+
+          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.type.nil? ? '' : v.type.is_a?(String)? v.type : v.type.name}, property: #{v.property.nil? ? '' : v.property.name}, model: #{v.model.nil?? '' : v.model.is_a?(String) ? v.model :  v.model.is_a?(String) ? v.model : v.model.complete_name}, registration_model: #{v.registration_model}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.typology.nil? ? '' : v.typology.is_a?(String)? v.typology : v.typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.category.nil? ? '' :v.category.name}, carwash_code: #{v.carwash_code}.")
+          data[:response] += "Dashboard - tipo: #{v.type.is_a?(String)? v.type : v.type.name}, proprietà: #{v.property.nil? ? '' : v.property.name}, modello: #{v.model.nil?? '' : v.model.is_a?(String) ? v.model :  v.model.is_a?(String) ? v.model : v.model.complete_name}, modello libretto: #{v.registration_model}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.typology.is_a?(String)? v.type : v.typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.category.name}, codice_lavaggio: #{v.carwash_code}.\n"
+          if v.is_a?(Vehicle)
+            v.update(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage].to_i > v.mileage.to_i ? data[:mileage].to_i : v.mileage.to_i, registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code]) if update
+            if v.find_information(data[:chassis_info]).nil?
+              VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: data[:registration_date]) if update
+              mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
+              data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
+            end
+            v.vehicle_equipments.clear if update
+            data[:vehicle_equipments].each do |e|
+              v.vehicle_equipments << e if update
+            end
+            if data[:vehicle_equipments].size > 0
+              data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Attrezzatura: #{data[:vehicle_equipments].pluck(:name).join(', ')}.\n"
+              mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{data[:vehicle_equipments].pluck(:name).join(', ')}.")
+            end
+            if v.carwash_vehicle_code.nil? and v.carwash_code != 'N/D'
+              cwc = CarwashVehicleCode.createUnique v if update
+              data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
+              mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
+            end
+            unless v.has_property?( data[:property])
+              if update
+                vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date)
+              else
+                vp = VehicleProperty.new(vehicle: v, owner: data[:property], date_since: v.registration_date)
+              end
+              data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta proprietà: #{vp.owner.complete_name}.\n"
+              mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Property added: #{vp.owner.complete_name} #{I18n.l vp.date_since}.")
+            end
+          elsif v.is_a?(ExternalVehicle)
+            v.update(vehicle_type: data[:vehicle_type], owner: data[:property], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage].to_i > v.mileage.to_i ? data[:mileage].to_i : v.mileage.to_i) if update
+          end
           data[:response] += "Access - tipo: #{data[:vehicle_type].name}, proprietà: #{data[:property].name}, modello: #{data[:model].complete_name}, modello libretto: #{data[:registration_model]}, dismesso: #{data[:dismissed].to_s}, tipologia: #{data[:vehicle_typology].name}, chilometraggio: #{data[:mileage]}, data immatricolazione: #{data[:registration_date].strftime("%d/%m/%Y")}, categoria: #{data[:vehicle_category].name}, codice_lavaggio: #{data[:carwash_code]}.\n"
           mssql_reference_logger.info("Access - vehicle_type: #{data[:vehicle_type].name}, property: #{data[:property].name}, model: #{data[:model].complete_name}, registration_model: #{data[:registration_model]}, dismissed: #{data[:dismissed].to_s}, vehicle_typology: #{data[:vehicle_typology].name}, mileage: #{data[:mileage]}, registration_date: #{data[:registration_date].strftime("%d/%m/%Y")}, vehicle_category: #{data[:vehicle_category].name}, carwash_code: #{data[:carwash_code]}.")
 
-          if v.find_information(data[:chassis_info]).nil?
-            VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: data[:registration_date]) if update
-            mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
-            data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
-          end
-          v.vehicle_equipments.clear if update
-          data[:vehicle_equipments].each do |e|
-            v.vehicle_equipments << e if update
-          end
-          if data[:vehicle_equipments].size > 0
-            data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Attrezzatura: #{data[:vehicle_equipments].pluck(:name).join(', ')}.\n"
-            mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Equipment: #{data[:vehicle_equipments].pluck(:name).join(', ')}.")
-          end
-          if v.carwash_vehicle_code.nil? and v.carwash_code != 'N/D'
-            cwc = CarwashVehicleCode.createUnique v if update
-            data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta tessera lavaggio: #{cwc.to_s}.\n"
-            mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Carwash code added: #{cwc.to_s}.")
-          end
-          unless v.has_property?( data[:property])
-            if update
-              vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date)
-            else
-              vp = VehicleProperty.new(vehicle: v, owner: data[:property], date_since: v.registration_date)
-            end
-            data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta proprietà: #{vp.owner.complete_name}.\n"
-            mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Property added: #{vp.owner.complete_name} #{I18n.l vp.date_since}.")
-          end
+
           unless v.has_reference?( r['table_name'],r['id'])
             mssqlref = MssqlReference.create(local_object: v, remote_object_table: r['table_name'], remote_object_id: r['id'].to_i) if update
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto riferimento MSSQL: #{mssqlref.to_s}.\n"
@@ -239,6 +246,7 @@ module AdminHelper
         end
       end
     rescue Exception => e
+
       ErrorMailer.error_report("#{e.message}\n#{e.backtrace.join("\n")}","Vehicle update")
       mssql_reference_logger.error("  - #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}")
       data[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} -  -> #{r['plate']} (#{r['id']}) #{e.message}\n#{e.backtrace}</span>\n"
@@ -250,10 +258,16 @@ module AdminHelper
   def get_external_vehicle_objects(r,res = get_vehicle_basis,update)
 
     res[:response] = ''
-    res[:vehicle_type] = VehicleType.find_by(:name => r['type'])
-    if res[:vehicle_type].nil?
+    if r['type'].nil?
       res[:vehicle_type] = res[:no_vehicle_type]
+    else
+      res[:vehicle_type] = VehicleType.find_by(:name => r['type'])
+      if res[:vehicle_type].nil?
+        res[:vehicle_type] = VehicleType.create(:name => r['type'])
+      end
     end
+
+
 
 
     if r['typology'] == '' or r['typology'] == 'NULL' or r['typology'].nil?
@@ -345,9 +359,9 @@ module AdminHelper
 
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
           data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
-          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.nil?? '' : v.vehicle_type.name}, owner: #{v.owner.nil?? '' : v.owner.name}, vehicle_typology: #{v.vehicle_typology.nil?? '' : v.vehicle_typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.")
-          data[:response] += "Dashboard - tipo: #{v.vehicle_type.nil?? '' : v.vehicle_type.name}, proprietà: #{v.owner.nil?? '' : v.owner.name}, tipologia: #{v.vehicle_typology.nil?? '' : v.vehicle_typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.\n"
-          v.update(vehicle_type: data[:vehicle_type], owner: data[:owner], vehicle_typology: data[:vhicle_typology], id_veicolo: data[:idveicolo], id_fornitore: data[:idfornitore]) if update
+          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.type.nil?? '' : v.type.is_a?(String)? v.type : v.type.name}, owner: #{v.owner.nil?? '' : v.owner.name}, vehicle_typology: #{v.typology.nil?? '' : v.typology.is_a?(String)? v.typology :  v.typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.")
+          data[:response] += "Dashboard - tipo: #{v.type.nil?? '' : v.type.is_a?(String)? v.type :  v.type.name}, proprietà: #{v.owner.nil?? '' : v.owner.name}, tipologia: #{v.typology.nil?? '' : v.typology.is_a?(String)? v.typology :  v.typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.\n"
+          v.update(vehicle_type: data[:vehicle_type], owner: data[:owner], vehicle_typology: data[:vehicle_typology], id_veicolo: data[:idveicolo], id_fornitore: data[:idfornitore]) if update
           data[:response] += "Access - tipo: #{data[:vehicle_type].name}, proprietà: #{data[:owner].name}, tipologia: #{data[:vehicle_typology].name}, id_veicolo: #{data[:idveicolo]}, id_fornitore: #{data[:idfornitore]}.\n"
           mssql_reference_logger.info("Access - vehicle_type: #{data[:vehicle_type].name}, owner: #{data[:owner].name}, vehicle_typology: #{data[:vehicle_typology].name}, id_veicolo: #{data[:idveicolo]}, id_fornitore: #{data[:idfornitore]}.")
 
@@ -516,9 +530,9 @@ module AdminHelper
 
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
           response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
-          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, property: #{v.property.name}, model: #{v.model.nil?? '' : v.model.complete_name}, registration_model: #{v.registration_model}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.vehicle_typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.vehicle_category.name}, carwash_code: #{v.carwash_code}.")
-          response += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.property.name}, modello: #{v.model.nil?? '' : v.model.complete_name}, modello libretto: #{v.registration_model}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.vehicle_typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.vehicle_category.name}, codice_lavaggio: #{v.carwash_code}.\n"
-          v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage > v.mileage ? mileage : v.mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
+          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.type.name}, property: #{v.property.name}, model: #{v.model.nil?? '' :  v.model.is_a?(String) ? v.model : v.model.complete_name}, registration_model: #{v.registration_model}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.category.name}, carwash_code: #{v.carwash_code}.")
+          response += "Dashboard - tipo: #{v.type.name}, proprietà: #{v.property.name}, modello: #{v.model.nil?? '' :  v.model.is_a?(String) ? v.model : v.model.complete_name}, modello libretto: #{v.registration_model}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.category.name}, codice_lavaggio: #{v.carwash_code}.\n"
+          v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage.to_i > v.mileage.to_i ? mileage.to_i : v.mileage.to_i, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
           mssql_reference_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
           response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 
@@ -734,9 +748,9 @@ module AdminHelper
 
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
           response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
-          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.vehicle_type.name}, property: #{v.property.name}, model: #{v.model.nil?? '' : v.model.complete_name}, registration_model: #{v.registration_model}, serie: #{serie}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.vehicle_typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.vehicle_category.name}, carwash_code: #{v.carwash_code}.")
-          response += "Dashboard - tipo: #{v.vehicle_type.name}, proprietà: #{v.property.name}, modello: #{v.model.nil?? '' : v.model.complete_name}, modello libretto: #{v.registration_model}, serie: #{serie}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.vehicle_typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.vehicle_category.name}, codice_lavaggio: #{v.carwash_code}.\n"
-          v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], serie: serie, dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage > v.mileage ? mileage : v.mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
+          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.type.name}, property: #{v.property.name}, model: #{v.model.nil?? '' :  v.model.is_a?(String) ? v.model : v.model.complete_name}, registration_model: #{v.registration_model}, serie: #{serie}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.category.name}, carwash_code: #{v.carwash_code}.")
+          response += "Dashboard - tipo: #{v.type.name}, proprietà: #{v.property.name}, modello: #{v.model.nil?? '' :  v.model.is_a?(String) ? v.model : v.model.complete_name}, modello libretto: #{v.registration_model}, serie: #{serie}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.category.name}, codice_lavaggio: #{v.carwash_code}.\n"
+          v.update(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], serie: serie, dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage.to_i > v.mileage.to_i ? mileage.to_i : v.mileage.to_i, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code) if update
           mssql_reference_logger.info("Access - vehicle_type: #{vehicle_type.name}, property: #{property.name}, model: #{model.complete_name}, registration_model: #{registration_model}, serie: #{serie}, dismissed: #{dismissed.to_s}, vehicle_typology: #{vehicle_typology.name}, mileage: #{mileage}, registration_date: #{registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{vehicle_category.name}, carwash_code: #{carwash_code}.")
           response += "Access - tipo: #{vehicle_type.name}, proprietà: #{property.name}, modello: #{model.complete_name}, modello libretto: #{registration_model}, serie: #{serie}, dismesso: #{dismissed.to_s}, tipologia: #{vehicle_typology.name}, chilometraggio: #{mileage}, data immatricolazione: #{registration_date.strftime("%d/%m/%Y")}, categoria: #{vehicle_category.name}, codice_lavaggio: #{carwash_code}.\n"
 

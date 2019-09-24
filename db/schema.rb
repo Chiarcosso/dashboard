@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190924072224) do
+ActiveRecord::Schema.define(version: 20190924142238) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -264,16 +264,17 @@ ActiveRecord::Schema.define(version: 20190924072224) do
   end
 
   create_table "external_vehicles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "owner_id",                        null: false
-    t.string   "plate",                           null: false
-    t.integer  "id_veicolo",                      null: false
-    t.integer  "id_fornitore",                    null: false
-    t.integer  "vehicle_type_id",                 null: false
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.integer  "owner_id",                            null: false
+    t.string   "plate",                               null: false
+    t.integer  "id_veicolo",                          null: false
+    t.integer  "id_fornitore",                        null: false
+    t.integer  "vehicle_type_id",                     null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
     t.datetime "last_gps"
-    t.integer  "mileage",             default: 0, null: false
-    t.integer  "vehicle_typology_id", default: 1, null: false
+    t.integer  "mileage",             default: 0,     null: false
+    t.integer  "vehicle_typology_id", default: 1,     null: false
+    t.boolean  "dismissed",           default: false, null: false
     t.index ["owner_id"], name: "index_external_vehicles_on_owner_id", using: :btree
     t.index ["plate"], name: "index_external_vehicles_on_plate", using: :btree
     t.index ["vehicle_type_id"], name: "index_external_vehicles_on_vehicle_type_id", using: :btree
@@ -425,12 +426,12 @@ ActiveRecord::Schema.define(version: 20190924072224) do
   end
 
   create_table "mdc_report_images", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "mdc_report_id",     null: false
-    t.string   "url",               null: false
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
+    t.integer  "mdc_report_id",                  null: false
+    t.string   "url",                            null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.string   "path"
-    t.string   "original_filename", null: false
+    t.string   "original_filename", default: "", null: false
     t.index ["mdc_report_id"], name: "index_mdc_report_images_on_mdc_report_id", using: :btree
     t.index ["original_filename"], name: "index_mdc_report_images_on_original_filename", unique: true, using: :btree
   end

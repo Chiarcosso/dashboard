@@ -271,7 +271,7 @@ class MssqlReference < ApplicationRecord
                   "left join Tipo on Tipo.IDTipo = [Altri mezzi].id_tipo "\
                   "left join [Tipologia rimorchio/semirimorchio] tipologia on [Altri mezzi].id_tipologia = tipologia.ID "\
                   "where marca is not null and marca != '' and tipo is not null and tipo != '' "\
-                  "and ditta is not null and ditta != '' and marca != 'Targa' and modello is not null and modello != '' and targa is not null and targa != '' "\
+                  "and marca != 'Targa' and modello is not null and modello != '' and targa is not null and targa != '' "\
                   "order by targa"
       list = client.execute(query)
 

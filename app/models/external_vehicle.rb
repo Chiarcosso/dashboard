@@ -53,11 +53,15 @@ class ExternalVehicle < ApplicationRecord
   end
 
   def type
-    self.vehicle_type
+    self.vehicle_type || VehicleType.find_by(name: 'N/D')
   end
 
   def typology
-    self.vehicle_typology
+    self.vehicle_typology || VehicleTypology.find_by(name: 'N/D')
+  end
+
+  def category
+    VehicleCategory.find_by(name: 'N/D')
   end
 
   def last_maintainance
@@ -82,6 +86,18 @@ class ExternalVehicle < ApplicationRecord
     vc.importance == 9 ? true : false
   end
 
+  def registration_date
+    return nil
+  end
+
+  def vehicle_category
+    return nil
+  end
+
+  def carwash_code
+    return 0
+  end
+
   def vehicle_checks(station)
     case station
     when 'carwash' then
@@ -89,7 +105,7 @@ class ExternalVehicle < ApplicationRecord
     when 'workshop' then
       station_check = 'and check_workshop != 0'
     end
-    
+
     VehicleCheck.where("vehicle_type_id = #{self.vehicle_type_id} or vehicle_typology_id = #{self.vehicle_typology_id} #{station_check}").order({importance: :desc, label: :asc})
   end
 

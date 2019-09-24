@@ -90,7 +90,8 @@ class Vehicle < ApplicationRecord
 
   def type
     if self.vehicle_type.nil?
-      ''
+       # VehicleType.find_by(name: 'N/D')
+       'N/D'
     else
       self.vehicle_type.name
     end
@@ -169,16 +170,24 @@ class Vehicle < ApplicationRecord
 
   def typology
     if self.vehicle_type.nil? or self.vehicle_typology == VehicleTypology.not_available
-      ''
+       # VehicleTypology.find_by(name: 'N/D')
+       'N/D'
     else
       self.vehicle_typology.name
     end
+  end
+
+  def category
+    self.vehicle_category || VehicleCategory.find_by(name: 'N/D')
   end
 
   def self.find_by_reference(table,id)
     v = MssqlReference.find_by(remote_object_table: table, remote_object_id: id)
     if v.nil? && table.downcase == 'altrimezzi'
       v = MssqlReference.find_by(remote_object_table: 'Altri mezzi', remote_object_id: id)
+    end
+    if v.nil?
+      v = MssqlReference.find_by(remote_object_table: '[Altri mezzi]', remote_object_id: id)
     end
 	  v.local_object unless v.nil?
     # find and create new vehicle if v.nil?
@@ -363,6 +372,19 @@ class Vehicle < ApplicationRecord
   end
 
   def check_properties(comp)
+
+    if self.model.nil?
+      model = ''
+      manufacturer = ''
+    else
+      model = self.model.name
+      if self.model.manufacturer.nil?
+        manufacturer = ''
+      else
+        manufacturer = self.model.manufacturer.name
+      end
+    end
+
     if comp['property'] == 'T' and self.property != Company.transest or comp['property'] == 'A' and self.property != Company.chiarcosso
       return false
     # elsif comp['plate'].upcase.tr('. *','') != self.plate
@@ -371,9 +393,9 @@ class Vehicle < ApplicationRecord
       return false
     elsif comp['notdismissed'] == self.dismissed
       return false
-    elsif comp['manufacturer'].upcase != self.model.manufacturer.name.upcase
+    elsif comp['manufacturer'].upcase != manufacturer.upcase
       return false
-    elsif comp['model'].upcase != self.model.name.upcase
+    elsif comp['model'].upcase != model.upcase
       return false
     elsif !comp['registration_date'].nil? && (DateTime.parse(comp['registration_date']) != self.registration_date)
       return false
