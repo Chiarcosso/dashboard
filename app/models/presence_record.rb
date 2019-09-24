@@ -37,6 +37,11 @@ class PresenceRecord < ApplicationRecord
     "#{(self.set_day_time.to_i/3600).to_s.rjust(2,'0')}:#{((self.set_day_time.to_i%3600)/60).to_s.rjust(2,'0')}"
   end
 
+  def self.actual_day_time_label(date,person)
+    actual_total = PresenceRecord.where(date: date, person: person, break: false).map{ |pr| pr.actual_duration }.inject(0,:+)
+    "#{(actual_total/3600).to_s.rjust(2,'0')}:#{((actual_total%3600)/60).to_s.rjust(2,'0')}"
+  end
+
   def duration_label(calculated = true)
     if calculated
       "#{self.calculated_duration/3600}:#{((self.calculated_duration%3600)/60).to_s.rjust(2,'0')}:#{(((self.calculated_duration%3600)%60)).to_s.rjust(2,'0')}"
@@ -224,7 +229,7 @@ class PresenceRecord < ApplicationRecord
                             calculated_duration: next_pts.nil? ? 0 : (calculated_end.to_i - calculated_start.to_i),
                             anomaly: anomaly,
                             break: false)
-                          
+
         unless previous_record.end_ts.nil?
           previous_record.check_timesheets(previous_record.end_ts.time)
         end

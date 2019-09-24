@@ -52,6 +52,10 @@ class Person < ApplicationRecord
     end
   end
 
+  def self.workshop_action(from,to = from)
+    Person.where("id in (select distinct person_id from timesheet_records where date(start) between '#{from.strftime("%Y-%m-%d")}' and '#{to.strftime("%Y-%m-%d")}')")
+  end
+
   # Filter drivers out
   def self.building_employees
     refs = MssqlReference.query({table: 'Autisti', where: {IdMansione: [2,3,5,6,7,11,12,13,14,15,16,17,18,19,20]}})
@@ -89,6 +93,26 @@ class Person < ApplicationRecord
 
   def mechanic?
     self.company_relations.select{ |cr| cr.name == 'Meccanico' || cr.name == 'Meccanico trasfertista' || cr.name == 'Capo Officina'}.count > 0
+  end
+
+  def self.mechanics
+    # Person.all.select{ |p| p.mechanic? }
+    
+    query = <<-QRY
+      company_people.company_relation_id in (
+        select id from company_relations
+        where acting = 1
+        and (name = 'Meccanico'
+        or name = 'Meccanico trasfertista'
+        or name = 'Capo Officina')
+      )
+    QRY
+
+    Person.joins(:relations).where(query)
+  end
+
+  def self.present_mechanics(date)
+    PresenceRecord.where(date: date).map{|pr| pr.person}.uniq.select{ |p| p.mechanic? }
   end
 
   def present?(time = Time.now)

@@ -451,6 +451,11 @@ body{
   float: right;
 }
 
+.round_border{
+  border: 1px solid grey;
+  border-radius: 5%;
+}
+
 .scrollable-panel{
   position: relative;
   height: 90%;

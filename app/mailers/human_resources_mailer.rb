@@ -1,7 +1,7 @@
 class HumanResourcesMailer < ApplicationMailer
 
 
-  default to: 'personale@chiarcosso.it;ufficioit@chiarcosso.com'
+  default to: 'personale@chiarcosso.it'
   # default to: 'ufficioit@chiarcosso.com'
 
   def vacation_request(application)

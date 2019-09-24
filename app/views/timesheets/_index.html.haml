@@ -1,13 +1,28 @@
 .container-fluid{style: 'margin-top: 2em;'}
-  = form_tag('/timesheets/index') do |f|
-    .row
-      .col-sm-3
-        = "Selezionare il giorno: "
-      .col-sm-3
-        = date_field_tag :date, @date.strftime("%Y-%m-%d"), class: 'form-control'
-        = hidden_field_tag :name, @name
-      .col-sm-2
-        = submit_tag 'Cerca', class: 'form-control'
+  .row
+    .col-sm-7
+      = form_tag('/timesheets/index') do |f|
+        .col-sm-3
+          = "Selezionare il giorno: "
+        .col-sm-4
+          = date_field_tag :date, @date.strftime("%Y-%m-%d"), class: 'form-control'
+          = hidden_field_tag :name, @name
+        .col-sm-2
+          = submit_tag 'Cerca', class: 'form-control'
+    .col-sm-5
+      = form_tag timesheets_pdf_path(format: :pdf), method: :post, class: 'no-loader' do |f|
+        .row
+          .col-sm-10
+            .row
+              .col-sm-6
+                = date_field_tag :from, @date.strftime("%Y-%m-%d"), class: 'form-control'
+              .col-sm-6
+                = date_field_tag :to, @date.strftime("%Y-%m-%d"), class: 'form-control'
+            .row
+              .col-sm-12
+                =select_tag :person, options_for_select(Person.present_mechanics(@date).sort_by{ |p| p.surname }.collect{|p| [p.list_name,p.id]}, nil), include_blank: 'Tutti i meccanici', class: 'form-control'
+          .col-sm-2
+            = button_tag 'PDF', class: 'form-control no-loader'
 
   .panel-group.scrollable-panel#accordion{style: 'height: 80%;'}
     - @timesheets.sort.each do |name,ts|
@@ -115,11 +130,11 @@
                   - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina') || current_user.has_role?('visione ore officina'))
                     .row
                       .col-sm-12
-                        - pr = PresenceRecord.where(date: @date, person: person).order(set_day_time: :asc).first
+                        - pr = PresenceRecord.actual_day_time_label(@date, person)
                         - if pr.nil?
                           %b= "Non sono presenti timbrature"
                         - else
-                          %b= "#{pr.set_day_time_label}"
+                          %b= "#{pr}"
                     .row
                       .col-sm-12
                         - ws = WorkingSchedule.get_schedule(@date,person)

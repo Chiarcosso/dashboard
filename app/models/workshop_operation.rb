@@ -195,7 +195,7 @@ class WorkshopOperation < ApplicationRecord
   end
 
   def ew_notification
-    EurowinController::get_notification(self.myofficina_reference)
+    EurowinController::get_notification(self.myofficina_reference) unless self.myofficina_reference.nil?
   end
 
   def self.get_from_sgn sgn

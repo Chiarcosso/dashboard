@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190827152928) do
+ActiveRecord::Schema.define(version: 20190924072224) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -425,12 +425,14 @@ ActiveRecord::Schema.define(version: 20190827152928) do
   end
 
   create_table "mdc_report_images", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "mdc_report_id", null: false
-    t.string   "url",           null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.integer  "mdc_report_id",     null: false
+    t.string   "url",               null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
     t.string   "path"
+    t.string   "original_filename", null: false
     t.index ["mdc_report_id"], name: "index_mdc_report_images_on_mdc_report_id", using: :btree
+    t.index ["original_filename"], name: "index_mdc_report_images_on_original_filename", unique: true, using: :btree
   end
 
   create_table "mdc_reports", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

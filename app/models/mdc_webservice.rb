@@ -1011,23 +1011,25 @@ class ReportRequest
 
         @data[:images].each do |photo|
 
-          # Check whether filename already exists
-          serial = 1
-          ext = File.extname(photo)
+          if MdcReportImage.find_by(mdc_report: report, original_filename: photo).nil?
+            # Check whether filename already exists
+            serial = 1
+            ext = File.extname(photo)
 
-          while File.file? "#{cpath}/foto_#{serial.to_s.rjust(2,"0")}#{ext}" do
-            serial += 1
+            while File.file? "#{cpath}/foto_#{serial.to_s.rjust(2,"0")}#{ext}" do
+              serial += 1
+            end
+             filename = "foto_#{serial.to_s.rjust(2,"0")}#{ext}"
+
+            # Download and write file
+            data = open(photo).read
+            fh = File.open("#{cpath}/#{filename}",'wb')
+            fh.write(data)
+            fh.close
+
+            # url = ''
+            MdcReportImage.create(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}", original_filename: photo) 
           end
-           filename = "foto_#{serial.to_s.rjust(2,"0")}#{ext}"
-
-          # Download and write file
-          data = open(photo).read
-          fh = File.open("#{cpath}/#{filename}",'wb')
-          fh.write(data)
-          fh.close
-
-          # url = ''
-          MdcReportImage.create(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}") if MdcReportImage.find_by(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}").nil?
 
         end
         report.update(description: "#{report.description}\n#{rpath}")

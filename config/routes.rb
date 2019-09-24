@@ -319,6 +319,7 @@ Rails.application.routes.draw do
   post  '/timesheets/timesheet_popup/stop', to: 'timesheet#timesheet_stop', as: :timesheet_stop
 
   post   '/timesheets/index', to: 'timesheet#index'
+  post   '/timesheets/pdf', to: 'timesheet#pdf'
   get    '/timesheets/index', to: 'timesheet#index'
   post   '/timesheet/update', to: 'timesheet#update', as: :timesheet_update
   post   '/timesheets/massive_approval', to: 'timesheet#massive_approval', as: :set_all_time_approvals
