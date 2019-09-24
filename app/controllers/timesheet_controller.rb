@@ -19,7 +19,7 @@ class TimesheetController < ApplicationController
 
   def update
     begin
-      if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+      if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina') || current_user.has_role?('presenze e orari'))
         # Get strong params
         p = params.require(:timesheet).permit(:id,:minutes,:hr_approval,:chief_approval)
 
@@ -124,7 +124,7 @@ class TimesheetController < ApplicationController
   def massive_approval
     begin
 
-      if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+      if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina') || current_user.has_role?('presenze e orari'))
         # Get strong params
         from = params.require('from')
         ids = params.require('ids')
