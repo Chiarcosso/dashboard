@@ -329,7 +329,7 @@ class TimesheetController < ApplicationController
           (select concat(people.surname,' ',people.name) from people where people.id = timesheet_records.person_id) as name
           from timesheet_records
           where timesheet_records.start between '#{@date.strftime("%Y-%m-%d")} 00:00:00' and '#{@date.strftime("%Y-%m-%d")} 23:59:59'
-          order by name asc, start desc
+          order by name asc, start asc
         SQL
       )
     else
@@ -339,7 +339,7 @@ class TimesheetController < ApplicationController
           from timesheet_records
           where timesheet_records.person_id = #{current_user.person_id}
             and timesheet_records.start between '#{@date.strftime("%Y-%m-%d")} 00:00:00' and '#{@date.strftime("%Y-%m-%d")} 23:59:59'
-          order by name asc, start desc
+          order by name asc, start asc
         SQL
       )
     end

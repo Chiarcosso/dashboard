@@ -25,7 +25,7 @@
             = button_tag 'PDF', class: 'form-control no-loader'
 
   .panel-group.scrollable-panel#accordion{style: 'height: 80%;'}
-    - @timesheets.sort.each do |name,ts|
+    - @timesheets.each do |name,ts|
       - person = Person.find_by_complete_name name
       .panel.panel-default
         .panel-heading
@@ -53,61 +53,75 @@
               .col-sm-2
             %div{id: "#collapse-#{name.tr(' ','_')}"}
               - total = 0
-              - ts.sort_by{ |s| s.workshop_operation_id.to_i}.each do |t|
+              - ts.each do |t|
                 - total += t.minutes.to_i
 
                 .row.colored{style: 'padding-top: 1em; padding-bottom: 1em;'}
-                  - unless t.workshop_operation.nil? || t.workshop_operation.worksheet.nil?
-                    - ws = t.workshop_operation.worksheet
-                    %b
-                      -# = button_tag "ODL nr. #{ws.number} - #{ws.vehicle.plate}", class: 'no-loader ajax-link', data: { target: worksheet_get_pdf_path(ws.id,format: :pdf), method: :post}
-                      = button_to "ODL nr. #{ws.number} - #{ws.vehicle.plate}", worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader'
+                  .row.row{style: 'margin-left: 0.8em; margin-right: 0.8em;'}
+                    - unless t.workshop_operation.nil? || t.workshop_operation.worksheet.nil?
+                      - ws = t.workshop_operation.worksheet
+                      .col-sm-3
+                        %b
+                          -# = button_tag "ODL nr. #{ws.number} - #{ws.vehicle.plate}", class: 'no-loader ajax-link', data: { target: worksheet_get_pdf_path(ws.id,format: :pdf), method: :post}
+                          = button_to "ODL nr. #{ws.number} - #{ws.vehicle.plate}", worksheet_get_pdf_path(ws.id,format: :pdf), class: 'no-loader form-control'
+                      .col-sm-9
+                        %b
+                          - notification = t.workshop_operation.ew_notification unless t.workshop_operation.nil?
+                          = "#{notification['DescrizioneSegnalazione']}" unless notification.nil?
                   -# %b= "ODL nr. #{t.workshop_operation.worksheet.number} - #{t.workshop_operation.worksheet.vehicle.plate}" unless t.workshop_operation.nil? || t.workshop_operation.worksheet.nil?
-                  = form_tag(timesheet_update_path, remote: true, method: :post) do |f|
-                    .col-sm-5
-
-
-                      %br
-                      = "#{t.id} - #{t.description} #{t.workshop_operation_id.nil? ? '' : "(#{t.workshop_operation_id})"}"
-                      = "#{t.minutes} min."
-                      = "#{t.start.strftime("%d/%m/%Y %H:%M:%S")} - #{t.stop.nil? ? 'Non conclusa' : t.stop.strftime("%d/%m/%Y %H:%M:%S")}"
-                      - if t.minutes.nil?
-                        %br
-                        %b{style: 'color: #f00'}= "Errore: tempo non presente -> #{t.time_label}"
-                      - if t.minutes.to_i > (24 * 60)
-                        %br
-                        %b{style: 'color: #f00'}= "Errore: operazione durata più di 24 ore -> #{t.time_label}"
-                      = hidden_field_tag 'timesheet[id]', t.id
-                      = hidden_field_tag :date, @date.strftime("%Y-%m-%d")
-                      = hidden_field_tag :name, @name
-                    .col-sm-2
-                      - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
-                        = time_field_tag 'timesheet[minutes]', (t.minutes.to_i < (24 * 60)) ? t.time_label : nil, class: 'form-control'
-                      - else
-                        = t.time_label
-                    .col-sm-3
-                      .col-sm-6
-                        - if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
-                          = check_box_tag 'timesheet[chief_approval]', true, !t.chief_approval.nil?, class: 'form-control ajax-submit'
+                  .row{style: 'margin-left: 0.8em; margin-right: 0.8em;'}
+                    = form_tag(timesheet_update_path, remote: true, method: :post) do |f|
+                      .col-sm-5
+                        .row
+                          .col-sm-9
+                            ="#{t.id} - #{t.description} #{t.workshop_operation_id.nil? ? '' : "(#{t.workshop_operation_id})"}"
+                          .col-sm-3
+                            = "#{t.start.strftime("%H:%M:%S")}"
+                        .row
+                          .col-sm-6
+                          .col-sm-3{style: 'text-align: right'}
+                            = "#{t.minutes} min."
+                          .col-sm-3
+                            = "#{t.stop.nil? ? 'Non conclusa' : t.stop.strftime("%H:%M:%S")}"
+                        .row
+                          .col-sm-12
+                            - if t.minutes.nil?
+                              %br
+                              %b{style: 'color: #f00'}= "Errore: tempo non presente -> #{t.time_label}"
+                            - if t.minutes.to_i > (24 * 60)
+                              %br
+                              %b{style: 'color: #f00'}= "Errore: operazione durata più di 24 ore -> #{t.time_label}"
+                            = hidden_field_tag 'timesheet[id]', t.id
+                            = hidden_field_tag :date, @date.strftime("%Y-%m-%d")
+                            = hidden_field_tag :name, @name
+                      .col-sm-2
+                        - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                          = time_field_tag 'timesheet[minutes]', (t.minutes.to_i < (24 * 60)) ? t.time_label : nil, class: 'form-control'
                         - else
-                          = hidden_field_tag 'timesheet[chief_approval]', !t.chief_approval.nil?
-                          - if t.chief_approval.nil?
-                            = image_tag('no.png', size: "20x20", alt: "Non confermato dal responsabile")
+                          = t.time_label
+                      .col-sm-3
+                        .col-sm-6
+                          - if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                            = check_box_tag 'timesheet[chief_approval]', true, !t.chief_approval.nil?, class: 'form-control ajax-submit'
                           - else
-                            = image_tag('ok.png', size: "20x20", alt: "Confermato dal responsabile")
-                      .col-sm-6
-                        - if (current_user.has_role?(:admin) || current_user.has_role?('presenze e orari'))
-                          = check_box_tag 'timesheet[hr_approval]', true, !t.hr_approval.nil?, class: 'form-control ajax-submit'
-                        - else
-                          = hidden_field_tag 'timesheet[hr_approval]', !t.hr_approval.nil?
-                          - if t.hr_approval.nil?
-                            = image_tag('no.png', size: "20x20", alt: "Non confermato dall'ufficio personale")
+                            = hidden_field_tag 'timesheet[chief_approval]', !t.chief_approval.nil?
+                            - if t.chief_approval.nil?
+                              = image_tag('no.png', size: "20x20", alt: "Non confermato dal responsabile")
+                            - else
+                              = image_tag('ok.png', size: "20x20", alt: "Confermato dal responsabile")
+                        .col-sm-6
+                          - if (current_user.has_role?(:admin) || current_user.has_role?('presenze e orari'))
+                            = check_box_tag 'timesheet[hr_approval]', true, !t.hr_approval.nil?, class: 'form-control ajax-submit'
                           - else
-                            = image_tag('ok.png', size: "20x20", alt: "Confermato dall'ufficio personale")
+                            = hidden_field_tag 'timesheet[hr_approval]', !t.hr_approval.nil?
+                            - if t.hr_approval.nil?
+                              = image_tag('no.png', size: "20x20", alt: "Non confermato dall'ufficio personale")
+                            - else
+                              = image_tag('ok.png', size: "20x20", alt: "Confermato dall'ufficio personale")
 
-                    .col-sm-2
-                      - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina') || current_user.has_role?('visione ore officina'))
-                        = submit_tag 'Conferma', class: 'form-control'
+                      .col-sm-2
+                        - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina') || current_user.has_role?('visione ore officina'))
+                          = submit_tag 'Conferma', class: 'form-control'
 
               .row
                 .col-sm-2
