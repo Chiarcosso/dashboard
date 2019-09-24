@@ -10,6 +10,7 @@ class Person < ApplicationRecord
   has_many :badges, through: :badge_assignments
   has_many :presence_timestamps, through: :badges
   has_many :working_schedules, :dependent => :destroy
+  has_many :presence_records
 
   has_many :item_relations, :dependent => :destroy
   has_many :items, through: :item_relations
@@ -97,7 +98,7 @@ class Person < ApplicationRecord
 
   def self.mechanics
     # Person.all.select{ |p| p.mechanic? }
-    
+
     query = <<-QRY
       company_people.company_relation_id in (
         select id from company_relations
@@ -112,7 +113,21 @@ class Person < ApplicationRecord
   end
 
   def self.present_mechanics(date)
-    PresenceRecord.where(date: date).map{|pr| pr.person}.uniq.select{ |p| p.mechanic? }
+    wmech = <<-QRY
+      company_people.company_relation_id in (
+        select id from company_relations
+        where acting = 1
+        and (name = 'Meccanico'
+        or name = 'Meccanico trasfertista'
+        or name = 'Capo Officina')
+      )
+    QRY
+    Person.joins(:presence_records)
+      .joins(:relations)
+      .distinct
+      .where("presence_records.date = '#{date.strftime("%y-%m-%d")}'")
+      .where(wmech)
+    # PresenceRecord.where(date: date).map{|pr| pr.person}.uniq.select{ |p| p.mechanic? }
   end
 
   def present?(time = Time.now)

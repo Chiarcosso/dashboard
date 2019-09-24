@@ -160,6 +160,11 @@ class TimesheetController < ApplicationController
   end
 
   def pdf
+
+    unless current_user.has_role?('amministratore officina') || current_user.has_role?(:admin) || current_user.has_role?('presenze e orari') || current_user.has_role?('visione ore officina')
+      return nil
+    end
+
     pdf = Prawn::Document.new
 
     from = Date.strptime(params.require(:from),"%Y-%m-%d")
@@ -178,6 +183,18 @@ class TimesheetController < ApplicationController
       people = Person.mechanics.order(:surname => :asc).to_a
     else
       people = [Person.find(params['person'].to_i)]
+    end
+
+    if current_user.has_role?('amministratore officina') || current_user.has_role?(:admin) || current_user.has_role?('presenze e orari') || current_user.has_role?('visione ore officina')
+      # Single person or all mechanics
+      if params['person'].nil? || params['person'] == ''
+        people = Person.workshop_action(from,to).order(:surname => :asc).to_a
+        # people = Person.mechanics.order(:surname => :asc).to_a
+      else
+        people = [Person.find(params['person'].to_i)]
+      end
+    else
+      people = [current_user.person]
     end
 
     # Loop over people
