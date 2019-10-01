@@ -61,7 +61,7 @@ class VehiclesController < ApplicationController
       else
         vehicle.update(mileage: params.require(:mileage).to_i, last_gps: Time.now)
       end
-      
+
       @worksheet = Worksheet.find(params.require(:worksheet).to_i)
       # WorkshopController.check_session(@worksheet)
       @check_session = VehicleCheckSession.find_by(worksheet: @worksheet)
@@ -108,7 +108,8 @@ class VehiclesController < ApplicationController
 
   def index
 
-    @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?#.paginate(:page => params[:page], :per_page => 30)
+    @vehicles = Vehicle.filter(@search).to_a + ExternalVehicle.filter(@search)
+    @vehicles.sort_by! { |v| v.plate } unless @search.nil?#.paginate(:page => params[:page], :per_page => 30)
 
     respond_to do |format|
       format.html { render 'vehicles/index', notice: @notice}

@@ -8,6 +8,9 @@ class ExternalVehicle < ApplicationRecord
   has_many :worksheets, as: :vehicle
   has_many :mssql_references, as: :local_object, :dependent => :destroy
 
+  scope :filter, ->(search) { where("plate like '%#{search.tr(' ','%').tr('*','%')}%' or vehicle_type_id in (select id from vehicle_types where name like '%#{search.tr(' ','%').tr('*','%')}%') or vehicle_typology_id in (select id from vehicle_typologies where name like '%#{search.tr(' ','%').tr('*','%')}%')"\
+                " or owner_id in (select id from companies where name like '%#{search.tr(' ','%').tr('*','%')}%')").distinct }
+
   def complete_name
     "#{self.plate} - #{self.type.name} #{self.typology.nil? ? 'N/D' : self.typology.name} (#{self.owner.nil? ? 'N/D' : self.owner.name})"
   end
@@ -79,7 +82,7 @@ class ExternalVehicle < ApplicationRecord
   end
 
   def mileage
-    nil
+    0
   end
 
   def mandatory?(vc)
