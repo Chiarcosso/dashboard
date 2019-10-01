@@ -10,7 +10,7 @@ class ExternalVehicle < ApplicationRecord
 
   scope :filter, ->(search) { where("plate like ? or vehicle_type_id in (select id from vehicle_types where name like ?) "\
                 "or vehicle_typology_id in (select id from vehicle_typologies where name like ?) "\
-                "or owner_id in (select id from companies where name like ?)","'%#{search.tr(' ','%').tr('*','%')}%'","'%#{search.tr(' ','%').tr('*','%')}%'","'%#{search.tr(' ','%').tr('*','%')}%'","'%#{search.tr(' ','%').tr('*','%')}%'").distinct }
+                "or owner_id in (select id from companies where name like ?)","'%#{search.to_s.tr(' ','%').tr('*','%')}%'","'%#{search.to_s.tr(' ','%').tr('*','%')}%'","'%#{search.to_s.tr(' ','%').tr('*','%')}%'","'%#{search.to_s.tr(' ','%').tr('*','%')}%'").distinct }
 
   def complete_name
     "#{self.plate} - #{self.type.name} #{self.typology.nil? ? 'N/D' : self.typology.name} (#{self.owner.nil? ? 'N/D' : self.owner.name})"
