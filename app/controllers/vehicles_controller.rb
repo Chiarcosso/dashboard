@@ -108,8 +108,10 @@ class VehiclesController < ApplicationController
 
   def index
 
-    @vehicles = Vehicle.filter(@search).to_a + ExternalVehicle.filter(@search).to_a
-    @vehicles.sort_by! { |v| v.plate } unless @search.nil?#.paginate(:page => params[:page], :per_page => 30)
+    unless @search.nil?#.paginate(:page => params[:page], :per_page => 30)
+      @vehicles = Vehicle.filter(@search).to_a + ExternalVehicle.filter(@search).to_a
+      @vehicles.sort_by! { |v| v.plate }
+    end
 
     respond_to do |format|
       format.html { render 'vehicles/index', notice: @notice}
