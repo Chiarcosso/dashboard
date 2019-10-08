@@ -1,5 +1,6 @@
 class ExternalVehiclesController < ApplicationController
   before_action :set_external_vehicle, only: [:show, :edit, :update, :destroy]
+  before_action :search_params, only: [:destroy]
 
   def json_autocomplete_plate
     r = ExternalVehicle.where("plate like '%#{params.require(:search)}%'").map { |ev| [{value: ev.plate, width: 2},{value: ev.owner.name, width: 3},{value: ev.vehicle_type.name, width: 2},{value: ev.vehicle_typology.name, width: 3}] }
@@ -60,10 +61,22 @@ class ExternalVehiclesController < ApplicationController
   # DELETE /external_vehicles/1
   # DELETE /external_vehicles/1.json
   def destroy
-    @external_vehicle.destroy
+    if @external_vehicle.worksheets.empty?
+      begin
+        @external_vehicle.destroy
+      rescue Exception => e
+        @error = "Impossibile eliminare mezzo.\n\n#{e.message}"
+      end
+    else
+      @error = "Esistono ODL per questo mezzo."
+    end
+    @vehicles = Vehicle.filter(@search).sort_by { |v| v.plate } unless @search.nil?
     respond_to do |format|
-      format.html { redirect_to external_vehicles_url, notice: 'External vehicle was successfully destroyed.' }
-      format.json { head :no_content }
+      if @error.nil?
+        format.js { render :partial => 'vehicles/list_js' }
+      else
+        format.js { render :partial => 'layouts/error' }
+      end
     end
   end
 
@@ -71,6 +84,12 @@ class ExternalVehiclesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_external_vehicle
       @external_vehicle = ExternalVehicle.find(params[:id])
+    end
+
+    def search_params
+      unless params[:search].nil? || params[:search] == '' || params[:search] == ' '
+        @search = params.require(:search)
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

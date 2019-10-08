@@ -72,16 +72,19 @@ class Vehicle < ApplicationRecord
 
   def update_references
     msr = Array.new
-    MssqlReference.get_client.execute(
-    <<-QUERY
+    plate = self.plate
+    qry = <<-QUERY
       select 'Veicoli' as tab, idveicolo as id, targa as plate from Veicoli
       union
       select 'Rimorchi1' as tab, idrimorchio as id, targa as plate from Rimorchi1
       union
       select 'Altri mezzi' as tab, cod as id, targa as plate from [Altri mezzi]
     QUERY
-    ).each do |v|
-      if v['plate'].tr(' .*-','').upcase == self.plate
+
+    res = MssqlReference.get_client.execute(qry)
+
+    res.each do |v|
+      if v['plate'].tr(' .*-','').upcase == plate
         msr << MssqlReference.create(local_object: self, remote_object_table: v['tab'], remote_object_id: v['id']) if MssqlReference.find_by(local_object: self, remote_object_table: v['tab'], remote_object_id: v['id']).nil?
       end
     end
@@ -522,6 +525,7 @@ class Vehicle < ApplicationRecord
 
     msr = self.mssql_references
     msr = self.update_references if msr.empty?
+    return nil if msr.empty?
     case msr.first.remote_object_table
     when 'Veicoli' then
       f = 'idtarga'

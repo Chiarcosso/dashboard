@@ -124,6 +124,7 @@ class EurowinController < ApplicationController
   end
 
   def self.get_worksheets_complete(vehicle)
+    return [] if vehicle.mssql_references.empty?
     ewc = get_ew_client
     vehicles = vehicle.mssql_references.map { |v| "'#{v.remote_object_id}'" }
     op = ewc.query(
@@ -389,7 +390,7 @@ class EurowinController < ApplicationController
     unless args[:schedainterventoprotocollo].nil?
       updates << "SerialODL = (select serial from autoodl where protocollo = #{args[:schedainterventoprotocollo]})"
     end
-    
+
     qry = [
       "update autosegnalazioni set #{updates.join(', ')} where protocollo = #{args[:protocollo]} ;",
       "select * from autosegnalazioni where protocollo = #{args[:protocollo]};"

@@ -57,7 +57,7 @@
                 -# =button_tag 'Modifica', class: 'popup-link', data: { title: 'Modifica veicolo', name: 'edit_vehicle', target: edit_vehicle_search_path, data: {id: v.id, search: @search}.to_json, method: 'post' }
                 -# = button_to 'Modifica', edit_vehicle_search_path(nil,id: v.id, search: @search, method: :post)
               .inline
-                -# = button_to 'x', vehicle_path(v.id, search: @search, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare il mezzo nr. #{v.id}, targato #{v.plate}?"}, class: 'no-loader'
+                = button_to 'x', external_vehicle_path(v.id, search: @search, format: :js), remote: true, method: :delete, data: {:confirm => "Eliminare il mezzo esterno nr. #{v.id}, targato #{v.plate}?"}, class: 'no-loader'
       - else
         .row.colored.no-margin.selectable{style: v.dismissed ? 'color: #f00' : ''}
           = v.class
