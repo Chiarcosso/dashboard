@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190924142238) do
+ActiveRecord::Schema.define(version: 20191008111610) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -1003,6 +1003,8 @@ ActiveRecord::Schema.define(version: 20190924142238) do
     t.integer  "vehicle_category_id",               default: 1,     null: false
     t.string   "registration_model"
     t.datetime "last_gps"
+    t.string   "creation_plate"
+    t.string   "current_plate"
     t.index ["model_id"], name: "index_vehicles_on_model_id", using: :btree
     t.index ["property_id"], name: "index_vehicles_on_property_id", using: :btree
     t.index ["vehicle_category_id"], name: "index_vehicles_on_vehicle_category_id", using: :btree

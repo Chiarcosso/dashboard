@@ -233,6 +233,7 @@ class EurowinController < ApplicationController
       end
 
     rescue Exception => e
+      puts "#{e.message}\n\n#{e.backtrace.join("\n")}"
       ErrorMailer.error_report("#{e.message}\n\n#{e.backtrace.join("\n")}","Eurowin get_worksheet, protocol: #{protocol}").deliver_now
     end
   end

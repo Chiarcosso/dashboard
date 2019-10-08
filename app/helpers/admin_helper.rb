@@ -109,7 +109,7 @@ module AdminHelper
     else
       r['carwash_code'] = res[:carwash_code] = Vehicle.carwash_codes.key(r['carwash_code'].to_i)
     end
-    if r['plate'].nil?
+    if r['plate'].nil? || r['plate'] == ''
       @error = " #{r['plate']} (#{r['id']}) - Blank plate"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
       mssql_reference_logger.error(@error)
@@ -139,9 +139,9 @@ module AdminHelper
         if v.nil?
           if update
 
-            v = Vehicle.create(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code])
+            v = Vehicle.create(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code], creation_plate: r['plate'].tr('. *-','').upcase, current_plate: r['plate'].tr('. *-','').upcase)
           else
-            v = Vehicle.new(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code])
+            v = Vehicle.new(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code], creation_plate: r['plate'].tr('. *-','').upcase, current_plate: r['plate'].tr('. *-','').upcase)
             v.id = 0
           end
 
@@ -206,6 +206,7 @@ module AdminHelper
           if v.is_a?(Vehicle) && VehicleInformation.find_by(vehicle: v, information: r['plate'].tr('. *-','').upcase).nil?
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Plate changed #{v.plate} (id: #{v.id}).")
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Ritargato #{v.plate} (id: #{v.id}).\n"
+            v.update(current_plate: r['plate'].tr('. *-','').upcase)
             VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].tr('. *-','').upcase, date: Date.today) if update
           end
         else
@@ -216,7 +217,7 @@ module AdminHelper
           mssql_reference_logger.info("Dashboard - vehicle_type: #{v.type.nil? ? '' : v.type.is_a?(String)? v.type : v.type.name}, property: #{v.property.nil? ? '' : v.property.name}, model: #{v.model.nil?? '' : v.model.is_a?(String)  ? v.model : v.model.complete_name}, registration_model: #{v.registration_model}, dismissed: #{v.dismissed.to_s}, vehicle_typology: #{v.typology.nil? ? '' : v.typology.is_a?(String)? v.typology : v.typology.name}, mileage: #{v.mileage}, registration_date: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, vehicle_category: #{v.category.nil? ? '' :v.category.name}, carwash_code: #{v.carwash_code}.")
           data[:response] += "Dashboard - tipo: #{v.type.is_a?(String)? v.type : v.type.name}, proprietà: #{v.property.nil? ? '' : v.property.name}, modello: #{v.model.nil?? '' : v.model.is_a?(String) ? v.model : v.model.complete_name}, modello libretto: #{v.registration_model}, dismesso: #{v.dismissed.to_s}, tipologia: #{v.typology.is_a?(String)? v.typology : v.typology.name}, chilometraggio: #{v.mileage}, data immatricolazione: #{v.registration_date.nil?? '' : v.registration_date.strftime("%d/%m/%Y")}, categoria: #{v.category.name}, codice_lavaggio: #{v.carwash_code}.\n"
           if v.is_a?(Vehicle)
-            v.update(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage].to_i > v.mileage.to_i ? data[:mileage].to_i : v.mileage.to_i, registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code]) if update
+            v.update(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage].to_i > v.mileage.to_i ? data[:mileage].to_i : v.mileage.to_i, registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code], current_plate: r['plate'].tr('. *-','').upcase) if update
             if v.find_information(data[:chassis_info]).nil?
               VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: data[:registration_date]) if update
               mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
@@ -253,6 +254,7 @@ module AdminHelper
           if v.is_a?(Vehicle) && VehicleInformation.find_by(vehicle: v, information: r['plate'].tr('. *-','').upcase).nil?
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Plate changed #{v.plate} (id: #{v.id}).")
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Ritargato #{v.plate} (id: #{v.id}).\n"
+            v.update(current_plate: r['plate'].tr('. *-','').upcase)
             VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].tr('. *-','').upcase, date: Date.today) if update
           end
           unless v.has_reference?( r['table_name'],r['id'])
@@ -329,7 +331,7 @@ module AdminHelper
     else
       res[:idfornitore] = r['idfornitore']
     end
-    if r['plate'].nil?
+    if r['plate'].nil? || r['plate'] == ''
       @error = " #{r['plate']} (#{r['id']}) - Blank plate"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
       mssql_reference_logger.error(@error)
@@ -497,7 +499,7 @@ module AdminHelper
 
         if v.nil?
           if update
-            v = Vehicle.create(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code])
+            v = Vehicle.create(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code], creation_plate: r['plate'].tr('. *-','').upcase, current_plate: r['plate'].tr('. *-','').upcase)
           else
             v = Vehicle.new
             v.id = 0
@@ -686,7 +688,7 @@ module AdminHelper
     else
       r['carwash_code'] = carwash_code = Vehicle.carwash_codes.key(r['carwash_code'].to_i)
     end
-    if r['plate'].nil?
+    if r['plate'].nil? || r['plate'] == ''
       @error = " #{r['plate']} (#{r['id']}) - Blank plate"
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Targa mancante</span>\n"
       mssql_reference_logger.error(@error)
@@ -701,6 +703,7 @@ module AdminHelper
       if v.is_a?(Vehicle) && VehicleInformation.find_by(vehicle: v, information: r['plate'].tr('. *-','').upcase).nil?
         mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Plate changed #{v.plate} (id: #{v.id}).")
         response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Ritargato #{v.plate} (id: #{v.id}).\n"
+        v.update(current_plate: r['plate'].tr('. *-','').upcase)
         VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].tr('. *-','').upcase, date: Date.today) if update
       end
     end
@@ -708,7 +711,7 @@ module AdminHelper
       if @error.nil?
         if v.nil? #Vehicle does not exist
           if update
-            v = Vehicle.create(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], serie: serie, dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code)
+            v = Vehicle.create(vehicle_type: vehicle_type, property: property, model: model, registration_model: r['registration_model'], serie: serie, dismissed: dismissed, vehicle_typology: vehicle_typology, mileage: mileage, registration_date: registration_date, vehicle_category: vehicle_category, carwash_code: carwash_code, creation_plate: r['plate'].tr('. *-','').upcase, current_plate: r['plate'].tr('. *-','').upcase)
           else
             v = Vehicle.new
             v.id = 0

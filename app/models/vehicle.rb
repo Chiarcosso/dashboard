@@ -19,7 +19,7 @@ class Vehicle < ApplicationRecord
   has_many :carwash_usages_as_second, :foreign_key => 'vehicle_2_id', :class_name => 'CarwashUsage'
 
   has_many :vehicle_check_sessions
-  has_many :vehicle_performed_checks, :through => :vehicle_check_sessions
+  has_many :vehicle_performed_checks#, :through => :vehicle_check_sessions
   has_many :vehicle_checks, :through => :vehicle_performed_check
 
   has_many :vehicle_vehicle_equipments, :dependent => :destroy
@@ -29,6 +29,8 @@ class Vehicle < ApplicationRecord
 
   has_many :mssql_references, as: :local_object, :dependent => :destroy
   has_many :vehicle_properties, :dependent => :destroy
+
+  has_many :mdc_reports
   # has_many :carwash_usages, through: :carwash_vehicle_code
   # has_one :vehicle_type, through: :model
   belongs_to :property, class_name: 'Company'
@@ -85,7 +87,9 @@ class Vehicle < ApplicationRecord
 
     res.each do |v|
       if v['plate'].tr(' .*-','').upcase == plate
-        msr << MssqlReference.create(local_object: self, remote_object_table: v['tab'], remote_object_id: v['id']) if MssqlReference.find_by(local_object: self, remote_object_table: v['tab'], remote_object_id: v['id']).nil?
+        if MssqlReference.find_by(local_object: self, remote_object_table: v['tab'], remote_object_id: v['id']).nil?
+          msr << MssqlReference.create(local_object: self, remote_object_table: v['tab'], remote_object_id: v['id'])
+        end
       end
     end
     msr
@@ -557,6 +561,87 @@ class Vehicle < ApplicationRecord
     else
       false
     end
+  end
+
+  def self.set_all_plates
+    plate_type = VehicleInformationType.find_by(name: 'Targa')
+    null_count = 0
+    not_null_count = 0
+    Vehicle.all.each do |v|
+      begin
+        oldest = VehicleInformation.where(vehicle: v, vehicle_information_type: plate_type).order(:date => :asc).limit(1)
+        newest = VehicleInformation.where(vehicle: v, vehicle_information_type: plate_type).order(:date => :desc).limit(1)
+        if oldest.first.nil? || newest.first.nil?
+        # if VehicleInformation.where(vehicle: v).count == 0
+          null_count += 1
+          # if v.mssql_references.count > 0
+          #   puts "existing references"
+          #   byebug
+          # else
+
+            if v.vehicle_check_sessions.count > 0
+              v.vehicle_check_sessions.each do |vcs|
+                 newv = Vehicle.find_by_plate(EurowinController::get_worksheet(vcs.worksheet.number)['Targa'])
+                 vcs.update(vehicle: newv) unless newv.nil?
+                 vcs.vehicle_performed_checks.each do |vpc|
+                    vpc.update(vehicle: newv) unless newv.nil?
+                 end
+                 vcs.worksheet.update(vehicle: newv) unless newv.nil?
+              end
+            end
+            if v.vehicle_performed_checks.count > 0
+              v.vehicle_performed_checks.each do |vpc|
+                 newv = Vehicle.find_by_plate(EurowinController::get_worksheet(vpc.vehicle_check_session.worksheet.number)['Targa'])
+                 vpc.update(vehicle_id: newv.id) unless newv.nil?
+              end
+            end
+            if v.worksheets.count > 0
+              v.worksheets.each do |w|
+                 newv = Vehicle.find_by_plate(EurowinController::get_worksheet(w.number)['Targa'])
+                 w.update(vehicle: newv) unless newv.nil?
+              end
+            end
+            if v.mssql_references.count > 1
+              v.update_references.each do |mr|
+                newv = Vehicle.find_by_reference(table: mr.remote_object_table, id: mr.remote_object_id)
+                if MssqlReference.find_by(local_object: newv, remote_object_table: mr.remote_object_table, remote_object_id: mr.remote_object_id).count > 0
+                  mr.delete
+                else
+                  mr.update(local_object: newv)
+                end
+              end
+            end
+            if v.vehicle_informations.count > 1
+              v.vehicle_informations.each do |vi|
+                vi.update(vehicle: newv) unless newv.nil?
+              end
+            end
+            v.destroy
+          # end
+        else
+
+          v.update(creation_plate: oldest.first.information)
+          v.update(current_plate: newest.first.information)
+          if v.mssql_references.count < 1
+            v.update_references
+          end
+          not_null_count += 1
+        end
+
+      rescue Exception => e
+        puts e.message
+        # byebug
+      end
+    end
+    # byebug if null_count > 0
+  end
+
+  def set_plates
+    plate_type = VehicleInformationType.find_by(name: 'Targa')
+    oldest = VehicleInformation.where(vehicle: v, vehicle_information_type: plate_type).order(:date => :asc).limit(1)
+    newest = VehicleInformation.where(vehicle: v, vehicle_information_type: plate_type).order(:date => :desc).limit(1)
+    v.update(creation_plate: oldest.first.information) unless oldest.first.nil?
+    v.update(creation_plate: newest.first.information) unless newest.first.nil?
   end
 
   def find_information(type)
