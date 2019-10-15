@@ -4,6 +4,6 @@ class VehicleProperty < ApplicationRecord
   belongs_to :owner, polymorphic:true
 
   def name
-    owner.name
+    self.owner.name
   end
 end
