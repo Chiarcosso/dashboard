@@ -302,10 +302,12 @@ class PresenceRecord < ApplicationRecord
     PresenceRecord.where(date: date, person: person, break: false).each do |pr|
       # c_total += pr.actual_duration
       c_total += pr.calculated_duration
-      pr.timesheet_records.each do |tr|
-        
-        if tr.stop > pr.end
-          tr.update(stop: pr.end, minutes: (pr.end - tr.start)/60)
+      unless pr.end.nil?
+        pr.timesheet_records.each do |tr|
+
+          if tr.stop > pr.end
+            tr.update(stop: pr.end, minutes: (pr.end - tr.start)/60)
+          end
         end
       end
     end
