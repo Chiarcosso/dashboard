@@ -2,6 +2,7 @@ class Vehicle < ApplicationRecord
   include AdminHelper
   include ErrorHelper
   resourcify
+  after_creation :log_creation
 
 
   # def self.carwash_codes
@@ -687,5 +688,11 @@ class Vehicle < ApplicationRecord
     self.plate+' '+(self.model.nil? ? 'Modello sconosciuto' : self.model.complete_name)
   end
 
+  def log_creation
+    vehicle_logger.info(calling_methods)
+  end
 
+  def self.vehicle_logger
+    @@v_logger ||= Logger.new("#{Rails.root}/log/vehicle_creation.log")
+  end
 end

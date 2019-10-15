@@ -84,6 +84,7 @@ class WorkshopController < ApplicationController
         @open_worksheets = Array.new
         wks.each do |wos|
           v = wos.vehicle
+          raise "Veicolo con id #{wos.vehicle_id} non trovato. ODL nr. #{wos.number}"
           @open_worksheets << {ws: wos, plate: wos.plate_number, vehicle: wos.vehicle_id, no_satellite: (Time.now - v.last_gps.to_i > 7.days)}
         end
       end

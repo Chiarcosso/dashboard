@@ -23,6 +23,7 @@ class ApplicationController < ActionController::Base
   #     format.json { render :json => @items.to_json }
   #     end
   # end
+  include AppHelper
 
   protected
   def user_active?
