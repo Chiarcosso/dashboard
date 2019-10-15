@@ -401,7 +401,7 @@ class Vehicle < ApplicationRecord
       return false
     elsif comp['notdismissed'] == self.dismissed
       return false
-    elsif comp['manufacturer'].upcase != manufacturer.upcase
+    elsif comp['manufacturer'].to_s.upcase != manufacturer.upcase
       return false
     elsif comp['model'].upcase != model.upcase
       return false
@@ -688,8 +688,8 @@ class Vehicle < ApplicationRecord
     self.plate+' '+(self.model.nil? ? 'Modello sconosciuto' : self.model.complete_name)
   end
 
-  def log_creation
-    vehicle_logger.info(calling_methods)
+  def self.log_creation
+    vehicle_logger.info(calling_methods.inspect)
   end
 
   def self.vehicle_logger
