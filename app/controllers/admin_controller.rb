@@ -93,7 +93,7 @@ class AdminController < ApplicationController
                 vehicle = Vehicle.find_by_plate(d).first
 
                 if vehicle.nil?
-                  vehicle = Vehicle.create(model: VehicleModel.not_available, vehicle_type: VehicleType.not_available, vehicle_typology: VehicleTypology.not_available, property: Company.propertyChoice)
+                  vehicle = Vehicle.create(model: VehicleModel.not_available, vehicle_type: VehicleType.not_available, vehicle_typology: VehicleTypology.not_available, property: Company.propertyChoice, creation_plate:  cell.value.to_s.tr('. *-','').upcase, current_plate:  cell.value.to_s.tr('. *-','').upcase)
                   # next
                 end
                 vehicle.registration_date = Date.new(row[4].value.to_i,1,1) if vehicle.registration_date.nil?
@@ -317,7 +317,7 @@ class AdminController < ApplicationController
       end
       if vehicle.nil?
         registration = row['registrationDate'].to_i < 1970 ? nil : Date.new(row['registrationDate'].to_i,1,1)
-        vehicle = Vehicle.create(dismissed: (row['dismissed'] == '0'), mileage: row['mileage'], registration_date: registration, property: property, model: model)
+        vehicle = Vehicle.create(dismissed: (row['dismissed'] == '0'), mileage: row['mileage'], registration_date: registration, property: property, model: model, creation_plate:  row['plate'].value.to_s.tr('. *-','').upcase, current_plate:  row['plate'].to_s.tr('. *-','').upcase)
         plate = VehicleInformation.create(information_type: VehicleInformation.types['Targa'], information: row['plate'], date: Date.current, vehicle: vehicle)
         chassis = VehicleInformation.create(information_type: VehicleInformation.types['N. di telaio'], information: row['chassis'], date: Date.current, vehicle: vehicle)
         @results << vehicle
