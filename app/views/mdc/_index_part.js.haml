@@ -18,7 +18,7 @@
         - keys  = ''
         - res.dataCollectionRows.each do |dcr|
           - keys += "<ns3:keys>#{dcr.dataCollectionRowKey.xml}</ns3:keys>"
-        = form_tag(mdc_close_fare_path, method: :post, remote: true) do |f|
+        = form_tag(mdc_close_fare_path, method: :post) do |f|
           = hidden_field_tag :data_collection_rows, Base64.encode64(keys)
           = hidden_field_tag :id, res.id
           = hidden_field_tag :user, res.user.user

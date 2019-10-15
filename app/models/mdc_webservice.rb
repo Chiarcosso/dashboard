@@ -111,6 +111,7 @@ class MdcWebservice
     self.commit_transaction
     self.end_transaction
     # self.close_session
+    
     return data
   end
 
@@ -1028,7 +1029,7 @@ class ReportRequest
             fh.close
 
             # url = ''
-            MdcReportImage.create(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}", original_filename: photo) 
+            MdcReportImage.create(mdc_report: report, url: "#{url}/#{filename}", path: "#{cpath}/#{filename}", original_filename: photo)
           end
 
         end

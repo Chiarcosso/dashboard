@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191008111610) do
+ActiveRecord::Schema.define(version: 20191015135622) do
 
   create_table "article_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "name"
@@ -463,12 +463,13 @@ ActiveRecord::Schema.define(version: 20191008111610) do
   end
 
   create_table "mdc_users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "user",                   null: false
-    t.string   "activation_code",        null: false
+    t.string   "user",                               null: false
+    t.string   "activation_code",                    null: false
     t.integer  "assigned_to_company_id"
     t.integer  "assigned_to_person_id"
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.integer  "open_documents",         default: 0, null: false
     t.index ["assigned_to_company_id"], name: "index_mdc_users_on_assigned_to_company_id", using: :btree
     t.index ["assigned_to_person_id"], name: "index_mdc_users_on_assigned_to_person_id", using: :btree
   end

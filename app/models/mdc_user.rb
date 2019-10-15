@@ -5,6 +5,7 @@ class MdcUser < ApplicationRecord
   belongs_to :assigned_to_company, class_name: 'Company'
 
   scope :assigned, -> { where("assigned_to_person_id is not null or assigned_to_company_id is not null") }
+  scope :has_open_documents, -> { where("open_documents > 0") }
 
   def holder
     self.assigned_to_person.nil?? self.assigned_to_company : self.assigned_to_person
@@ -23,6 +24,18 @@ class MdcUser < ApplicationRecord
     #   "#{self.assigned_to_person.complete_name} (#{self.assigned_to_company.complete_name})"
     # end
     "#{self.holder.list_name} (#{self.user.upcase})"
+  end
+
+  def has_open_documents?
+    self.open_documents > 0
+  end
+
+  def complete_name_documents
+    if self.open_documents > 0
+      "#{self.complete_name} -> #{self.open_documents} viaggi aperti"
+    else
+      self.complete_name
+    end
   end
 
   def self.find_by_holder string

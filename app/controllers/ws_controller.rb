@@ -26,6 +26,16 @@ class WsController < ApplicationController
     render 'mdc/index'
   end
 
+  def self.count_open_documents
+    count = 0
+    mdc = MdcWebservice.new
+    MdcUser.assigned.each do |p|
+      count = mdc.get_fares_data({applicationID: 'FARES', deviceCode: p.user.upcase, status: 0}).count
+      p.update(open_documents: count)
+    end
+    mdc.close_session
+  end
+
   def index_load
     # @result = Array.new
 
@@ -35,10 +45,11 @@ class WsController < ApplicationController
     mdc.close_session
 
     @mdc_user = MdcUser.find_by(user: params.require(:user_id))
+    @mdc_user.update(open_documents: @result.count)
 
     respond_to do |format|
       format.js { render partial: 'mdc/index_part_js' }
-      format.html { render partial: 'mdc/index' }
+      format.html { render 'mdc/index' }
     end
   end
 
@@ -94,7 +105,7 @@ class WsController < ApplicationController
   def notification_filter
 
     @results = get_filter
-    
+
     respond_to do |format|
       format.html {render partial: 'mdc/report_index'}
       format.js {render partial: 'mdc/report_index_js'}
@@ -304,14 +315,17 @@ class WsController < ApplicationController
       end
     end
 
-    @result = mdc.get_fares_data({applicationID: 'FARES', deviceCode: params.require(:user_id).upcase, status: 0})#.reverse[0,10]
+    @mdc_user = MdcUser.find_by(user: params.require(:user_id))
+    @result = mdc.get_fares_data({applicationID: 'FARES', deviceCode: @mdc_user.user.upcase, status: 0})#.reverse[0,10]
 
     mdc.close_session
 
-    @mdc_user = MdcUser.find_by(user: params.require(:user_id))
 
+    @mdc_user.update(open_documents: @result.count)
+    byebug
     respond_to do |format|
-      format.js { render partial: 'mdc/index_part_js' }
+      # format.js { render partial: 'mdc/index_part_js' }
+      format.html { render 'mdc/index' }
     end
   end
 
