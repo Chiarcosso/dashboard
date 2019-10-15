@@ -19,7 +19,7 @@ class PresenceRecord < ApplicationRecord
   end
 
   def end
-    self.end_ts.time unless self.end.nil?
+    self.end_ts.time unless self.end_ts.nil?
   end
 
   def timesheet_records
