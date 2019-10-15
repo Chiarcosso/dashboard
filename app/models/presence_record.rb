@@ -19,7 +19,7 @@ class PresenceRecord < ApplicationRecord
   end
 
   def end
-    self.end_ts.time
+    self.end_ts.time unless self.end.nil?
   end
 
   def timesheet_records
@@ -304,7 +304,6 @@ class PresenceRecord < ApplicationRecord
       c_total += pr.calculated_duration
       unless pr.end.nil?
         pr.timesheet_records.each do |tr|
-
           if tr.stop > pr.end
             tr.update(stop: pr.end, minutes: (pr.end - tr.start)/60)
           end
