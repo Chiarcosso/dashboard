@@ -1032,9 +1032,9 @@ class PresenceController < ApplicationController
     leaves.each do |v|
       dayz = leaves.select{ |d| d.person_id == v.person_id }.sort{ |y| y.from }.reverse
       if dayz.count > 1
-        if dayz[0].to < WorkingSchedule.find_by(person: dayz[0].person, weekday: date_wd).transform_to_date(date, :contract_to) ||
-          dayz[1].from > WorkingSchedule.find_by(person: dayz[1].person, weekday: ndate_wd).transform_to_date(ndate, :contract_from)
-          excl << dayz[1].id
+        if (dayz[0].to < WorkingSchedule.find_by(person: dayz[0].person, weekday: date_wd).transform_to_date(date, :contract_to) ||
+          dayz[1].from > WorkingSchedule.find_by(person: dayz[1].person, weekday: ndate_wd).transform_to_date(ndate, :contract_from))
+          excl << dayz[1].id unless dayz[0].date == dayz[1].date
         else
           nextdayz << dayz[1].id
         end
