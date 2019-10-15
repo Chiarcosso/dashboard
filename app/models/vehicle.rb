@@ -358,6 +358,10 @@ class Vehicle < ApplicationRecord
     end
   end
 
+  def owner
+    self.actual_property
+  end
+
   def actual_property
     ap = VehicleProperty.where(vehicle: self).order(date_since: :desc).first
     if ap.nil?
