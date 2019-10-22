@@ -25,6 +25,7 @@
             = button_tag 'PDF', class: 'form-control no-loader'
 
   .panel-group.scrollable-panel#accordion{style: 'height: 80%;'}
+    - operator_id = @operator.nil? ? 0 : @operator.id
     - @timesheets.each do |name,ts|
       - person = Person.find_by_complete_name name
       .panel.panel-default
@@ -34,7 +35,7 @@
               %h4.panel-title{ data: {name: name.tr('\' ','_')}}
                 %a{ href: "#collapse-#{name.tr('\' ','_')}", data: { toggle: 'collapse', parent: '#accordion' }}
                   = name
-        %div{ class: "panel-collapse collapse#{name.tr('\' ','_') == @name ? ' in' : ''}", id: "collapse-#{name.tr('\' ','_')}"}
+        %div{ class: "panel-collapse collapse#{name.tr('\' ','_') == @name || person.id == operator_id ? ' in' : ''}", id: "collapse-#{name.tr('\' ','_')}"}
           .panel-body
             .row
               .col-sm-5
@@ -135,7 +136,7 @@
                     .row
                       .col-sm-12
                         %b= "Totale concordato: "
-                .col-sm-3
+                .col-sm-1
                   .row
                     .col-sm-12
                       - hrs = (total / 60).floor
@@ -156,7 +157,15 @@
                           %b= "Non è stato concordato un orario per questa giornata."
                         - else
                           %b= ws.expected_hours_label
-                .col-sm-2
+                .col-sm-4
+                  - if (current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
+                    .row
+                      .col-sm-2
+                      .col-sm-8
+                        %button{ class: 'load_popup no-loader form-control', data: { date: @date, operator_id: person.id, popup_id: 'new_timesheet_operation', route: timesheet_new_operation_popup_path } }
+                          Nuova operazione
+
+                      .col-sm-2
                 - if (current_user.has_role?('presenze e orari') || current_user.has_role?(:admin) || current_user.has_role?('amministratore officina'))
                   .col-sm-3{style: 'background-color: #ffa'}
                     .row
@@ -172,6 +181,7 @@
 
 
 
+
 :javascript
 
   // $('body').on('click','.panel-title',function(){
@@ -181,4 +191,5 @@
   //   $('.massive').val(JSON.stringify(opts));
   //   console.log(JSON.parse($('.massive').val()));
   // });
+  $('.popup').remove();
   deactivateLoadingScreen();

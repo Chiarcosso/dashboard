@@ -679,10 +679,11 @@ class EurowinController < ApplicationController
 
   def self.edit_ew_worksheet(args)
     ew_query_logger.info("#{@token} (new edit worksheet request) => #{args.inspect}")
+    
     args.each do |k,v|
       args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k].gsub("'","").gsub("\\","\\\\")[0.195]}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].gsub("'","''").gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
 
     updates = Array.new
@@ -896,7 +897,7 @@ class EurowinController < ApplicationController
 
     opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
-    
+
     vehicle_refs['CodiceAutista'] = ewc.query("select codice from autisti where ragionesociale = '#{opcode.gsub("'","''")}'").first
     ewc.close
     vehicle_refs['CodiceAutista'] = vehicle_refs['CodiceAutista']['codice'] unless vehicle_refs['CodiceAutista'].nil?

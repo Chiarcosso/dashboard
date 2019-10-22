@@ -50,6 +50,8 @@ class TimesheetController < ApplicationController
 
         # Update timesheet record
         timesheet.update(p)
+        @operator = timesheet.person
+        @date = timesheet.start
         get_timesheets
       else
         @error = "Operazione non concessa, l'utente non possiede il ruolo per questa modifica."
@@ -117,6 +119,47 @@ class TimesheetController < ApplicationController
       @error = e.message+"\n\n#{e.backtrace}"
       respond_to do |format|
         format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def timesheet_new_operation_popup
+
+    @date = Date.strptime(params.require(:date),"%Y-%m-%d %H:%M:%S %Z")
+    @operator = Person.find(params.require(:operatorId).to_i)
+    begin
+      respond_to do |format|
+        format.js { render partial: 'timesheets/new_op_popup' }
+      end
+    rescue Exception => e
+      @error = e.message+"\n\n#{e.backtrace}"
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
+  def timesheet_add_operation
+    @date = Date.strptime(params.require(:date),"%Y-%m-%d")
+    @operator = Person.find(params.require(:operatorId).to_i)
+    opts = params.require(:new_operation).permit(:from, :to, :description)
+    from = DateTime.strptime("#{@date.strftime("%Y-%m-%d")} #{opts[:from]} #{@date.in_time_zone('Europe/Rome').strftime("%Z")}","%Y-%m-%d %H:%M %Z")
+    to = DateTime.strptime("#{@date.strftime("%Y-%m-%d")} #{opts[:to]} #{@date.in_time_zone('Europe/Rome').strftime("%Z")}","%Y-%m-%d %H:%M %Z")
+    time = ((to.to_time - from.to_time) / 60).ceil
+
+    TimesheetRecord.create(person: @operator, description: opts[:description], start: from, stop: to, minutes: time)
+    get_timesheets
+
+    begin
+      respond_to do |format|
+        format.html { render 'timesheets/index' }
+        format.js { render partial: 'timesheets/index_js' }
+      end
+    rescue Exception => e
+      respond_to do |format|
+        @error = e.message+"\n"+e.backtrace.join("\n")
+        format.html { render partial: 'layouts/error_html' }
+        format.js { render partial: 'layouts/error' }
       end
     end
   end

@@ -67,7 +67,7 @@ function loadrowGeneric(element,result_element,loading_element,method, data){
       if(loading <= 0){
         $(loading_element).html('');
       } else {
-        
+
         if($(loading_element).length > 0){
           loadrowGeneric(element.next(),result_element,loading_element,method, data);
         }
@@ -1019,12 +1019,15 @@ function load_popup_click_func(e){
   $('.popup').remove();
   var route = $(this).data('route');
   var popup_link_name = $(this).data('popup_id');
+  var data = $(this).data();
+
   var el = $('<div class="popup" id="'+popup_link_name+'"></div>');
   $('body').append(el);
   activateLoadingScreen();
   $.ajax({
     url: route+".js",
     method: 'post',
+    data: data,
     complete: function(data){
       el.html(data.responseText);
       el.append('<div class="close">Chiudi</div>');
@@ -1211,6 +1214,7 @@ function activateJS() {
     $('body').on('change', '.checkvalue', checkvalue_change_func);
 
     $('body').on('click','input[type=submit]', form_submit_scroll_func);
+    
 }
 
 var mdc_reports_timeout;

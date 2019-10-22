@@ -317,6 +317,8 @@ Rails.application.routes.draw do
   post  '/timesheets/timesheet_popup', to: 'timesheet#timesheet_popup', as: :timesheet_popup
   post  '/timesheets/timesheet_popup/start', to: 'timesheet#timesheet_start', as: :timesheet_start
   post  '/timesheets/timesheet_popup/stop', to: 'timesheet#timesheet_stop', as: :timesheet_stop
+  post  '/timesheets/timesheet_new_operation_popup', to: 'timesheet#timesheet_new_operation_popup', as: :timesheet_new_operation_popup
+  post  '/timesheets/timesheet_add_operation', to: 'timesheet#timesheet_add_operation', as: :timesheet_add_operation
 
   post   '/timesheets/index', to: 'timesheet#index'
   post   '/timesheets/pdf', to: 'timesheet#pdf'

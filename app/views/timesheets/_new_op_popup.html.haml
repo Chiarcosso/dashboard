@@ -1,0 +1,24 @@
+.row
+  .col-sm-12
+    = form_tag(timesheet_add_operation_path, remote: true, method: :post) do |f|
+      .row
+        .col-sm-12
+          %br
+          %br
+          %b= "Nuova operazione di #{@operator.complete_name} - #{@date.strftime("%d/%m/%Y")}"
+          %br
+      .row
+        .col-sm-12
+          = text_field_tag 'new_operation[description]', nil, placeholder: 'Nuova operazione', class: 'form-control'
+          %br
+      .row
+        .col-sm-6
+          = time_field_tag 'new_operation[from]', nil, class: 'form-control'
+        .col-sm-6
+          = time_field_tag 'new_operation[to]', nil, class: 'form-control'
+      .row
+        .col-sm-12
+          %br
+          = hidden_field_tag 'operatorId', @operator.id
+          = hidden_field_tag 'date', @date
+          = submit_tag 'Aggiungi operazione', class: 'form-control popup-self-close'
