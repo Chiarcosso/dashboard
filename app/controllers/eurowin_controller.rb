@@ -307,7 +307,7 @@ class EurowinController < ApplicationController
     args.each do |k,v|
       # args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k].tr("'","")}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].gsub("'","''").gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
     args.each do |field,value|
       fields << field
@@ -315,7 +315,7 @@ class EurowinController < ApplicationController
       #   value = "'#{value}'"
       # end
       # value = value.strftime('%Y-%m-%d') if value.is_a?(Date) || value.is_a?(DateTime)
-      # value = value.is_a?(String) && !value.nil? ? "'#{value.tr("'","")}'" : value
+      # value = value.is_a?(String) && !value.nil? ? "'#{value.gsub("'","")}'" : value
       values << value
     end
 
@@ -337,6 +337,7 @@ class EurowinController < ApplicationController
       "insert into autosegnalazioni (Anno,Protocollo,Sezione,#{fields.join(',')}) values (#{anno},@nextprotocol,'A',#{values.join(',')});",
       "select * from autosegnalazioni where protocollo = @nextprotocol;"
     ]
+
     # c = get_ew_client
     # c.query(qry)
     ew_query_logger.info("#{@token} (new create notification query) => #{qry.inspect}")
@@ -347,10 +348,10 @@ class EurowinController < ApplicationController
     # c.close
 
     qry = "select * from autosegnalazioni where #{args.map{|f,v| "#{f} = #{v}"}.join(' and ')} order by Protocollo desc limit 1"
+    ew_query_logger.info("#{@token} (find new notification query) => #{qry.inspect}")
 
     c = get_ew_client
     sgn = c.query(qry)
-    # sgn = c.query("select * from autosegnalazioni where protocollo = #{prot};")
 
     c.close
     if sgn.first.nil?
@@ -372,7 +373,7 @@ class EurowinController < ApplicationController
     args.each do |k,v|
       args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k].tr("'","")}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].gsub("'","''").gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
 
     if args[:schedainterventoprotocollo].nil? || args[:schedainterventoprotocollo] == 0 || args[:schedainterventoprotocollo] == "0"
@@ -603,7 +604,7 @@ class EurowinController < ApplicationController
     args.each do |k,v|
       # args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k].tr("'","")}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].gsub("'","''").gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
     args.each do |field,value|
       fields << field
@@ -611,7 +612,7 @@ class EurowinController < ApplicationController
       #   value = "'#{value}'"
       # end
       # value = value.strftime('%Y-%m-%d') if value.is_a?(Date) || value.is_a?(DateTime)
-      # value = value.is_a?(String) && !value.nil? ? "'#{value.tr("'","")}'" : value
+      # value = value.is_a?(String) && !value.nil? ? "'#{value.gsub("'","")}'" : value
       values << value
     end
 
@@ -681,7 +682,7 @@ class EurowinController < ApplicationController
     args.each do |k,v|
       args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k].tr("'","")}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].gsub("'","").gsub("\\","\\\\")[0.195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
 
     updates = Array.new
@@ -895,7 +896,8 @@ class EurowinController < ApplicationController
 
     opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
-    vehicle_refs['CodiceAutista'] = ewc.query("select codice from autisti where ragionesociale = '#{opcode}'").first
+    
+    vehicle_refs['CodiceAutista'] = ewc.query("select codice from autisti where ragionesociale = '#{opcode.gsub("'","''")}'").first
     ewc.close
     vehicle_refs['CodiceAutista'] = vehicle_refs['CodiceAutista']['codice'] unless vehicle_refs['CodiceAutista'].nil?
 
@@ -972,8 +974,8 @@ class EurowinController < ApplicationController
     if queries[0].is_a? Array
       queries = queries[0]
     end
-    queries.map! { |q| q.tr(';','')}
-    # queries.map! { |q| q.tr("'","''")}
+    queries.map! { |q| q.gsub(';','')}
+    # queries.map! { |q| q.gsub("'","''")}
 
     c = Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB'], flags: Mysql2::Client::MULTI_STATEMENTS
     res = c.query(queries.join(';'))

@@ -38,7 +38,7 @@ class WsController < ApplicationController
 
   def index_load
     # @result = Array.new
-
+    
     mdc = MdcWebservice.new
     @result = mdc.get_fares_data({applicationID: 'FARES', deviceCode: params.require(:user_id).upcase, status: 0})#.reverse[0,10]
 
@@ -48,7 +48,7 @@ class WsController < ApplicationController
     @mdc_user.update(open_documents: @result.count)
 
     respond_to do |format|
-      format.js { render partial: 'mdc/index_part_js' }
+      # format.js { render partial: 'mdc/index_part_js' }
       format.html { render 'mdc/index' }
     end
   end

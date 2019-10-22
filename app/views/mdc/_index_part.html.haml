@@ -1,5 +1,5 @@
 -# - byebug
-sdasffgfff
+= "sdasffgfff"
 = @mdc_user.complete_name
 = "asdasdasd"
 - unless @result.nil?
@@ -16,6 +16,7 @@ sdasffgfff
           -begin
             = res.definition.force_encoding('UTF-8')
           -rescue Exception => e
+            = e.message
             -# - byebug
           -# = res.inspect
           - keys  = ''
