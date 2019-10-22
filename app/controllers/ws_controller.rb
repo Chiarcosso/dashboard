@@ -38,7 +38,7 @@ class WsController < ApplicationController
 
   def index_load
     # @result = Array.new
-    
+
     mdc = MdcWebservice.new
     @result = mdc.get_fares_data({applicationID: 'FARES', deviceCode: params.require(:user_id).upcase, status: 0})#.reverse[0,10]
 
@@ -322,7 +322,7 @@ class WsController < ApplicationController
 
 
     @mdc_user.update(open_documents: @result.count)
-    byebug
+
     respond_to do |format|
       # format.js { render partial: 'mdc/index_part_js' }
       format.html { render 'mdc/index' }
@@ -334,7 +334,7 @@ class WsController < ApplicationController
     mdc = MdcWebservice.new
     mdc.begin_transaction
     # tb = mdc.select_tabgen(Tabgen.new({deviceCode: "All user", key: '', order: 0, tabname: 'VEHICLES_TMP'}))
-    # byebug
+    
     mdc.delete_tabgen_by_selector([TabgenSelector.new({tabname: 'RUNNING_VEHICLES', index: 0, value: '%', deviceCode: ""})])
     mdc.commit_transaction
     Vehicle.where(dismissed: false).where("property_id = #{Company.chiarcosso.id} or property_id = #{Company.transest.id}").reject{ |v| v.plate.nil? }.to_a.each do |v|
