@@ -165,7 +165,7 @@ class VehiclePerformedCheck < ApplicationRecord
           odl = odlr['Protocollo'].to_s
           odl_year = odlr['Anno'].to_s
         else
-          odl = VehicleCheckSession.create_worksheet(user,vehicle,'OFFICINA INTERNA','55',"Bloccante: #{self.vehicle_check.label}"[0..99])
+          odl = VehicleCheckSession.create_worksheet(user,vehicle,'OFFICINA INTERNA','55',"Bloccante: #{self.vehicle_check.label}"[0..99])["Protocollo"]
           odl_year = Date.today.strftime('%Y')
         end
       when 4 then   #damaged
