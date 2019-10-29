@@ -1114,6 +1114,30 @@ function form_submit_scroll_func(){
   $('<input type="hidden" name="scroll" value="'+$($(this).data('relatedscrollelement')).scrollTop()+'">').appendTo($(this).parents('form').first());
 }
 
+var reloadableTimer = setInterval(
+  function(){
+    "use strict"
+    $.each($('.reloadable'),function(){
+      var element = $(this);
+      var route = element.data('route');
+      var method = element.data('method') == undefined ? 'get' : $(this).data('method');
+      var scroll = element.scrollTop;
+      $.ajax({
+        url: route,
+        method: method,
+        complete: function(response){
+          element.html(response.responseText);
+          element.scrollTop(scroll);
+          deactivateLoadingScreen();
+        }
+      });
+    })
+
+  },5000
+
+)
+
+
 function activateJS() {
     "use strict";
 
@@ -1214,7 +1238,7 @@ function activateJS() {
     $('body').on('change', '.checkvalue', checkvalue_change_func);
 
     $('body').on('click','input[type=submit]', form_submit_scroll_func);
-    
+
 }
 
 var mdc_reports_timeout;

@@ -13,6 +13,11 @@ class CarwashController < ApplicationController
     render 'carwash/checks_index'
   end
 
+  def reload_checks_index
+    @check_sessions = VehicleCheckSession.where(station: 'carwash').opened.order(created_at: :asc)+VehicleCheckSession.where(station: 'carwash').closed.order(finished: :desc).last_week
+    render partial: 'carwash/reload_checks_index'
+  end
+
   def vehicle_checks_autocomplete
     unless params[:search].nil? or params[:search] == ''
       # array = Language.filter(params.require(:search))
@@ -98,6 +103,43 @@ class CarwashController < ApplicationController
     end
   end
 
+  def reload_checks
+    begin
+      @tab = params['tab']
+      pc = VehiclePerformedCheck.find(params.require(:field)[/check\[(\d*)\]\[.*\]$/,1].to_i)
+      v = pc.vehicle
+
+      @line = "##{pc.id}"
+      @check_session = pc.vehicle_check_session
+      @check_session.update(real_duration: params.require(:additional), real_km: v.mileage)
+      @checks = @check_session.vehicle_ordered_performed_checks
+      if params['station'] == 'carwash'
+        @station = 'carwash'
+      else
+        @station = 'workshop'
+      end
+      # pc.create_notification(current_user)
+      respond_to do |format|
+        # case @station
+        # when 'workshop' then
+          @worksheet = @check_session.worksheet
+          @worksheet.update(real_duration: params.require(:additional))
+          @protocol = 'checks'
+          # @station = 'workshop'
+          format.js { render partial: 'workshop/worksheet_js' }
+        # when 'carwash' then
+        #   # format.js { render partial: 'carwash/checks_js' }
+        #   format.js { render partial: 'workshop/worksheet_js' }
+        # end
+      end
+    rescue Exception => e
+      @error = e.message
+      respond_to do |format|
+        format.js { render :partial => 'layouts/error' }
+      end
+    end
+  end
+
   def update_vehicle_check
     begin
       @tab = params['tab']
@@ -119,6 +161,9 @@ class CarwashController < ApplicationController
         @station = 'carwash'
       else
         @station = 'workshop'
+      end
+      WorkshopOperation.where(worksheet: @check_session.worksheet).each do |wo|
+        wo.check_start
       end
       # pc.create_notification(current_user)
       respond_to do |format|

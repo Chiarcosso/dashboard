@@ -125,6 +125,7 @@ Rails.application.routes.draw do
   get  '/codes/mdc', to: 'codes#mdc_index'
 
   get  '/carwash/checks/', to: 'carwash#checks_index', as: :carwash_checks
+  get  '/carwash/checks/reload', to: 'carwash#reload_checks_index', as: :reload_carwash_checks
   post '/carwash/start_session/', to: 'carwash#start_check_session', as: :start_check_session
   post '/carwash/continue_session/:id', to: 'carwash#continue_check_session', as: :continue_check_session
   post '/carwash/save_session/:id', to: 'carwash#save_check_session', as: :save_check_session

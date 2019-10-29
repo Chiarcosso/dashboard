@@ -617,10 +617,13 @@ class WorkshopController < ApplicationController
 
   def update_operation_time
     @worksheet.operations.each do |wo|
-      wo.update(real_duration: wo.real_duration.to_i + Time.now.to_i - wo.last_starting_time.to_i , last_starting_time: Time.now) unless wo.paused
+      unless wo.paused
+        wo.update(starting_time: wo.last_starting_time) if wo.starting_time.nil?
+        wo.update(real_duration: wo.real_duration.to_i + Time.now.to_i - wo.last_starting_time.to_i , last_starting_time: Time.now)
+      end
     end
-
     # @worksheet.update(last_starting_time: Time.now, last_stopping_time: nil, real_duration: @worksheet.real_duration.to_i + Time.now.to_i - @worksheet.last_starting_time.to_i, paused: false) unless @worksheet.paused
+    
     respond_to do |format|
       format.js { render partial: 'workshop/worksheet_js' }
     end

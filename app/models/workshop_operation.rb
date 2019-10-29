@@ -3,11 +3,12 @@ class WorkshopOperation < ApplicationRecord
   belongs_to :worksheet
   belongs_to :user
   has_one :vehicle, through: :worksheet
-  has_many :timesheet_records
+  has_many :timesheet_records, dependent: :destroy
 
   scope :to_notification, ->(protocol) { where(myofficina_reference: protocol.to_i) }
 
   def real_duration_label
+
     "#{(self.real_duration.to_i/3600).floor.to_s.rjust(2,'0')}:#{((self.real_duration.to_i/60)%60).floor.to_s.rjust(2,'0')}:#{(self.real_duration.to_i%60).floor.to_s.rjust(2,'0')}"
   end
 
@@ -66,6 +67,10 @@ class WorkshopOperation < ApplicationRecord
 
     end
 
+    WorkshopOperation.where(worksheet: @workshop_operation.worksheet).each do |wo|
+      wo.check_start
+    end
+
     worksheet.update(last_starting_time: opts[:ts], last_stopping_time: nil, real_duration: worksheet.real_duration + opts[:ts].to_i - worksheet.last_starting_time.to_i, paused: false) unless worksheet.paused
     worksheet.update(log: "#{worksheet.log}\n #{new_log}")
     TimesheetRecord.close_all(opts[:user].person,Time.now)
@@ -97,6 +102,10 @@ class WorkshopOperation < ApplicationRecord
       last_stopping_time: opts[:ts],
       log: "#{self.log}\n #{new_log}"
     )
+
+    WorkshopOperation.where(worksheet: self.worksheet).each do |wo|
+      wo.check_start
+    end
 
     # tr = TimesheetRecord.where(person: opts[:user].person, workshop_operation: self, stop: nil).order(:created_at => :asc).last
     # if tr.nil?
@@ -142,6 +151,11 @@ class WorkshopOperation < ApplicationRecord
     #
     #   tr.update(stop: opts[:ts], minutes: ((opts[:ts].to_i - tr.start.to_i) / 60).ceil) unless tr.nil?
     # end
+
+    WorkshopOperation.where(worksheet: self.worksheet).each do |wo|
+      wo.check_start
+    end
+
     self.timesheet_records.where(stop: nil).each do |tr|
       tr.close(Time.now)
     end
@@ -177,6 +191,17 @@ class WorkshopOperation < ApplicationRecord
       })
     end
 
+  end
+
+  def check_start
+    if !self.last_starting_time.nil? && !self.paused
+      if self.starting_time.nil?
+        self.update(starting_time: self.last_starting_time)
+      end
+      if self.real_duration == 0
+        self.update(real_duration: DateTime.now.to_i - self.last_starting_time.to_i)
+      end
+    end
   end
 
   def reset_worksheet

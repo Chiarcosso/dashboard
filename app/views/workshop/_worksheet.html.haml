@@ -128,7 +128,7 @@
                       -# - else
                       -#   - active = ''
                       %div{style: 'margin-left: 1em; width: 99%;', id: 'tab-'+k.tr(' ','_'), class: 'tab-pane '+active}
-                        .scrollable-panel#scroll-element
+                        .scrollable-panel{id: 'scroll-'+k.tr(' ','_') }
                           = render partial: 'carwash/check_view', locals: {list: v}
 
     - if Time.now - vehicle.last_gps.to_i > 7.days
@@ -348,6 +348,13 @@
   var station = $('input[name=station]').val();
   var tm = parseInt($('#timer').data('time'));
   var ck = parseInt($('#clock').data('clock'));
+  var timerTimes;
+  // clearInterval(timerTimes);
+  // timerTimes = setInterval(function(){
+  //   $.ajax({
+  //     url: '/worksheet/reload_times/'
+  //   });
+  // },5000);
   clearInterval(timer);
   timer = setInterval(function(){
     $.each(active_timers,function(k,v){
@@ -360,13 +367,42 @@
       if(protocol != null){
         protocol = protocol[1]
       }
-      if ($('.popup').length < 1 && protocol != 'checks'){
+      if ($('.popup').length < 1 && !($(':focus').is('input') || $(':focus').is('select'))){
+        // var tabs = {};
+        // var scroll = 0;
+        var activeTab = $('.tab-pane.active').first();
+        var scroll = $('.tab-pane.active .scrollable-panel').first().scrollTop();
+        // $.each($('.scrollable-panel'),function(){
+        //   tabs[this.id] = $(this).scrollTop();
+        //   if($(this).hasClass('active')){
+        //     activeTab = this.id;
+        //   }
+        // });
+
         $.ajax({
           url: '/worksheet/'+$('input[name=odl]').val()+'/update_operation_time',
           method: 'post',
-          data: {protocol: protocol, station: station}
+          data: {protocol: protocol, station: station, scroll: scroll, activeTab: activeTab.attr('id')}
         });
       }
+      // if ($('.popup').length < 1 && protocol == 'checks'){
+      //   var tabs;
+      //   var activeTab;
+      //   $.each($('.tab-pane'),function(){
+      //     tabs[$(this)] = $(this).scrollTop();
+      //     if($(this).hasClass('active')){
+      //       activeTab = $(this).id;
+      //     }
+      //   });
+      //   console.log(tabs);
+      //   console.log(activeTab);
+      //   $.ajax({
+      //     url: '/worksheet/'+$('input[name=odl]').val()+'/update_operation_time',
+      //     method: 'post',
+      //     data: {protocol: protocol, station: station, tabs: tabs, activeTab: activeTab},
+      //
+      //   });
+      // }
     }
     tm++;
     ck++;
