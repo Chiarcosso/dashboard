@@ -1,9 +1,9 @@
 $('.popup').remove();
 $('#center').html("#{escape_javascript(render :partial => 'workshop/worksheet'  )} ");
 //$('.tab-pane.active').removeClass('active');
-$('[href="##{params['activeTab']}"]').trigger('click');
-console.log('"#{params['scroll']}"');
-console.log($('[href="##{params['activeTab']}"]'));
+$('[href="##{params['activeTab'] || 'nothing'}"]').trigger('click');
+//console.log('"#{params['scroll']}"');
+//console.log($('[href="##{params['activeTab']}"]'));
 //console.log('el',$('.tab-pane"##{params['activeTab']}"'));
-console.log('.tab-pane##{params['activeTab']}');
+//console.log('.tab-pane##{params['activeTab']}');
 $('.tab-pane##{params['activeTab']} .scrollable-panel').first().scrollTop("#{params['scroll']}");
