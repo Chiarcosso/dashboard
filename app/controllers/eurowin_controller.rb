@@ -679,7 +679,7 @@ class EurowinController < ApplicationController
 
   def self.edit_ew_worksheet(args)
     ew_query_logger.info("#{@token} (new edit worksheet request) => #{args.inspect}")
-    
+
     args.each do |k,v|
       args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
@@ -898,7 +898,7 @@ class EurowinController < ApplicationController
     opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
 
-    vehicle_refs['CodiceAutista'] = ewc.query("select codice from autisti where ragionesociale = '#{opcode.gsub("'","''")}'").first
+    vehicle_refs['CodiceAutista'] = ewc.query("select codice from autisti where ragionesociale = '#{opcode.to_s.gsub("'","''")}'").first
     ewc.close
     vehicle_refs['CodiceAutista'] = vehicle_refs['CodiceAutista']['codice'] unless vehicle_refs['CodiceAutista'].nil?
 
