@@ -978,14 +978,14 @@ class EurowinController < ApplicationController
     queries.map! { |q| q.gsub(';','')}
     # queries.map! { |q| q.gsub("'","''")}
 
-    c = Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB'], flags: Mysql2::Client::MULTI_STATEMENTS
+    c = Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: ENV['RAILS_EUROS_DB'], flags: Mysql2::Client::MULTI_STATEMENTS, collation_connection: 'latin1_swedish_ci'
     res = c.query(queries.join(';'))
     c.close
     return res
   end
 
   def self.get_ew_client(db = ENV['RAILS_EUROS_DB'])
-    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db
+    Mysql2::Client.new username: ENV['RAILS_EUROS_USER'], password: ENV['RAILS_EUROS_PASS'], host: ENV['RAILS_EUROS_HOST'], port: ENV['RAILS_EUROS_PORT'], database: db, collation_connection: 'latin1_swedish_ci'
   end
 
   def self.special_logger
