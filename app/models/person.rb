@@ -11,7 +11,7 @@ class Person < ApplicationRecord
   has_many :presence_timestamps, through: :badges
   has_many :working_schedules, :dependent => :destroy
   has_many :presence_records
-
+  has_many :granted_leaves, class_name: 'GrantedLeave'
   has_many :item_relations, :dependent => :destroy
   has_many :items, through: :item_relations
 

@@ -37,13 +37,13 @@ class EurowinController < ApplicationController
     wherev = Array.new
     wherex = Array.new
     unless search[:odl].nil? || search[:odl].empty?
-      plates = search[:odl].map{ |o| "'#{o[:plate].to_s.gsub("'","''")}'"}
+      plates = search[:odl].map{ |o| "'#{o[:plate].to_s.gsub("'","''").gsub(';','')}'"}
       wherev << "vehicle_information_type_id = #{plate_id} and information in (#{plates.join(',')})"
       wherex << "plate in (#{plates.join(',')})"
     end
     unless search[:plate].to_s == ''
-      wherev << "information like '%#{search[:plate].to_s.gsub("'","''")}%'"
-      wherex << "plate like '%#{search[:plate].to_s.gsub("'","''")}%'"
+      wherev << "information like '%#{search[:plate].to_s.gsub("'","''").gsub(';','')}%'"
+      wherex << "plate like '%#{search[:plate].to_s.gsub("'","''").gsub(';','')}%'"
     end
 
     if wherev.empty?
@@ -307,7 +307,7 @@ class EurowinController < ApplicationController
     args.each do |k,v|
       # args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k].gsub("'","''").gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].gsub("'","''").gsub(';','.').gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
     args.each do |field,value|
       fields << field
@@ -373,7 +373,7 @@ class EurowinController < ApplicationController
     args.each do |k,v|
       args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k].gsub("'","''").gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].gsub("'","''").gsub(';','.').gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
 
     if args[:schedainterventoprotocollo].nil? || args[:schedainterventoprotocollo] == 0 || args[:schedainterventoprotocollo] == "0"
@@ -412,6 +412,7 @@ class EurowinController < ApplicationController
     #
     # c.close
     ew_query_logger.info("#{@token} (new edit notification result) => #{sgn.nil? ? 'null' : sgn.first.inspect}")
+
     return sgn.first
   end
 
@@ -604,7 +605,7 @@ class EurowinController < ApplicationController
     args.each do |k,v|
       # args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k].gsub("'","''").gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].gsub("'","''").gsub(';','.').gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
     args.each do |field,value|
       fields << field
@@ -683,7 +684,7 @@ class EurowinController < ApplicationController
     args.each do |k,v|
       args[k] = 'null' if v.nil?
       args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
-      args[k] = "'#{args[k].gsub("'","''").gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
+      args[k] = "'#{args[k].gsub("'","''").gsub(';','.').gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
 
     updates = Array.new
@@ -876,7 +877,7 @@ class EurowinController < ApplicationController
 
   def self.get_workshop_by_code(code)
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
-    workshop = ewc.query("select RagioneSociale from anagrafe where codice = '#{code.gsub("'","''")}'")
+    workshop = ewc.query("select RagioneSociale from anagrafe where codice = '#{code.gsub("'","''").gsub(';','.')}'")
     ewc.close
     return workshop.first['RagioneSociale'].rstrip.lstrip unless workshop.count < 1
   end
@@ -898,7 +899,7 @@ class EurowinController < ApplicationController
     opcode = VehiclePerformedCheck.get_ms_client.execute("select nominativo from autisti where idautista = "+vehicle.last_driver.mssql_references.last.remote_object_id.to_s).first['nominativo'] unless vehicle.last_driver.nil?
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
 
-    vehicle_refs['CodiceAutista'] = ewc.query("select codice from autisti where ragionesociale = '#{opcode.to_s.gsub("'","''")}'").first
+    vehicle_refs['CodiceAutista'] = ewc.query("select codice from autisti where ragionesociale = '#{opcode.to_s.gsub(';','.').gsub("'","''")}'").first
     ewc.close
     vehicle_refs['CodiceAutista'] = vehicle_refs['CodiceAutista']['codice'] unless vehicle_refs['CodiceAutista'].nil?
 
@@ -953,9 +954,9 @@ class EurowinController < ApplicationController
   def self.get_tipo_danno(tipodanno, whole = false)
 
     if tipodanno.to_i > 0
-      query = "select * from tabdesc where codice = #{tipodanno.gsub("'","''")} and gruppo = 'AUTOTIPD'"
+      query = "select * from tabdesc where codice = #{tipodanno.gsub(';','.').gsub("'","''")} and gruppo = 'AUTOTIPD'"
     else
-      query = "select * from tabdesc where gruppo = 'AUTOTIPD' and Descrizione = '#{tipodanno.gsub("'","''")}'"
+      query = "select * from tabdesc where gruppo = 'AUTOTIPD' and Descrizione = '#{tipodanno.gsub("'","''").gsub(';','.')}'"
     end
     ewc = get_ew_client(ENV['RAILS_EUROS_DB'])
     dt = ewc.query(query)

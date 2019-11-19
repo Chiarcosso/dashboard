@@ -204,7 +204,7 @@ class VehiclePerformedCheck < ApplicationRecord
       payload['FlagRiparato'] = self.performed == 2 ? "true" : "false"
       payload['FlagSvolto'] = self.performed == 2 ? "true" : "false"
       payload['FlagJSONType'] = "sgn"
-
+      
       res = EurowinController::create_notification(payload)
 
       VehiclePerformedCheck.special_logger.info(res)
