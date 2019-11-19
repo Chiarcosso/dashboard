@@ -249,12 +249,23 @@ class Worksheet < ApplicationRecord
     self.items_price+self.hours_price+self.materials_price
   end
 
+  def year
+    self.opening_date.strftime('%Y').to_i
+  end
+
   def toggle_closure
     if self.closingDate.nil?
       self.update(closingDate: Date.current, exit_time: DateTime.now)
     else
       self.update(closingDate: nil, exit_time: nil)
     end
+
+    EurowinController::create_worksheet({
+      'ProtocolloODL': self.number.to_s,
+      'AnnoODL': self.year.to_s,
+      'DataUscitaVeicolo': self.exit_time
+    })
+
     OutputOrder.where("destination_type = 'Worksheet' and destination_id = ?",self.id).each do |oo|
       oo.update(:processed => !self.opened?)
     end

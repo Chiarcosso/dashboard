@@ -306,7 +306,7 @@ class EurowinController < ApplicationController
     values = []
     args.each do |k,v|
       # args[k] = 'null' if v.nil?
-      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
+      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime) || v.is_a?(ActiveSupport::TimeWithZone)
       args[k] = "'#{args[k].gsub("'","''").gsub(';','.').gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
     args.each do |field,value|
@@ -314,7 +314,7 @@ class EurowinController < ApplicationController
       # if value.is_a? String
       #   value = "'#{value}'"
       # end
-      # value = value.strftime('%Y-%m-%d') if value.is_a?(Date) || value.is_a?(DateTime)
+      # value = value.strftime('%Y-%m-%d') if value.is_a?(Date) || value.is_a?(DateTime) || v.is_a?(ActiveSupport::TimeWithZone)
       # value = value.is_a?(String) && !value.nil? ? "'#{value.gsub("'","")}'" : value
       values << value
     end
@@ -372,7 +372,7 @@ class EurowinController < ApplicationController
 
     args.each do |k,v|
       args[k] = 'null' if v.nil?
-      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
+      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime) || v.is_a?(ActiveSupport::TimeWithZone)
       args[k] = "'#{args[k].gsub("'","''").gsub(';','.').gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
 
@@ -470,7 +470,7 @@ class EurowinController < ApplicationController
         vehicle = Vehicle.find_by_reference(am[0],am[1])
 
         lm = last_maintainance(vehicle)
-        byebug
+
         lc = vehicle.last_check
         payload['DataUltimaManutenzione'] = lm['DataUscitaVeicolo'].strftime("%Y-%m-%d") unless lm.nil?
         payload['DataUltimoControllo'] = lc.time.strftime("%Y-%m-%d") unless lc.nil?
@@ -605,7 +605,7 @@ class EurowinController < ApplicationController
     values = []
     args.each do |k,v|
       # args[k] = 'null' if v.nil?
-      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
+      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime) || v.is_a?(ActiveSupport::TimeWithZone)
       args[k] = "'#{args[k].gsub("'","''").gsub(';','.').gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
     args.each do |field,value|
@@ -613,7 +613,7 @@ class EurowinController < ApplicationController
       # if value.is_a? String
       #   value = "'#{value}'"
       # end
-      # value = value.strftime('%Y-%m-%d') if value.is_a?(Date) || value.is_a?(DateTime)
+      # value = value.strftime('%Y-%m-%d') if value.is_a?(Date) || value.is_a?(DateTime) || v.is_a?(ActiveSupport::TimeWithZone)
       # value = value.is_a?(String) && !value.nil? ? "'#{value.gsub("'","")}'" : value
       values << value
     end
@@ -684,7 +684,7 @@ class EurowinController < ApplicationController
 
     args.each do |k,v|
       args[k] = 'null' if v.nil?
-      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime)
+      args[k] = v.strftime('%Y-%m-%d') if v.is_a?(Date) || v.is_a?(DateTime) || v.is_a?(ActiveSupport::TimeWithZone)
       args[k] = "'#{args[k].gsub("'","''").gsub(';','.').gsub("\\","\\\\")[0..195]}'" if args[k].is_a?(String) && args[k] != 'null'
     end
 
@@ -763,7 +763,7 @@ class EurowinController < ApplicationController
     #
     payload.each { |k,v| payload.delete(k) if v == '0' || v == '-1' }
 
-    if payload['ProtocolloSGN'].nil?
+    if payload['ProtocolloODL'].nil?
 
       payload['DataIntervento'] = Date.current.strftime('%Y-%m-%d') if payload['DataIntervento'].nil?
 
