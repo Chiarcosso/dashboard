@@ -148,8 +148,8 @@ class WorksheetsController < ApplicationController
     begin
       ws = Worksheet.find(params.require(:worksheet).permit(:id)[:id].to_i)
 
-      ws.toggle_closure
       apply_filter
+      ws.toggle_closure
       # if @open_worksheets_filter
       #   @orders = OutputOrder.open_worksheets_filter #.paginate(:page => params[:page], :per_page => 30)
       # else
@@ -233,7 +233,7 @@ class WorksheetsController < ApplicationController
   end
 
   def search_params
-    
+
     if params[:search].nil?
       @search = {:opened => true, :closed => false, :plate => nil, :number => nil, :date_since => (Date.today - 2.months), :date_to => Date.today, :mechanic => nil, :workshop => nil, :date_select => 'DataIntervento'}
     else
@@ -267,7 +267,6 @@ class WorksheetsController < ApplicationController
   def apply_filter
 
     filter = []
-
     if @search[:opened] and @search[:closed]
       # filter << ''
     elsif @search[:opened] and !@search[:closed]

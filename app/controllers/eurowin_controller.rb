@@ -470,6 +470,7 @@ class EurowinController < ApplicationController
         vehicle = Vehicle.find_by_reference(am[0],am[1])
 
         lm = last_maintainance(vehicle)
+        byebug
         lc = vehicle.last_check
         payload['DataUltimaManutenzione'] = lm['DataUscitaVeicolo'].strftime("%Y-%m-%d") unless lm.nil?
         payload['DataUltimoControllo'] = lc.time.strftime("%Y-%m-%d") unless lc.nil?

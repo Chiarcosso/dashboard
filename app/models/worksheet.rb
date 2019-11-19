@@ -114,7 +114,7 @@ class Worksheet < ApplicationRecord
 
     wks.sort_by{|ws| ws[:plate]}
   end
-  
+
   #filter operator from incoming worksheets from eurowin
   def self.incoming_operator(search)
     # ewc = EurowinController::get_ew_client
@@ -251,9 +251,9 @@ class Worksheet < ApplicationRecord
 
   def toggle_closure
     if self.closingDate.nil?
-      self.update(closingDate: Date.current)
+      self.update(closingDate: Date.current, exit_time: DateTime.now)
     else
-      self.update(closingDate: nil)
+      self.update(closingDate: nil, exit_time: nil)
     end
     OutputOrder.where("destination_type = 'Worksheet' and destination_id = ?",self.id).each do |oo|
       oo.update(:processed => !self.opened?)
