@@ -51,7 +51,7 @@ class MssqlReference < ApplicationRecord
       @errors = Array.new
       response = ''
       query = "select distinct '[Cassoni scarrabili]' as table_name, [n° cassone] as id, convert(nvarchar,[n° cassone]) as plate, [n° cassone] as chassis, "\
-                  "'Cassone scarrabile' as type, 'A' as property, 'Produttore cassoni' as manufacturer, "\
+                  "'Cassone scarrabile' as type, 'A' as property, 'N/D' as manufacturer, "\
                   "'Cassone' as model, 'Cassone' as registration_model, 0 as carwash_code, "\
                   "circola as notdismissed, 'Scarrabile' as typology, 0 as mileage, '' as category, "\
                   "[data verifica] as registration_date "\

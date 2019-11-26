@@ -384,7 +384,7 @@ class Vehicle < ApplicationRecord
   end
 
   def check_properties(comp)
-
+    
     if self.model.nil?
       model = ''
       manufacturer = ''
@@ -409,7 +409,7 @@ class Vehicle < ApplicationRecord
       return false
     elsif comp['model'].upcase != model.upcase
       return false
-    elsif !comp['registration_date'].nil? && (DateTime.parse(comp['registration_date']) != self.registration_date)
+    elsif !comp['registration_date'].nil? && self.registration_date.nil?#(DateTime.parse(comp['registration_date']) != self.registration_date)
       return false
     elsif comp['carwash_code'] != self.carwash_code
       return false
