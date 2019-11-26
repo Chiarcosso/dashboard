@@ -1,10 +1,10 @@
 -# %div{style: 'width: 90vh; padding: 0px'}
-.small-title{style: @vehicle.dismissed ? 'color: #f00' : ''}="#{@vehicle.model.nil? ? 'N/D' : @vehicle.model.complete_name } (#{@vehicle.registration_model}) - #{@vehicle.plate} - #{@vehicle.actual_property.nil?? 'N/D' : @vehicle.actual_property.owner.complete_name}"
+.small-title{style: @vehicle.dismissed ? 'color: #f00' : ''}="#{@vehicle.model.nil? ? 'N/D' : @vehicle.model.is_a?(VehicleModel) ? @vehicle.model.complete_name : @vehicle.model } (#{@vehicle.registration_model}) - #{@vehicle.plate} - #{@vehicle.is_a?(Vehicle) ? @vehicle.actual_property.nil?? 'N/D' : @vehicle.actual_property.owner.complete_name : ''}"
 - if @vehicle.dismissed
   %b{style: 'color: #f00'}="Mezzo non circolante"
   %br
 - registration = @vehicle.registration_date.nil? ? 'N/D' : @vehicle.registration_date.strftime("%Y")
-%b= "#{@vehicle.vehicle_type.name}#{@vehicle.vehicle_category == VehicleCategory.not_available ? '' : " ("+@vehicle.vehicle_category.name+")"} (cat. #{@vehicle.vehicle_category.name}), #{@vehicle.vehicle_typology.name}, Km: #{@vehicle.mileage}, anno: #{registration}"
+%b= "#{@vehicle.vehicle_type.is_a?(VehicleType) ? @vehicle.vehicle_type.name : @vehicle.vehicle_type.to_s}#{(@vehicle.vehicle_category.nil? || @vehicle.vehicle_category == VehicleCategory.not_available) ? '' : " ("+@vehicle.vehicle_category.name+")"} (cat. #{@vehicle_category.nil? ? 'N/D' : @vehicle.vehicle_category.name}), #{@vehicle.vehicle_typology.name}, Km: #{@vehicle.mileage}, anno: #{registration}"
 %br
 %b= "Ultimo autista: "
 = @vehicle.last_driver.nil? ? 'N/A' : @vehicle.last_driver.list_name

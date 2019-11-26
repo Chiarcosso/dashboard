@@ -243,6 +243,12 @@ module AdminHelper
             v.update(current_plate: r['plate'].tr('. *-','').upcase)
             VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].tr('. *-','').upcase, date: Date.today) if update
           end
+          if v.is_a?(Vehicle) && !r['chassis'].nil? && VehicleInformation.find_by(vehicle: v, information: r['chassis'].tr('. *-','').upcase).nil?
+            mssql_reference_logger.info(" - #{v.id} -> #{r['chassis']} (#{r['id']}) - Chassis changed #{v.plate} (id: #{v.id}).")
+            data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['chassis']} (#{r['id']}) - Nuovo telaio #{v.plate} (id: #{v.id}).\n"
+
+            VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: Date.today) if update
+          end
         else
 
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
@@ -290,6 +296,12 @@ module AdminHelper
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Ritargato #{v.plate} (id: #{v.id}).\n"
             v.update(current_plate: r['plate'].tr('. *-','').upcase)
             VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].tr('. *-','').upcase, date: Date.today) if update
+          end
+          if v.is_a?(Vehicle) && !r['chassis'].nil? && VehicleInformation.find_by(vehicle: v, information: r['chassis'].tr('. *-','').upcase).nil?
+            mssql_reference_logger.info(" - #{v.id} -> #{r['chassis']} (#{r['id']}) - Chassis changed #{v.plate} (id: #{v.id}).")
+            data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['chassis']} (#{r['id']}) - Nuovo telaio #{v.plate} (id: #{v.id}).\n"
+
+            VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: Date.today) if update
           end
           unless v.has_reference?( r['table_name'],r['id'])
             mssqlref = MssqlReference.create(local_object: v, remote_object_table: r['table_name'], remote_object_id: r['id'].to_i) if update

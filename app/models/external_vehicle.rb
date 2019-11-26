@@ -20,6 +20,22 @@ class ExternalVehicle < ApplicationRecord
     self.owner
   end
 
+  def actual_property
+    VehicleProperty.new(vehicle: Vehicle.new, owner: self.owner, date_since: self.created_at)
+  end
+
+  def last_gps_label
+    "No GPS"
+  end
+
+  def vehicle_equipments
+    Array.new
+  end
+
+  def last_vehicle_informations
+    Array.new
+  end
+
   def registration_model
     'N/A'
   end
