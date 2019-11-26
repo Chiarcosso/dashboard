@@ -241,9 +241,9 @@ module AdminHelper
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Plate changed #{v.plate} (id: #{v.id}).")
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Ritargato #{v.plate} (id: #{v.id}).\n"
             v.update(current_plate: r['plate'].tr('. *-','').upcase)
-            VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].tr('. *-','').upcase, date: Date.today) if update
+            VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].to_s.tr('. *-','').upcase, date: Date.today) if update
           end
-          if v.is_a?(Vehicle) && !r['chassis'].nil? && VehicleInformation.find_by(vehicle: v, information: r['chassis'].tr('. *-','').upcase).nil?
+          if v.is_a?(Vehicle) && !r['chassis'].nil? && VehicleInformation.find_by(vehicle: v, information: r['chassis'].to_s.tr('. *-','').upcase).nil?
             mssql_reference_logger.info(" - #{v.id} -> #{r['chassis']} (#{r['id']}) - Chassis changed #{v.plate} (id: #{v.id}).")
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['chassis']} (#{r['id']}) - Nuovo telaio #{v.plate} (id: #{v.id}).\n"
 
@@ -259,7 +259,7 @@ module AdminHelper
           if v.is_a?(Vehicle)
             v.update(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage].to_i > v.mileage.to_i ? data[:mileage].to_i : v.mileage.to_i, registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code], current_plate: r['plate'].tr('. *-','').upcase) if update
             if v.find_information(data[:chassis_info]).nil?
-              VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: data[:registration_date]) if update
+              VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].to_s.tr('. *-','').upcase, date: data[:registration_date]) if update
               mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
               data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
             end
@@ -295,9 +295,9 @@ module AdminHelper
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Plate changed #{v.plate} (id: #{v.id}).")
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Ritargato #{v.plate} (id: #{v.id}).\n"
             v.update(current_plate: r['plate'].tr('. *-','').upcase)
-            VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].tr('. *-','').upcase, date: Date.today) if update
+            VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].to_s.tr('. *-','').upcase, date: Date.today) if update
           end
-          if v.is_a?(Vehicle) && !r['chassis'].nil? && VehicleInformation.find_by(vehicle: v, information: r['chassis'].tr('. *-','').upcase).nil?
+          if v.is_a?(Vehicle) && !r['chassis'].nil? && VehicleInformation.find_by(vehicle: v, information: r['chassis'].to_s.tr('. *-','').upcase).nil?
             mssql_reference_logger.info(" - #{v.id} -> #{r['chassis']} (#{r['id']}) - Chassis changed #{v.plate} (id: #{v.id}).")
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['chassis']} (#{r['id']}) - Nuovo telaio #{v.plate} (id: #{v.id}).\n"
 
