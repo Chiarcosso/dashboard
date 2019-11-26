@@ -37,6 +37,8 @@
   %li
     =link_to 'Veicoli esterni', '#tab-veicoli-esterni', data: { toggle: 'tab'}, class: 'no-loader'
   %li
+    =link_to 'Cassoni', '#tab-cassoni', data: { toggle: 'tab'}, class: 'no-loader'
+  %li
     =link_to 'Personale', '#tab-autisti', data: { toggle: 'tab'}, class: 'no-loader'
 
 .tab-content
@@ -98,6 +100,21 @@
           #block-veicoli-esterni{style: 'height: 82%'}
             -# = render :partial => 'admin/import_block', locals: { results: @veicoli}
             %pre.scrollable-panel#block-veicoli-esterni-pre{ style: 'white-space: pre-line; word-wrap: unset'}
+              =@res
+
+  .tab-pane.active#tab-cassoni
+    .container-fluid
+      .row
+        .col-sm-8
+          %b="Cassoni"# - #{@veicoli.size} trovati, "+@veicoli.reject{|v| v[:route].nil?}.size.to_s+" non corretti."
+        .col-sm-4
+          =button_tag 'Simula', class: 'ajax-link no-loader', data: { target: upsync_containers_path('simulate'), method: 'post', data: {}, target_element: '#block-cassoni-pre', check_complete: true}
+          =button_tag 'Aggiorna', class: 'ajax-link no-loader', data: { target: upsync_containers_path('update'), method: 'post', data: {}, target_element: '#block-cassoni-pre', check_complete: true, confirmation: 'Sei sicuro di aggiornare i dati su Dashboard?'}
+      .row
+        .col-sm-12
+          #block-cassoni{style: 'height: 82%'}
+            -# = render :partial => 'admin/import_block', locals: { results: @veicoli}
+            %pre.scrollable-panel#block-cassoni-pre{ style: 'white-space: pre-line; word-wrap: unset'}
               =@res
 
   .tab-pane#tab-autisti

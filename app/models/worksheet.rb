@@ -289,7 +289,6 @@ class Worksheet < ApplicationRecord
         "inner join automezzi on autoodl.CodiceAutomezzo = automezzi.Codice "\
         "where Protocollo = #{protocol} limit 1")
       ewc.close
-
     # end
     # If found sync Dashboard's, or else just look for it
     if res.count > 0
@@ -297,8 +296,7 @@ class Worksheet < ApplicationRecord
     else
       ws = Worksheet.find_by(code: "EWC*#{protocol}")
     end
-
-    raise 'ODL non trovato' if ws.nil?
+    raise "ODL non trovato: #{res.count > 0 ? res.first.inspect : protocol}" if ws.nil?
     ws
   end
 

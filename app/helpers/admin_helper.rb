@@ -88,7 +88,13 @@ module AdminHelper
     end
     res[:mileage] = r['mileage'].to_i
     begin
-      res[:registration_date] = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
+      if r['registration_date'].is_a?(Date) || r['registration_date'].is_a?(Time)  || r['registration_date'].is_a?(DateTime) || r['registration_date'].is_a?(ActiveSupport::TimeWithZone)
+        res[:registration_date] = r['registration_date']
+      elsif r['registration_date'].is_a?(String)
+        res[:registration_date] = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
+      else
+        res[:registration_date] = nil
+      end
     rescue
       @error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
       res[:response] += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}</span>\n"
@@ -134,24 +140,52 @@ module AdminHelper
       if !v.nil? && r['typology'] == r['no_vehicle_typology'] && !v.typology.nil?
         r['typology'] = v.typology
       end
-
       if @error.nil?
         if v.nil?
           if update
 
-            v = Vehicle.create(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code], creation_plate: r['plate'].tr('. *-','').upcase, current_plate: r['plate'].tr('. *-','').upcase)
+            v = Vehicle.create(vehicle_type: data[:vehicle_type],
+              property: data[:property], model: data[:model],
+              registration_model: data[:registration_model],
+              dismissed: data[:dismissed],
+              vehicle_typology: data[:vehicle_typology],
+              mileage: data[:mileage],
+              registration_date: (data[:registration_date] || Date.today),
+              vehicle_category: data[:vehicle_category],
+              carwash_code: data[:carwash_code],
+              creation_plate: r['plate'].tr('. *-','').upcase,
+              current_plate: r['plate'].tr('. *-','').upcase)
           else
-            v = Vehicle.new(vehicle_type: data[:vehicle_type], property: data[:property], model: data[:model], registration_model: data[:registration_model], dismissed: data[:dismissed], vehicle_typology: data[:vehicle_typology], mileage: data[:mileage], registration_date: data[:registration_date], vehicle_category: data[:vehicle_category], carwash_code: data[:carwash_code], creation_plate: r['plate'].tr('. *-','').upcase, current_plate: r['plate'].tr('. *-','').upcase)
+            v = Vehicle.new(vehicle_type: data[:vehicle_type],
+              property: data[:property],
+              model: data[:model],
+              registration_model: data[:registration_model],
+              dismissed: data[:dismissed],
+              vehicle_typology: data[:vehicle_typology],
+              mileage: data[:mileage],
+              registration_date: (data[:registration_date] || Date.today),
+              vehicle_category: data[:vehicle_category],
+              carwash_code: data[:carwash_code],
+              creation_plate: r['plate'].tr('. *-','').upcase,
+              current_plate: r['plate'].tr('. *-','').upcase)
             v.id = 0
           end
 
-          VehicleInformation.create(vehicle: v, vehicle_information_type: data[:plate_info], information: r['plate'].tr('. *-','').upcase, date: data[:registration_date]) if update
+          VehicleInformation.create(vehicle: v,
+            vehicle_information_type: data[:plate_info],
+            information: r['plate'].to_s.tr('. *-','').upcase,
+            date: (v.registration_date || Date.today)
+            ) if update
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Created (id: #{v.id}).")
           data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Creato (id: #{v.id}).\n"
-          mssql_reference_logger.info("vehicle_type: #{data[:vehicle_type].name}, property: #{data[:property].name}, model: #{data[:model].complete_name}, registration_model: #{data[:registration_model]}, dismissed: #{data[:dismissed].to_s}, vehicle_typology: #{data[:vehicle_typology].name}, mileage: #{data[:mileage]}, registration_date: #{data[:registration_date].strftime("%d/%m/%Y")}, vehicle_category: #{data[:vehicle_category].name}.")
+          mssql_reference_logger.info("vehicle_type: #{data[:vehicle_type].name}, property: #{data[:property].name}, model: #{data[:model].complete_name}, registration_model: #{data[:registration_model]}, dismissed: #{data[:dismissed].to_s}, vehicle_typology: #{data[:vehicle_typology].name}, mileage: #{data[:mileage]}, registration_date: #{data[:registration_date].nil? ? 'N/D' : data[:registration_date].strftime("%d/%m/%Y")}, vehicle_category: #{data[:vehicle_category].name}.")
           data[:response] += "tipo: #{data[:vehicle_type].name}, proprietà: #{data[:property].name}, modello: #{data[:model].complete_name}, modello libretto: #{data[:registration_model]}, dismesso: #{data[:dismissed].to_s}, tipologia: #{data[:vehicle_typology].name}, chilometraggio: #{data[:mileage]}, data immatricolazione: #{data[:registration_date].nil?? '' : data[:registration_date].strftime("%d/%m/%Y")}, categoria: #{data[:vehicle_category].name}.\n"
 
-          VehicleInformation.create(vehicle: v, vehicle_information_type: data[:chassis_info], information: r['chassis'].tr('. *-','').upcase, date: data[:registration_date]) unless r['chassis'].to_s == '' or r['chassis'].nil? or !update
+          VehicleInformation.create(vehicle: v,
+            vehicle_information_type: data[:chassis_info],
+            information: r['chassis'].to_s.tr('. *-','').upcase,
+            date: v.registration_date
+            ) unless r['chassis'].to_s == '' or r['chassis'].nil? or !update
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Chassis added -> #{r['chassis']} (id: #{v.id}).")
           data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunto telaio -> #{r['chassis']} (id: #{v.id}).\n"
 
@@ -170,9 +204,9 @@ module AdminHelper
           end
           unless v.has_property?( data[:property])
             if update
-              vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date)
+              vp = VehicleProperty.create(vehicle: v, owner: data[:property], date_since: v.registration_date.nil? ? DateTime.now : v.registration_date)
             else
-              vp = VehicleProperty.new(vehicle: v, owner: data[:property], date_since: v.registration_date)
+              vp = VehicleProperty.new(vehicle: v, owner: data[:property], date_since: v.registration_date.nil? ? DateTime.now : v.registration_date)
             end
             data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiunta proprietà: #{vp.owner.complete_name}.\n"
             mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Property added: #{vp.owner.complete_name} #{I18n.l vp.date_since}.")
@@ -385,8 +419,8 @@ module AdminHelper
 
           mssql_reference_logger.info(" - #{v.id} -> #{r['plate']} (#{r['id']}) - Updated (id: #{v.id}).")
           data[:response] += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Aggiornato (id: #{v.id}).\n"
-          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.type.nil?? '' : v.type.is_a?(String)? v.type : v.type.name}, owner: #{v.owner.nil?? '' : v.owner.name}, vehicle_typology: #{v.typology.nil?? '' : v.typology.is_a?(String)? v.typology :  v.typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.")
-          data[:response] += "Dashboard - tipo: #{v.type.nil?? '' : v.type.is_a?(String)? v.type :  v.type.name}, proprietà: #{v.owner.nil?? '' : v.owner.name}, tipologia: #{v.typology.nil?? '' : v.typology.is_a?(String)? v.typology :  v.typology.name}, id_veicolo: #{v.id_veicolo}, id_fornitore: #{v.id_fornitore}.\n"
+          mssql_reference_logger.info("Dashboard - vehicle_type: #{v.type.nil?? '' : v.type.is_a?(String)? v.type : v.type.name}, owner: #{v.owner.nil?? '' : v.owner.name}, vehicle_typology: #{v.typology.nil?? '' : v.typology.is_a?(String)? v.typology :  v.typology.name}.")
+          data[:response] += "Dashboard - tipo: #{v.type.nil?? '' : v.type.is_a?(String)? v.type :  v.type.name}, proprietà: #{v.owner.nil?? '' : v.owner.name}, tipologia: #{v.typology.nil?? '' : v.typology.is_a?(String)? v.typology :  v.typology.name}.\n"
           v.update(vehicle_type: data[:vehicle_type], owner: data[:owner], vehicle_typology: data[:vehicle_typology], id_veicolo: data[:idveicolo], id_fornitore: data[:idfornitore]) if update
           data[:response] += "Access - tipo: #{data[:vehicle_type].name}, proprietà: #{data[:owner].name}, tipologia: #{data[:vehicle_typology].name}, id_veicolo: #{data[:idveicolo]}, id_fornitore: #{data[:idfornitore]}.\n"
           mssql_reference_logger.info("Access - vehicle_type: #{data[:vehicle_type].name}, owner: #{data[:owner].name}, vehicle_typology: #{data[:vehicle_typology].name}, id_veicolo: #{data[:idveicolo]}, id_fornitore: #{data[:idfornitore]}.")
@@ -667,7 +701,13 @@ module AdminHelper
     end
     mileage = r['mileage'].to_i
     begin
-      registration_date = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
+      if r['registration_date'].is_a?(Date) || r['registration_date'].is_a?(DateTime) || r['registration_date'].is_a?(ActiveSupport::TimeWithZone)
+        registration_date = r['registration_date']
+      elsif r['registration_date'].is_a?(String)
+        registration_date = DateTime.parse(r['registration_date']) unless r['registration_date'].nil?
+      else
+        registration_date = nil
+      end
     rescue
       @error = " #{r['plate']} (#{r['id']}) - Invalid Registration date: #{r['registration_date']}"
       response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} #{r['plate']} (#{r['id']}) - Data immatricolazione non valida: #{r['registration_date']}</span>\n"

@@ -2,7 +2,7 @@ class Vehicle < ApplicationRecord
   include AdminHelper
   include ErrorHelper
   resourcify
-  after_create :log_creation
+  # after_create :log_creation
 
 
   # def self.carwash_codes

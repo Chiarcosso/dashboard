@@ -29,14 +29,50 @@ class MssqlReference < ApplicationRecord
     end
   end
 
-  def self.update_all
-    upsync_vehicles
-    upsync_trailers
-    upsync_other_vehicles
-    upsync_external_vehicles
-    upsync_employees
+  def self.update_all(update = true)
+    upsync_vehicles(update)
+    upsync_trailers(update)
+    upsync_other_vehicles(update)
+    upsync_external_vehicles(update)
+    upsync_employees(update)
+    upsync_containers(update)
     # upsync_companies
     # update_companies
+  end
+
+  def self.upsync_containers(update)
+    vbase = VehiclesController.helpers.get_vehicle_basis
+    begin
+      special_logger.info("Starting containers upsync") if update
+      @response = "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - Inizio importazione #{(update ? '' : '(simulata)')}\n"
+      client = get_client
+
+      @vehicles = Array.new
+      @errors = Array.new
+      response = ''
+      query = "select distinct '[Cassoni scarrabili]' as table_name, [n° cassone] as id, convert(nvarchar,[n° cassone]) as plate, [n° cassone] as chassis, "\
+                  "'Cassone scarrabile' as type, 'A' as property, 'Produttore cassoni' as manufacturer, "\
+                  "'Cassone' as model, 'Cassone' as registration_model, 0 as carwash_code, "\
+                  "circola as notdismissed, 'Scarrabile' as typology, 0 as mileage, '' as category, "\
+                  "[data verifica] as registration_date "\
+                  "from [Cassoni scarrabili] "\
+
+      list = client.execute(query)
+
+      special_logger.info("#{list.count} records found")
+      special_logger.info(query)
+      response += "#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - Trovati #{list.count} record nella tabella Veicoli, dove targa, marca, modello e ditta sono compilati.\n"
+      list.each do |r|
+        response += VehiclesController.helpers.create_vehicle_from_veicoli(r,update,vbase)
+      end
+    rescue Exception => e
+      ErrorMailer.error_report("#{e.message}\n#{e.backtrace}","Vehicles update")
+      special_logger.error("#{e.message}\n#{e.backtrace}")
+      response += "<span class=\"error-line\">#{DateTime.current.strftime("%d/%m/%Y %H:%M:%S")} - #{e.message}\n#{e.backtrace}</span>\n"
+
+    end
+
+    return {response: response, array: [] }
   end
 
   def self.upsync_companies(update)

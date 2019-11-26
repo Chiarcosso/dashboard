@@ -8,6 +8,11 @@ class AdminController < ApplicationController
   require "#{Rails.root}/app/models/mdc_webservice"
   include AdminHelper
 
+  def upsync_containers
+    res = MssqlReference::upsync_containers(params[:update]=='update')
+    render :json => { html: res[:response], element: '#block-cassoni-pre'}
+  end
+
   def upsync_other_vehicles
     res = MssqlReference::upsync_other_vehicles(params[:update]=='update')
     render :json => { html: res[:response], element: '#block-altri_mezzi-pre'}
